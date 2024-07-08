@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.request import Request
-from apps.user.serializers import LoginSerializer, UserSerializer
+from apps.user.serializers.user_serializers import LoginSerializer, UserDetailSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -11,6 +11,9 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from custom.permissions.permissions import IsSuperAdmin
+from apps.user.serializers.role_serializers import RoleSerializer
+from apps.user.models import Permission, Role
+from apps.user.serializers.permission_serializers import PermissionSerializer
 from .models import BaseUser
 
 
@@ -46,7 +49,7 @@ class TokenRefreshApiView(TokenRefreshView):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = BaseUser.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserDetailSerializer
     permission_classes = (permissions.IsAuthenticated,)
     filterset_fields = (
         "email",
@@ -76,7 +79,7 @@ class UserViewSet(viewsets.ModelViewSet):
     # ------------------------------------ API ----------------------------------- #
 
     def list(self, request, *args, **kwargs):
-        self.queryset = self.queryset.filter(status="active")
+        self.queryset = self.queryset.filter(meta_status="active")
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -123,3 +126,25 @@ class UserViewSet(viewsets.ModelViewSet):
         for user in users:
             user.delete()
         return Response({"status": "deleted", "message": "Users deleted!"})
+
+
+# ---------------------------------------------------------------------------- #
+#                                     ROLES                                    #
+# ---------------------------------------------------------------------------- #
+
+
+class RoleViewSet(viewsets.ModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+# ---------------------------------------------------------------------------- #
+#                                  PERMISSIONS                                 #
+# ---------------------------------------------------------------------------- #
+
+
+class PermissionViewSet(viewsets.ModelViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    permission_classes = (permissions.IsAuthenticated,)

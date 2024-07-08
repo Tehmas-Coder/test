@@ -36,12 +36,9 @@ class BaseUser(AbstractUser, BaseModel):
     first_name = models.CharField(_("first name"), max_length=30, blank=True)
     last_name = models.CharField(_("last name"), max_length=30, blank=True)
     password = models.CharField(_("password"), max_length=128, blank=True)
+    phone = models.CharField(_("phone"), max_length=15, blank=True)
 
-    GENDER_CHOICES = (
-        ("M", "Male"),
-        ("F", "Female"),
-        ("O", "Other"),
-    )
+    otp = models.CharField(_("otp"), max_length=6, blank=True)
 
     is_superuser = models.BooleanField(_("superuser"), default=False)
     is_staff = models.BooleanField(_("staff status"), default=True)
@@ -49,7 +46,10 @@ class BaseUser(AbstractUser, BaseModel):
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
+    is_verified = models.BooleanField(_("verified"), default=False)
     is_active = models.BooleanField(("active"), default=True)
+
+    roles = models.ManyToManyField("Role", related_name="users", blank=True)
 
     objects = CustomUserManager()
 
@@ -81,3 +81,18 @@ class BaseUser(AbstractUser, BaseModel):
     def delete(self, *args, **kwargs):
         self.is_active = False
         return super().delete(*args, **kwargs)
+
+
+class Role(BaseModel):
+    name = models.CharField(max_length=255)
+    permissions = models.ManyToManyField("Permission", related_name="roles", blank=True)
+
+    class Meta:
+        app_label = "user"
+
+
+class Permission(BaseModel):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        app_label = "user"

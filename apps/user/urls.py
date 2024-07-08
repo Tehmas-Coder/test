@@ -4,6 +4,8 @@ from django.urls import include
 from apps.user.views import (
     LoginApiView,
     LogoutApiView,
+    PermissionViewSet,
+    RoleViewSet,
     TokenRefreshApiView,
     UserViewSet,
 )
@@ -12,6 +14,8 @@ router = routers.DefaultRouter()
 
 
 router.register(r"users", UserViewSet)
+router.register(r"roles", RoleViewSet)
+router.register(r"permissions", PermissionViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

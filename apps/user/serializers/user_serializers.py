@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from rna_utils import debug_print
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.user.models import BaseUser
+from apps.user.serializers.role_serializers import RoleSerializer
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
+    roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = BaseUser
@@ -22,7 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
             "last_login",
             "created_at",
             "updated_at",
-            "status",
+            "meta_status",
+            "roles",
         ]
         read_only_fields = [
             "id",
