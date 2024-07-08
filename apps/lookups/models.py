@@ -5,6 +5,15 @@ from typing import TYPE_CHECKING
 # Create your models here.
 
 
+class Timezone(BaseModel):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255)
+    abbreviation = models.CharField(max_length=255)
+
+    class Meta:
+        app_label = "lookups"
+
+
 class Region(BaseModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
@@ -35,15 +44,32 @@ class Region(BaseModel):
 
 class Country(BaseModel):
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=255)
+    iso2_code = models.CharField(max_length=2)
+    iso3_code = models.CharField(max_length=3)
     abbreviation = models.CharField(max_length=255)
-    currency = models.ForeignKey(
+    lat = models.FloatField(null=True, blank=True)
+    lon = models.FloatField(null=True, blank=True)
+    dial_code = models.CharField(max_length=255, blank=True)
+    capital = models.CharField(max_length=255, blank=True)
+
+    timezones = models.ManyToManyField(
+        "lookups.Timezone",
+        related_name="countries",
+    )
+
+    currencies = models.ManyToManyField(
         "lookups.Currency",
         related_name="countries",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
     )
+
+    languages = models.ManyToManyField(
+        "lookups.Language",
+        related_name="countries",
+    )
+
+    flag = models.ImageField(upload_to="flags/", null=True, blank=True)
+
+    is_un_member = models.BooleanField(default=False)
 
     class Meta:
         app_label = "lookups"
@@ -52,22 +78,80 @@ class Country(BaseModel):
         return self.regions.all()  # type: ignore
 
     def add_region(self, region):
-        region.countries.add(self)
+        self.regions.add(region)  # type: ignore
 
-    def remove_region(self, region):
-        region.countries.remove(self)
+    def get_languages(self):
+        return self.languages.all()
 
-    def has_region(self, region):
-        return self.regions.filter(id=region.id).exists()  # type: ignore
+    def add_language(self, language):
+        self.languages.add(language)
 
-    def get_currency(self):
-        return self.currency
+    def get_currencies(self):
+        return self.currencies.all()
+
+    def add_currency(self, currency):
+        self.currencies.add(currency)
+
+    def get_timezones(self):
+        return self.timezones.all()
+
+    def add_timezone(self, timezone):
+        self.timezones.add(timezone)
+
+
+class State(BaseModel):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255)
+    abbreviation = models.CharField(max_length=255)
+    country = models.ForeignKey(
+        "lookups.Country",
+        related_name="states",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        app_label = "lookups"
+
+    def __str__(self):
+        return self.name
+
+
+class City(BaseModel):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255)
+    abbreviation = models.CharField(max_length=255)
+    state = models.ForeignKey(
+        "lookups.State",
+        related_name="cities",
+        on_delete=models.CASCADE,
+    )
+
+    is_capital = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = "lookups"
+
+    def __str__(self):
+        return self.name
+
+
+class Language(BaseModel):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255, unique=True)
+    abbreviation = models.CharField(max_length=10)
+
+    class Meta:
+        app_label = "lookups"
+
+    def __str__(self):
+        return self.name
 
 
 class Currency(BaseModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
+    symbol = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         app_label = "lookups"
