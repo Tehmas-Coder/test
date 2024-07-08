@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+from decouple import config
 import os
 import sys
 
@@ -17,7 +18,7 @@ def main():
         ) from exc
 
     if len(sys.argv) == 2 and sys.argv[1] == "runserver":
-        sys.argv.append("8005")
+        sys.argv.append(config("APP_PORT", default="8000"))  # type: ignore
 
     execute_from_command_line(sys.argv)
 
