@@ -1,5 +1,3 @@
-# management/commands/populate_models.py
-
 import pandas as pd
 import requests
 from django.core.management.base import BaseCommand

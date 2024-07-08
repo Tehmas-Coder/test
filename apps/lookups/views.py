@@ -1,12 +1,95 @@
 from rest_framework import viewsets
-from apps.lookups.serializers.country_serializer import CountrySerializer
-from apps.lookups.models import Country
+from apps.lookups.serializers.country_serializers import CountryDetailSerializer
+from apps.lookups.models import (
+    Country,
+    Currency,
+    Language,
+    MeasuringUnit,
+    MediaType,
+    Region,
+    State,
+    Tag,
+    Timezone,
+)
+from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
+from apps.lookups.serializers.region_serializers import (
+    RegionDetailSerializer,
+)
+from apps.lookups.serializers.state_serializers import StateSerializer
+from apps.lookups.serializers.language_serializers import LanguageSerializer
+from apps.lookups.serializers.currency_serializers import CurrencySerializer
+from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
+from apps.lookups.serializers.media_type_serializers import MediaTypeSerializer
+from apps.lookups.serializers.tag_serializers import TagSerializer
+from rest_framework.permissions import IsAuthenticated
+
+
+class TimezoneViewset(viewsets.ModelViewSet):
+    http_method_names = ["get"]
+    permission_classes = []
+    serializer_class = TimezoneSerializer
+    queryset = Timezone.objects.all()
+
+
+class RegionViewset(viewsets.ModelViewSet):
+    http_method_names = ["get"]
+    permission_classes = []
+    serializer_class = RegionDetailSerializer
+    queryset = Region.objects.all().prefetch_related("countries")
 
 
 class CountryViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
     permission_classes = []
-    serializer_class = CountrySerializer
+    serializer_class = CountryDetailSerializer
     queryset = Country.objects.all().prefetch_related(
-        "timezones", "currencies", "languages", "states", "states__cities"
+        "timezones", "currencies", "languages", "states"
     )
+
+
+class StateViewset(viewsets.ModelViewSet):
+    http_method_names = ["get"]
+    permission_classes = []
+    serializer_class = StateSerializer
+    queryset = State.objects.all()
+
+
+class LanguageViewset(viewsets.ModelViewSet):
+    http_method_names = ["get"]
+    permission_classes = []
+    serializer_class = LanguageSerializer
+    queryset = Language.objects.all()
+
+
+class CurrencyViewset(viewsets.ModelViewSet):
+    http_method_names = ["get"]
+    permission_classes = []
+    serializer_class = CurrencySerializer
+    queryset = Currency.objects.all()
+
+
+class MeasuringUnitViewset(viewsets.ModelViewSet):
+    http_method_names = ["get"]
+    permission_classes = []
+    serializer_class = MeasuringUnitSerializer
+    queryset = MeasuringUnit.objects.all()
+
+
+class MediaTypeViewset(viewsets.ModelViewSet):
+    http_method_names = ["get"]
+    permission_classes = []
+    serializer_class = MediaTypeSerializer
+    queryset = MediaType.objects.all()
+
+
+class TagViewset(viewsets.ModelViewSet):
+    permission_classes = []
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
+
+    def get_permissions(self):
+        if self.action not in ["list", "retrieve"]:
+            self.permission_classes = [
+                IsAuthenticated,
+            ]
+        return super().get_permissions()
