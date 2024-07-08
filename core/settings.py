@@ -18,7 +18,6 @@ import os
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM SETTINGS                               #
 # ---------------------------------------------------------------------------- #
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_ROOT = BASE_DIR / "static"
@@ -146,6 +145,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_filters",
+    # * System
+    "apps.lookups",
     "apps.user",
 ]
 if DEBUG:
@@ -251,3 +252,11 @@ DATABASES = {
         # "ATOMIC_REQUESTS": True,
     }
 }
+
+# ---------------------------------------------------------------------------- #
+#                                   FIXTURES                                   #
+# ---------------------------------------------------------------------------- #
+FIXTURE_DIRS = [
+    BASE_DIR / "apps" / "lookups" / "seeds",
+    BASE_DIR / "apps" / "user" / "seeds",
+]

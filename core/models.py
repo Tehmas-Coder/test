@@ -8,11 +8,13 @@ hashids = Hashids(min_length=8, salt="your_salt_here")
 class BaseModel(models.Model):
     id = models.CharField(max_length=32, primary_key=True, editable=False)
 
+    description = models.TextField(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.CharField(max_length=32, blank=True)
+    created_by = models.CharField(max_length=32, default="system")
 
     updated_at = models.DateTimeField(auto_now=True)
-    updated_by = models.CharField(max_length=32, blank=True)
+    updated_by = models.CharField(max_length=32, default="system")
 
     STATUS_CHOICES = (
         ("active", "Active"),
