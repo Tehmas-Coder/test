@@ -151,7 +151,7 @@ class Currency(BaseModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
-    symbol = models.CharField(max_length=255, blank=True, null=True)
+    symbol = models.CharField(max_length=255, blank=True)
 
     class Meta:
         app_label = "lookups"

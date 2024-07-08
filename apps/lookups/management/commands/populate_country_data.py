@@ -1,3 +1,5 @@
+# management/commands/populate_models.py
+
 import pandas as pd
 import requests
 from django.core.management.base import BaseCommand
@@ -25,25 +27,44 @@ class Command(BaseCommand):
             languages_cache = {}
             timezones_cache = {}
 
+            # Read CSV files
+            states_csv_path = "data/states.csv"
+            countries_csv_path = "data/countries.csv"
+
+            try:
+                states_df = pd.read_csv(states_csv_path)
+                countries_df = pd.read_csv(countries_csv_path)
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Error reading CSV files: {e}"))
+                return
+
+            # Create a dictionary from countries.csv for quick lookup
+            countries_csv_dict = countries_df.set_index("iso2").to_dict(orient="index")
+
             # Populate countries from API data
             for country_data in countries_data:
+                country_iso2 = country_data["cca2"]
+                csv_country_data = countries_csv_dict.get(country_iso2, {})
+
                 # Populate currency
-                currency_data = country_data.get("currencies")
+                currency_code = csv_country_data.get("currency", "")
+                currency_name = csv_country_data.get("currency_name", "")
+                currency_symbol = csv_country_data.get("currency_symbol", "")
+
                 currency = None
-                if currency_data:
-                    for currency_code, details in currency_data.items():
-                        if currency_code not in currencies_cache:
-                            currency, created = Currency.objects.get_or_create(
-                                code=currency_code,
-                                defaults={
-                                    "name": details.get("name", currency_code),
-                                    "abbreviation": currency_code,
-                                    "symbol": details.get("symbol", ""),
-                                },
-                            )
-                            currencies_cache[currency_code] = currency
-                        else:
-                            currency = currencies_cache[currency_code]
+                if currency_code:
+                    if currency_code not in currencies_cache:
+                        currency, created = Currency.objects.get_or_create(
+                            code=currency_code,
+                            defaults={
+                                "name": currency_name or currency_code,
+                                "abbreviation": currency_code,
+                                "symbol": currency_symbol,
+                            },
+                        )
+                        currencies_cache[currency_code] = currency
+                    else:
+                        currency = currencies_cache[currency_code]
 
                 # Populate country
                 country, created = Country.objects.get_or_create(
@@ -56,7 +77,9 @@ class Command(BaseCommand):
                         "lon": country_data.get("latlng", [None])[1],
                         "dial_code": country_data.get("idd", {}).get("root", "")
                         + (country_data.get("idd", {}).get("suffixes", [""])[0]),
-                        "capital": country_data.get("capital", [""])[0],
+                        "capital": csv_country_data.get(
+                            "capital", country_data.get("capital", [""])[0]
+                        ),
                         "is_un_member": country_data.get("unMember", False),
                         "flag": country_data.get("flags", {}).get("svg", ""),
                     },
@@ -143,16 +166,6 @@ class Command(BaseCommand):
                         )
 
             # Populate states from CSV files
-            states_csv_path = "data/states.csv"
-            countries_csv_path = "data/countries.csv"
-
-            try:
-                states_df = pd.read_csv(states_csv_path)
-                countries_df = pd.read_csv(countries_csv_path)
-            except Exception as e:
-                self.stdout.write(self.style.ERROR(f"Error reading CSV files: {e}"))
-                return
-
             for _, state_row in states_df.iterrows():
                 country_code = state_row["country_code"]
                 country = Country.objects.filter(iso2_code=country_code).first()
@@ -172,20 +185,6 @@ class Command(BaseCommand):
                     else:
                         self.stdout.write(
                             self.style.WARNING(f'State "{state.name}" already exists')
-                        )
-
-            # Update capital information for countries from countries.csv
-            for _, country_row in countries_df.iterrows():
-                country = Country.objects.filter(iso2_code=country_row["iso2"]).first()
-                if country:
-                    capital_name = country_row["capital"]
-                    if capital_name:
-                        country.capital = capital_name
-                        country.save()
-                        self.stdout.write(
-                            self.style.SUCCESS(
-                                f'Updated capital for country "{country.name}"'
-                            )
                         )
 
         self.stdout.write(self.style.SUCCESS("Finished populating models"))

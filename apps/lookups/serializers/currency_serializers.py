@@ -5,8 +5,4 @@ from apps.lookups.models import Currency
 class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = Currency
-        fields = [
-            "id",
-            "name",
-            "code",
-        ]
+        fields = ["id", "name", "code", "symbol"]
