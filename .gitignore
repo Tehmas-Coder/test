@@ -3,7 +3,6 @@ venv
 .env.local
 .env.dev
 __pycache__
-migrations
 .vscode
 allstatic
 my_lab.py

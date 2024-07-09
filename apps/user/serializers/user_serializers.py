@@ -16,6 +16,7 @@ class UserDetailSerializer(BaseModelSerializer):
             "first_name",
             "last_name",
             "full_name",
+            "date_of_birth",
             "roles",
             "password",
             "is_active",

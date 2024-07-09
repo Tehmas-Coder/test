@@ -2,13 +2,11 @@ from typing import Any
 from django.db import models
 
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from django.db import models
 from core.models import BaseModel
-
-DEFAULT_TOKEN_STOCK = 1000
+from datetime import date
 
 
 class CustomUserManager(UserManager):
@@ -37,8 +35,10 @@ class BaseUser(AbstractUser, BaseModel):
     last_name = models.CharField(_("last name"), max_length=30, blank=True)
     password = models.CharField(_("password"), max_length=128, blank=True)
     phone = models.CharField(_("phone"), max_length=15, blank=True)
+    date_of_birth = models.DateField(_("date of birth"), blank=True, null=True)
 
     otp = models.CharField(_("otp"), max_length=6, blank=True)
+    is_verified = models.BooleanField(_("verified"), default=False)
 
     is_superuser = models.BooleanField(_("superuser"), default=False)
     is_staff = models.BooleanField(_("staff status"), default=True)
@@ -46,7 +46,6 @@ class BaseUser(AbstractUser, BaseModel):
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
-    is_verified = models.BooleanField(_("verified"), default=False)
     is_active = models.BooleanField(("active"), default=True)
 
     roles = models.ManyToManyField("Role", related_name="users", blank=True)
@@ -65,6 +64,20 @@ class BaseUser(AbstractUser, BaseModel):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def age(self):
+        if self.date_of_birth:
+            today = date.today()
+            return (
+                today.year
+                - self.date_of_birth.year
+                - (
+                    (today.month, today.day)
+                    < (self.date_of_birth.month, self.date_of_birth.day)
+                )
+            )
+        return None
 
     @classmethod
     def get_user_by_email(cls, email: str):
