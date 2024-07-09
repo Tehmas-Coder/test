@@ -15,6 +15,7 @@ from apps.user.serializers.role_serializers import RoleSerializer
 from apps.user.models import Permission, Role
 from apps.user.serializers.permission_serializers import PermissionSerializer
 from rna_utils import debug_print
+from apps.user.filters.user_filter import UserFilter
 from .models import BaseUser
 
 
@@ -52,12 +53,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = BaseUser.objects.all()
     serializer_class = UserDetailSerializer
     permission_classes = (permissions.IsAuthenticated,)
-    filterset_fields = (
-        "email",
-        "is_active",
-        "is_staff",
-        "is_superuser",
-    )
+    filterset_class = UserFilter
     USER_NOT_FOUND = {"error": "User not found"}
     USER_STATUSES = ["active", "inactive", "deleted"]
 
