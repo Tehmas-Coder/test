@@ -48,6 +48,10 @@ class BaseUser(AbstractUser, BaseModel):
 
     is_active = models.BooleanField(("active"), default=True)
 
+    country = models.ForeignKey(
+        "lookups.Country", on_delete=models.SET_NULL, null=True, blank=True
+    )
+
     roles = models.ManyToManyField("Role", related_name="users", blank=True)
 
     objects = CustomUserManager()

@@ -11,6 +11,7 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "permissions",
             "created_by",
             "updated_by",
             "created_at",

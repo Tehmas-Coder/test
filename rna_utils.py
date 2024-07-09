@@ -2,7 +2,7 @@ import json
 import inspect
 import json
 from typing import Any, Type
-
+import random
 import threading
 from django.db.models.base import Model
 from rest_framework.response import Response
@@ -254,3 +254,10 @@ def debug_print(
         color_print(f"{var_name} = {jsonify(data)}", "OKCYAN")
     if color == "purple":
         color_print(f"{var_name} = {jsonify(data)}", "HEADER")
+
+
+def generate_otp() -> str:
+    """
+    Generate a random 4 digit OTP
+    """
+    return str(random.randint(1000, 9999))

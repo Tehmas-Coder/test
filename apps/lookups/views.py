@@ -1,5 +1,8 @@
 from rest_framework import viewsets
-from apps.lookups.serializers.country_serializers import CountryDetailSerializer
+from apps.lookups.serializers.country_serializers import (
+    CountryDetailSerializer,
+    CountrySerializer,
+)
 from apps.lookups.models import (
     Country,
     Currency,
@@ -43,8 +46,13 @@ class CountryViewset(viewsets.ModelViewSet):
     permission_classes = []
     serializer_class = CountryDetailSerializer
     queryset = Country.objects.all().prefetch_related(
-        "timezones", "currencies", "languages", "states"
+        "timezones", "currencies", "languages", "states", "states__cities"
     )
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action == "list":
+            return CountrySerializer(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
 
 
 class StateViewset(viewsets.ModelViewSet):

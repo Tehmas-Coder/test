@@ -2,10 +2,54 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.user.models import BaseUser
 from apps.user.serializers.role_serializers import RoleSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from rna_utils import debug_print
+from rna_utils import debug_print, generate_otp
+from apps.lookups.serializers.country_serializers import CountrySerializer
 
 
 class UserDetailSerializer(BaseModelSerializer):
+    roles = RoleSerializer(many=True, read_only=True)
+    country = CountrySerializer(read_only=True)
+
+    class Meta:
+        model = BaseUser
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "full_name",
+            "date_of_birth",
+            "roles",
+            "country",
+            "is_active",
+            "phone",
+            "is_verified",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+            "last_login",
+        ] + get_base_model_fields()
+
+        read_only_fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "full_name",
+            "date_of_birth",
+            "roles",
+            "country",
+            "is_active",
+            "phone",
+            "is_verified",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+            "last_login",
+        ]
+
+
+class UserEditSerializer(BaseModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
@@ -18,6 +62,7 @@ class UserDetailSerializer(BaseModelSerializer):
             "full_name",
             "date_of_birth",
             "roles",
+            "country",
             "password",
             "is_active",
             "phone",
@@ -44,21 +89,18 @@ class UserDetailSerializer(BaseModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
-
+        validated_data["otp"] = generate_otp()
         user = BaseUser.objects.create(**validated_data)
         user.set_password(validated_data["password"])
         user.save()
         return user
 
     def update(self, instance, validated_data):
-        debug_print(validated_data)
-        for attr, value in validated_data.items():
-            if attr == "password":
-                instance.set_password(value)
-            else:
-                setattr(instance, attr, value)
+        password = validated_data.pop("password", None)
+        if password:
+            instance.set_password(password)
         instance.save()
-        return instance
+        return super().update(instance, validated_data)
 
 
 class LoginSerializer(TokenObtainPairSerializer):
