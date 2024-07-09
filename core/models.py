@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from hashids import Hashids
+from decouple import config
 
 hashids = Hashids(min_length=8, salt="your_salt_here")
 
@@ -29,7 +30,7 @@ class BaseModel(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.id and config("ENABLE_ID_HASHING", default=False, cast=bool):
             uuid_hex = uuid.uuid4().hex
             self.id = hashids.encode(int(uuid_hex, 16))
         super().save(*args, **kwargs)
