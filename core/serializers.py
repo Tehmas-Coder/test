@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rna_utils import color_print, debug_print
 
 
 def get_base_model_fields() -> list[str]:
