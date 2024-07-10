@@ -1,6 +1,6 @@
 [
     {
-        "model": "question_bank.Subject",
+        "model": "questionbank.Subject",
         "pk": 1,
         "fields": {
             "name": "Mathematics",
@@ -12,7 +12,7 @@
         }
     },
     {
-        "model": "question_bank.Subject",
+        "model": "questionbank.Subject",
         "pk": 2,
         "fields": {
             "name": "Physics",
@@ -24,7 +24,7 @@
         }
     },
     {
-        "model": "question_bank.Subject",
+        "model": "questionbank.Subject",
         "pk": 3,
         "fields": {
             "name": "Biology",
@@ -36,7 +36,7 @@
         }
     },
     {
-        "model": "question_bank.Subject",
+        "model": "questionbank.Subject",
         "pk": 4,
         "fields": {
             "name": "English",

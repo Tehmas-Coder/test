@@ -1,5 +1,5 @@
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.question_bank.models import Question
+from apps.questionbank.models import Question
 
 
 class QuestionSerializer(BaseModelSerializer):

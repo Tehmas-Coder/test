@@ -1,6 +1,6 @@
 [
     {
-        "model": "question_bank.EducationLevel",
+        "model": "questionbank.EducationLevel",
         "pk": 1,
         "fields": {
             "name": "Primary",
@@ -12,7 +12,7 @@
         }
     },
     {
-        "model": "question_bank.EducationLevel",
+        "model": "questionbank.EducationLevel",
         "pk": 2,
         "fields": {
             "name": "Secondary",
@@ -24,7 +24,7 @@
         }
     },
     {
-        "model": "question_bank.EducationLevel",
+        "model": "questionbank.EducationLevel",
         "pk": 3,
         "fields": {
             "name": "High School",
@@ -36,7 +36,7 @@
         }
     },
     {
-        "model": "question_bank.EducationLevel",
+        "model": "questionbank.EducationLevel",
         "pk": 4,
         "fields": {
             "name": "Bachelor's",

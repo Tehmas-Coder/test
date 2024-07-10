@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from apps.question_bank.models import Question
-from apps.question_bank.serializers.question_serializers import QuestionSerializer
+from apps.questionbank.models import Question
+from apps.questionbank.serializers.question_serializers import QuestionSerializer
 
 
 class QuestionViewSet(viewsets.ModelViewSet):

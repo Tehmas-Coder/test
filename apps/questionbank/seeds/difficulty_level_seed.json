@@ -1,6 +1,6 @@
 [
     {
-        "model": "question_bank.DifficultyLevel",
+        "model": "questionbank.DifficultyLevel",
         "pk": 1,
         "fields": {
             "name": "Easy",
@@ -12,7 +12,7 @@
         }
     },
     {
-        "model": "question_bank.DifficultyLevel",
+        "model": "questionbank.DifficultyLevel",
         "pk": 2,
         "fields": {
             "name": "Medium",
@@ -24,7 +24,7 @@
         }
     },
     {
-        "model": "question_bank.DifficultyLevel",
+        "model": "questionbank.DifficultyLevel",
         "pk": 3,
         "fields": {
             "name": "Hard",
