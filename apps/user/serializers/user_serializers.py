@@ -2,8 +2,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.user.models import BaseUser
 from apps.user.serializers.role_serializers import RoleSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from rna_utils import debug_print, generate_otp
+from utils.rna_utils import color_print, debug_print, generate_otp
 from apps.lookups.serializers.country_serializers import CountrySerializer
+from utils.email_utils import send_verification_link_or_otp_to_email
+from django.forms.models import model_to_dict
+from django.db import transaction
+from rest_framework import serializers
 
 
 class UserDetailSerializer(BaseModelSerializer):
@@ -76,7 +80,6 @@ class UserEditSerializer(BaseModelSerializer):
         read_only_fields = [
             "id",
             "full_name",
-            "email",
             "created_at",
             "is_verified",
             "updated_at",
@@ -88,14 +91,23 @@ class UserEditSerializer(BaseModelSerializer):
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
+    @transaction.atomic
     def create(self, validated_data):
-        validated_data["otp"] = generate_otp()
         user = BaseUser.objects.create(**validated_data)
         user.set_password(validated_data["password"])
         user.save()
+
+        if not user.send_otp():
+            transaction.set_rollback(True)
+            raise serializers.ValidationError(
+                {"error": "Failed to send email, please try again"}
+            )
+
+        color_print("OTP sent to email", "green")
         return user
 
     def update(self, instance, validated_data):
+        validated_data.pop("email", None)
         password = validated_data.pop("password", None)
         if password:
             instance.set_password(password)

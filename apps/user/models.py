@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from core.models import BaseModel
 from datetime import date
+from utils.email_utils import send_verification_link_or_otp_to_email
+from utils.rna_utils import debug_print, generate_otp
 
 
 class CustomUserManager(UserManager):
@@ -98,6 +100,39 @@ class BaseUser(AbstractUser, BaseModel):
     def delete(self, *args, **kwargs):
         self.is_active = False
         return super().delete(*args, **kwargs)
+
+    def verify_otp(self, otp: str) -> bool:
+        if self.otp != otp:
+            return False
+
+        self.is_verified = True
+        self.otp = ""
+        self.save()
+        return True
+
+    def send_otp(self, otp: str | None = None) -> bool:
+
+        if self.is_verified:
+            return False
+
+        if not otp:
+
+            otp = generate_otp()
+
+        if not send_verification_link_or_otp_to_email(
+            {
+                "first_name": self.first_name,
+                "last_name": self.last_name,
+                "email": self.email,
+                "otp": otp,
+            },
+            send_otp=True,
+        ):
+            return False
+
+        self.otp = otp
+        self.save()
+        return True
 
 
 class Role(BaseModel):

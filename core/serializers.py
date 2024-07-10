@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import AnonymousUser
 
 
 def get_base_model_fields() -> list[str]:
@@ -28,13 +29,23 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
     def set_user_fields(self, data):
         request = self.context.get("request", None)
-        if request and hasattr(request, "user"):
-            if not self.instance:  # If it's a creation
+
+        if (
+            request
+            and hasattr(request, "user")
+            and not isinstance(request.user, AnonymousUser)
+        ):
+            if not self.instance:
                 data["created_by"] = request.user.full_name
+
             data["updated_by"] = request.user.full_name
+
         else:
-            data["created_by"] = "system"
+            if not self.instance:
+                data["created_by"] = "system"
+
             data["updated_by"] = "system"
+
         return data
 
     def validate(self, attrs):
