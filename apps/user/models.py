@@ -114,9 +114,7 @@ class BaseUser(AbstractUser, BaseModel):
 
         if self.is_verified:
             return False
-
         if not otp:
-
             otp = generate_otp()
 
         if not send_verification_link_or_otp_to_email(
@@ -133,6 +131,10 @@ class BaseUser(AbstractUser, BaseModel):
         self.otp = otp
         self.save()
         return True
+
+    def add_role(self, role):
+        self.roles.add(role)
+        self.save()
 
 
 class Role(BaseModel):
