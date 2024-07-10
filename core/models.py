@@ -32,6 +32,13 @@ class BaseModel(models.Model):
         if not self.id:
             uuid_hex = uuid.uuid4().hex
             self.id = hashids.encode(int(uuid_hex, 16))
+
+        if not self.created_by:
+            self.created_by = "system"
+
+        if not self.updated_by:
+            self.updated_by = "system"
+
         super().save(*args, **kwargs)
 
     @property

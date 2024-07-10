@@ -32,6 +32,9 @@ class BaseModelSerializer(serializers.ModelSerializer):
             if not self.instance:  # If it's a creation
                 data["created_by"] = request.user.full_name
             data["updated_by"] = request.user.full_name
+        else:
+            data["created_by"] = "system"
+            data["updated_by"] = "system"
         return data
 
     def validate(self, attrs):
