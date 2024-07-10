@@ -16,7 +16,7 @@ from rest_framework_simplejwt.views import (
 )
 from custom.permissions.permissions import IsSuperAdmin
 from apps.user.serializers.role_serializers import RoleSerializer
-from apps.user.models import Permission, Role
+from apps.user.models import Permission, Resource, Role
 from apps.user.serializers.permission_serializers import PermissionSerializer
 from utils.rna_utils import (
     debug_print,
@@ -25,6 +25,7 @@ from utils.rna_utils import (
     make_success_response,
 )
 from apps.user.filters.user_filter import UserFilter
+from apps.user.serializers.resource_serializers import ResourceSerializer
 from .models import BaseUser
 
 
@@ -193,4 +194,15 @@ class RoleViewSet(viewsets.ModelViewSet):
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+# ---------------------------------------------------------------------------- #
+#                                   RESOURCES                                  #
+# ---------------------------------------------------------------------------- #
+
+
+class ResourceViewSet(viewsets.ModelViewSet):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
     permission_classes = (permissions.IsAuthenticated,)

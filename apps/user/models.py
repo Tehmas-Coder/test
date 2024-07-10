@@ -137,9 +137,21 @@ class BaseUser(AbstractUser, BaseModel):
         self.save()
 
 
+# ---------------------------------------------------------------------------- #
+#                                  PERMISSIONS                                 #
+# ---------------------------------------------------------------------------- #
 class Role(BaseModel):
     name = models.CharField(max_length=255)
     permissions = models.ManyToManyField("Permission", related_name="roles", blank=True)
+
+    class Meta:
+        app_label = "user"
+
+
+class Resource(BaseModel):
+    name = models.CharField(max_length=255)
+    regex = models.CharField(max_length=255)
+    method = models.CharField(max_length=255)
 
     class Meta:
         app_label = "user"

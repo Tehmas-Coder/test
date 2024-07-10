@@ -5,6 +5,7 @@ from apps.user.views import (
     LoginApiView,
     LogoutApiView,
     PermissionViewSet,
+    ResourceViewSet,
     RoleViewSet,
     TokenRefreshApiView,
     UserViewSet,
@@ -16,6 +17,7 @@ router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
 router.register(r"roles", RoleViewSet)
 router.register(r"permissions", PermissionViewSet)
+router.register(r"resources", ResourceViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
