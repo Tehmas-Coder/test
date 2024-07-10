@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     # * System
     "apps.lookups",
     "apps.user",
+    "apps.question_bank",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -261,4 +262,5 @@ DATABASES = {
 FIXTURE_DIRS = [
     BASE_DIR / "apps" / "lookups" / "seeds",
     BASE_DIR / "apps" / "user" / "seeds",
+    BASE_DIR / "apps" / "question_bank" / "seeds",
 ]

@@ -1,0 +1,162 @@
+[
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 1,
+        "fields": {
+            "subject_id": "1",
+            "education_level_id": "1",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 2,
+        "fields": {
+            "subject_id": "1",
+            "education_level_id": "2",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 3,
+        "fields": {
+            "subject_id": "1",
+            "education_level_id": "3",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 4,
+        "fields": {
+            "subject_id": "1",
+            "education_level_id": "4",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 5,
+        "fields": {
+            "subject_id": "2",
+            "education_level_id": "1",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 6,
+        "fields": {
+            "subject_id": "2",
+            "education_level_id": "2",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 7,
+        "fields": {
+            "subject_id": "2",
+            "education_level_id": "3",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 8,
+        "fields": {
+            "subject_id": "2",
+            "education_level_id": "4",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 9,
+        "fields": {
+            "subject_id": "3",
+            "education_level_id": "1",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 10,
+        "fields": {
+            "subject_id": "3",
+            "education_level_id": "2",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 11,
+        "fields": {
+            "subject_id": "3",
+            "education_level_id": "3",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 12,
+        "fields": {
+            "subject_id": "3",
+            "education_level_id": "4",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 13,
+        "fields": {
+            "subject_id": "4",
+            "education_level_id": "1",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 14,
+        "fields": {
+            "subject_id": "4",
+            "education_level_id": "2",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 15,
+        "fields": {
+            "subject_id": "4",
+            "education_level_id": "3",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    },
+    {
+        "model": "question_bank.SubjectEducationLevel",
+        "pk": 16,
+        "fields": {
+            "subject_id": "4",
+            "education_level_id": "4",
+            "created_at": "1995-07-27",
+            "updated_at": "1995-07-27"
+        }
+    }
+]

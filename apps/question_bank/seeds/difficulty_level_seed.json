@@ -1,0 +1,38 @@
+[
+    {
+        "model": "question_bank.DifficultyLevel",
+        "pk": 1,
+        "fields": {
+            "name": "Easy",
+            "code": "E",
+            "slug": "easy",
+            "sequence": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "question_bank.DifficultyLevel",
+        "pk": 2,
+        "fields": {
+            "name": "Medium",
+            "code": "M",
+            "slug": "medium",
+            "sequence": 2,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "question_bank.DifficultyLevel",
+        "pk": 3,
+        "fields": {
+            "name": "Hard",
+            "code": "H",
+            "slug": "hard",
+            "sequence": 3,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

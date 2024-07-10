@@ -19,8 +19,6 @@ from apps.user.serializers.role_serializers import RoleSerializer
 from apps.user.models import Permission, Resource, Role
 from apps.user.serializers.permission_serializers import PermissionSerializer
 from utils.rna_utils import (
-    debug_print,
-    generate_otp,
     make_error_response,
     make_success_response,
 )
