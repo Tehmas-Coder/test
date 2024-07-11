@@ -26,7 +26,7 @@ class CustomUserManager(UserManager):
         return super().create_superuser(username, email, password, **extra_fields)
 
 
-class BaseUser(AbstractUser, BaseModel):
+class BaseUser(BaseModel, AbstractUser):
     """
     Custom user model where email is the unique identifier, inhertied from abstract user provided by auth
     """
@@ -47,8 +47,6 @@ class BaseUser(AbstractUser, BaseModel):
 
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
-
-    is_active = models.BooleanField(("active"), default=True)
 
     country = models.ForeignKey(
         "lookups.Country", on_delete=models.SET_NULL, null=True, blank=True
@@ -90,15 +88,12 @@ class BaseUser(AbstractUser, BaseModel):
         return cls.objects.filter(email=email).first()
 
     def activate(self, *args, **kwargs):
-        self.is_active = True
         return super().activate(*args, **kwargs)
 
     def deactivate(self, *args, **kwargs):
-        self.is_active = False
         return super().deactivate(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        self.is_active = False
         return super().delete(*args, **kwargs)
 
     def verify_otp(self, otp: str) -> bool:

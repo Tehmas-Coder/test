@@ -2,10 +2,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.user.models import BaseUser
 from apps.user.serializers.role_serializers import RoleSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print, debug_print, generate_otp
+from utils.rna_utils import color_print
 from apps.lookups.serializers.country_serializers import CountrySerializer
-from utils.email_utils import send_verification_link_or_otp_to_email
-from django.forms.models import model_to_dict
 from django.db import transaction
 from rest_framework import serializers
 
@@ -25,7 +23,6 @@ class UserDetailSerializer(BaseModelSerializer):
             "date_of_birth",
             "roles",
             "country",
-            "is_active",
             "phone",
             "is_verified",
             "is_staff",
@@ -43,7 +40,6 @@ class UserDetailSerializer(BaseModelSerializer):
             "date_of_birth",
             "roles",
             "country",
-            "is_active",
             "phone",
             "is_verified",
             "is_staff",
@@ -68,7 +64,6 @@ class UserEditSerializer(BaseModelSerializer):
             "roles",
             "country",
             "password",
-            "is_active",
             "phone",
             "is_verified",
             "is_staff",
@@ -83,7 +78,6 @@ class UserEditSerializer(BaseModelSerializer):
             "created_at",
             "is_verified",
             "updated_at",
-            "is_active",
             "is_staff",
             "is_superuser",
             "date_joined",

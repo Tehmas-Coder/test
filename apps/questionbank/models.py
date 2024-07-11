@@ -147,7 +147,6 @@ class SubjectEducationLevel(BaseModel):
 
     class Meta:
         app_label = "questionbank"
-        unique_together = ("subject", "education_level")
 
 
 class QuestionSubject(BaseModel):
@@ -179,4 +178,3 @@ class QuestionSubjectCountry(BaseModel):
 
     class Meta:
         app_label = "questionbank"
-        unique_together = ("question_subject", "country")

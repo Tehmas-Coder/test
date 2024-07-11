@@ -80,7 +80,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def get_permissions(self):
-        if self.action == "create":
+        if self.action in ["create", "verify_otp", "resend_otp"]:
             return (AllowAny(),)
         elif self.action in [
             "restore",
