@@ -110,7 +110,9 @@ class QuestionChoice(BaseModel):
 
 
 class QuestionAttemptResponse(BaseModel):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="attempts_responses"
+    )
     text = models.TextField()
 
     TYPE_CHOICES = (
@@ -128,7 +130,9 @@ class QuestionAttemptResponse(BaseModel):
 
 
 class QuestionRetryHint(BaseModel):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="retry_hints"
+    )
     text = models.TextField()
     has_media = models.BooleanField(default=False)
 
@@ -142,7 +146,10 @@ class QuestionRetryHint(BaseModel):
 
 
 class SubjectEducationLevel(BaseModel):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+    )
     education_level = models.ForeignKey(EducationLevel, on_delete=models.CASCADE)
 
     class Meta:
@@ -150,9 +157,13 @@ class SubjectEducationLevel(BaseModel):
 
 
 class QuestionSubject(BaseModel):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="subjects"
+    )
     subject_education_level = models.ForeignKey(
-        SubjectEducationLevel, on_delete=models.CASCADE
+        SubjectEducationLevel,
+        on_delete=models.CASCADE,
+        related_name="question_subjects",
     )
     difficulty_level = models.ForeignKey(DifficultyLevel, on_delete=models.CASCADE)
     measuring_unit = models.ForeignKey(

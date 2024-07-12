@@ -10,6 +10,10 @@ from apps.questionbank.serializers.subject_education_level_serializers import (
 from rest_framework import serializers
 from apps.lookups.models import Country, MeasuringUnit
 from utils.rna_utils import debug_print
+from apps.questionbank.serializers.education_level_serializers import (
+    EducationLevelSerializer,
+)
+from apps.lookups.serializers.country_serializers import CountrySerializer
 
 
 class QuestionSubjectListSerializer(BaseModelSerializer):
@@ -22,12 +26,17 @@ class QuestionSubjectListSerializer(BaseModelSerializer):
 
 
 class QuestionSubjectDetailSerializer(BaseModelSerializer):
+    name = serializers.CharField(source="subject_education_level.subject.name")
+    education_level = serializers.SerializerMethodField()
+    countries = CountrySerializer(many=True)
+
     class Meta:
         model = QuestionSubject
         fields = [
             "id",
+            "name",
             "question",
-            "subject_education_level",
+            "education_level",
             "difficulty_level",
             "measuring_unit",
             "countries",
@@ -36,6 +45,9 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
             "is_optional",
             "is_global",
         ] + get_base_model_fields()
+
+    def get_education_level(self, obj):
+        return obj.subject_education_level.education_level.name
 
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):

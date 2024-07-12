@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from apps.questionbank.models import (
     EducationLevel,
     Question,
+    QuestionSubject,
     Subject,
     SubjectEducationLevel,
 )
@@ -19,6 +20,7 @@ from apps.questionbank.serializers.education_level_serializers import (
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from django.db.models import Prefetch
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -37,7 +39,22 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all()
+    queryset = Question.objects.all().prefetch_related(
+        "tags",
+        "choices",
+        "attempts_responses",
+        "retry_hints",
+        Prefetch(
+            "subjects",
+            queryset=QuestionSubject.objects.select_related(
+                "subject_education_level",
+                "difficulty_level",
+                "measuring_unit",
+                "subject_education_level__subject",
+                "subject_education_level__education_level",
+            ).prefetch_related("countries"),
+        ),
+    )
     serializer_class = QuestionDetailSerializer
 
     def get_serializer(self, *args, **kwargs):

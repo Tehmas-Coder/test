@@ -7,13 +7,14 @@ from apps.questionbank.serializers.subject_education_level_serializers import (
 from apps.lookups.serializers.tag_serializers import TagSerializer
 from apps.lookups.models import Tag
 from apps.questionbank.serializers.question_subject_serializers import (
+    QuestionSubjectDetailSerializer,
     QuestionSubjectEditSerializer,
 )
 from utils.rna_utils import debug_print
 
 
 class QuestionDetailSerializer(BaseModelSerializer):
-    subject_education_levels = SubjectEducationLevelDetailSerializer(many=True)
+    subjects = QuestionSubjectDetailSerializer(many=True)
     tags = TagSerializer(many=True)
 
     class Meta:
@@ -22,7 +23,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
             "id",
             "title",
             "text",
-            "subject_education_levels",
+            "subjects",
             "tags",
             "max_retries",
             "retry_penalty",
@@ -52,7 +53,6 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def create(self, validated_data):
-        debug_print(validated_data)
 
         question_subjects_data = validated_data.pop("question_subjects")
         tags_data = validated_data.pop("tags")
@@ -73,7 +73,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
                 subject_education_level=subject_education_level,
                 **question_subject_data,
             )
-            # question_subject.countries.set(question_subject_countries)
+            question_subject.countries.set(question_subject_countries)
 
         question.tags.set(tags_data)
         return question
