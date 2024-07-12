@@ -13,8 +13,10 @@ class CurrentUserMiddleware:
 
     def __call__(self, request):
         # Authenticate the user using JWT
-        auth_result = JWTAuthentication().authenticate(request)
-
+        try:
+            auth_result = JWTAuthentication().authenticate(request)
+        except Exception as e:
+            auth_result = None
         # If authentication is successful, set the user in _user local thread storage
         if auth_result is not None:
             user, _ = auth_result
