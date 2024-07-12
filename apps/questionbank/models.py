@@ -29,6 +29,10 @@ class Subject(BaseModel):
         EducationLevel, through="SubjectEducationLevel", related_name="subjects"
     )
 
+    @property
+    def full_name(self):
+        return f"{self.name} ({self.code})"
+
     def save(self, *args, **kwargs):
         self.slug = self.name.lower().replace(" ", "-")
         super().save(*args, **kwargs)
@@ -91,6 +95,26 @@ class Question(BaseModel):
     class Meta:
         app_label = "questionbank"
 
+    @classmethod
+    def get_questions_for_countries(cls, country_ids: list):
+        from apps.questionbank.utils.question_utils import get_question_detail_queryset
+
+        return (
+            get_question_detail_queryset()
+            .filter(subjects__subject_countries__country_id__in=country_ids)
+            .distinct()
+        )
+
+    @classmethod
+    def get_questions_for_subjects(cls, subject_ids: list):
+        from apps.questionbank.utils.question_utils import get_question_detail_queryset
+
+        return (
+            get_question_detail_queryset()
+            .filter(subjects__subject_education_level__subject_id__in=subject_ids)
+            .distinct()
+        )
+
 
 class QuestionChoice(BaseModel):
     question = models.ForeignKey(
@@ -111,7 +135,7 @@ class QuestionChoice(BaseModel):
 
 class QuestionAttemptResponse(BaseModel):
     question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="attempts_responses"
+        Question, on_delete=models.CASCADE, related_name="attempt_responses"
     )
     text = models.TextField()
 
@@ -135,6 +159,19 @@ class QuestionRetryHint(BaseModel):
     )
     text = models.TextField()
     has_media = models.BooleanField(default=False)
+    sequence = models.IntegerField(default=1)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.arrange_sequence()
+
+    def arrange_sequence(self):
+        question_retry_hints = QuestionRetryHint.objects.filter(
+            question=self.question
+        ).order_by("sequence")
+        for index, question_retry_hint in enumerate(question_retry_hints):
+            question_retry_hint.sequence = index + 1
+            question_retry_hint.save()
 
     class Meta:
         app_label = "questionbank"
@@ -184,7 +221,9 @@ class QuestionSubject(BaseModel):
 
 
 class QuestionSubjectCountry(BaseModel):
-    question_subject = models.ForeignKey(QuestionSubject, on_delete=models.CASCADE)
+    question_subject = models.ForeignKey(
+        QuestionSubject, on_delete=models.CASCADE, related_name="subject_countries"
+    )
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE)
 
     class Meta:

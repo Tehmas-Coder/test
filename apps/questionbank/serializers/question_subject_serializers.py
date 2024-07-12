@@ -14,6 +14,10 @@ from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
 from apps.lookups.serializers.country_serializers import CountrySerializer
+from apps.questionbank.serializers.difficulty_level_serializers import (
+    DifficultyLevelSerializer,
+)
+from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
 
 
 class QuestionSubjectListSerializer(BaseModelSerializer):
@@ -29,6 +33,8 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
     name = serializers.CharField(source="subject_education_level.subject.name")
     education_level = serializers.SerializerMethodField()
     countries = CountrySerializer(many=True)
+    difficulty_level = DifficultyLevelSerializer()
+    measuring_unit = MeasuringUnitSerializer()
 
     class Meta:
         model = QuestionSubject

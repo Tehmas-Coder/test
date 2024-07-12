@@ -1,7 +1,9 @@
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from apps.questionbank.models import (
     Question,
+    QuestionAttemptResponse,
     QuestionChoice,
+    QuestionRetryHint,
     QuestionSubject,
     SubjectEducationLevel,
 )
@@ -19,12 +21,20 @@ from utils.rna_utils import debug_print
 from apps.questionbank.serializers.question_choice_serializers import (
     QuestionChoiceEditSerializer,
 )
+from apps.questionbank.serializers.question_attempt_response_serializers import (
+    QuestionAttemptResponseEditSerializer,
+)
+from apps.questionbank.serializers.question_retry_hint_serializers import (
+    QuestionRetryHintEditSerializer,
+)
 
 
 class QuestionDetailSerializer(BaseModelSerializer):
     subjects = QuestionSubjectDetailSerializer(many=True)
     tags = TagSerializer(many=True)
     choices = QuestionChoiceEditSerializer(many=True)
+    attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
+    retry_hints = QuestionRetryHintEditSerializer(many=True)
 
     class Meta:
         model = Question
@@ -32,20 +42,26 @@ class QuestionDetailSerializer(BaseModelSerializer):
             "id",
             "title",
             "text",
-            "subjects",
-            "tags",
-            "choices",
             "max_retries",
             "retry_penalty",
             "can_shuffle",
             "has_media",
+            "subjects",
+            "tags",
+            "choices",
+            "attempt_responses",
+            "retry_hints",
         ] + get_base_model_fields()
 
 
 class QuestionEditSerializer(serializers.ModelSerializer):
     question_subjects = QuestionSubjectEditSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True, required=False
+    )
     choices = QuestionChoiceEditSerializer(many=True, required=False)
+    attempt_responses = QuestionAttemptResponseEditSerializer(many=True, required=False)
+    retry_hints = QuestionRetryHintEditSerializer(many=True, required=False)
 
     class Meta:
         model = Question
@@ -53,13 +69,15 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "text",
-            "question_subjects",
-            "tags",
-            "choices",
             "max_retries",
             "retry_penalty",
             "can_shuffle",
             "has_media",
+            "question_subjects",
+            "tags",
+            "choices",
+            "attempt_responses",
+            "retry_hints",
         ]
 
         read_only_fields = ["id"]
@@ -67,8 +85,10 @@ class QuestionEditSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         question_subjects_data = validated_data.pop("question_subjects")
-        tags_data = validated_data.pop("tags")
+        tags_data = validated_data.pop("tags", [])
         choices_data = validated_data.pop("choices", [])
+        attempt_responses_data = validated_data.pop("attempt_responses", [])
+        retry_hints_data = validated_data.pop("retry_hints", [])
 
         # * Create question
         question = Question.objects.create(**validated_data)
@@ -101,6 +121,19 @@ class QuestionEditSerializer(serializers.ModelSerializer):
                 [QuestionChoice(question=question, **choice_data)]
             )
 
+        # * create attempt responses
+        for attempt_response_data in attempt_responses_data:
+            QuestionAttemptResponse.objects.bulk_create(
+                [QuestionAttemptResponse(question=question, **attempt_response_data)]
+            )
+
+        # * create retry hints
+        for retry_hint_data in retry_hints_data:
+            QuestionRetryHint.objects.bulk_create(
+                [QuestionRetryHint(question=question, **retry_hint_data)]
+            )
+
         # * Assign tags
         question.tags.set(tags_data)
+
         return question
