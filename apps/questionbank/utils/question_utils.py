@@ -7,7 +7,7 @@ def get_question_detail_queryset() -> QuerySet[Question]:
     return Question.objects.all().prefetch_related(
         "tags",
         "choices",
-        "attempts_responses",
+        "attempt_responses",
         "retry_hints",
         Prefetch(
             "subjects",

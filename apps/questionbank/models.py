@@ -1,10 +1,29 @@
 from django.db import models
 from core.models import BaseModel
-
+from datetime import datetime
 
 # ---------------------------------------------------------------------------- #
 #                               QUESTION LOOKUPS                               #
 # ---------------------------------------------------------------------------- #
+
+
+def upload_to(instance, filename):
+    folder_name = instance.__class__.__name__.lower()
+    instance_id = instance.id
+    timestamp = int(datetime.now().timestamp())
+    return f"{folder_name}/{instance_id}/{filename}_{timestamp}"
+
+
+class Media(BaseModel):
+    name = models.CharField(max_length=100)
+    file = models.FileField(upload_to=upload_to)
+    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
+    size = models.IntegerField(default=0)
+
+    class Meta:
+        app_label = "questionbank"
+
+
 class EducationLevel(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
@@ -92,6 +111,8 @@ class Question(BaseModel):
     can_shuffle = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
 
+    medias = models.ManyToManyField(Media, related_name="questions")
+
     class Meta:
         app_label = "questionbank"
 
@@ -129,6 +150,8 @@ class QuestionChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
+    medias = models.ManyToManyField(Media, related_name="choices")
+
     class Meta:
         app_label = "questionbank"
 
@@ -160,6 +183,8 @@ class QuestionRetryHint(BaseModel):
     text = models.TextField()
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
+
+    medias = models.ManyToManyField(Media, related_name="retry_hints")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

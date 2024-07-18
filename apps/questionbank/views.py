@@ -1,3 +1,4 @@
+import json
 from rest_framework import viewsets
 from apps.questionbank.models import (
     EducationLevel,
@@ -22,6 +23,8 @@ from rest_framework import status
 from rest_framework.decorators import action
 from django.db.models import Prefetch
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
+from rest_framework.parsers import MultiPartParser, FormParser, DjangoMultiPartParser
+from utils.rna_utils import debug_print
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -42,6 +45,10 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = get_question_detail_queryset()
     serializer_class = QuestionDetailSerializer
+    parser_classes = (
+        MultiPartParser,
+        FormParser,
+    )
 
     def get_serializer(self, *args, **kwargs):
         if self.action in ["create", "update"]:
@@ -49,7 +56,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return super().get_serializer(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        debug_print((request.data.dict()["data"]))
+        request_data = json.loads(request.data.dict()["data"])
+        serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
         serializer = QuestionDetailSerializer(question)

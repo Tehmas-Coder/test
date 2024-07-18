@@ -78,9 +78,12 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             "choices",
             "attempt_responses",
             "retry_hints",
+            "medias",
         ]
 
         read_only_fields = ["id"]
+
+        extra_kwargs = {"medias": {"required": False}}
 
     def create(self, validated_data):
 
