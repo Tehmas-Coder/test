@@ -106,7 +106,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         return question
 
     def update(self, instance, validated_data):
-        debug_print(validated_data)
+
         subjects_data = validated_data.pop("subjects")
 
         # * Update question
@@ -120,6 +120,9 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         instance.has_media = validated_data.get("has_media", instance.has_media)
         instance.save()
 
+        #! Clear existing question subjects
+        QuestionSubject.objects.filter(question=instance).delete()
+
         # * Update or create question subjects
         for question_subject_data in subjects_data:
             question_subject_countries = question_subject_data.pop("countries")
@@ -132,8 +135,6 @@ class QuestionEditSerializer(serializers.ModelSerializer):
                 subject=subject_education_level_data["subject"],
                 education_level=subject_education_level_data["education_level"],
             )
-
-            debug_print(subject_education_level.__dict__)
 
             # * Get or create question subject
             question_subject, _ = QuestionSubject.objects.get_or_create(
