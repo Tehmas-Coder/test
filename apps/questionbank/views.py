@@ -50,14 +50,59 @@ class QuestionViewSet(viewsets.ModelViewSet):
         FormParser,
     )
 
+    def parse_media(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # Extract media for questions
+        media_keys = request_data.pop("medias", [])
+        request_data["medias"] = []
+        for key in media_keys:
+            file = request.FILES.get(key)
+            if file:
+                request_data["medias"].append(
+                    {
+                        "file": file,
+                    }
+                )
+
+        # Extract media for hints
+        for hint in request_data["retry_hints"]:
+            hint_medias = hint.pop("medias", [])
+            if hint["has_media"]:
+                hint["medias"] = []
+                for key in hint_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        hint["medias"].append(
+                            {
+                                "file": file,
+                            }
+                        )
+
+        # Extract media for choices
+        for choice in request_data["choices"]:
+            choice_medias = choice.pop("medias", [])
+            if choice["has_media"]:
+                choice["medias"] = []
+                for key in choice_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        choice["medias"].append(
+                            {
+                                "file": file,
+                            }
+                        )
+
+        return request_data
+
     def get_serializer(self, *args, **kwargs):
         if self.action in ["create", "update"]:
             return QuestionEditSerializer(*args, **kwargs)
         return super().get_serializer(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        debug_print((request.data.dict()["data"]))
-        request_data = json.loads(request.data.dict()["data"])
+
+        request_data = self.parse_media(request)
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
