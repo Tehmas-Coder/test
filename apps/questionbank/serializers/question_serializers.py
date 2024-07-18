@@ -59,13 +59,13 @@ class QuestionDetailSerializer(BaseModelSerializer):
 
 class QuestionEditSerializer(serializers.ModelSerializer):
     question_subjects = QuestionSubjectEditSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), many=True, required=False
-    )
-    choices = QuestionChoiceEditSerializer(many=True, required=False)
-    attempt_responses = QuestionAttemptResponseEditSerializer(many=True, required=False)
-    retry_hints = QuestionRetryHintEditSerializer(many=True, required=False)
-    medias = MediaSerializer(many=True, required=False)
+    # tags = serializers.PrimaryKeyRelatedField(
+    #     queryset=Tag.objects.all(), many=True, required=False
+    # )
+    # choices = QuestionChoiceEditSerializer(many=True, required=False)
+    # attempt_responses = QuestionAttemptResponseEditSerializer(many=True, required=False)
+    # retry_hints = QuestionRetryHintEditSerializer(many=True, required=False)
+    # medias = MediaSerializer(many=True, required=False)
 
     class Meta:
         model = Question
@@ -78,23 +78,23 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             "can_shuffle",
             "has_media",
             "question_subjects",
-            "tags",
-            "choices",
-            "attempt_responses",
-            "retry_hints",
-            "medias",
+            # "tags",
+            # "choices",
+            # "attempt_responses",
+            # "retry_hints",
+            # "medias",
         ]
 
         read_only_fields = ["id"]
 
     def create(self, validated_data):
 
-        question_medias = validated_data.pop("medias", [])
         question_subjects_data = validated_data.pop("question_subjects")
-        tags_data = validated_data.pop("tags", [])
-        choices_data = validated_data.pop("choices", [])
-        attempt_responses_data = validated_data.pop("attempt_responses", [])
-        retry_hints_data = validated_data.pop("retry_hints", [])
+        # question_medias = validated_data.pop("medias", [])
+        # tags_data = validated_data.pop("tags", [])
+        # choices_data = validated_data.pop("choices", [])
+        # attempt_responses_data = validated_data.pop("attempt_responses", [])
+        # retry_hints_data = validated_data.pop("retry_hints", [])
 
         # * Create question
         question = Question.objects.create(**validated_data)
@@ -121,39 +121,39 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             # * Assign countries to question subject
             question_subject.countries.set(question_subject_countries)
 
-        # * create choices
-        for choice_data in choices_data:
-            choices_media = choice_data.pop("medias", [])
-            question_choice_instance = QuestionChoice.objects.create(
-                question=question, **choice_data
-            )
-            for media_data in choices_media:
-                media_instance = MediaSerializer().create(media_data)
-                question_choice_instance.medias.add(media_instance)
+        # # * create choices
+        # for choice_data in choices_data:
+        #     choices_media = choice_data.pop("medias", [])
+        #     question_choice_instance = QuestionChoice.objects.create(
+        #         question=question, **choice_data
+        #     )
+        #     for media_data in choices_media:
+        #         media_instance = MediaSerializer().create(media_data)
+        #         question_choice_instance.medias.add(media_instance)
 
-        # * create attempt responses
-        for attempt_response_data in attempt_responses_data:
-            QuestionAttemptResponse.objects.bulk_create(
-                [QuestionAttemptResponse(question=question, **attempt_response_data)]
-            )
+        # # * create attempt responses
+        # for attempt_response_data in attempt_responses_data:
+        #     QuestionAttemptResponse.objects.bulk_create(
+        #         [QuestionAttemptResponse(question=question, **attempt_response_data)]
+        #     )
 
-        # * create retry hints
-        for retry_hint_data in retry_hints_data:
-            retry_hints_media = retry_hint_data.pop("medias", [])
+        # # * create retry hints
+        # for retry_hint_data in retry_hints_data:
+        #     retry_hints_media = retry_hint_data.pop("medias", [])
 
-            question_hint_instance = QuestionRetryHint.objects.create(
-                question=question, **retry_hint_data
-            )
-            for media_data in retry_hints_media:
-                media_instance = MediaSerializer().create(media_data)
-                question_hint_instance.medias.add(media_instance)
+        #     question_hint_instance = QuestionRetryHint.objects.create(
+        #         question=question, **retry_hint_data
+        #     )
+        #     for media_data in retry_hints_media:
+        #         media_instance = MediaSerializer().create(media_data)
+        #         question_hint_instance.medias.add(media_instance)
 
-        # * Assign tags
-        question.tags.set(tags_data)
+        # # * Assign tags
+        # question.tags.set(tags_data)
 
-        # * Upload Media
-        for media_data in question_medias:
-            media_instance = MediaSerializer().create(media_data)
-            question.medias.add(media_instance)
+        # # * Upload Media
+        # for media_data in question_medias:
+        #     media_instance = MediaSerializer().create(media_data)
+        #     question.medias.add(media_instance)
 
         return question

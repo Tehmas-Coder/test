@@ -23,7 +23,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from django.db.models import Prefetch
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
-from rest_framework.parsers import MultiPartParser, FormParser, DjangoMultiPartParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from utils.rna_utils import debug_print
 
 
@@ -45,10 +45,7 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = get_question_detail_queryset()
     serializer_class = QuestionDetailSerializer
-    parser_classes = (
-        MultiPartParser,
-        FormParser,
-    )
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def parse_media(self, request):
         request_data = json.loads(request.data["data"])
@@ -102,8 +99,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
 
-        request_data = self.parse_media(request)
-        serializer = self.get_serializer(data=request_data)
+        # request_data = self.parse_media(request)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
         serializer = QuestionDetailSerializer(question)
