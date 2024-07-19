@@ -1,7 +1,7 @@
 import json
 from rest_framework import viewsets
-from apps.questionbank.models import (EducationLevel, Question, QuestionChoice,
-    QuestionChoiceMedia, QuestionMedia, QuestionSubject, QuestionTag, Subject,
+from apps.questionbank.models import (EducationLevel, Question, QuestionAttemptResponse,
+    QuestionChoice, QuestionChoiceMedia, QuestionMedia, QuestionSubject, QuestionTag, Subject,
     SubjectEducationLevel)
 from apps.questionbank.serializers.question_serializers import (
     QuestionDetailSerializer,
@@ -32,6 +32,8 @@ from apps.questionbank.serializers.question_choice_serializers import (
 )
 from apps.questionbank.serializers.question_choice_media_serializers import (
     QuestionChoiceMediaEditSerializer, QuestionChoiceMediaSerializer)
+from apps.questionbank.serializers.question_attempt_response_serializers import (
+    QuestionAttemptResponseSerializer)
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -202,5 +204,10 @@ class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return res
 
+# ------------------------- QUESTION ATTEMPT RESPONSE ------------------------ #
 
+class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
+    queryset = QuestionAttemptResponse.objects.all()
+    serializer_class = QuestionAttemptResponseSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete']
 

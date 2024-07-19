@@ -2,8 +2,9 @@ from django.urls import path
 from rest_framework import routers
 from django.urls import include
 from apps.questionbank.views.question_views import (EducationLevelViewSet,
-    QuestionChoiceMediaViewSet, QuestionChoiceViewSet, QuestionMediaViewSet, QuestionTagViewSet,
-    QuestionViewSet, SubjectEducationLevelViewSet, SubjectViewSet)
+    QuestionAttemptResponseViewSet, QuestionChoiceMediaViewSet, QuestionChoiceViewSet,
+    QuestionMediaViewSet, QuestionTagViewSet, QuestionViewSet, SubjectEducationLevelViewSet,
+    SubjectViewSet)
 
 
 router = routers.DefaultRouter()
@@ -17,6 +18,7 @@ router.register(r"question-media", QuestionMediaViewSet)
 router.register(r"question-tag", QuestionTagViewSet)
 router.register(r"question-choice", QuestionChoiceViewSet)
 router.register(r"question-choice-media", QuestionChoiceMediaViewSet)
+router.register(r"question-attempt-response", QuestionAttemptResponseViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

@@ -70,4 +70,7 @@ class QuestionChoiceEditSerializer(BaseModelSerializer):
             "has_media",
             "medias",
         ] + get_base_model_fields()
+
         read_only_fields = ["id"]
+
+

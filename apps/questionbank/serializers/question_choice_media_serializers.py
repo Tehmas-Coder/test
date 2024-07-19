@@ -1,7 +1,6 @@
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from apps.questionbank.models import QuestionChoiceMedia
 from apps.questionbank.serializers.media_serializers import MediaSerializer
-import rest_framework
 from utils.rna_utils import debug_print
 from rest_framework import serializers
 
