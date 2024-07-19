@@ -5,6 +5,7 @@ from apps.questionbank.models import (
     Question,
     QuestionMedia,
     QuestionSubject,
+    QuestionTag,
     Subject,
     SubjectEducationLevel,
 )
@@ -31,6 +32,7 @@ from apps.questionbank.serializers.question_media_serializers import (
     QuestionMediaEditSerializer,
 )
 from rest_framework.parsers import FormParser, MultiPartParser
+from apps.questionbank.serializers.question_tag_serializers import QuestionTagSerializer
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -48,6 +50,9 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectEducationLevelDetailSerializer
 
 
+# ---------------------------------------------------------------------------- #
+#                                   QUESTION                                   #
+# ---------------------------------------------------------------------------- #
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = get_question_detail_queryset()
     serializer_class = QuestionDetailSerializer
@@ -129,6 +134,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+# ----------------------------------- MEDIA ---------------------------------- #
+
+
 class QuestionMediaViewSet(viewsets.ModelViewSet):
     queryset = QuestionMedia.objects.all()
     serializer_class = QuestionMediaEditSerializer
@@ -142,3 +150,12 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
         question_media = serializer.save()
         serializer = QuestionMediaDetailSerializer(question_media)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# ----------------------------------- TAGS ----------------------------------- #
+
+
+class QuestionTagViewSet(viewsets.ModelViewSet):
+    queryset = QuestionTag.objects.all()
+    serializer_class = QuestionTagSerializer
+    http_method_names = ["post", "delete"]

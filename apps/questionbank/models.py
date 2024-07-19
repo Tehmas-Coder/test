@@ -103,7 +103,9 @@ class Question(BaseModel):
         related_name="questions",
     )
 
-    tags = models.ManyToManyField("lookups.Tag", related_name="questions")
+    tags = models.ManyToManyField(
+        "lookups.Tag", related_name="questions", through="QuestionTag"
+    )
 
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
@@ -111,7 +113,9 @@ class Question(BaseModel):
     can_shuffle = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(Media, related_name="questions")
+    medias = models.ManyToManyField(
+        Media, related_name="questions", through="QuestionMedia"
+    )
 
     class Meta:
         app_label = "questionbank"
@@ -216,6 +220,19 @@ class QuestionMedia(BaseModel):
 
     class Meta:
         app_label = "questionbank"
+        db_table = "questionbank_question_medias"
+
+
+class QuestionTag(BaseModel):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+    )
+    tag = models.ForeignKey("lookups.Tag", on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_question_tags"
 
 
 class SubjectEducationLevel(BaseModel):
