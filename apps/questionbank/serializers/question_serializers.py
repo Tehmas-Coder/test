@@ -27,7 +27,7 @@ from apps.questionbank.serializers.question_attempt_response_serializers import 
 from apps.questionbank.serializers.question_retry_hint_serializers import (
     QuestionRetryHintEditSerializer,
 )
-from apps.questionbank.serializers.media_serializers import MediaSerializer
+from apps.lookups.serializers.media_serializers import MediaSerializer
 
 
 class QuestionDetailSerializer(BaseModelSerializer):

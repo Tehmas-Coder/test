@@ -1,6 +1,6 @@
 from apps.questionbank.models import QuestionRetryHint
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.questionbank.serializers.media_serializers import MediaSerializer
+from apps.lookups.serializers.media_serializers import MediaSerializer
 
 
 class QuestionRetryHintEditSerializer(BaseModelSerializer):

@@ -211,3 +211,5 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionAttemptResponseSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
 
+# -------------------------------- RETRY HINTS ------------------------------- #
+

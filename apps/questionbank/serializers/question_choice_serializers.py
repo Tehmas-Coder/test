@@ -1,7 +1,7 @@
 from rest_framework.fields import empty
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from apps.questionbank.models import QuestionChoice
-from apps.questionbank.serializers.media_serializers import MediaSerializer
+from apps.lookups.serializers.media_serializers import MediaSerializer
 from utils.rna_utils import debug_print
 from rest_framework import serializers
 

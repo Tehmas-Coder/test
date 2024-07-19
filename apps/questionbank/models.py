@@ -7,21 +7,10 @@ from datetime import datetime
 # ---------------------------------------------------------------------------- #
 
 
-def upload_to(instance, filename):
-    folder_name = instance.__class__.__name__.lower()
-    timestamp = int(datetime.now().timestamp())
-    return f"{folder_name}/{timestamp}_{filename}"
 
 
-class Media(BaseModel):
-    name = models.CharField(max_length=100)
-    file = models.FileField(upload_to=upload_to)
-    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
-    extension = models.CharField(max_length=10, blank=True)
-    size = models.IntegerField(default=0)
 
-    class Meta:
-        app_label = "questionbank"
+
 
 
 class EducationLevel(BaseModel):
@@ -114,7 +103,7 @@ class Question(BaseModel):
     has_media = models.BooleanField(default=False)
 
     medias = models.ManyToManyField(
-        Media, related_name="questions", through="QuestionMedia"
+        "lookups.Media", related_name="questions", through="QuestionMedia"
     )
 
     class Meta:
@@ -154,7 +143,7 @@ class QuestionChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(Media, related_name="choices", through="QuestionChoiceMedia")
+    medias = models.ManyToManyField("lookups.Media", related_name="choices", through="QuestionChoiceMedia")
 
     class Meta:
         app_label = "questionbank"
@@ -196,7 +185,7 @@ class QuestionRetryHint(BaseModel):
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
 
-    medias = models.ManyToManyField(Media, related_name="retry_hints")
+    medias = models.ManyToManyField("lookups.Media", related_name="retry_hints")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -224,7 +213,7 @@ class QuestionMedia(BaseModel):
         Question,
         on_delete=models.CASCADE,
     )
-    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
 
     class Meta:
         app_label = "questionbank"
@@ -248,7 +237,7 @@ class QuestionChoiceMedia(BaseModel):
         QuestionChoice,
         on_delete=models.CASCADE,
     )
-    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
 
     class Meta:
         app_label = "questionbank"
