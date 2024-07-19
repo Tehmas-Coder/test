@@ -14,6 +14,7 @@ from apps.questionbank.serializers.question_serializers import (
 )
 from apps.questionbank.serializers.subject_education_level_serializers import (
     SubjectEducationLevelDetailSerializer,
+    SubjectEducationLevelEditSerializer,
 )
 from apps.questionbank.serializers.subject_serializers import SubjectDetailSerializer
 from apps.questionbank.serializers.education_level_serializers import (
@@ -25,6 +26,7 @@ from rest_framework.decorators import action
 from django.db.models import Prefetch
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
 
+from core import serializers
 from utils.rna_utils import debug_print
 from apps.questionbank.serializers.question_media_serializers import (
     QuestionMediaDetailSerializer,
@@ -46,6 +48,11 @@ class SubjectViewSet(viewsets.ModelViewSet):
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     queryset = SubjectEducationLevel.objects.all()
     serializer_class = SubjectEducationLevelDetailSerializer
+
+    def get_serializer_class(self):
+        if self.action in ["create", "update"]:
+            return SubjectEducationLevelEditSerializer
+        return super().get_serializer_class()
 
 
 class QuestionViewSet(viewsets.ModelViewSet):

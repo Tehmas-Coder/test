@@ -10,15 +10,15 @@ from apps.user.tests.test_setup import TestSetUp
 from rest_framework import status
 
 
-class TagUnitTest(TestSetUp):
-    fixtures = ["tag_seed"]
+class SubjectUnitTest(TestSetUp):
+    fixtures = ["education_level_seed", "subject_education_level_seed", "subject_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_create_tag(self, request_body):
-        print_test_header("create_tag")
-        url = "/api/tags/"
+    def do_create_subject(self, request_body):
+        print_test_header("create_subject")
+        url = "/api/subjects/"
         response = self.client.post(
             url,
             headers=self.headers,
@@ -28,23 +28,23 @@ class TagUnitTest(TestSetUp):
         validate_success_201_test_response(self, response)
         return response.data
 
-    def do_get_tag_list(self):
-        print_test_header("get_tag_list")
-        url = "/api/tags/"
+    def do_get_subject_list(self):
+        print_test_header("get_subject_list")
+        url = "/api/subjects/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
         return response.data["results"]
 
-    def do_get_one_tag(self, tag_id):
-        print_test_header("get_one_tag")
-        url = f"/api/tags/{tag_id}/"
+    def do_get_one_subject(self, subject_id):
+        print_test_header("get_one_subject")
+        url = f"/api/subjects/{subject_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
         return response.data
 
-    def do_update_one_tag(self, tag_id, request_body):
-        print_test_header("update_tag")
-        url = f"/api/tags/{tag_id}/"
+    def do_update_one_subject(self, subject_id, request_body):
+        print_test_header("update_subject")
+        url = f"/api/subjects/{subject_id}/"
         response = self.client.put(
             url,
             headers=self.headers,
@@ -54,32 +54,32 @@ class TagUnitTest(TestSetUp):
         validate_success_200_test_response(self, response)
         return response.data
 
-    def do_delete_one_tag(self, tag_id):
-        print_test_header("delete_tag")
-        url = f"/api/tags/{tag_id}/"
+    def do_delete_one_subject(self, subject_id):
+        print_test_header("delete_subject")
+        url = f"/api/subjects/{subject_id}/"
         response = self.client.delete(url, headers=self.headers)
         validate_success_204_test_response(self, response)
 
 
-class TagTest(TagUnitTest):
+class SubjectTest(SubjectUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
-        "name": "Logical",
-        "code": "LGC",
-        "abbreviation": "LGC",
+        "name": "Discrete Mathematics",
+        "code": "DM",
+        "abbreviation": "DM",
     }
-    list_of_fields_of_tag_model = [
+    list_of_fields_of_subject_model = [
         "id",
         "name",
         "code",
         "abbreviation",
-        "description",
+        "education_levels",
     ]
 
     # ?###################################################
     # ?              TESTS - CASES
     # ?###################################################
-    def test_cases_tag(self):
+    def test_cases_subject(self):
         self.successfull_creation_of_a_record_test()
         list_of_records = self.successsfull_fetching_of_list_of_records_test()
         test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
@@ -87,17 +87,17 @@ class TagTest(TagUnitTest):
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_tag(json.dumps(self.reuseable_request_body))
+        json_data = self.do_create_subject(json.dumps(self.reuseable_request_body))
         for key in self.reuseable_request_body:
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
-        for one_field in self.list_of_fields_of_tag_model:
+        for one_field in self.list_of_fields_of_subject_model:
             self.assertIn(one_field, json_data)
 
     def successsfull_fetching_of_list_of_records_test(self):
-        json_data = self.do_get_tag_list()
+        json_data = self.do_get_subject_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for one_value_from_list_of_fields_of_application_form_section_field_choices_model in (self.list_of_fields_of_tag_model):
+            for one_value_from_list_of_fields_of_application_form_section_field_choices_model in (self.list_of_fields_of_subject_model):
                 self.assertIn(
                     one_value_from_list_of_fields_of_application_form_section_field_choices_model,
                     test_dict,
@@ -106,21 +106,22 @@ class TagTest(TagUnitTest):
         return json_data
 
     def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_tag_id = list_of_records[len(list_of_records) - 1]["id"]
-        json_data = self.do_get_one_tag(test_tag_id)
+        test_subject_id = list_of_records[len(list_of_records) - 1]["id"]
+        json_data = self.do_get_one_subject(test_subject_id)
         self.assertEqual(
             json_data["id"],
-            test_tag_id,
-            f"The Field ID ({json_data['id']} is not equal to id ({test_tag_id}) )",
+            test_subject_id,
+            f"The Field ID ({json_data['id']} is not equal to id ({test_subject_id}) )",
         )
-        return test_tag_id
+        return test_subject_id
 
     def successfull_updation_of_record_test(self, test_record_id):
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
-        updated_request_body["name"] = "Logical modified"
-        updated_request_body["code"] = "LGCM"
-        updated_request_body["abbreviation"] = "LGCM"
-        updated_response_json_data = self.do_update_one_tag(
+        updated_request_body["name"] = "Discrete Mathematics modified"
+        updated_request_body["code"] = "DMM"
+        updated_request_body["abbreviation"] = "DMM"
+
+        updated_response_json_data = self.do_update_one_subject(
             test_record_id, json.dumps(updated_request_body)
         )
         self.assertEqual(updated_response_json_data["id"], test_record_id)
@@ -129,7 +130,7 @@ class TagTest(TagUnitTest):
 
     # * Test to check the deletion of a record
     def successfull_deletion_of_a_record_test(self, test_record_id):
-        self.do_delete_one_tag(test_record_id)
+        self.do_delete_one_subject(test_record_id)
 
 
 # ?###################################################
