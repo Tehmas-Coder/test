@@ -21,7 +21,6 @@ class TimezoneUnitTest(TestSetUp):
 
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        debug_print(response.data)
         return response.data
 
     def do_get_one_timezone(self, timezone_id):
