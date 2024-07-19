@@ -9,6 +9,7 @@ def get_question_detail_queryset() -> QuerySet[Question]:
         "choices",
         "attempt_responses",
         "retry_hints",
+        "medias",
         Prefetch(
             "subjects",
             queryset=QuestionSubject.objects.select_related(

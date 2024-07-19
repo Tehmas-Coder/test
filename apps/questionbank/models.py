@@ -9,15 +9,15 @@ from datetime import datetime
 
 def upload_to(instance, filename):
     folder_name = instance.__class__.__name__.lower()
-    instance_id = instance.id
     timestamp = int(datetime.now().timestamp())
-    return f"{folder_name}/{instance_id}/{filename}_{timestamp}"
+    return f"{folder_name}/{timestamp}_{filename}"
 
 
 class Media(BaseModel):
     name = models.CharField(max_length=100)
     file = models.FileField(upload_to=upload_to)
     type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
+    extension = models.CharField(max_length=10, blank=True)
     size = models.IntegerField(default=0)
 
     class Meta:
@@ -188,7 +188,7 @@ class QuestionRetryHint(BaseModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.arrange_sequence()
+        # self.arrange_sequence()
 
     def arrange_sequence(self):
         question_retry_hints = QuestionRetryHint.objects.filter(
@@ -205,6 +205,17 @@ class QuestionRetryHint(BaseModel):
 # ---------------------------------------------------------------------------- #
 #                                   MAPPINGS                                   #
 # ---------------------------------------------------------------------------- #
+
+
+class QuestionMedia(BaseModel):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+    )
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
 
 
 class SubjectEducationLevel(BaseModel):

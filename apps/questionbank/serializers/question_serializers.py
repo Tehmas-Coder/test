@@ -17,7 +17,7 @@ from apps.questionbank.serializers.question_subject_serializers import (
     QuestionSubjectDetailSerializer,
     QuestionSubjectEditSerializer,
 )
-from utils.rna_utils import debug_print
+from utils.rna_utils import color_print, debug_print
 from apps.questionbank.serializers.question_choice_serializers import (
     QuestionChoiceEditSerializer,
 )
@@ -27,6 +27,7 @@ from apps.questionbank.serializers.question_attempt_response_serializers import 
 from apps.questionbank.serializers.question_retry_hint_serializers import (
     QuestionRetryHintEditSerializer,
 )
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 
 
 class QuestionDetailSerializer(BaseModelSerializer):
@@ -35,6 +36,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
     choices = QuestionChoiceEditSerializer(many=True)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
     retry_hints = QuestionRetryHintEditSerializer(many=True)
+    medias = MediaSerializer(many=True)
 
     class Meta:
         model = Question
@@ -51,17 +53,19 @@ class QuestionDetailSerializer(BaseModelSerializer):
             "choices",
             "attempt_responses",
             "retry_hints",
+            "medias",
         ] + get_base_model_fields()
 
 
 class QuestionEditSerializer(serializers.ModelSerializer):
-    question_subjects = QuestionSubjectEditSerializer(many=True)
+    subjects = QuestionSubjectEditSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True, required=False
     )
     choices = QuestionChoiceEditSerializer(many=True, required=False)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True, required=False)
     retry_hints = QuestionRetryHintEditSerializer(many=True, required=False)
+    medias = MediaSerializer(many=True, required=False)
 
     class Meta:
         model = Question
@@ -73,7 +77,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             "retry_penalty",
             "can_shuffle",
             "has_media",
-            "question_subjects",
+            "subjects",
             "tags",
             "choices",
             "attempt_responses",
@@ -83,11 +87,10 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
         read_only_fields = ["id"]
 
-        extra_kwargs = {"medias": {"required": False}}
-
     def create(self, validated_data):
 
-        question_subjects_data = validated_data.pop("question_subjects")
+        question_medias = validated_data.pop("medias", [])
+        subjects_data = validated_data.pop("subjects")
         tags_data = validated_data.pop("tags", [])
         choices_data = validated_data.pop("choices", [])
         attempt_responses_data = validated_data.pop("attempt_responses", [])
@@ -96,7 +99,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         # * Create question
         question = Question.objects.create(**validated_data)
 
-        for question_subject_data in question_subjects_data:
+        for question_subject_data in subjects_data:
             question_subject_countries = question_subject_data.pop("countries")
             subject_education_level_data = question_subject_data.pop(
                 "subject_education_level"
@@ -120,9 +123,13 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
         # * create choices
         for choice_data in choices_data:
-            QuestionChoice.objects.bulk_create(
-                [QuestionChoice(question=question, **choice_data)]
+            choices_media = choice_data.pop("medias", [])
+            question_choice_instance = QuestionChoice.objects.create(
+                question=question, **choice_data
             )
+            for media_data in choices_media:
+                media_instance = MediaSerializer().create(media_data)
+                question_choice_instance.medias.add(media_instance)
 
         # * create attempt responses
         for attempt_response_data in attempt_responses_data:
@@ -132,11 +139,69 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
         # * create retry hints
         for retry_hint_data in retry_hints_data:
-            QuestionRetryHint.objects.bulk_create(
-                [QuestionRetryHint(question=question, **retry_hint_data)]
+            retry_hints_media = retry_hint_data.pop("medias", [])
+
+            question_hint_instance = QuestionRetryHint.objects.create(
+                question=question, **retry_hint_data
             )
+            for media_data in retry_hints_media:
+                media_instance = MediaSerializer().create(media_data)
+                question_hint_instance.medias.add(media_instance)
 
         # * Assign tags
         question.tags.set(tags_data)
 
+        # * Upload Media
+        for media_data in question_medias:
+            media_instance = MediaSerializer().create(media_data)
+            question.medias.add(media_instance)
+
         return question
+
+    def update(self, instance, validated_data):
+
+        subjects_data = validated_data.pop("subjects")
+
+        # * Update question
+        instance.title = validated_data.get("title", instance.title)
+        instance.text = validated_data.get("text", instance.text)
+        instance.max_retries = validated_data.get("max_retries", instance.max_retries)
+        instance.retry_penalty = validated_data.get(
+            "retry_penalty", instance.retry_penalty
+        )
+        instance.can_shuffle = validated_data.get("can_shuffle", instance.can_shuffle)
+        instance.has_media = validated_data.get("has_media", instance.has_media)
+        instance.save()
+
+        #! Clear existing question subjects
+        QuestionSubject.objects.filter(question=instance).delete()
+
+        # * Update or create question subjects
+        for question_subject_data in subjects_data:
+            question_subject_countries = question_subject_data.pop("countries")
+            subject_education_level_data = question_subject_data.pop(
+                "subject_education_level"
+            )
+
+            # * Get or create subject education level
+            subject_education_level, _ = SubjectEducationLevel.objects.get_or_create(
+                subject=subject_education_level_data["subject"],
+                education_level=subject_education_level_data["education_level"],
+            )
+
+            # * Get or create question subject
+            question_subject, _ = QuestionSubject.objects.get_or_create(
+                question=instance,
+                subject_education_level=subject_education_level,
+                defaults=question_subject_data,
+            )
+
+            # * Update question subject
+            question_subject.save()
+
+            # * Assign countries to question subject
+            question_subject.countries.set(question_subject_countries)
+
+        # refresh instance
+        instance.refresh_from_db()
+        return instance
