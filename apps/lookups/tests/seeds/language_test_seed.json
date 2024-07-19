@@ -1,0 +1,22 @@
+[
+  {
+    "model": "lookups.language",
+    "pk": 1,
+    "fields": {
+      "name": "English",
+      "code": "eng",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.language",
+    "pk": 2,
+    "fields": {
+      "name": "French",
+      "code": "fra",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  }
+]

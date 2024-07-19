@@ -57,7 +57,7 @@ class BaseUser(BaseModel, AbstractUser):
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["password"]
 
     class Meta:
         app_label = "user"

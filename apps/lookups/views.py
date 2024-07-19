@@ -29,6 +29,7 @@ from rest_framework.permissions import IsAuthenticated
 
 class TimezoneViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
+    pagination_class = None
     permission_classes = []
     serializer_class = TimezoneSerializer
     queryset = Timezone.objects.all()
@@ -71,6 +72,7 @@ class LanguageViewset(viewsets.ModelViewSet):
 
 class CurrencyViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
+    pagination_class = None
     permission_classes = []
     serializer_class = CurrencySerializer
     queryset = Currency.objects.all()

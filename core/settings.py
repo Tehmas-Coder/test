@@ -262,6 +262,7 @@ DATABASES = {
 # ---------------------------------------------------------------------------- #
 FIXTURE_DIRS = [
     BASE_DIR / "apps" / "lookups" / "seeds",
+    BASE_DIR / "apps" / "lookups" / "tests" / "seeds",
     BASE_DIR / "apps" / "user" / "seeds",
     BASE_DIR / "apps" / "questionbank" / "seeds",
 ]

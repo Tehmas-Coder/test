@@ -1,0 +1,24 @@
+[
+  {
+    "model": "lookups.currency",
+    "pk": 1,
+    "fields": {
+      "name": "British pound",
+      "code": "GBP",
+      "symbol": "£",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.currency",
+    "pk": 2,
+    "fields": {
+      "name": "Eastern Caribbean dollar",
+      "code": "XCD",
+      "symbol": "$",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  }
+]

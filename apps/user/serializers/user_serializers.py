@@ -24,6 +24,7 @@ class UserDetailSerializer(BaseModelSerializer):
             "roles",
             "country",
             "phone",
+            "otp",
             "is_verified",
             "is_staff",
             "is_superuser",
@@ -65,6 +66,7 @@ class UserEditSerializer(BaseModelSerializer):
             "country",
             "password",
             "phone",
+            "otp",
             "is_verified",
             "is_staff",
             "is_superuser",
@@ -74,6 +76,7 @@ class UserEditSerializer(BaseModelSerializer):
 
         read_only_fields = [
             "id",
+            "otp",
             "full_name",
             "created_at",
             "is_verified",

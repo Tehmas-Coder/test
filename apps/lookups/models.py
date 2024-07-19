@@ -156,9 +156,6 @@ class Currency(BaseModel):
     class Meta:
         app_label = "lookups"
 
-    def get_country(self):
-        return self.countries.all()  # type: ignore
-
 
 class MeasuringUnit(BaseModel):
     name = models.CharField(max_length=255)
