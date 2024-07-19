@@ -154,7 +154,7 @@ class QuestionChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(Media, related_name="choices")
+    medias = models.ManyToManyField(Media, related_name="choices", through="QuestionChoiceMedia")
 
     class Meta:
         app_label = "questionbank"
@@ -233,6 +233,18 @@ class QuestionTag(BaseModel):
     class Meta:
         app_label = "questionbank"
         db_table = "questionbank_question_tags"
+
+
+class QuestionChoiceMedia(BaseModel):
+    question_choice = models.ForeignKey(
+        QuestionChoice,
+        on_delete=models.CASCADE,
+    )
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_questionchoice_medias"
 
 
 class SubjectEducationLevel(BaseModel):

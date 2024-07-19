@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from apps.questionbank.models import (
     EducationLevel,
     Question,
+    QuestionChoice,
     QuestionMedia,
     QuestionSubject,
     QuestionTag,
@@ -33,6 +34,9 @@ from apps.questionbank.serializers.question_media_serializers import (
 )
 from rest_framework.parsers import FormParser, MultiPartParser
 from apps.questionbank.serializers.question_tag_serializers import QuestionTagSerializer
+from apps.questionbank.serializers.question_choice_serializers import (
+    QuestionChoiceSerializer,
+)
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -159,3 +163,22 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
     queryset = QuestionTag.objects.all()
     serializer_class = QuestionTagSerializer
     http_method_names = ["post", "delete"]
+
+
+# ---------------------------------- CHOICES --------------------------------- #
+class QuestionChoiceViewSet(viewsets.ModelViewSet):
+    queryset = QuestionChoice.objects.all()
+    serializer_class = QuestionChoiceSerializer
+    http_method_names = ["post", "patch", "delete"]
+
+    def create(self, request, *args, **kwargs):
+        request_data = request.data.copy()
+        request_data["medias"] = []
+        for file in request.FILES.values():
+            request_data["medias"].append({"file": file})
+        debug_print(request_data, "yellow")
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_choice = serializer.save()
+        serializer = QuestionChoiceSerializer(question_choice)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

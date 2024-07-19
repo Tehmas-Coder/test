@@ -12,7 +12,8 @@ FOR %%i IN ("%ROOT_DIR%") DO SET ROOT_DIR=%%~fi
 
 REM Recursively find and delete all migrations directories, excluding venv
 FOR /d /r %ROOT_DIR% %%x IN (migrations) DO (
-    IF NOT "%%x"=="%ROOT_DIR%\venv\migrations" (
+    ECHO %%x | FIND /I "%ROOT_DIR%\venv\" > NUL
+    IF ERRORLEVEL 1 (
         IF EXIST "%%x" (
             ECHO Deleting %%x
             RMDIR /s /q "%%x"

@@ -13,10 +13,11 @@ def create_seed_from_db(model):
     """
 
     objects = model.objects.all()
+    app_label = model._meta.app_label
     seed = []
     for row in objects:
         one_seed = {
-            "model": "system_admin." + model.__name__,
+            "model": f"{app_label}." + model.__name__,
             "pk": row.pk,
         }
 
