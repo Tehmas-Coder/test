@@ -1,17 +1,14 @@
-from django.db import models
-from core.models import BaseModel
 from datetime import datetime
+
+from django.db import models
+
+from core.models import BaseModel
 
 # ---------------------------------------------------------------------------- #
 #                               QUESTION LOOKUPS                               #
 # ---------------------------------------------------------------------------- #
 
-
-
-
-
-
-
+MEDIA_MODEL = "lookups.Media"
 
 class EducationLevel(BaseModel):
     name = models.CharField(max_length=100, unique=True)
@@ -103,7 +100,7 @@ class Question(BaseModel):
     has_media = models.BooleanField(default=False)
 
     medias = models.ManyToManyField(
-        "lookups.Media", related_name="questions", through="QuestionMedia"
+        MEDIA_MODEL, related_name="questions", through="QuestionMedia"
     )
 
     class Meta:
@@ -143,7 +140,7 @@ class QuestionChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField("lookups.Media", related_name="choices", through="QuestionChoiceMedia")
+    medias = models.ManyToManyField(MEDIA_MODEL, related_name="choices", through="QuestionChoiceMedia")
 
     class Meta:
         app_label = "questionbank"
@@ -185,19 +182,16 @@ class QuestionRetryHint(BaseModel):
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
 
-    medias = models.ManyToManyField("lookups.Media", related_name="retry_hints")
+    medias = models.ManyToManyField(MEDIA_MODEL, related_name="retry_hints", through="QuestionRetryHintMedia",)
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # self.arrange_sequence()
+        if self.pk:
+            if self.medias.exists():
+                self.has_media = True
+            else:
+                self.has_media = False
+        return super().save(*args, **kwargs)
 
-    def arrange_sequence(self):
-        question_retry_hints = QuestionRetryHint.objects.filter(
-            question=self.question
-        ).order_by("sequence")
-        for index, question_retry_hint in enumerate(question_retry_hints):
-            question_retry_hint.sequence = index + 1
-            question_retry_hint.save()
 
     class Meta:
         app_label = "questionbank"
@@ -208,40 +202,6 @@ class QuestionRetryHint(BaseModel):
 # ---------------------------------------------------------------------------- #
 
 
-class QuestionMedia(BaseModel):
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-    )
-    media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = "questionbank"
-        db_table = "questionbank_question_medias"
-
-
-class QuestionTag(BaseModel):
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-    )
-    tag = models.ForeignKey("lookups.Tag", on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = "questionbank"
-        db_table = "questionbank_question_tags"
-
-
-class QuestionChoiceMedia(BaseModel):
-    question_choice = models.ForeignKey(
-        QuestionChoice,
-        on_delete=models.CASCADE,
-    )
-    media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = "questionbank"
-        db_table = "questionbank_questionchoice_medias"
 
 
 class SubjectEducationLevel(BaseModel):
@@ -290,3 +250,50 @@ class QuestionSubjectCountry(BaseModel):
 
     class Meta:
         app_label = "questionbank"
+
+
+class QuestionMedia(BaseModel):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+    )
+    media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_question_medias"
+
+
+class QuestionTag(BaseModel):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+    )
+    tag = models.ForeignKey("lookups.Tag", on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_question_tags"
+
+
+class QuestionChoiceMedia(BaseModel):
+    question_choice = models.ForeignKey(
+        QuestionChoice,
+        on_delete=models.CASCADE,
+    )
+    media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_questionchoice_medias"
+
+class QuestionRetryHintMedia(BaseModel):
+    question_retry_hint = models.ForeignKey(
+        QuestionRetryHint,
+        on_delete=models.CASCADE,
+    )
+    media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_questionretryhint_medias"
