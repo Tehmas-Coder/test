@@ -30,7 +30,6 @@ class QuestionChoiceSerializer(BaseModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data):
-        debug_print(validated_data)
         try:
             request = self.context.get("request")
             medias = []

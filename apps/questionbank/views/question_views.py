@@ -1,15 +1,8 @@
 import json
 from rest_framework import viewsets
-from apps.questionbank.models import (
-    EducationLevel,
-    Question,
-    QuestionChoice,
-    QuestionMedia,
-    QuestionSubject,
-    QuestionTag,
-    Subject,
-    SubjectEducationLevel,
-)
+from apps.questionbank.models import (EducationLevel, Question, QuestionChoice,
+    QuestionChoiceMedia, QuestionMedia, QuestionSubject, QuestionTag, Subject,
+    SubjectEducationLevel)
 from apps.questionbank.serializers.question_serializers import (
     QuestionDetailSerializer,
     QuestionEditSerializer,
@@ -37,6 +30,8 @@ from apps.questionbank.serializers.question_tag_serializers import QuestionTagSe
 from apps.questionbank.serializers.question_choice_serializers import (
     QuestionChoiceSerializer,
 )
+from apps.questionbank.serializers.question_choice_media_serializers import (
+    QuestionChoiceMediaEditSerializer, QuestionChoiceMediaSerializer)
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -191,5 +186,21 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         question_choice = serializer.save()
         serializer = QuestionChoiceSerializer(question_choice)
         return Response(serializer.data)
+
+# ------------------------------- CHOICES MEDIA ------------------------------ #
+
+class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
+    queryset = QuestionChoiceMedia.objects.all()
+    serializer_class = QuestionChoiceMediaEditSerializer
+    http_method_names = ['post', 'delete']
+
+    def create(self, request, *args, **kwargs):
+        res =  super().create(request, *args, **kwargs)
+        if res.data:
+            instance = QuestionChoiceMedia.objects.get(id=res.data['id'])
+            serializer = QuestionChoiceMediaSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return res
+
 
 
