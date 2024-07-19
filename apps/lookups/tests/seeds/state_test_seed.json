@@ -1,0 +1,24 @@
+[
+  {
+    "model": "lookups.state",
+    "pk": 1,
+    "fields": {
+      "name": "Antarctic",
+      "code": "ANT",
+      "country": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.state",
+    "pk": 2,
+    "fields": {
+      "name": "Americas",
+      "code": "AME",
+      "country": 2,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  }
+]

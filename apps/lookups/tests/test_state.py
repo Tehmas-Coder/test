@@ -8,77 +8,54 @@ from apps.user.tests.test_setup import TestSetUp
 from rest_framework import status
 
 
-class CountryUnitTest(TestSetUp):
-    fixtures = [
-        "currency_test_seed",
-        "timezone_test_seed",
-        "language_test_seed",
-        "country_test_seed",
-    ]
+class StateUnitTest(TestSetUp):
+    fixtures = ["country_test_seed", "state_test_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_get_country_list(self):
-        print_test_header("get_country_list")
-        url = "/api/countries/"
+    def do_get_state_list(self):
+        print_test_header("get_state_list")
+        url = "/api/states/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
         return response.data["results"]
 
-    def do_get_one_country(self, country_id):
-        print_test_header("get_one_country")
-        url = f"/api/countries/{country_id}/"
+    def do_get_one_state(self, state_id):
+        print_test_header("get_one_state")
+        url = f"/api/states/{state_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
         return response.data
 
 
-class CountryTest(CountryUnitTest):
+class StateTest(StateUnitTest):
     # ?###################################################
     # ?              TESTS - CASES
     # ?###################################################
-    def test_cases_country(self):
-        countries_list = self.successfull_countries_list_get_test()
-        self.successfull_get_one_country_from_country_list(countries_list)
+    def test_cases_state(self):
+        states_list = self.successfull_states_list_get_test()
+        self.successfull_get_one_state_from_state_list(states_list)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS
     # ?###################################################
 
-    def successfull_countries_list_get_test(self):
-        json_data = self.do_get_country_list()
+    def successfull_states_list_get_test(self):
+        json_data = self.do_get_state_list()
         self.assertGreater(len(json_data), 0)
         for one_dict in json_data:
             self.assertIn("name", one_dict)
-            self.assertIn("iso2_code", one_dict)
-            self.assertIn("iso3_code", one_dict)
-            self.assertIn("capital", one_dict)
-            self.assertIn("lat", one_dict)
-            self.assertIn("lon", one_dict)
-            self.assertIn("dial_code", one_dict)
-            self.assertIn("is_un_member", one_dict)
-            self.assertIn("flag", one_dict)
+            self.assertIn("code", one_dict)
         return json_data
 
-    def successfull_get_one_country_from_country_list(self, countries_list):
-        json_data = countries_list
-        test_country_id = json_data[len(json_data) - 1]["id"]
-        json_data = self.do_get_one_country(test_country_id)
-        self.assertEqual(json_data["id"], test_country_id)
+    def successfull_get_one_state_from_state_list(self, states_list):
+        json_data = states_list
+        test_state_id = json_data[len(json_data) - 1]["id"]
+        json_data = self.do_get_one_state(test_state_id)
+        self.assertEqual(json_data["id"], test_state_id)
         self.assertIn("name", json_data)
-        self.assertIn("iso2_code", json_data)
-        self.assertIn("iso3_code", json_data)
-        self.assertIn("capital", json_data)
-        self.assertIn("lat", json_data)
-        self.assertIn("lon", json_data)
-        self.assertIn("dial_code", json_data)
-        self.assertIn("is_un_member", json_data)
-        self.assertIn("flag", json_data)
-        self.assertIn("timezones", json_data)
-        self.assertIn("currencies", json_data)
-        self.assertIn("languages", json_data)
-        self.assertIn("states", json_data)
+        self.assertIn("code", json_data)
 
 
 # ?###################################################
