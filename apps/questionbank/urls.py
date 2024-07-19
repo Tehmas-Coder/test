@@ -1,12 +1,13 @@
 from django.urls import path
 from rest_framework import routers
 from django.urls import include
-from apps.questionbank.views import (
+from apps.questionbank.views.question_views import (
     EducationLevelViewSet,
     QuestionViewSet,
     SubjectEducationLevelViewSet,
     SubjectViewSet,
 )
+
 
 router = routers.DefaultRouter()
 

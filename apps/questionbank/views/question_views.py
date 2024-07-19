@@ -23,8 +23,8 @@ from rest_framework import status
 from rest_framework.decorators import action
 from django.db.models import Prefetch
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from utils.rna_utils import color_print, debug_print
+from rest_framework.parsers import MultiPartParser, FormParser, DjangoMultiPartParser
+from utils.rna_utils import debug_print
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -47,25 +47,75 @@ class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 
+    def parse_media(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # Extract media for questions
+        media_keys = request_data.pop("medias", [])
+        request_data["medias"] = []
+        for key in media_keys:
+            file = request.FILES.get(key)
+            if file:
+                request_data["medias"].append(
+                    {
+                        "file": file,
+                    }
+                )
+
+        # Extract media for hints
+        for hint in request_data["retry_hints"]:
+            hint_medias = hint.pop("medias", [])
+            if hint["has_media"]:
+                hint["medias"] = []
+                for key in hint_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        hint["medias"].append(
+                            {
+                                "file": file,
+                            }
+                        )
+
+        # Extract media for choices
+        for choice in request_data["choices"]:
+            choice_medias = choice.pop("medias", [])
+            if choice["has_media"]:
+                choice["medias"] = []
+                for key in choice_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        choice["medias"].append(
+                            {
+                                "file": file,
+                            }
+                        )
+
+        return request_data
+
     def get_serializer(self, *args, **kwargs):
         if self.action in ["create", "partial_update"]:
             return QuestionEditSerializer(*args, **kwargs)
         return super().get_serializer(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        if "data" in request.data:
+            request_data = self.parse_media(request)
+        else:
+            request_data = request.data
+        serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
+        request_data = request.data
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
         serializer = QuestionDetailSerializer(question)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
 
     @action(detail=False, methods=["delete"], url_path="delete-all")
     def delete_all(self, request):
