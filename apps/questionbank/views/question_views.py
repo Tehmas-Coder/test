@@ -12,7 +12,8 @@ from apps.questionbank.models import (
     QuestionChoice,
     QuestionChoiceMedia,
     QuestionMedia,
-    QuestionSubject,
+    QuestionRetryHint,
+    QuestionRetryHintMedia,
     QuestionTag,
     Subject,
     SubjectEducationLevel,
@@ -33,6 +34,13 @@ from apps.questionbank.serializers.question_serializers.question_choice_serializ
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
     QuestionMediaDetailSerializer,
     QuestionMediaEditSerializer,
+)
+from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
+    QuestionRetryHintMediaEditSerializer,
+    QuestionRetryHintMediaSerializer,
+)
+from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionDetailSerializer,
@@ -237,3 +245,40 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
 
 
 # -------------------------------- RETRY HINTS ------------------------------- #
+
+
+class QuestionRetryHintViewSet(viewsets.ModelViewSet):
+    queryset = QuestionRetryHint.objects.all()
+    serializer_class = QuestionRetryHintSerializer
+    http_method_names = ["post", "patch", "delete"]
+
+    def create(self, request, *args, **kwargs):
+        request_data = request.data.copy()
+        if len(request.FILES) > 0:
+            request_data["medias"] = []
+        for file in request.FILES:
+            request_data["medias"].append({"file": request.FILES[file]})
+            request_data.pop(file)
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_retry_hint = serializer.save()
+        serializer = QuestionRetryHintSerializer(question_retry_hint)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# ----------------------------- RETRY HINT MEDIA ----------------------------- #
+
+
+class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
+    queryset = QuestionRetryHintMedia.objects.all()
+    serializer_class = QuestionRetryHintMediaEditSerializer
+    http_method_names = ["post", "delete"]
+
+    def create(self, request, *args, **kwargs):
+        res = super().create(request, *args, **kwargs)
+        if res.data:
+            instance = QuestionRetryHintMedia.objects.get(id=res.data["id"])
+            serializer = QuestionRetryHintMediaSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return res
