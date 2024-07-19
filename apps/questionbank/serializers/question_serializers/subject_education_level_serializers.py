@@ -1,12 +1,13 @@
-from core.serializers import BaseModelSerializer, get_base_model_fields
+from rest_framework import serializers
+
 from apps.questionbank.models import SubjectEducationLevel
-from apps.questionbank.serializers.education_level_serializers import (
+from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
-from apps.questionbank.serializers.subject_serializers import (
+from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectListSerializer,
 )
-from rest_framework import serializers
+from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
 
 

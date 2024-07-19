@@ -1,4 +1,8 @@
-from core.serializers import BaseModelSerializer, get_base_model_fields
+from rest_framework import serializers
+
+from apps.lookups.models import Tag
+from apps.lookups.serializers.media_serializers import MediaSerializer
+from apps.lookups.serializers.tag_serializers import TagSerializer
 from apps.questionbank.models import (
     Question,
     QuestionAttemptResponse,
@@ -7,27 +11,20 @@ from apps.questionbank.models import (
     QuestionSubject,
     SubjectEducationLevel,
 )
-from rest_framework import serializers
-from apps.questionbank.serializers.subject_education_level_serializers import (
-    SubjectEducationLevelDetailSerializer,
+from apps.questionbank.serializers.question_serializers.question_attempt_response_serializers import (
+    QuestionAttemptResponseEditSerializer,
 )
-from apps.lookups.serializers.tag_serializers import TagSerializer
-from apps.lookups.models import Tag
-from apps.questionbank.serializers.question_subject_serializers import (
+from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
+    QuestionChoiceEditSerializer,
+)
+from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintEditSerializer,
+)
+from apps.questionbank.serializers.question_serializers.question_subject_serializers import (
     QuestionSubjectDetailSerializer,
     QuestionSubjectEditSerializer,
 )
-from utils.rna_utils import color_print, debug_print
-from apps.questionbank.serializers.question_choice_serializers import (
-    QuestionChoiceEditSerializer,
-)
-from apps.questionbank.serializers.question_attempt_response_serializers import (
-    QuestionAttemptResponseEditSerializer,
-)
-from apps.questionbank.serializers.question_retry_hint_serializers import (
-    QuestionRetryHintEditSerializer,
-)
-from apps.questionbank.serializers.media_serializers import MediaSerializer
+from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionDetailSerializer(BaseModelSerializer):

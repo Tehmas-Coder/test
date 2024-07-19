@@ -1,5 +1,5 @@
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.questionbank.models import Media
+from apps.lookups.models import Media
 from utils.rna_utils import color_print, debug_print
 from rest_framework import serializers
 
@@ -28,7 +28,6 @@ class MediaSerializer(BaseModelSerializer):
         read_only_fields = ["id", "size", "name", "type", "extension"]
 
     def create(self, validated_data):
-        debug_print(validated_data)
         file = validated_data.pop("file")
         name = file.name
         extension = file.name.split(".")[-1]

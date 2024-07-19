@@ -7,21 +7,10 @@ from datetime import datetime
 # ---------------------------------------------------------------------------- #
 
 
-def upload_to(instance, filename):
-    folder_name = instance.__class__.__name__.lower()
-    timestamp = int(datetime.now().timestamp())
-    return f"{folder_name}/{timestamp}_{filename}"
 
 
-class Media(BaseModel):
-    name = models.CharField(max_length=100)
-    file = models.FileField(upload_to=upload_to)
-    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
-    extension = models.CharField(max_length=10, blank=True)
-    size = models.IntegerField(default=0)
 
-    class Meta:
-        app_label = "questionbank"
+
 
 
 class EducationLevel(BaseModel):
@@ -103,7 +92,9 @@ class Question(BaseModel):
         related_name="questions",
     )
 
-    tags = models.ManyToManyField("lookups.Tag", related_name="questions")
+    tags = models.ManyToManyField(
+        "lookups.Tag", related_name="questions", through="QuestionTag"
+    )
 
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
@@ -111,7 +102,9 @@ class Question(BaseModel):
     can_shuffle = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(Media, related_name="questions")
+    medias = models.ManyToManyField(
+        "lookups.Media", related_name="questions", through="QuestionMedia"
+    )
 
     class Meta:
         app_label = "questionbank"
@@ -150,10 +143,18 @@ class QuestionChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(Media, related_name="choices")
+    medias = models.ManyToManyField("lookups.Media", related_name="choices", through="QuestionChoiceMedia")
 
     class Meta:
         app_label = "questionbank"
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            if self.medias.exists():
+                self.has_media = True
+            else:
+                self.has_media = False
+        return super().save(*args, **kwargs)
 
 
 class QuestionAttemptResponse(BaseModel):
@@ -184,7 +185,7 @@ class QuestionRetryHint(BaseModel):
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
 
-    medias = models.ManyToManyField(Media, related_name="retry_hints")
+    medias = models.ManyToManyField("lookups.Media", related_name="retry_hints")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -212,10 +213,35 @@ class QuestionMedia(BaseModel):
         Question,
         on_delete=models.CASCADE,
     )
-    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
 
     class Meta:
         app_label = "questionbank"
+        db_table = "questionbank_question_medias"
+
+
+class QuestionTag(BaseModel):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+    )
+    tag = models.ForeignKey("lookups.Tag", on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_question_tags"
+
+
+class QuestionChoiceMedia(BaseModel):
+    question_choice = models.ForeignKey(
+        QuestionChoice,
+        on_delete=models.CASCADE,
+    )
+    media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+        db_table = "questionbank_questionchoice_medias"
 
 
 class SubjectEducationLevel(BaseModel):

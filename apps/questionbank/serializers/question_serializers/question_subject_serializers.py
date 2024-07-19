@@ -1,23 +1,16 @@
-from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.questionbank.models import (
-    DifficultyLevel,
-    QuestionSubject,
-    SubjectEducationLevel,
-)
-from apps.questionbank.serializers.subject_education_level_serializers import (
-    SubjectEducationLevelEditSerializer,
-)
 from rest_framework import serializers
+
 from apps.lookups.models import Country, MeasuringUnit
-from utils.rna_utils import debug_print
-from apps.questionbank.serializers.education_level_serializers import (
-    EducationLevelSerializer,
-)
 from apps.lookups.serializers.country_serializers import CountrySerializer
-from apps.questionbank.serializers.difficulty_level_serializers import (
+from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
+from apps.questionbank.models import DifficultyLevel, QuestionSubject
+from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
     DifficultyLevelSerializer,
 )
-from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
+from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
+    SubjectEducationLevelEditSerializer,
+)
+from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionSubjectListSerializer(BaseModelSerializer):
