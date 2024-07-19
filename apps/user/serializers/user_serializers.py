@@ -100,7 +100,7 @@ class UserEditSerializer(BaseModelSerializer):
                 {"error": "Failed to send email, please try again"}
             )
 
-        color_print("OTP sent to email", "green")
+        # color_print("OTP sent to email", "green")
         return user
 
     def update(self, instance, validated_data):
