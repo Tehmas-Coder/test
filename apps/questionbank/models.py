@@ -159,6 +159,14 @@ class QuestionChoice(BaseModel):
     class Meta:
         app_label = "questionbank"
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            if self.medias.exists():
+                self.has_media = True
+            else:
+                self.has_media = False
+        return super().save(*args, **kwargs)
+
 
 class QuestionAttemptResponse(BaseModel):
     question = models.ForeignKey(

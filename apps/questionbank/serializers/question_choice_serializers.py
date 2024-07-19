@@ -1,11 +1,12 @@
+from rest_framework.fields import empty
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from apps.questionbank.models import QuestionChoice
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from utils.rna_utils import debug_print
-
+from rest_framework import serializers
 
 class QuestionChoiceSerializer(BaseModelSerializer):
-    medias = MediaSerializer(many=True)
+    medias = MediaSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionChoice
@@ -23,17 +24,21 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
         read_only_fields = ["id"]
 
-    def validate_empty_values(self, data):
-        debug_print(data, "cyan")
-        return super().validate_empty_values(data)
+
 
     def validate(self, attrs):
-        debug_print(attrs, "cyan")
         return super().validate(attrs)
 
     def create(self, validated_data):
         debug_print(validated_data)
-        medias = validated_data.pop("medias", [])
+        try:
+            request = self.context.get("request")
+            medias = []
+            for file in request.FILES: #type: ignore
+                medias.append({"file": request.FILES[file]}) #type: ignore
+        except:
+            medias = validated_data.pop("medias")
+
         question_choice = QuestionChoice.objects.create(**validated_data)
 
         for media in medias:
@@ -42,7 +47,13 @@ class QuestionChoiceSerializer(BaseModelSerializer):
             media = media_serializer.save()
             question_choice.medias.add(media)
 
+        if medias:
+            question_choice.has_media = True
+            question_choice.save()
+
         return question_choice
+
+
 
 
 class QuestionChoiceEditSerializer(BaseModelSerializer):

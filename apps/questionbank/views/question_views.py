@@ -167,18 +167,29 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
 
 # ---------------------------------- CHOICES --------------------------------- #
 class QuestionChoiceViewSet(viewsets.ModelViewSet):
-    queryset = QuestionChoice.objects.all()
+    queryset = QuestionChoice.objects.all().prefetch_related("medias")
     serializer_class = QuestionChoiceSerializer
     http_method_names = ["post", "patch", "delete"]
 
     def create(self, request, *args, **kwargs):
         request_data = request.data.copy()
-        request_data["medias"] = []
-        for file in request.FILES.values():
-            request_data["medias"].append({"file": file})
-        debug_print(request_data, "yellow")
+        if len(request.FILES) > 0:
+            request_data["medias"] = []
+        for file in request.FILES:
+            request_data["medias"].append({"file": request.FILES[file]})
+            request_data.pop(file)
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
         serializer = QuestionChoiceSerializer(question_choice)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        question_choice = serializer.save()
+        serializer = QuestionChoiceSerializer(question_choice)
+        return Response(serializer.data)
+
+
