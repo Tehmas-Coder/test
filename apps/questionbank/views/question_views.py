@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from apps.questionbank.models import (
     EducationLevel,
     Question,
+    QuestionMedia,
     QuestionSubject,
     Subject,
     SubjectEducationLevel,
@@ -23,8 +24,13 @@ from rest_framework import status
 from rest_framework.decorators import action
 from django.db.models import Prefetch
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
-from rest_framework.parsers import MultiPartParser, FormParser, DjangoMultiPartParser
+
 from utils.rna_utils import debug_print
+from apps.questionbank.serializers.question_media_serializers import (
+    QuestionMediaDetailSerializer,
+    QuestionMediaEditSerializer,
+)
+from rest_framework.parsers import FormParser, MultiPartParser
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
@@ -121,3 +127,18 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def delete_all(self, request):
         Question.objects.all().delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class QuestionMediaViewSet(viewsets.ModelViewSet):
+    queryset = QuestionMedia.objects.all()
+    serializer_class = QuestionMediaEditSerializer
+    http_method_names = ["post", "delete"]
+    parser_classes = [FormParser, MultiPartParser]
+
+    def create(self, request, *args, **kwargs):
+        request_data = request.data
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_media = serializer.save()
+        serializer = QuestionMediaDetailSerializer(question_media)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

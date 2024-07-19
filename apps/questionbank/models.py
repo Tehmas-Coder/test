@@ -207,6 +207,17 @@ class QuestionRetryHint(BaseModel):
 # ---------------------------------------------------------------------------- #
 
 
+class QuestionMedia(BaseModel):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+    )
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "questionbank"
+
+
 class SubjectEducationLevel(BaseModel):
     subject = models.ForeignKey(
         Subject,
