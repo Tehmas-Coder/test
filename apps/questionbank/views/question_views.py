@@ -1,39 +1,53 @@
 import json
-from rest_framework import viewsets
-from apps.questionbank.models import (EducationLevel, Question, QuestionAttemptResponse,
-    QuestionChoice, QuestionChoiceMedia, QuestionMedia, QuestionSubject, QuestionTag, Subject,
-    SubjectEducationLevel)
-from apps.questionbank.serializers.question_serializers import (
-    QuestionDetailSerializer,
-    QuestionEditSerializer,
+
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.response import Response
+
+from apps.questionbank.models import (
+    EducationLevel,
+    Question,
+    QuestionAttemptResponse,
+    QuestionChoice,
+    QuestionChoiceMedia,
+    QuestionMedia,
+    QuestionSubject,
+    QuestionTag,
+    Subject,
+    SubjectEducationLevel,
 )
-from apps.questionbank.serializers.subject_education_level_serializers import (
-    SubjectEducationLevelDetailSerializer,
-)
-from apps.questionbank.serializers.subject_serializers import SubjectDetailSerializer
-from apps.questionbank.serializers.education_level_serializers import (
+from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import action
-from django.db.models import Prefetch
-from apps.questionbank.utils.question_utils import get_question_detail_queryset
-
-from utils.rna_utils import debug_print
-from apps.questionbank.serializers.question_media_serializers import (
+from apps.questionbank.serializers.question_serializers.question_attempt_response_serializers import (
+    QuestionAttemptResponseSerializer,
+)
+from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
+    QuestionChoiceMediaEditSerializer,
+    QuestionChoiceMediaSerializer,
+)
+from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
+    QuestionChoiceSerializer,
+)
+from apps.questionbank.serializers.question_serializers.question_media_serializers import (
     QuestionMediaDetailSerializer,
     QuestionMediaEditSerializer,
 )
-from rest_framework.parsers import FormParser, MultiPartParser
-from apps.questionbank.serializers.question_tag_serializers import QuestionTagSerializer
-from apps.questionbank.serializers.question_choice_serializers import (
-    QuestionChoiceSerializer,
+from apps.questionbank.serializers.question_serializers.question_serializers import (
+    QuestionDetailSerializer,
+    QuestionEditSerializer,
 )
-from apps.questionbank.serializers.question_choice_media_serializers import (
-    QuestionChoiceMediaEditSerializer, QuestionChoiceMediaSerializer)
-from apps.questionbank.serializers.question_attempt_response_serializers import (
-    QuestionAttemptResponseSerializer)
+from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
+    QuestionTagSerializer,
+)
+from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
+    SubjectEducationLevelDetailSerializer,
+)
+from apps.questionbank.serializers.question_serializers.subject_serializers import (
+    SubjectDetailSerializer,
+)
+from apps.questionbank.utils.question_utils import get_question_detail_queryset
 
 
 class EducationLevelViewSet(viewsets.ModelViewSet):
