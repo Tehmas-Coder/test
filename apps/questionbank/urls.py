@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from apps.questionbank.views.question_views import (
+    DifficultyLevelViewSet,
     EducationLevelViewSet,
     QuestionAttemptResponseViewSet,
     QuestionChoiceMediaViewSet,
@@ -10,6 +11,7 @@ from apps.questionbank.views.question_views import (
     QuestionRetryHintMediaViewSet,
     QuestionRetryHintViewSet,
     QuestionTagViewSet,
+    QuestionTypeViewSet,
     QuestionViewSet,
     SubjectEducationLevelViewSet,
     SubjectViewSet,
@@ -17,10 +19,13 @@ from apps.questionbank.views.question_views import (
 
 router = routers.DefaultRouter()
 
-
+router.register(r"question-types", QuestionTypeViewSet)
+router.register(r"difficulty-levels", DifficultyLevelViewSet)
 router.register(r"subjects", SubjectViewSet)
 router.register(r"education-levels", EducationLevelViewSet)
 router.register(r"subject-education-levels", SubjectEducationLevelViewSet)
+
+
 router.register(r"questions", QuestionViewSet)
 router.register(r"question-media", QuestionMediaViewSet)
 router.register(r"question-tag", QuestionTagViewSet)

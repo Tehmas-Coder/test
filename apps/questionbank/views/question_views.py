@@ -6,6 +6,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from apps.questionbank.models import (
+    DifficultyLevel,
     EducationLevel,
     Question,
     QuestionAttemptResponse,
@@ -15,8 +16,12 @@ from apps.questionbank.models import (
     QuestionRetryHint,
     QuestionRetryHintMedia,
     QuestionTag,
+    QuestionType,
     Subject,
     SubjectEducationLevel,
+)
+from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
+    DifficultyLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
@@ -49,6 +54,9 @@ from apps.questionbank.serializers.question_serializers.question_serializers imp
 from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
     QuestionTagSerializer,
 )
+from apps.questionbank.serializers.question_serializers.question_type_serializers import (
+    QuestionTypeSerializer,
+)
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
     SubjectEducationLevelDetailSerializer,
     SubjectEducationLevelEditSerializer,
@@ -59,19 +67,42 @@ from apps.questionbank.serializers.question_serializers.subject_serializers impo
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
 
 
+# ---------------------------------------------------------------------------- #
+#                               QUESTION LOOKUPS                               #
+# ---------------------------------------------------------------------------- #
 class EducationLevelViewSet(viewsets.ModelViewSet):
     queryset = EducationLevel.objects.all()
     serializer_class = EducationLevelSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     serializer_class = SubjectDetailSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     queryset = SubjectEducationLevel.objects.all()
     serializer_class = SubjectEducationLevelDetailSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
+
+
+class DifficultyLevelViewSet(viewsets.ModelViewSet):
+    queryset = DifficultyLevel.objects.all()
+    serializer_class = DifficultyLevelSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
+
+
+class QuestionTypeViewSet(viewsets.ModelViewSet):
+    queryset = QuestionType.objects.all()
+    serializer_class = QuestionTypeSerializer
+    http_method_names = ["get"]
+    pagination_class = None
 
     def get_serializer_class(self):
         if self.action in ["create", "update"]:

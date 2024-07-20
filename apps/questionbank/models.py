@@ -10,6 +10,7 @@ from core.models import BaseModel
 
 MEDIA_MODEL = "lookups.Media"
 
+
 class EducationLevel(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
@@ -89,6 +90,8 @@ class Question(BaseModel):
         related_name="questions",
     )
 
+    type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
+
     tags = models.ManyToManyField(
         "lookups.Tag", related_name="questions", through="QuestionTag"
     )
@@ -140,7 +143,9 @@ class QuestionChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(MEDIA_MODEL, related_name="choices", through="QuestionChoiceMedia")
+    medias = models.ManyToManyField(
+        MEDIA_MODEL, related_name="choices", through="QuestionChoiceMedia"
+    )
 
     class Meta:
         app_label = "questionbank"
@@ -182,7 +187,11 @@ class QuestionRetryHint(BaseModel):
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
 
-    medias = models.ManyToManyField(MEDIA_MODEL, related_name="retry_hints", through="QuestionRetryHintMedia",)
+    medias = models.ManyToManyField(
+        MEDIA_MODEL,
+        related_name="retry_hints",
+        through="QuestionRetryHintMedia",
+    )
 
     def save(self, *args, **kwargs):
         if self.pk:
@@ -192,7 +201,6 @@ class QuestionRetryHint(BaseModel):
                 self.has_media = False
         return super().save(*args, **kwargs)
 
-
     class Meta:
         app_label = "questionbank"
 
@@ -200,8 +208,6 @@ class QuestionRetryHint(BaseModel):
 # ---------------------------------------------------------------------------- #
 #                                   MAPPINGS                                   #
 # ---------------------------------------------------------------------------- #
-
-
 
 
 class SubjectEducationLevel(BaseModel):
@@ -250,6 +256,7 @@ class QuestionSubjectCountry(BaseModel):
 
     class Meta:
         app_label = "questionbank"
+        db_table = "questionbank_questionsubject_countries"
 
 
 class QuestionMedia(BaseModel):
@@ -286,6 +293,7 @@ class QuestionChoiceMedia(BaseModel):
     class Meta:
         app_label = "questionbank"
         db_table = "questionbank_questionchoice_medias"
+
 
 class QuestionRetryHintMedia(BaseModel):
     question_retry_hint = models.ForeignKey(
