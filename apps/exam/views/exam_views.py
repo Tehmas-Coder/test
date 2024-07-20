@@ -2,7 +2,13 @@ from django.db.models import Prefetch
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from apps.exam.models.exam_models import Exam, ExamSubject, ExamSubjectQuestion
+from apps.exam.models.exam_models import (
+    Exam,
+    ExamSubject,
+    ExamSubjectQuestion,
+    Section,
+    SubSection,
+)
 from apps.exam.serializers.exam_serializers import (
     ExamDetailSerialzer,
     ExamEditSerializer,
@@ -14,6 +20,14 @@ from apps.exam.serializers.exam_subject_question_serializer import (
 from apps.exam.serializers.exam_subject_serializers import (
     ExamSubjectDetailSerializer,
     ExamSubjectSerializer,
+)
+from apps.exam.serializers.section_serializers import (
+    SectionEditSerializer,
+    SectionSerializer,
+)
+from apps.exam.serializers.subsection_serializers import (
+    SubSectionEditSerializer,
+    SubSectionSerializer,
 )
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
 
@@ -109,4 +123,64 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam_subject_question = serializer.save()
         response = ExamSubjectQuestionSerializer(exam_subject_question).data
+        return Response(response)
+
+
+# ---------------------------------- SECTION --------------------------------- #
+
+
+class SectionViewSet(viewsets.ModelViewSet):
+    queryset = Section.objects.all()
+    serializer_class = SectionEditSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
+
+    def get_serializer_class(self):
+        if self.action in ["retrieve", "list"]:
+            return SectionSerializer
+        return super().get_serializer_class()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        section = serializer.save()
+        response = SectionSerializer(section).data
+        return Response(response)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        section = serializer.save()
+        response = SectionSerializer(section).data
+        return Response(response)
+
+
+# -------------------------------- SubSection -------------------------------- #
+
+
+class SubSectionViewSet(viewsets.ModelViewSet):
+    queryset = SubSection.objects.all()
+    serializer_class = SubSectionEditSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
+
+    def get_serializer_class(self):
+        if self.action in ["retrieve", "list"]:
+            return SubSectionSerializer
+        return super().get_serializer_class()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        subsection = serializer.save()
+        response = SubSectionSerializer(subsection).data
+        return Response(response)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        subsection = serializer.save()
+        response = SubSectionSerializer(subsection).data
         return Response(response)
