@@ -219,6 +219,7 @@ class SubjectEducationLevel(BaseModel):
 
     class Meta:
         app_label = "questionbank"
+        db_table = "questionbank_subject_educationlevel"
 
 
 class QuestionSubject(BaseModel):
@@ -256,7 +257,7 @@ class QuestionSubjectCountry(BaseModel):
 
     class Meta:
         app_label = "questionbank"
-        db_table = "questionbank_questionsubject_countries"
+        db_table = "questionbank_questionsubject_country"
 
 
 class QuestionMedia(BaseModel):
@@ -268,7 +269,7 @@ class QuestionMedia(BaseModel):
 
     class Meta:
         app_label = "questionbank"
-        db_table = "questionbank_question_medias"
+        db_table = "questionbank_question_media"
 
 
 class QuestionTag(BaseModel):
@@ -280,7 +281,7 @@ class QuestionTag(BaseModel):
 
     class Meta:
         app_label = "questionbank"
-        db_table = "questionbank_question_tags"
+        db_table = "questionbank_question_tag"
 
 
 class QuestionChoiceMedia(BaseModel):
@@ -292,7 +293,7 @@ class QuestionChoiceMedia(BaseModel):
 
     class Meta:
         app_label = "questionbank"
-        db_table = "questionbank_questionchoice_medias"
+        db_table = "questionbank_questionchoice_media"
 
 
 class QuestionRetryHintMedia(BaseModel):
@@ -304,4 +305,4 @@ class QuestionRetryHintMedia(BaseModel):
 
     class Meta:
         app_label = "questionbank"
-        db_table = "questionbank_questionretryhint_medias"
+        db_table = "questionbank_questionretryhint_media"
