@@ -1,8 +1,6 @@
 from rest_framework import viewsets
-from apps.lookups.serializers.country_serializers import (
-    CountryDetailSerializer,
-    CountrySerializer,
-)
+from rest_framework.permissions import IsAuthenticated
+
 from apps.lookups.models import (
     Country,
     Currency,
@@ -14,17 +12,18 @@ from apps.lookups.models import (
     Tag,
     Timezone,
 )
-from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
-from apps.lookups.serializers.region_serializers import (
-    RegionDetailSerializer,
+from apps.lookups.serializers.country_serializers import (
+    CountryDetailSerializer,
+    CountrySerializer,
 )
-from apps.lookups.serializers.state_serializers import StateSerializer
-from apps.lookups.serializers.language_serializers import LanguageSerializer
 from apps.lookups.serializers.currency_serializers import CurrencySerializer
+from apps.lookups.serializers.language_serializers import LanguageSerializer
 from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
 from apps.lookups.serializers.media_type_serializers import MediaTypeSerializer
+from apps.lookups.serializers.region_serializers import RegionDetailSerializer
+from apps.lookups.serializers.state_serializers import StateSerializer
 from apps.lookups.serializers.tag_serializers import TagSerializer
-from rest_framework.permissions import IsAuthenticated
+from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
 
 
 class TimezoneViewset(viewsets.ModelViewSet):
@@ -32,6 +31,7 @@ class TimezoneViewset(viewsets.ModelViewSet):
     permission_classes = []
     serializer_class = TimezoneSerializer
     queryset = Timezone.objects.all()
+    pagination_class = None
 
 
 class RegionViewset(viewsets.ModelViewSet):
@@ -39,6 +39,7 @@ class RegionViewset(viewsets.ModelViewSet):
     permission_classes = []
     serializer_class = RegionDetailSerializer
     queryset = Region.objects.all().prefetch_related("countries")
+    pagination_class = None
 
 
 class CountryViewset(viewsets.ModelViewSet):
@@ -48,6 +49,7 @@ class CountryViewset(viewsets.ModelViewSet):
     queryset = Country.objects.all().prefetch_related(
         "timezones", "currencies", "languages", "states", "states__cities"
     )
+    pagination_class = None
 
     def get_serializer(self, *args, **kwargs):
         if self.action == "list":
@@ -60,6 +62,7 @@ class StateViewset(viewsets.ModelViewSet):
     permission_classes = []
     serializer_class = StateSerializer
     queryset = State.objects.all()
+    pagination_class = None
 
 
 class LanguageViewset(viewsets.ModelViewSet):
@@ -67,6 +70,7 @@ class LanguageViewset(viewsets.ModelViewSet):
     permission_classes = []
     serializer_class = LanguageSerializer
     queryset = Language.objects.all()
+    pagination_class = None
 
 
 class CurrencyViewset(viewsets.ModelViewSet):
@@ -74,12 +78,14 @@ class CurrencyViewset(viewsets.ModelViewSet):
     permission_classes = []
     serializer_class = CurrencySerializer
     queryset = Currency.objects.all()
+    pagination_class = None
 
 
 class MeasuringUnitViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
     permission_classes = []
     serializer_class = MeasuringUnitSerializer
+    pagination_class = None
     queryset = MeasuringUnit.objects.all()
 
 
@@ -87,12 +93,14 @@ class MediaTypeViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
     permission_classes = []
     serializer_class = MediaTypeSerializer
+    pagination_class = None
     queryset = MediaType.objects.all()
 
 
 class TagViewset(viewsets.ModelViewSet):
     permission_classes = []
     serializer_class = TagSerializer
+    pagination_class = None
     queryset = Tag.objects.all()
 
     def get_permissions(self):

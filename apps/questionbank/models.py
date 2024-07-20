@@ -256,6 +256,7 @@ class QuestionSubjectCountry(BaseModel):
 
     class Meta:
         app_label = "questionbank"
+        db_table = "questionbank_questionsubject_countries"
 
 
 class QuestionMedia(BaseModel):

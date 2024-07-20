@@ -73,30 +73,35 @@ class EducationLevelViewSet(viewsets.ModelViewSet):
     queryset = EducationLevel.objects.all()
     serializer_class = EducationLevelSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     serializer_class = SubjectDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     queryset = SubjectEducationLevel.objects.all()
     serializer_class = SubjectEducationLevelDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
     queryset = DifficultyLevel.objects.all()
     serializer_class = DifficultyLevelSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class QuestionTypeViewSet(viewsets.ModelViewSet):
     queryset = QuestionType.objects.all()
     serializer_class = QuestionTypeSerializer
     http_method_names = ["get"]
+    pagination_class = None
 
 
 # ---------------------------------------------------------------------------- #
