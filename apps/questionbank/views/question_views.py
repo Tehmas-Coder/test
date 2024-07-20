@@ -6,6 +6,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from apps.questionbank.models import (
+    DifficultyLevel,
     EducationLevel,
     Question,
     QuestionAttemptResponse,
@@ -15,8 +16,12 @@ from apps.questionbank.models import (
     QuestionRetryHint,
     QuestionRetryHintMedia,
     QuestionTag,
+    QuestionType,
     Subject,
     SubjectEducationLevel,
+)
+from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
+    DifficultyLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
@@ -49,6 +54,9 @@ from apps.questionbank.serializers.question_serializers.question_serializers imp
 from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
     QuestionTagSerializer,
 )
+from apps.questionbank.serializers.question_serializers.question_type_serializers import (
+    QuestionTypeSerializer,
+)
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
     SubjectEducationLevelDetailSerializer,
 )
@@ -58,19 +66,37 @@ from apps.questionbank.serializers.question_serializers.subject_serializers impo
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
 
 
+# ---------------------------------------------------------------------------- #
+#                               QUESTION LOOKUPS                               #
+# ---------------------------------------------------------------------------- #
 class EducationLevelViewSet(viewsets.ModelViewSet):
     queryset = EducationLevel.objects.all()
     serializer_class = EducationLevelSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     serializer_class = SubjectDetailSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     queryset = SubjectEducationLevel.objects.all()
     serializer_class = SubjectEducationLevelDetailSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+
+
+class DifficultyLevelViewSet(viewsets.ModelViewSet):
+    queryset = DifficultyLevel.objects.all()
+    serializer_class = DifficultyLevelSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+
+
+class QuestionTypeViewSet(viewsets.ModelViewSet):
+    queryset = QuestionType.objects.all()
+    serializer_class = QuestionTypeSerializer
+    http_method_names = ["get"]
 
 
 # ---------------------------------------------------------------------------- #
@@ -211,34 +237,40 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = QuestionChoiceSerializer(question_choice)
         return Response(serializer.data)
 
+
 # ------------------------------- CHOICES MEDIA ------------------------------ #
+
 
 class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
     queryset = QuestionChoiceMedia.objects.all()
     serializer_class = QuestionChoiceMediaEditSerializer
-    http_method_names = ['post', 'delete']
+    http_method_names = ["post", "delete"]
 
     def create(self, request, *args, **kwargs):
-        res =  super().create(request, *args, **kwargs)
+        res = super().create(request, *args, **kwargs)
         if res.data:
-            instance = QuestionChoiceMedia.objects.get(id=res.data['id'])
+            instance = QuestionChoiceMedia.objects.get(id=res.data["id"])
             serializer = QuestionChoiceMediaSerializer(instance)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return res
 
+
 # ------------------------- QUESTION ATTEMPT RESPONSE ------------------------ #
+
 
 class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
     queryset = QuestionAttemptResponse.objects.all()
     serializer_class = QuestionAttemptResponseSerializer
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ["get", "post", "patch", "delete"]
+
 
 # -------------------------------- RETRY HINTS ------------------------------- #
+
 
 class QuestionRetryHintViewSet(viewsets.ModelViewSet):
     queryset = QuestionRetryHint.objects.all()
     serializer_class = QuestionRetryHintSerializer
-    http_method_names = ['post', 'patch', 'delete']
+    http_method_names = ["post", "patch", "delete"]
 
     def create(self, request, *args, **kwargs):
         request_data = request.data.copy()
@@ -254,17 +286,19 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer = QuestionRetryHintSerializer(question_retry_hint)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
 # ----------------------------- RETRY HINT MEDIA ----------------------------- #
+
 
 class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
     queryset = QuestionRetryHintMedia.objects.all()
     serializer_class = QuestionRetryHintMediaEditSerializer
-    http_method_names = ['post', 'delete']
+    http_method_names = ["post", "delete"]
 
     def create(self, request, *args, **kwargs):
         res = super().create(request, *args, **kwargs)
         if res.data:
-            instance = QuestionRetryHintMedia.objects.get(id=res.data['id'])
+            instance = QuestionRetryHintMedia.objects.get(id=res.data["id"])
             serializer = QuestionRetryHintMediaSerializer(instance)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return res
