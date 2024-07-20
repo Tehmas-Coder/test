@@ -90,7 +90,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
 
 
 class QuestionEditSerializer(serializers.ModelSerializer):
-    subjects = QuestionSubjectEditSerializer(many=True)
+    subjects = QuestionSubjectEditSerializer(many=True, required=False)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True, required=False
     )
@@ -123,7 +123,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         question_medias = validated_data.pop("medias", [])
-        subjects_data = validated_data.pop("subjects")
+        subjects_data = validated_data.pop("subjects", [])
         tags_data = validated_data.pop("tags", [])
         choices_data = validated_data.pop("choices", [])
         attempt_responses_data = validated_data.pop("attempt_responses", [])
@@ -193,7 +193,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        subjects_data = validated_data.pop("subjects")
+        subjects_data = validated_data.pop("subjects", [])
 
         # * Update question
         instance.title = validated_data.get("title", instance.title)
@@ -207,33 +207,36 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         instance.save()
 
         #! Clear existing question subjects
-        QuestionSubject.objects.filter(question=instance).delete()
+        if subjects_data:
+            QuestionSubject.objects.filter(question=instance).delete()
 
-        # * Update or create question subjects
-        for question_subject_data in subjects_data:
-            question_subject_countries = question_subject_data.pop("countries")
-            subject_education_level_data = question_subject_data.pop(
-                "subject_education_level"
-            )
+            # * Update or create question subjects
+            for question_subject_data in subjects_data:
+                question_subject_countries = question_subject_data.pop("countries")
+                subject_education_level_data = question_subject_data.pop(
+                    "subject_education_level"
+                )
 
-            # * Get or create subject education level
-            subject_education_level, _ = SubjectEducationLevel.objects.get_or_create(
-                subject=subject_education_level_data["subject"],
-                education_level=subject_education_level_data["education_level"],
-            )
+                # * Get or create subject education level
+                subject_education_level, _ = (
+                    SubjectEducationLevel.objects.get_or_create(
+                        subject=subject_education_level_data["subject"],
+                        education_level=subject_education_level_data["education_level"],
+                    )
+                )
 
-            # * Get or create question subject
-            question_subject, _ = QuestionSubject.objects.get_or_create(
-                question=instance,
-                subject_education_level=subject_education_level,
-                defaults=question_subject_data,
-            )
+                # * Get or create question subject
+                question_subject, _ = QuestionSubject.objects.get_or_create(
+                    question=instance,
+                    subject_education_level=subject_education_level,
+                    defaults=question_subject_data,
+                )
 
-            # * Update question subject
-            question_subject.save()
+                # * Update question subject
+                question_subject.save()
 
-            # * Assign countries to question subject
-            question_subject.countries.set(question_subject_countries)
+                # * Assign countries to question subject
+                question_subject.countries.set(question_subject_countries)
 
         # refresh instance
         instance.refresh_from_db()
