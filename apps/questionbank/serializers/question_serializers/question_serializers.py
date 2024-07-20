@@ -90,7 +90,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
 
 
 class QuestionEditSerializer(serializers.ModelSerializer):
-    subjects = QuestionSubjectEditSerializer(many=True)
+    subjects = QuestionSubjectEditSerializer(many=True, required=False)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True, required=False
     )
@@ -123,7 +123,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         question_medias = validated_data.pop("medias", [])
-        subjects_data = validated_data.pop("subjects")
+        subjects_data = validated_data.pop("subjects", [])
         tags_data = validated_data.pop("tags", [])
         choices_data = validated_data.pop("choices", [])
         attempt_responses_data = validated_data.pop("attempt_responses", [])
