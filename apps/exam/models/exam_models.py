@@ -84,8 +84,8 @@ class SectionSubSection(BaseModel):
 
 class Exam(BaseModel):
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=10)
-    abbreviation = models.CharField(max_length=10)
+    code = models.CharField(max_length=10, blank=True)
+    abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField()
 
     education_level = models.ForeignKey(
@@ -143,6 +143,10 @@ class ExamSubject(BaseModel):
         on_delete=models.CASCADE,
     )
     subject = models.ForeignKey("questionbank.Subject", on_delete=models.CASCADE)
+
+    questions = models.ManyToManyField(
+        "questionbank.Question", through="ExamSubjectQuestion"
+    )
 
     class Meta:
         app_label = "exam"

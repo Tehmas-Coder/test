@@ -8,8 +8,14 @@ from apps.questionbank.models import DifficultyLevel, QuestionSubject
 from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
     DifficultyLevelSerializer,
 )
+from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+    EducationLevelSerializer,
+)
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
     SubjectEducationLevelEditSerializer,
+)
+from apps.questionbank.serializers.question_serializers.subject_serializers import (
+    SubjectListSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
@@ -24,8 +30,10 @@ class QuestionSubjectListSerializer(BaseModelSerializer):
 
 
 class QuestionSubjectDetailSerializer(BaseModelSerializer):
-    education_level = serializers.SerializerMethodField()
-    subject = serializers.SerializerMethodField()
+    education_level = EducationLevelSerializer(
+        source="subject_education_level.education_level"
+    )
+    subject = SubjectListSerializer(source="subject_education_level.subject")
     countries = CountrySerializer(many=True)
     difficulty_level = DifficultyLevelSerializer()
     measuring_unit = MeasuringUnitSerializer()
@@ -45,14 +53,6 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
             "is_optional",
             "is_global",
         ] + get_base_model_fields()
-
-    def get_education_level(self, obj):
-        return model_to_dict(obj.subject_education_level.education_level)
-
-    def get_subject(self, obj):
-        res = model_to_dict(obj.subject_education_level.subject)
-        res.pop("education_levels")
-        return res
 
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):

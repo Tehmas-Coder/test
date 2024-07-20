@@ -14,7 +14,6 @@ from utils.rna_utils import debug_print
 class SubjectEducationLevelDetailSerializer(BaseModelSerializer):
     subject = SubjectListSerializer()
     education_level = EducationLevelSerializer()
-    countries = serializers.SerializerMethodField()
 
     class Meta:
         model = SubjectEducationLevel
@@ -22,7 +21,6 @@ class SubjectEducationLevelDetailSerializer(BaseModelSerializer):
             "id",
             "subject",
             "education_level",
-            "countries",
         ] + get_base_model_fields()
 
 
