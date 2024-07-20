@@ -1,11 +1,16 @@
 from rest_framework import serializers
 
 from apps.exam.models.exam_models import SubSection
+from apps.exam.serializers.section_subsection_serializer import (
+    SectionSubSectionSerializer,
+)
 from apps.questionbank.models import Question
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class SubSectionEditSerializer(BaseModelSerializer):
+    section = serializers.IntegerField(required=True, write_only=True)
+
     class Meta:
         model = SubSection
         fields = [
@@ -17,7 +22,19 @@ class SubSectionEditSerializer(BaseModelSerializer):
             "passing_marks",
             "is_global",
             "is_shuffle",
+            "section",
         ] + get_base_model_fields()
+
+    def create(self, validated_data):
+        section = validated_data.pop("section")
+        subsection = super().create(validated_data)
+        section_subsection_instance = SectionSubSectionSerializer(
+            data={"section": section, "subsection": subsection.id}
+        )
+        section_subsection_instance.is_valid(raise_exception=True)
+        section_subsection_instance.save()
+
+        return subsection
 
 
 class SubSectionSerializer(BaseModelSerializer):
