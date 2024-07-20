@@ -24,6 +24,9 @@ from apps.questionbank.serializers.question_serializers.question_subject_seriali
     QuestionSubjectDetailSerializer,
     QuestionSubjectEditSerializer,
 )
+from apps.questionbank.serializers.question_serializers.question_type_serializers import (
+    QuestionTypeSerializer,
+)
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
@@ -34,6 +37,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
     retry_hints = QuestionRetryHintEditSerializer(many=True)
     medias = MediaSerializer(many=True)
+    type = QuestionTypeSerializer()
 
     class Meta:
         model = Question
@@ -42,6 +46,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
             "title",
             "text",
             "max_retries",
+            "type",
             "retry_penalty",
             "can_shuffle",
             "has_media",
@@ -74,6 +79,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             "retry_penalty",
             "can_shuffle",
             "has_media",
+            "type",
             "subjects",
             "tags",
             "choices",

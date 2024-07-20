@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
-from decouple import config
-from datetime import timedelta
 import os
+from datetime import timedelta
+from pathlib import Path
+
+from decouple import config
 
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM SETTINGS                               #
@@ -150,6 +151,7 @@ INSTALLED_APPS = [
     "apps.lookups",
     "apps.user",
     "apps.questionbank",
+    "apps.exam",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -264,4 +266,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "lookups" / "seeds",
     BASE_DIR / "apps" / "user" / "seeds",
     BASE_DIR / "apps" / "questionbank" / "seeds",
+    BASE_DIR / "apps" / "exam" / "seeds",
 ]
