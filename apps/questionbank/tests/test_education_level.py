@@ -33,7 +33,7 @@ class EducationLevelUnitTest(TestSetUp):
         url = "/api/education-levels/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data
 
     def do_get_one_education_level(self, education_level_id):
         print_test_header("get_one_education_level")
@@ -45,7 +45,7 @@ class EducationLevelUnitTest(TestSetUp):
     def do_update_one_education_level(self, education_level_id, request_body):
         print_test_header("update_education_level")
         url = f"/api/education-levels/{education_level_id}/"
-        response = self.client.put(
+        response = self.client.patch(
             url,
             headers=self.headers,
             data=request_body,

@@ -19,7 +19,7 @@ class MediaTypeUnitTest(TestSetUp):
         url = "/api/media-types/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data
 
     def do_get_one_media_type(self, media_type_id):
         print_test_header("get_one_media_type")

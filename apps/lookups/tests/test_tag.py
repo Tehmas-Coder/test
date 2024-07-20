@@ -33,7 +33,7 @@ class TagUnitTest(TestSetUp):
         url = "/api/tags/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data
 
     def do_get_one_tag(self, tag_id):
         print_test_header("get_one_tag")
@@ -45,7 +45,7 @@ class TagUnitTest(TestSetUp):
     def do_update_one_tag(self, tag_id, request_body):
         print_test_header("update_tag")
         url = f"/api/tags/{tag_id}/"
-        response = self.client.put(
+        response = self.client.patch(
             url,
             headers=self.headers,
             data=request_body,

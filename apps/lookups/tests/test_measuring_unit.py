@@ -19,7 +19,7 @@ class MeasuringUnitUnitTest(TestSetUp):
         url = "/api/measuring-units/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data
 
     def do_get_one_measuring_unit(self, measuring_unit_id):
         print_test_header("get_one_measuring_unit")

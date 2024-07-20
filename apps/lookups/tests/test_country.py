@@ -24,7 +24,7 @@ class CountryUnitTest(TestSetUp):
         url = "/api/countries/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data
 
     def do_get_one_country(self, country_id):
         print_test_header("get_one_country")

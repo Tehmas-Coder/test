@@ -90,6 +90,11 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
+    def get_serializer_class(self):
+        if self.action in ["create", "partial_update"]:
+            return SubjectEducationLevelEditSerializer
+        return super().get_serializer_class()
+
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
     queryset = DifficultyLevel.objects.all()
