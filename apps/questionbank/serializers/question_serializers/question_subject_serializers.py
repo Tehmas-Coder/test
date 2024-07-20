@@ -24,8 +24,8 @@ class QuestionSubjectListSerializer(BaseModelSerializer):
 
 
 class QuestionSubjectDetailSerializer(BaseModelSerializer):
-    name = serializers.CharField(source="subject_education_level.subject.name")
     education_level = serializers.SerializerMethodField()
+    subject = serializers.SerializerMethodField()
     countries = CountrySerializer(many=True)
     difficulty_level = DifficultyLevelSerializer()
     measuring_unit = MeasuringUnitSerializer()
@@ -34,8 +34,8 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
         model = QuestionSubject
         fields = [
             "id",
-            "name",
             "question",
+            "subject",
             "education_level",
             "difficulty_level",
             "measuring_unit",
@@ -48,6 +48,11 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
 
     def get_education_level(self, obj):
         return model_to_dict(obj.subject_education_level.education_level)
+
+    def get_subject(self, obj):
+        res = model_to_dict(obj.subject_education_level.subject)
+        res.pop("education_levels")
+        return res
 
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):
