@@ -43,12 +43,10 @@ class ExamSubjectSerializer(BaseModelSerializer):
         ]
 
     def create(self, validated_data):
-        debug_print(validated_data)
-        instance, created = ExamSubject.objects.get_or_create(
+        instance, _ = ExamSubject.objects.get_or_create(
             exam=validated_data["exam"],
             subject=validated_data["subject"],
             defaults=validated_data,
         )
-        color_print(instance)
-        color_print(created)
+
         return instance
