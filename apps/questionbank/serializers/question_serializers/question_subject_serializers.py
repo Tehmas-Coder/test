@@ -1,3 +1,4 @@
+from django.forms.models import model_to_dict
 from rest_framework import serializers
 
 from apps.lookups.models import Country, MeasuringUnit
@@ -46,7 +47,7 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
     def get_education_level(self, obj):
-        return obj.subject_education_level.education_level.name
+        return model_to_dict(obj.subject_education_level.education_level)
 
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):
