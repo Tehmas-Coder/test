@@ -38,7 +38,7 @@ class QuestionSerializer(BaseModelSerializer):
     choices = QuestionChoiceEditSerializer(many=True)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
     retry_hints = QuestionRetryHintEditSerializer(many=True)
-    medias = QuestionMediaDetailSerializer(many=True, source="medias")
+    medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
     type = QuestionTypeSerializer()
 
     class Meta:

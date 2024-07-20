@@ -1,5 +1,5 @@
 from django.db.models import Prefetch
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 from rest_framework.response import Response
 
 from apps.exam.models.exam_models import Exam, ExamSubject, ExamSubjectQuestion
@@ -16,7 +16,6 @@ from apps.exam.serializers.exam_subject_serializers import (
     ExamSubjectSerializer,
 )
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
-from utils.rna_utils import make_success_response
 
 # ---------------------------------------------------------------------------- #
 #                                     EXAM                                     #
@@ -53,7 +52,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         response = ExamDetailSerialzer(exam).data
-        return make_success_response(response)
+        return Response(response)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -61,7 +60,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         response = ExamDetailSerialzer(exam).data
-        return make_success_response(response)
+        return Response(response)
 
 
 # --------------------------------- SUBJECTS --------------------------------- #
@@ -78,7 +77,7 @@ class ExamSubjectViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam_subject = serializer.save()
         response = ExamSubjectDetailSerializer(exam_subject).data
-        return make_success_response(response)
+        return Response(response)
 
 
 # ----------------------------- SUBJECT QUESTIONS ---------------------------- #
@@ -89,10 +88,25 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         "exam_subject", "question", "section", "subsection"
     )
     serializer_class = ExamSubjectQuestionSerializer
-    http_method_names = ["get", "post", "patch", "delete"]
+    http_method_names = ["post", "patch", "delete"]
     pagination_class = None
 
     def get_serializer_class(self):
         if self.action == "partial_update":
             return ExamSubjectQuestionEditSerializer
         return super().get_serializer_class()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        exam_subject_question = serializer.save()
+        response = ExamSubjectQuestionSerializer(exam_subject_question).data
+        return Response(response)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        exam_subject_question = serializer.save()
+        response = ExamSubjectQuestionSerializer(exam_subject_question).data
+        return Response(response)

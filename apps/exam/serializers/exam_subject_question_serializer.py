@@ -8,13 +8,11 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
-    question = QuestionSerializer()
 
     class Meta:
         model = ExamSubjectQuestion
         fields = [
             "id",
-            "question",
             "section",
             "subsection",
             "sequence",
