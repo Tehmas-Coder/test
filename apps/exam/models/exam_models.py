@@ -71,7 +71,10 @@ class SubSection(BaseModel):
 
 class SectionSubSection(BaseModel):
     section = models.ForeignKey(Section, on_delete=models.CASCADE)
-    sub_section = models.ForeignKey(SubSection, on_delete=models.CASCADE)
+    subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "exam"
 
 
 # ---------------------------------------------------------------------------- #
@@ -81,8 +84,8 @@ class SectionSubSection(BaseModel):
 
 class Exam(BaseModel):
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=10)
-    abbreviation = models.CharField(max_length=10)
+    code = models.CharField(max_length=10, blank=True)
+    abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField()
 
     education_level = models.ForeignKey(
@@ -101,7 +104,7 @@ class Exam(BaseModel):
 
 
 class UserExam(BaseModel):
-    user = models.ForeignKey("users.BaseUser", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
     obtained_marks = models.PositiveIntegerField(default=0)
@@ -141,6 +144,10 @@ class ExamSubject(BaseModel):
     )
     subject = models.ForeignKey("questionbank.Subject", on_delete=models.CASCADE)
 
+    questions = models.ManyToManyField(
+        "questionbank.Question", through="ExamSubjectQuestion"
+    )
+
     class Meta:
         app_label = "exam"
         db_table = "exam_examsubject"
@@ -149,14 +156,14 @@ class ExamSubject(BaseModel):
 class ExamSubjectQuestion(BaseModel):
     exam_subject = models.ForeignKey(ExamSubject, on_delete=models.CASCADE)
     question = models.ForeignKey("questionbank.Question", on_delete=models.CASCADE)
-    section = models.ForeignKey(Section, on_delete=models.CASCADE)
-    sub_section = models.ForeignKey(SubSection, on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True)
+    subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True)
 
     sequence = models.PositiveIntegerField(default=1)
 
     class Meta:
         app_label = "exam"
-        db_table = "exam_examsubject_questions"
+        db_table = "exam_examsubject_question"
 
 
 class ExamSubjectCountry(BaseModel):
@@ -167,7 +174,7 @@ class ExamSubjectCountry(BaseModel):
 
     class Meta:
         app_label = "exam"
-        db_table = "exam_examsubject_countries"
+        db_table = "exam_examsubject_country"
 
 
 # ---------------------------------------------------------------------------- #
@@ -186,4 +193,3 @@ class ExamAnswer(BaseModel):
 
     class Meta:
         app_label = "exam"
-        db_table = "exam_examanswer"

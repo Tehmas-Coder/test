@@ -1,7 +1,8 @@
-from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.questionbank.models import QuestionMedia
-from apps.lookups.serializers.media_serializers import MediaSerializer
 from rest_framework import serializers
+
+from apps.lookups.serializers.media_serializers import MediaSerializer
+from apps.questionbank.models import QuestionMedia
+from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
 
 
@@ -37,6 +38,5 @@ class QuestionMediaDetailSerializer(BaseModelSerializer):
         model = QuestionMedia
         fields = [
             "id",
-            "question",
             "media",
         ] + get_base_model_fields()

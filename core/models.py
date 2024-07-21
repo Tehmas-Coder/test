@@ -1,11 +1,17 @@
+from decouple import config
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
 from hashids import Hashids
-from decouple import config
+
 from core.middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print
 
 hashids = Hashids(min_length=8, salt="your_salt_here")
+
+
+class BaseManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(meta_status="active")
 
 
 class BaseModel(models.Model):
@@ -26,6 +32,8 @@ class BaseModel(models.Model):
     meta_status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default="active"
     )
+
+    objects = BaseManager()
 
     class Meta:
         abstract = True

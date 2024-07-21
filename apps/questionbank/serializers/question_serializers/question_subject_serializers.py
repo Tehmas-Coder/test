@@ -1,3 +1,4 @@
+from django.forms.models import model_to_dict
 from rest_framework import serializers
 
 from apps.lookups.models import Country, MeasuringUnit
@@ -7,8 +8,14 @@ from apps.questionbank.models import DifficultyLevel, QuestionSubject
 from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
     DifficultyLevelSerializer,
 )
+from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+    EducationLevelSerializer,
+)
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
     SubjectEducationLevelEditSerializer,
+)
+from apps.questionbank.serializers.question_serializers.subject_serializers import (
+    SubjectListSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
@@ -23,8 +30,10 @@ class QuestionSubjectListSerializer(BaseModelSerializer):
 
 
 class QuestionSubjectDetailSerializer(BaseModelSerializer):
-    name = serializers.CharField(source="subject_education_level.subject.name")
-    education_level = serializers.SerializerMethodField()
+    education_level = EducationLevelSerializer(
+        source="subject_education_level.education_level"
+    )
+    subject = SubjectListSerializer(source="subject_education_level.subject")
     countries = CountrySerializer(many=True)
     difficulty_level = DifficultyLevelSerializer()
     measuring_unit = MeasuringUnitSerializer()
@@ -33,8 +42,8 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
         model = QuestionSubject
         fields = [
             "id",
-            "name",
             "question",
+            "subject",
             "education_level",
             "difficulty_level",
             "measuring_unit",
@@ -44,9 +53,6 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
             "is_optional",
             "is_global",
         ] + get_base_model_fields()
-
-    def get_education_level(self, obj):
-        return obj.subject_education_level.education_level.name
 
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):

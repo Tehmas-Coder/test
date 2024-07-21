@@ -1,6 +1,7 @@
-from apps.questionbank.models import Question, QuestionSubject
 from django.db.models import Prefetch
 from django.db.models.query import QuerySet
+
+from apps.questionbank.models import Question, QuestionSubject
 
 
 def get_question_detail_queryset() -> QuerySet[Question]:
@@ -9,7 +10,9 @@ def get_question_detail_queryset() -> QuerySet[Question]:
         "choices",
         "attempt_responses",
         "retry_hints",
-        "medias",
+        "questionmedia_set",
+        "questionmedia_set__media",
+        "type",
         Prefetch(
             "subjects",
             queryset=QuestionSubject.objects.select_related(
