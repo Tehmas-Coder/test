@@ -80,7 +80,9 @@ class ExamDetailSerialzer(BaseModelSerializer):
         subsection_questions = {}
         section_objects = {}
         subsection_objects = {}
+
         exam_sections = []
+
         exam_subjects = obj.examsubject_set.all()
 
         for exam_subject in exam_subjects:
@@ -89,16 +91,16 @@ class ExamDetailSerialzer(BaseModelSerializer):
             for exam_subject_question in exam_subject_questions:
                 # * Handling sections
                 if exam_subject_question.section:
-
                     if exam_subject_question.section.id not in section_questions:
                         section_questions[exam_subject_question.section.id] = {
                             "questions": [],
                             "subsections": [],
                         }
+
                         section_objects[exam_subject_question.section.id] = (
                             SectionSerializer(exam_subject_question.section).data
                         )
-
+                    # * Handling section questions
                     if (
                         exam_subject_question.section.id
                         and not exam_subject_question.subsection
@@ -110,6 +112,7 @@ class ExamDetailSerialzer(BaseModelSerializer):
                                 exam_subject_question
                             ).data
                         )
+
                     # * Handling subsections
                     if exam_subject_question.subsection:
                         if (
@@ -131,7 +134,7 @@ class ExamDetailSerialzer(BaseModelSerializer):
                                     exam_subject_question.subsection
                                 ).data
                             )
-
+                        # * Handling subsection questions
                         if (
                             exam_subject_question.section.id
                             and exam_subject_question.subsection.id
