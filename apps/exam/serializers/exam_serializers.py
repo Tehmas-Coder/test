@@ -78,7 +78,6 @@ class ExamDetailSerialzer(BaseModelSerializer):
     def get_sections(self, obj):
         section_questions = {}
         subsection_questions = {}
-        section_objects = {}
         subsection_objects = {}
 
         exam_sections = []
@@ -93,13 +92,13 @@ class ExamDetailSerialzer(BaseModelSerializer):
                 if exam_subject_question.section:
                     if exam_subject_question.section.id not in section_questions:
                         section_questions[exam_subject_question.section.id] = {
+                            "section": SectionSerializer(
+                                exam_subject_question.section
+                            ).data,
                             "questions": [],
                             "subsections": [],
                         }
 
-                        section_objects[exam_subject_question.section.id] = (
-                            SectionSerializer(exam_subject_question.section).data
-                        )
                     # * Handling section questions
                     if (
                         exam_subject_question.section.id
@@ -148,7 +147,6 @@ class ExamDetailSerialzer(BaseModelSerializer):
                             )
 
         for section_id, section_data in section_questions.items():
-            section_data["section"] = section_objects[section_id]
             subsections_list = []
             for subsection_id in section_data["subsections"]:
                 subsections_list.append(
