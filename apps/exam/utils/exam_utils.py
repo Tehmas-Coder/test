@@ -80,6 +80,7 @@ def create_random_exam(
     random_subject_questions = {}
     for subject_id, question_count in subject_question_count.items():
         # * If subjects are not provided, then the subject_id is to be treated as the index of the random_subjects list
+
         if not original_exam_data.get("subjects"):
             # * break if array index is out of range
             if int(subject_id) >= len(exam_data["subjects"]):
@@ -99,8 +100,7 @@ def create_random_exam(
             ).values_list("id", flat=True)
         )
 
-    debug_print(random_subject_questions)
-
+    # * Check if enough questions are found for the given criteria
     if not all(random_subject_questions.values()):
         return make_error_response(
             message="Not enough questions found for the given criteria!"
