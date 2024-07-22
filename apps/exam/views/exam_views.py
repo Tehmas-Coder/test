@@ -100,16 +100,15 @@ class ExamViewSet(viewsets.ModelViewSet):
         Exam.objects.all()
         .select_related("education_level")
         .prefetch_related(
-            Prefetch(
-                "examsubject_set__examsubjectquestion_set__question",
-                queryset=get_question_detail_queryset(),
-            ),
-            "subjects",
             "examsubject_set",
             "examsubject_set__subject",
             "examsubject_set__examsubjectquestion_set",
             "examsubject_set__examsubjectquestion_set__section",
             "examsubject_set__examsubjectquestion_set__subsection",
+            Prefetch(
+                "examsubject_set__examsubjectquestion_set__question",
+                queryset=get_question_detail_queryset(),
+            ),
         )
     )
     serializer_class = ExamEditSerializer

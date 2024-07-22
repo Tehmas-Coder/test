@@ -193,7 +193,8 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        subjects_data = validated_data.pop("subjects", [])
+        subjects_data = validated_data.pop("subjects", None)
+        tags = validated_data.pop("tags", None)
 
         # * Update question
         instance.title = validated_data.get("title", instance.title)
@@ -237,6 +238,10 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
                 # * Assign countries to question subject
                 question_subject.countries.set(question_subject_countries)
+
+        # * Update tags
+        if tags is not None:
+            instance.tags.set(tags)
 
         # refresh instance
         instance.refresh_from_db()
