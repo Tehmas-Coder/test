@@ -11,7 +11,7 @@ from utils.rna_utils import (
 )
 from .test_register import RegisterUnitTest
 from .test_user import UserUnitTest
-from .test_setup import TestSetUp
+from core.test_setup import TestSetUp
 from apps.user.models import BaseUser
 
 

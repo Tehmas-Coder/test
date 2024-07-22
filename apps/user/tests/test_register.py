@@ -3,7 +3,7 @@ import copy, json
 from rest_framework import status
 
 from utils.rna_utils import print_test_header, print_test_passed
-from .test_setup import TestSetUp
+from core.test_setup import TestSetUp
 from utils.rna_utils import debug_print
 
 
