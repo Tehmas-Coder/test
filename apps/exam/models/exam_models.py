@@ -19,17 +19,16 @@ class Schedule(BaseModel):
 
 
 class Section(BaseModel):
+    exam = models.ForeignKey(
+        "exam.Exam", on_delete=models.CASCADE, related_name="sections"
+    )
+
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
 
     time_limit = models.PositiveIntegerField(null=True)
     total_marks = models.PositiveIntegerField(default=0)
     passing_marks = models.PositiveIntegerField(null=True)
-
-    subsections = models.ManyToManyField("exam.SubSection", through="SectionSubSection")
-    questions = models.ManyToManyField(
-        "questionbank.Question", through="ExamSubjectQuestion"
-    )
 
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
@@ -40,6 +39,11 @@ class Section(BaseModel):
 
 
 class SubSection(BaseModel):
+
+    section = models.ForeignKey(
+        Section, on_delete=models.CASCADE, related_name="subsections"
+    )
+
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
 
@@ -47,21 +51,9 @@ class SubSection(BaseModel):
     total_marks = models.PositiveIntegerField(default=0)
     passing_marks = models.PositiveIntegerField(null=True)
 
-    questions = models.ManyToManyField(
-        "questionbank.Question", through="ExamSubjectQuestion"
-    )
-
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
     is_negative_marking = models.BooleanField(default=False)
-
-    class Meta:
-        app_label = "exam"
-
-
-class SectionSubSection(BaseModel):
-    section = models.ForeignKey(Section, on_delete=models.CASCADE)
-    subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE)
 
     class Meta:
         app_label = "exam"
@@ -146,8 +138,12 @@ class ExamSubject(BaseModel):
 class ExamSubjectQuestion(BaseModel):
     exam_subject = models.ForeignKey(ExamSubject, on_delete=models.CASCADE)
     question = models.ForeignKey("questionbank.Question", on_delete=models.CASCADE)
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True)
-    subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True)
+    section = models.ForeignKey(
+        Section, on_delete=models.CASCADE, null=True, related_name="questions"
+    )
+    subsection = models.ForeignKey(
+        SubSection, on_delete=models.CASCADE, null=True, related_name="questions"
+    )
 
     sequence = models.PositiveIntegerField(default=1)
 

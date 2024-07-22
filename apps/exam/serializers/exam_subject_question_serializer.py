@@ -4,6 +4,9 @@ from apps.questionbank.serializers.question_serializers.question_serializers imp
     QuestionDetailSerializer,
     QuestionSerializer,
 )
+from apps.questionbank.serializers.question_serializers.subject_serializers import (
+    SubjectListSerializer,
+)
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
@@ -13,6 +16,26 @@ class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
         model = ExamSubjectQuestion
         fields = [
             "id",
+            "section",
+            "subsection",
+            "sequence",
+        ] + get_base_model_fields()
+
+        read_only_fields = [
+            "id",
+        ]
+
+
+class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
+    subject = SubjectListSerializer(read_only=True, source="exam_subject.subject")
+    question = QuestionSerializer(read_only=True)
+
+    class Meta:
+        model = ExamSubjectQuestion
+        fields = [
+            "id",
+            "subject",
+            "question",
             "section",
             "subsection",
             "sequence",
