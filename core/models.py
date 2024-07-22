@@ -1,6 +1,7 @@
 from decouple import config
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
+from django.db.models import Q
 from hashids import Hashids
 
 from core.middlewares.current_user_middleware import get_current_user
@@ -37,6 +38,15 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+    @classmethod
+    def get_random(
+        cls, count: int | None = None, q_filter: Q | None = Q(), annotation: dict = {}
+    ):
+        qs = cls.objects.annotate(**annotation).filter(q_filter).order_by("?")
+        if count:
+            return qs[:count]
+        return qs
 
     def save(self, *args, **kwargs):
         current_user = get_current_user()

@@ -1,13 +1,12 @@
-import json
 import inspect
 import json
-from typing import Any, Type
 import random
 import threading
-from django.db.models.base import Model
-from rest_framework.response import Response
+from typing import Any, Type
 
+from django.db.models.base import Model
 from rest_framework import status
+from rest_framework.response import Response
 
 
 def load_json_file(path: str) -> dict:
@@ -27,17 +26,13 @@ def dump_json_file(data: dict, path: str):
 
 
 def make_success_response(
-    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = ""
+    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None
 ) -> Response:
     """
     Make a success response with 200 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
     return Response(
-        {
-            "status": "success",
-            "message": message,
-            "data": data,
-        },
+        data,
         status=status.HTTP_200_OK,
     )
 
