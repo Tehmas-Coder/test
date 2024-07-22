@@ -20,7 +20,6 @@ class Schedule(BaseModel):
 
 class Section(BaseModel):
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
     sequence = models.PositiveIntegerField(default=1)
 
     time_limit = models.PositiveIntegerField(null=True)
@@ -36,17 +35,12 @@ class Section(BaseModel):
     is_shuffle = models.BooleanField(default=False)
     is_negative_marking = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        self.slug = self.title.lower().replace(" ", "-")
-        super().save(*args, **kwargs)
-
     class Meta:
         app_label = "exam"
 
 
 class SubSection(BaseModel):
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
     sequence = models.PositiveIntegerField(default=1)
 
     time_limit = models.PositiveIntegerField(null=True)
@@ -60,10 +54,6 @@ class SubSection(BaseModel):
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
     is_negative_marking = models.BooleanField(default=False)
-
-    def save(self, *args, **kwargs):
-        self.slug = self.title.lower().replace(" ", "-")
-        super().save(*args, **kwargs)
 
     class Meta:
         app_label = "exam"

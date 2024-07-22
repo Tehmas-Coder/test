@@ -7,6 +7,7 @@ from apps.exam.models.exam_models import (
     ExamSubject,
     ExamSubjectQuestion,
     Section,
+    SectionSubSection,
     SubSection,
 )
 from apps.exam.serializers.exam_serializers import (
@@ -24,6 +25,9 @@ from apps.exam.serializers.exam_subject_serializers import (
 from apps.exam.serializers.section_serializers import (
     SectionEditSerializer,
     SectionSerializer,
+)
+from apps.exam.serializers.section_subsection_serializer import (
+    SectionSubSectionSerializer,
 )
 from apps.exam.serializers.subsection_serializers import (
     SubSectionEditSerializer,
@@ -88,6 +92,11 @@ class SubSectionViewSet(viewsets.ModelViewSet):
         subsection = serializer.save()
         response = SubSectionSerializer(subsection).data
         return Response(response)
+
+
+class SectionSubSectionViewSet(viewsets.ModelViewSet):
+    queryset = SectionSubSection.objects.all()
+    serializer_class = SectionSubSectionSerializer
 
 
 # ---------------------------------------------------------------------------- #
