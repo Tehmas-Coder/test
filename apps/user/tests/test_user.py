@@ -12,7 +12,7 @@ from rest_framework import status
 
 
 class UserUnitTest(TestSetUp):
-    fixtures = []
+    fixtures = ["user_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -101,7 +101,6 @@ class UserTest(UserUnitTest):
     def successsfull_fetching_of_list_of_records_test(self):
         json_data = self.do_get_user_list()
         self.assertGreater(len(json_data), 0)
-        debug_print(json_data)
         for test_dict in json_data["results"]:
             for (
                 one_value_from_list_of_fields_of_user_model

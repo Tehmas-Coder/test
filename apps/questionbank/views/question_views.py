@@ -109,11 +109,6 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
     http_method_names = ["get"]
     pagination_class = None
 
-    def get_serializer_class(self):
-        if self.action in ["create", "update"]:
-            return SubjectEducationLevelEditSerializer
-        return super().get_serializer_class()
-
 
 # ---------------------------------------------------------------------------- #
 #                                   QUESTION                                   #

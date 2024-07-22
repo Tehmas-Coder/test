@@ -10,15 +10,15 @@ from core.test_setup import TestSetUp
 from rest_framework import status
 
 
-class EducationLevelUnitTest(TestSetUp):
-    fixtures = ["education_level_seed"]
+class DifficultyLevelUnitTest(TestSetUp):
+    fixtures = ["difficulty_level_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_create_education_level(self, request_body):
-        print_test_header("create_education_level")
-        url = "/api/education-levels/"
+    def do_create_difficulty_level(self, request_body):
+        print_test_header("create_difficulty_level")
+        url = "/api/difficulty-levels/"
         response = self.client.post(
             url,
             headers=self.headers,
@@ -28,23 +28,23 @@ class EducationLevelUnitTest(TestSetUp):
         validate_success_201_test_response(self, response)
         return response.data
 
-    def do_get_education_level_list(self):
-        print_test_header("get_education_level_list")
-        url = "/api/education-levels/"
+    def do_get_difficulty_level_list(self):
+        print_test_header("get_difficulty_level_list")
+        url = "/api/difficulty-levels/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
         return response.data
 
-    def do_get_one_education_level(self, education_level_id):
-        print_test_header("get_one_education_level")
-        url = f"/api/education-levels/{education_level_id}/"
+    def do_get_one_difficulty_level(self, difficulty_level_id):
+        print_test_header("get_one_difficulty_level")
+        url = f"/api/difficulty-levels/{difficulty_level_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
         return response.data
 
-    def do_update_one_education_level(self, education_level_id, request_body):
-        print_test_header("update_education_level")
-        url = f"/api/education-levels/{education_level_id}/"
+    def do_update_one_difficulty_level(self, difficulty_level_id, request_body):
+        print_test_header("update_difficulty_level")
+        url = f"/api/difficulty-levels/{difficulty_level_id}/"
         response = self.client.patch(
             url,
             headers=self.headers,
@@ -54,31 +54,33 @@ class EducationLevelUnitTest(TestSetUp):
         validate_success_200_test_response(self, response)
         return response.data
 
-    def do_delete_one_education_level(self, education_level_id):
-        print_test_header("delete_education_level")
-        url = f"/api/education-levels/{education_level_id}/"
+    def do_delete_one_difficulty_level(self, difficulty_level_id):
+        print_test_header("delete_difficulty_level")
+        url = f"/api/difficulty-levels/{difficulty_level_id}/"
         response = self.client.delete(url, headers=self.headers)
         validate_success_204_test_response(self, response)
 
 
-class EducationLevelTest(EducationLevelUnitTest):
+class DifficultyLevelTest(DifficultyLevelUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
-        "name": "Masters",
-        "code": "M",
-        "abbreviation": "MS",
+        "name": "Intermediade",
+        "code": "I",
+        "abbreviation": "IM",
+        "sequence": 4,
     }
-    list_of_fields_of_education_level_model = [
+    list_of_fields_of_difficulty_level_model = [
         "id",
         "name",
         "code",
         "abbreviation",
+        "sequence",
     ]
 
     # ?###################################################
     # ?              TESTS - CASES
     # ?###################################################
-    def test_cases_education_level(self):
+    def test_cases_difficulty_level(self):
         self.successfull_creation_of_a_record_test()
         list_of_records = self.successsfull_fetching_of_list_of_records_test()
         test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
@@ -86,42 +88,50 @@ class EducationLevelTest(EducationLevelUnitTest):
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_education_level(
+        json_data = self.do_create_difficulty_level(
             json.dumps(self.reuseable_request_body)
         )
         for key in self.reuseable_request_body:
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
-        for one_field in self.list_of_fields_of_education_level_model:
+        for one_field in self.list_of_fields_of_difficulty_level_model:
             self.assertIn(one_field, json_data)
 
     def successsfull_fetching_of_list_of_records_test(self):
-        json_data = self.do_get_education_level_list()
+        json_data = self.do_get_difficulty_level_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for one_value_from_list_of_fields_of_education_level_model in (self.list_of_fields_of_education_level_model):
+            for one_value_from_list_of_fields_of_difficulty_level_model in (self.list_of_fields_of_difficulty_level_model):
                 self.assertIn(
-                    one_value_from_list_of_fields_of_education_level_model,
+                    one_value_from_list_of_fields_of_difficulty_level_model,
                     test_dict,
-                    f"The key {one_value_from_list_of_fields_of_education_level_model} is not present in {test_dict}",
+                    f"The key {one_value_from_list_of_fields_of_difficulty_level_model} is not present in {test_dict}",
                 )
         return json_data
 
     def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_education_level_id = list_of_records[len(list_of_records) - 1]["id"]
-        json_data = self.do_get_one_education_level(test_education_level_id)
+        test_difficulty_level_id = list_of_records[len(list_of_records) - 1]["id"]
+        json_data = self.do_get_one_difficulty_level(test_difficulty_level_id)
         self.assertEqual(
             json_data["id"],
-            test_education_level_id,
-            f"The Field ID ({json_data['id']} is not equal to id ({test_education_level_id}) )",
+            test_difficulty_level_id,
+            f"The Field ID ({json_data['id']} is not equal to id ({test_difficulty_level_id}) )",
         )
-        return test_education_level_id
+        for one_value_from_list_of_fields_of_difficulty_level_model in (self.list_of_fields_of_difficulty_level_model):
+            self.assertIn(
+                one_value_from_list_of_fields_of_difficulty_level_model,
+                json_data,
+                f"The key {one_value_from_list_of_fields_of_difficulty_level_model} is not present in {json_data}",
+            )
+
+        return test_difficulty_level_id
 
     def successfull_updation_of_record_test(self, test_record_id):
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
-        updated_request_body["name"] = "Masters modified"
-        updated_request_body["code"] = "MM"
-        updated_request_body["abbreviation"] = "MSM"
-        updated_response_json_data = self.do_update_one_education_level(
+        updated_request_body["name"] = "Intermediade modified"
+        updated_request_body["code"] = "IM"
+        updated_request_body["abbreviation"] = "IMM"
+        updated_request_body["sequence"] = 5
+        updated_response_json_data = self.do_update_one_difficulty_level(
             test_record_id, json.dumps(updated_request_body)
         )
         self.assertEqual(updated_response_json_data["id"], test_record_id)
@@ -130,7 +140,7 @@ class EducationLevelTest(EducationLevelUnitTest):
 
     # * Test to check the deletion of a record
     def successfull_deletion_of_a_record_test(self, test_record_id):
-        self.do_delete_one_education_level(test_record_id)
+        self.do_delete_one_difficulty_level(test_record_id)
 
 
 # ?###################################################

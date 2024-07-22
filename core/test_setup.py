@@ -25,19 +25,19 @@ class TestSetUp(APITestCase):
         }
 
         if not BaseUser.objects.filter(email=self.admin_user["email"]).exists():
-            self.custom_login(create_user=1)
+            self.custom_login(create_user=1, is_super_admin=1)
         else:
             self.custom_login()
         return super().setUp()
 
-    def custom_login(self, email=None, password=None, create_user=0):
+    def custom_login(self, email=None, password=None, create_user=0, is_super_admin=0):
         if create_user:
             user_serializer = UserEditSerializer(data=self.admin_user)
             user_serializer.is_valid(raise_exception=True)
             new_user_email = user_serializer.save()
             new_user_data = BaseUser.objects.get(email=new_user_email)
             new_user_data.__dict__["is_verified"] = True
-            new_user_data.__dict__["is_superuser"] = True
+            new_user_data.__dict__["is_superuser"] = bool(is_super_admin)
             new_user_data.save()
 
         url = "/api/login/"

@@ -97,11 +97,11 @@ class TagTest(TagUnitTest):
         json_data = self.do_get_tag_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for one_value_from_list_of_fields_of_application_form_section_field_choices_model in (self.list_of_fields_of_tag_model):
+            for (one_value_from_list_of_fields_of_tag_model) in self.list_of_fields_of_tag_model:
                 self.assertIn(
-                    one_value_from_list_of_fields_of_application_form_section_field_choices_model,
+                    one_value_from_list_of_fields_of_tag_model,
                     test_dict,
-                    f"The key {one_value_from_list_of_fields_of_application_form_section_field_choices_model} is not present in {test_dict}",
+                    f"The key {one_value_from_list_of_fields_of_tag_model} is not present in {test_dict}",
                 )
         return json_data
 
