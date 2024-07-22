@@ -1,5 +1,6 @@
 from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.questionbank.models import QuestionRetryHint
+from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import QuestionRetryHintMediaDetailSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
 
@@ -40,6 +41,21 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
 
 class QuestionRetryHintEditSerializer(BaseModelSerializer):
     medias = MediaSerializer(many=True, required=False)
+
+    class Meta:
+        model = QuestionRetryHint
+        fields = [
+            "id",
+            "text",
+            "has_media",
+            "sequence",
+            "medias",
+        ] + get_base_model_fields()
+        read_only_fields = ["id"]
+
+
+class QuestionRetryHintDetailSerializer(BaseModelSerializer):
+    medias = QuestionRetryHintMediaDetailSerializer(many=True, required=False, source="questionretryhintmedia_set")
 
     class Meta:
         model = QuestionRetryHint

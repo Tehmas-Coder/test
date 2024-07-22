@@ -34,6 +34,7 @@ from apps.questionbank.serializers.question_serializers.question_choice_media_se
     QuestionChoiceMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
+    QuestionChoiceDetailSerializer,
     QuestionChoiceSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
@@ -45,6 +46,7 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_medi
     QuestionRetryHintMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintDetailSerializer,
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
@@ -237,7 +239,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceSerializer(question_choice)
+        serializer = QuestionChoiceDetailSerializer(question_choice)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
@@ -245,7 +247,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceSerializer(question_choice)
+        serializer = QuestionChoiceDetailSerializer(question_choice)
         return Response(serializer.data)
 
 
@@ -294,7 +296,7 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()
-        serializer = QuestionRetryHintSerializer(question_retry_hint)
+        serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

@@ -15,12 +15,14 @@ from apps.questionbank.serializers.question_serializers.question_attempt_respons
     QuestionAttemptResponseEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
+    QuestionChoiceDetailSerializer,
     QuestionChoiceEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
     QuestionMediaDetailSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintDetailSerializer,
     QuestionRetryHintEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_subject_serializers import (
@@ -35,9 +37,9 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 class QuestionSerializer(BaseModelSerializer):
     tags = TagSerializer(many=True)
-    choices = QuestionChoiceEditSerializer(many=True)
+    choices = QuestionChoiceDetailSerializer(many=True)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
-    retry_hints = QuestionRetryHintEditSerializer(many=True)
+    retry_hints = QuestionRetryHintDetailSerializer(many=True)
     medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
     type = QuestionTypeSerializer()
 
@@ -63,9 +65,9 @@ class QuestionSerializer(BaseModelSerializer):
 class QuestionDetailSerializer(BaseModelSerializer):
     subjects = QuestionSubjectDetailSerializer(many=True)
     tags = TagSerializer(many=True)
-    choices = QuestionChoiceEditSerializer(many=True)
+    choices = QuestionChoiceDetailSerializer(many=True)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
-    retry_hints = QuestionRetryHintEditSerializer(many=True)
+    retry_hints = QuestionRetryHintDetailSerializer(many=True)
     medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
     type = QuestionTypeSerializer()
 

@@ -37,3 +37,13 @@ class QuestionRetryHintMediaEditSerializer(BaseModelSerializer):
         question_retry_hint_media = QuestionRetryHintMedia.objects.create(media=media, **validated_data)
         question_retry_hint_media.refresh_from_db()
         return question_retry_hint_media
+    
+class QuestionRetryHintMediaDetailSerializer(BaseModelSerializer):
+    media = MediaSerializer()
+    class Meta:
+        model = QuestionRetryHintMedia
+        fields = [
+            "id",
+            "media",
+        ] + get_base_model_fields()
+        read_only_fields = ["id"]
