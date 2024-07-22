@@ -77,6 +77,7 @@ class QuestionSubjectEditSerializer(BaseModelSerializer):
             "countries",
             "time_limit",
             "total_marks",
+            "is_global",
             "is_optional",
         ] + get_base_model_fields()
 

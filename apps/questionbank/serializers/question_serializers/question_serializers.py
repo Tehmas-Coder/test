@@ -33,6 +33,7 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
     QuestionTypeSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print
 
 
 class QuestionSerializer(BaseModelSerializer):
@@ -228,6 +229,8 @@ class QuestionEditSerializer(serializers.ModelSerializer):
                         education_level=subject_education_level_data["education_level"],
                     )
                 )
+                
+                debug_print(question_subject_data)
 
                 # * Get or create question subject
                 question_subject, _ = QuestionSubject.objects.get_or_create(
