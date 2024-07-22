@@ -198,6 +198,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
         # * Update question
         instance.title = validated_data.get("title", instance.title)
+        instance.type = validated_data.get("type", instance.type)
         instance.text = validated_data.get("text", instance.text)
         instance.max_retries = validated_data.get("max_retries", instance.max_retries)
         instance.retry_penalty = validated_data.get(
