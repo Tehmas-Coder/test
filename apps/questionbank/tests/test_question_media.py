@@ -1,5 +1,3 @@
-import copy, json
-
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
