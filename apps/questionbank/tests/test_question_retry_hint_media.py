@@ -8,19 +8,20 @@ from core.test_setup import TestSetUp
 from rest_framework import status
 
 
-class QuestionRetryHintUnitTest(TestSetUp):
+class QuestionRetryHintMediaUnitTest(TestSetUp):
     fixtures = [
         "media_type_seed",
         "question_type_seed",
         "question_seed",
+        "question_retry_hint_seed",
     ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_create_question_retry_hint(self, request_body):
-        print_test_header("create_question_retry_hint")
-        url = "/api/question-retry-hint/"
+    def do_create_question_retry_hint_media(self, request_body):
+        print_test_header("create_question_retry_hint_media")
+        url = "/api/question-retry-hint-media/"
         response = self.client.post(
             url,
             headers=self.headers,
@@ -30,85 +31,50 @@ class QuestionRetryHintUnitTest(TestSetUp):
         validate_success_201_test_response(self, response)
         return response.data
 
-    def do_update_one_question_retry_hint(self, question_retry_hint_id, request_body):
-        print_test_header("update_question_retry_hint")
-        url = f"/api/question-retry-hint/{question_retry_hint_id}/"
-        response = self.client.patch(
-            url,
-            headers=self.headers,
-            data=request_body,
-        )
-        validate_success_200_test_response(self, response)
-        return response.data
-
-    def do_delete_one_question_retry_hint(self, question_retry_hint_id):
-        print_test_header("delete_question_retry_hint")
-        url = f"/api/question-retry-hint/{question_retry_hint_id}/"
+    def do_delete_one_question_retry_hint_media(self, question_retry_hint_media_id):
+        print_test_header("delete_question_retry_hint_media")
+        url = f"/api/question-retry-hint-media/{question_retry_hint_media_id}/"
         response = self.client.delete(url, headers=self.headers)
         validate_success_204_test_response(self, response)
 
 
-class QuestionRetryHintTest(QuestionRetryHintUnitTest):
-    validation_keys = [
-        "id",
-        "text",
-        "sequence",
-        "has_media",
-        "medias",
-        "description",
-        "created_at",
-        "created_by",
-        "updated_at",
-        "updated_by",
-        "meta_status",
-    ]
+class QuestionRetryHintMediaTest(QuestionRetryHintMediaUnitTest):
 
     # ?###################################################
     # ?              TESTS - CASES
     # ?###################################################
-    def test_cases_question_retry_hint(self):
+    def test_cases_question_retry_hint_media(self):
         test_record_id = self.successfull_creation_of_a_record_test()
-        self.successfull_updation_of_record_test(test_record_id)
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        file_1 = open(
+        media_data = open(
             "./apps/questionbank/tests/test_data/images/test_image.jpeg", "rb"
-        )
-        file_2 = open(
-            "./apps/questionbank/tests/test_data/images/test_image_2.jpeg", "rb"
         )
 
         request_body = {
-            "question": 1,
-            "text": "This is hint number 1",
-            "has_media": 1,
-            "file_1": file_1,
-            "file_2": file_2,
+            "question_retry_hint": 1,
+            "media": media_data,
         }
-        json_data = self.do_create_question_retry_hint(request_body)
-        for key in self.validation_keys:
+        json_data = self.do_create_question_retry_hint_media(request_body)
+        validation_keys = [
+            "id",
+            "media",
+            "description",
+            "created_at",
+            "created_by",
+            "updated_at",
+            "updated_by",
+            "meta_status",
+        ]
+        for key in validation_keys:
             self.assertIn(key, json_data)
 
         return json_data["id"]
 
-    def successfull_updation_of_record_test(self, test_record_id):
-        updated_request_body = {
-            "text": "hint text updated",
-            "sequence": 1,
-        }
-        updated_response_json_data = self.do_update_one_question_retry_hint(
-            test_record_id, updated_request_body
-        )
-        self.assertEqual(updated_response_json_data["id"], test_record_id)
-        for key in self.validation_keys:
-            self.assertIn(key, updated_response_json_data)
-        for key in updated_request_body:
-            self.assertEqual(updated_response_json_data[key], updated_request_body[key])
-
     # * Test to check the deletion of a record
     def successfull_deletion_of_a_record_test(self, test_record_id):
-        self.do_delete_one_question_retry_hint(test_record_id)
+        self.do_delete_one_question_retry_hint_media(test_record_id)
 
 
 # ?###################################################
