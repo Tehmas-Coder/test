@@ -97,7 +97,9 @@ class TagTest(TagUnitTest):
         json_data = self.do_get_tag_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (one_value_from_list_of_fields_of_tag_model) in self.list_of_fields_of_tag_model:
+            for (
+                one_value_from_list_of_fields_of_tag_model
+            ) in self.list_of_fields_of_tag_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_tag_model,
                     test_dict,
@@ -111,7 +113,7 @@ class TagTest(TagUnitTest):
         self.assertEqual(
             json_data["id"],
             test_tag_id,
-            f"The Field ID ({json_data['id']} is not equal to id ({test_tag_id}) )",
+            f"The field id ({json_data['id']} is not equal to id ({test_tag_id}) )",
         )
         return test_tag_id
 
