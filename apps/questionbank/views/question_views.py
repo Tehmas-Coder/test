@@ -137,7 +137,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 )
 
         # Extract media for hints
-        for hint in request_data["retry_hints"]:
+        for hint in request_data.get("retry_hints", []):
             hint_medias = hint.pop("medias", [])
             if hint["has_media"]:
                 hint["medias"] = []
@@ -151,7 +151,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                         )
 
         # Extract media for choices
-        for choice in request_data["choices"]:
+        for choice in request_data.get("choices", []):
             choice_medias = choice.pop("medias", [])
             if choice["has_media"]:
                 choice["medias"] = []
@@ -176,7 +176,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
             request_data = self.parse_media(request)
         else:
             request_data = request.data
-            debug_print(request_data, "yellow")
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
