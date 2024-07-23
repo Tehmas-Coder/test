@@ -100,7 +100,9 @@ class DifficultyLevelTest(DifficultyLevelUnitTest):
         json_data = self.do_get_difficulty_level_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for one_value_from_list_of_fields_of_difficulty_level_model in (self.list_of_fields_of_difficulty_level_model):
+            for (
+                one_value_from_list_of_fields_of_difficulty_level_model
+            ) in self.list_of_fields_of_difficulty_level_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_difficulty_level_model,
                     test_dict,
@@ -114,9 +116,11 @@ class DifficultyLevelTest(DifficultyLevelUnitTest):
         self.assertEqual(
             json_data["id"],
             test_difficulty_level_id,
-            f"The Field ID ({json_data['id']} is not equal to id ({test_difficulty_level_id}) )",
+            f"The field id ({json_data['id']} is not equal to id ({test_difficulty_level_id}) )",
         )
-        for one_value_from_list_of_fields_of_difficulty_level_model in (self.list_of_fields_of_difficulty_level_model):
+        for (
+            one_value_from_list_of_fields_of_difficulty_level_model
+        ) in self.list_of_fields_of_difficulty_level_model:
             self.assertIn(
                 one_value_from_list_of_fields_of_difficulty_level_model,
                 json_data,

@@ -118,7 +118,7 @@ class UserTest(UserUnitTest):
         self.assertEqual(
             json_data["id"],
             test_user_id,
-            f"The Field ID ({json_data['id']} is not equal to id ({test_user_id}) )",
+            f"The field id ({json_data['id']} is not equal to id ({test_user_id}) )",
         )
         return test_user_id
 

@@ -98,7 +98,9 @@ class EducationLevelTest(EducationLevelUnitTest):
         json_data = self.do_get_education_level_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for one_value_from_list_of_fields_of_education_level_model in (self.list_of_fields_of_education_level_model):
+            for (
+                one_value_from_list_of_fields_of_education_level_model
+            ) in self.list_of_fields_of_education_level_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_education_level_model,
                     test_dict,
@@ -112,7 +114,7 @@ class EducationLevelTest(EducationLevelUnitTest):
         self.assertEqual(
             json_data["id"],
             test_education_level_id,
-            f"The Field ID ({json_data['id']} is not equal to id ({test_education_level_id}) )",
+            f"The field id ({json_data['id']} is not equal to id ({test_education_level_id}) )",
         )
         return test_education_level_id
 
