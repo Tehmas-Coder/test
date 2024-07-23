@@ -137,7 +137,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         question = Question.objects.create(**validated_data)
 
         for question_subject_data in subjects_data:
-            question_subject_countries = question_subject_data.pop("countries")
+            question_subject_countries = question_subject_data.pop("countries", [])
             subject_education_level_data = question_subject_data.pop(
                 "subject_education_level"
             )
@@ -218,7 +218,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
             # * Update or create question subjects
             for question_subject_data in subjects_data:
-                question_subject_countries = question_subject_data.pop("countries")
+                question_subject_countries = question_subject_data.pop("countries", [])
                 subject_education_level_data = question_subject_data.pop(
                     "subject_education_level"
                 )

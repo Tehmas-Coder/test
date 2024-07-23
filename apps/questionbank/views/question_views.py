@@ -67,6 +67,7 @@ from apps.questionbank.serializers.question_serializers.subject_serializers impo
     SubjectDetailSerializer,
 )
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
+from utils.rna_utils import debug_print
 
 
 # ---------------------------------------------------------------------------- #
@@ -175,6 +176,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             request_data = self.parse_media(request)
         else:
             request_data = request.data
+            debug_print(request_data, "yellow")
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()

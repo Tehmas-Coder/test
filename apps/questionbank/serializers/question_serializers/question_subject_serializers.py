@@ -64,7 +64,7 @@ class QuestionSubjectEditSerializer(BaseModelSerializer):
         queryset=MeasuringUnit.objects.all()
     )
     countries = serializers.PrimaryKeyRelatedField(
-        queryset=Country.objects.all(), many=True
+        queryset=Country.objects.all(), many=True, required=False
     )
 
     class Meta:
