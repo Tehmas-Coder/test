@@ -193,38 +193,36 @@ class ExamDetailSerialzer(BaseModelSerializer):
 
         # * Handling Subsections which are not included yet because of not containing questions
 
-        subsections_hashmap = {}
+        subsections_hashmap = {
+            model_to_dict(one_section)["id"]: [
+                model_to_dict(one_subsection)
+                for one_subsection in one_section.subsections.all()
+            ]
+            for one_section in obj.sections.all()
+        }
 
-        for one_section in obj.sections.all():
-            section_id = model_to_dict(one_section)["id"]
-            if section_id not in subsections_hashmap:
-                subsections_hashmap[section_id] = [
-                    model_to_dict(one_subsection)
-                    for one_subsection in one_section.subsections.all()
-                ]
-
-        debug_print(subsections_hashmap)
+        # Remove sections with no subsections
+        subsections_hashmap = {k: v for k, v in subsections_hashmap.items() if v}
 
         for one_section in exam_sections:
             one_section_id = one_section["section"]["id"]
-            if not subsections_hashmap[one_section_id]:
-                subsections_hashmap.pop(one_section_id)
-            else:
+            if one_section_id in subsections_hashmap:
+                existing_subsections = {
+                    one_subsection["subsection"]["id"]
+                    for one_subsection in one_section["subsections"]
+                }
+
                 for one_subsection_in_hashmap in subsections_hashmap[one_section_id]:
                     one_subsection_in_hashmap_id = one_subsection_in_hashmap["id"]
-                    for i in range(len(one_section["subsections"])):
-                        one_subsection_in_exam_sections = one_section["subsections"][i]
-                        debug_print(one_subsection_in_exam_sections["subsection"]["id"])
-                        debug_print(one_subsection_in_hashmap_id, "yellow")
-                        if not (
-                            one_subsection_in_exam_sections["subsection"]["id"]
-                            == one_subsection_in_hashmap_id
-                        ):
-                            one_section["subsections"].append(
-                                {
-                                    "subsection": one_subsection_in_hashmap,
-                                }
-                            )
+
+                    if one_subsection_in_hashmap_id not in existing_subsections:
+                        one_section["subsections"].append(
+                            {
+                                "subsection": one_subsection_in_hashmap,
+                                "questions": [],
+                            }
+                        )
+                        existing_subsections.add(one_subsection_in_hashmap_id)
 
         # debug_print(subsections_hashmap)
 
