@@ -170,6 +170,8 @@ class ExamDetailSerialzer(BaseModelSerializer):
             model_to_dict(one_instance) for one_instance in obj.sections.all()
         ]
 
+        # * Handling Sections which are not included yet because of not containing questions
+
         section_instances_hashmap = {}
         for one_section_instance in section_instances:
             section_id = one_section_instance["id"]
@@ -188,5 +190,42 @@ class ExamDetailSerialzer(BaseModelSerializer):
             }
 
             exam_sections.append(section_dict)
+
+        # * Handling Subsections which are not included yet because of not containing questions
+
+        subsections_hashmap = {}
+
+        for one_section in obj.sections.all():
+            section_id = model_to_dict(one_section)["id"]
+            if section_id not in subsections_hashmap:
+                subsections_hashmap[section_id] = [
+                    model_to_dict(one_subsection)
+                    for one_subsection in one_section.subsections.all()
+                ]
+
+        debug_print(subsections_hashmap)
+
+        for one_section in exam_sections:
+            one_section_id = one_section["section"]["id"]
+            if not subsections_hashmap[one_section_id]:
+                subsections_hashmap.pop(one_section_id)
+            else:
+                for one_subsection_in_hashmap in subsections_hashmap[one_section_id]:
+                    one_subsection_in_hashmap_id = one_subsection_in_hashmap["id"]
+                    for i in range(len(one_section["subsections"])):
+                        one_subsection_in_exam_sections = one_section["subsections"][i]
+                        debug_print(one_subsection_in_exam_sections["subsection"]["id"])
+                        debug_print(one_subsection_in_hashmap_id, "yellow")
+                        if not (
+                            one_subsection_in_exam_sections["subsection"]["id"]
+                            == one_subsection_in_hashmap_id
+                        ):
+                            one_section["subsections"].append(
+                                {
+                                    "subsection": one_subsection_in_hashmap,
+                                }
+                            )
+
+        # debug_print(subsections_hashmap)
 
         return exam_sections

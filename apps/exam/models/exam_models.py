@@ -92,12 +92,15 @@ class Exam(BaseModel):
             cls.objects.all()
             .select_related("education_level")
             .prefetch_related(
-                "sections",
                 "examsubject_set",
                 "examsubject_set__subject",
                 "examsubject_set__examsubjectquestion_set",
                 "examsubject_set__examsubjectquestion_set__section",
                 "examsubject_set__examsubjectquestion_set__subsection",
+                Prefetch(
+                    "sections",
+                    Section.objects.all().prefetch_related("subsections"),
+                ),
                 Prefetch(
                     "examsubject_set__examsubjectquestion_set__question",
                     queryset=Question.get_detail_queryset(),
