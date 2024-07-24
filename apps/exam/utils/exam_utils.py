@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Union
 
-from django.db.models import Prefetch, Q
-from django.db.models.query import QuerySet
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnList
 
@@ -21,9 +20,6 @@ def create_exam_instance(exam_data):
     exam = ExamEditSerializer(data=exam_data)
     exam.is_valid(raise_exception=True)
     return exam.save()
-
-
-from typing import Any, Union
 
 
 def create_random_exam(
