@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
-from decouple import config
-from datetime import timedelta
 import os
+from datetime import timedelta
+from pathlib import Path
+
+from decouple import config
 
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM SETTINGS                               #
@@ -24,8 +25,9 @@ STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (
-    True if config("ENV") != "production" else False
+    True if config("ENV") != "production" else False,
 )  #! SECURITY WARNING: don't run with debug turned on in production!
+
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
 ROOT_URLCONF = "core.urls"
@@ -148,6 +150,8 @@ INSTALLED_APPS = [
     # * System
     "apps.lookups",
     "apps.user",
+    "apps.questionbank",
+    "apps.exam",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -157,6 +161,7 @@ if DEBUG:
 # ---------------------------------------------------------------------------- #
 #                                REST FRAMEWORK                                #
 # ---------------------------------------------------------------------------- #
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -196,6 +201,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "core.middlewares.current_user_middleware.CurrentUserMiddleware",
 ]
 if DEBUG:
     MIDDLEWARE += [
@@ -258,5 +264,8 @@ DATABASES = {
 # ---------------------------------------------------------------------------- #
 FIXTURE_DIRS = [
     BASE_DIR / "apps" / "lookups" / "seeds",
+    BASE_DIR / "apps" / "lookups" / "tests" / "seeds",
     BASE_DIR / "apps" / "user" / "seeds",
+    BASE_DIR / "apps" / "questionbank" / "seeds",
+    BASE_DIR / "apps" / "exam" / "seeds",
 ]

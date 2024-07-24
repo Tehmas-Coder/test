@@ -1,13 +1,12 @@
-import json
 import inspect
 import json
+import random
+import threading
 from typing import Any, Type
 
-import threading
 from django.db.models.base import Model
-from rest_framework.response import Response
-
 from rest_framework import status
+from rest_framework.response import Response
 
 
 def load_json_file(path: str) -> dict:
@@ -33,11 +32,7 @@ def make_success_response(
     Make a success response with 200 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
     return Response(
-        {
-            "status": "success",
-            "message": message,
-            "data": data,
-        },
+        {"data": data, "message": message},
         status=status.HTTP_200_OK,
     )
 
@@ -254,3 +249,10 @@ def debug_print(
         color_print(f"{var_name} = {jsonify(data)}", "OKCYAN")
     if color == "purple":
         color_print(f"{var_name} = {jsonify(data)}", "HEADER")
+
+
+def generate_otp() -> str:
+    """
+    Generate a random 4 digit OTP
+    """
+    return str(random.randint(1000, 9999))

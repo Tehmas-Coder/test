@@ -1,12 +1,21 @@
-import uuid
+from decouple import config
+from django.contrib.auth.models import AnonymousUser
 from django.db import models
+from django.db.models import Q
 from hashids import Hashids
+
+from core.middlewares.current_user_middleware import get_current_user
+from utils.rna_utils import debug_print
 
 hashids = Hashids(min_length=8, salt="your_salt_here")
 
 
+class BaseManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(meta_status="active")
+
+
 class BaseModel(models.Model):
-    id = models.CharField(max_length=32, primary_key=True, editable=False)
 
     description = models.TextField(blank=True)
 
@@ -25,13 +34,36 @@ class BaseModel(models.Model):
         max_length=10, choices=STATUS_CHOICES, default="active"
     )
 
+    objects = BaseManager()
+
     class Meta:
         abstract = True
 
+    @classmethod
+    def get_random(
+        cls, count: int | None = None, q_filter: Q | None = Q(), annotation: dict = {}
+    ):
+        qs = cls.objects.annotate(**annotation).filter(q_filter).order_by("?")
+        if count:
+            return qs[:count]
+        return qs
+
     def save(self, *args, **kwargs):
-        if not self.id:
-            uuid_hex = uuid.uuid4().hex
-            self.id = hashids.encode(int(uuid_hex, 16))
+        current_user = get_current_user()
+        if isinstance(current_user, AnonymousUser):
+            current_user = None
+
+        if not self.pk:
+            if current_user:
+                self.created_by = current_user.full_name
+            else:
+                self.created_by = "system"
+
+        if current_user:
+            self.updated_by = current_user.full_name
+        else:
+            self.updated_by = "system"
+
         super().save(*args, **kwargs)
 
     @property
@@ -47,8 +79,11 @@ class BaseModel(models.Model):
         return self.meta_status == "deleted"
 
     def delete(self, *args, **kwargs):
-        self.meta_status = "deleted"
-        self.save()
+        if config("ENABLE_SOFT_DELETE", cast=bool, default=False):
+            self.meta_status = "deleted"
+            self.save()
+        else:
+            super().delete(*args, **kwargs)
 
     def activate(self, *args, **kwargs):
         self.meta_status = "active"

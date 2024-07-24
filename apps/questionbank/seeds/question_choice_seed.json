@@ -1,0 +1,17 @@
+[
+    {
+        "model": "questionbank.QuestionChoice",
+        "pk": 1,
+        "fields": {
+            "question": 1,
+            "title": "Choice 1",
+            "text": "Please Choose",
+            "weight": 1,
+            "is_negative_weight": 0,
+            "is_correct": 1,
+            "has_media": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

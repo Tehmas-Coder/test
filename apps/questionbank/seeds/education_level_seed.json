@@ -1,0 +1,50 @@
+[
+    {
+        "model": "questionbank.EducationLevel",
+        "pk": 1,
+        "fields": {
+            "name": "Primary",
+            "code": "P",
+            "abbreviation": "P",
+            "slug": "primary",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.EducationLevel",
+        "pk": 2,
+        "fields": {
+            "name": "Secondary",
+            "code": "S",
+            "abbreviation": "S",
+            "slug": "secondary",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.EducationLevel",
+        "pk": 3,
+        "fields": {
+            "name": "High School",
+            "code": "T",
+            "abbreviation": "T",
+            "slug": "high-school",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.EducationLevel",
+        "pk": 4,
+        "fields": {
+            "name": "Bachelor's",
+            "code": "U",
+            "abbreviation": "U",
+            "slug": "bachelors",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

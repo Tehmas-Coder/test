@@ -20,11 +20,16 @@ from django.urls import path
 from django.urls.conf import include
 from django.conf import settings
 from django.conf.urls.static import static
-
+from core.temp_api import TempApi
 
 urlpatterns = [
+    # ? Temp-API
+    path("api/temp-api/", TempApi.as_view(), name="temp-api"),
+    # ? Admin
     path("admin/", admin.site.urls),
+    # ? Auth
     path("api-auth/", include("rest_framework.urls")),
+    # ? Apps
     path("api/", include("apps.urls")),
 ]
 

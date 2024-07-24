@@ -1,0 +1,50 @@
+[
+    {
+        "model": "questionbank.Subject",
+        "pk": 1,
+        "fields": {
+            "name": "Mathematics",
+            "code": "MATH",
+            "abbreviation": "MATH",
+            "slug": "mathematics",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.Subject",
+        "pk": 2,
+        "fields": {
+            "name": "Physics",
+            "code": "PHYS",
+            "abbreviation": "PHYS",
+            "slug": "physics",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.Subject",
+        "pk": 3,
+        "fields": {
+            "name": "Biology",
+            "code": "BIO",
+            "abbreviation": "BIO",
+            "slug": "biology",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.Subject",
+        "pk": 4,
+        "fields": {
+            "name": "English",
+            "code": "ENG",
+            "abbreviation": "ENG",
+            "slug": "english",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

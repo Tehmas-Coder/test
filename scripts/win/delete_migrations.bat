@@ -1,0 +1,25 @@
+@echo off
+REM Batch script to delete all migrations folders in the my-psychometric-examination project, excluding venv directory
+
+REM Get the directory of the batch script
+SET SCRIPT_DIR=%~dp0
+
+REM Navigate to the project root directory
+SET ROOT_DIR=%SCRIPT_DIR%..\..
+
+REM Normalize the path
+FOR %%i IN ("%ROOT_DIR%") DO SET ROOT_DIR=%%~fi
+
+REM Recursively find and delete all migrations directories, excluding venv
+FOR /d /r "%ROOT_DIR%" %%x IN (migrations) DO (
+    ECHO %%x | FIND /I "%ROOT_DIR%\venv\" > NUL
+    IF ERRORLEVEL 1 (
+        IF EXIST "%%x" (
+            ECHO Deleting %%x
+            RMDIR /s /q "%%x"
+        )
+    )
+)
+
+ECHO All migrations folders have been deleted, excluding those in the venv directory.
+PAUSE
