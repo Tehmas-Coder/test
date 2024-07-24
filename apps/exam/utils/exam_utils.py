@@ -14,30 +14,7 @@ from apps.exam.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionSerializer,
 )
 from apps.questionbank.models import Question, Subject
-from apps.questionbank.utils.question_utils import (
-    get_question_detail_queryset,
-    select_random_questions,
-)
-from apps.questionbank.utils.subject_utils import select_random_subjects
 from utils.rna_utils import make_error_response, object_contains_all_values
-
-
-def get_exam_detail_queryset() -> QuerySet[Exam]:
-    return (
-        Exam.objects.all()
-        .select_related("education_level")
-        .prefetch_related(
-            "examsubject_set",
-            "examsubject_set__subject",
-            "examsubject_set__examsubjectquestion_set",
-            "examsubject_set__examsubjectquestion_set__section",
-            "examsubject_set__examsubjectquestion_set__subsection",
-            Prefetch(
-                "examsubject_set__examsubjectquestion_set__question",
-                queryset=get_question_detail_queryset(),
-            ),
-        )
-    )
 
 
 def create_exam_instance(exam_data):
@@ -71,7 +48,7 @@ def create_random_exam(
     def select_subjects() -> Union[None, Response]:
         if not exam_data.get("subjects"):
             # * If subjects are not provided, select random subjects which have at least one question based on subject count
-            subjects = select_random_subjects(
+            subjects = Subject.select_random_subjects(
                 subject_question_count, subject_count, education_level_id
             )
             if not subjects:
@@ -99,7 +76,7 @@ def create_random_exam(
             subject_id = get_subject_id(original_exam_data, subject_id)
             if subject_id is None:
                 break
-            random_subject_questions[subject_id] = select_random_questions(
+            random_subject_questions[subject_id] = Question.select_random_questions(
                 education_level_id, subject_id, question_count
             )
         return random_subject_questions
@@ -142,7 +119,7 @@ def create_random_exam(
     random_subject_questions = fetch_random_questions()
 
     # * Check if enough questions are found for the given criteria
-    all_subjects_have_questions = all(random_subject_questions.values())
+    all_subjects_have_questions = object_contains_all_values(random_subject_questions)
     if not all_subjects_have_questions:
         return make_error_response(
             message="Not enough questions found for the given criteria!"

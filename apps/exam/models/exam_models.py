@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import Prefetch, QuerySet
 
+from apps.questionbank.models import Question
 from core.models import BaseModel
 
 
@@ -83,6 +85,24 @@ class Exam(BaseModel):
 
     class Meta:
         app_label = "exam"
+
+    @classmethod
+    def get_detail_queryset(cls) -> QuerySet:
+        return (
+            cls.objects.all()
+            .select_related("education_level")
+            .prefetch_related(
+                "examsubject_set",
+                "examsubject_set__subject",
+                "examsubject_set__examsubjectquestion_set",
+                "examsubject_set__examsubjectquestion_set__section",
+                "examsubject_set__examsubjectquestion_set__subsection",
+                Prefetch(
+                    "examsubject_set__examsubjectquestion_set__question",
+                    queryset=Question.get_detail_queryset(),
+                ),
+            )
+        )
 
 
 class UserExam(BaseModel):
