@@ -48,29 +48,32 @@ class Subject(BaseModel):
     @classmethod
     def select_random_subjects(
         cls,
-        subject_question_count: dict[str, int],
-        subject_count: int,
-        education_level_id: int,
+        subject_question_count: dict[str, int] | None = None,
+        subject_count: int | None = None,
+        education_level_id: int | None = None,
     ) -> list[int]:
         """
         Select random subjects which have atleast one question based on subject count and question count.
 
         Args:
-            subject_question_count (dict[str, int]): A dictionary of subject_id and question_count.
-            subject_count (int): Number of subjects to be selected.
-            education_level_id (int): Education level id.
+            subject_question_count (dict[str, int]) | None: Dictionary containing subject id as key and question count as value.
+            subject_count (int) | None: Number of subjects to be selected.
+            education_level_id (int) | None: Education level id.
 
         Returns:
             List[int]: List of random subject ids.
 
         """
+        q_filter = Q()
+        if education_level_id:
+            q_filter &= Q(education_level_id=education_level_id)
+        if subject_question_count:
+            q_filter &= Q(Q(question_count__gt=max(subject_question_count.values())))
+
         return list(
             Subject.get_random(
                 count=subject_count,
-                q_filter=Q(
-                    Q(education_level_id=education_level_id)
-                    & Q(question_count__gt=max(subject_question_count.values()))
-                ),
+                q_filter=q_filter,
                 annotation={
                     "question_count": Count("subjecteducationlevel__questions"),
                     "education_level_id": F("subjecteducationlevel__education_level"),
@@ -188,7 +191,10 @@ class Question(BaseModel):
 
     @classmethod
     def select_random_questions(
-        cls, education_level_id: int, subject_id: int | str, question_count: int
+        cls,
+        education_level_id: int | None = None,
+        subject_id: int | str | None = None,
+        question_count: int | None = None,
     ):
         """
         Select random questions based on the given subject and education level.
@@ -201,16 +207,16 @@ class Question(BaseModel):
         Returns:
             List[int]: List of random question ids.
         """
+        q_filter = Q()
+        if education_level_id:
+            q_filter &= Q(subject_education_levels__education_level=education_level_id)
+        if subject_id:
+            q_filter &= Q(subject_education_levels__subject=subject_id)
 
         return list(
             cls.get_random(
                 count=question_count,
-                q_filter=models.Q(
-                    models.Q(subject_education_levels__subject=subject_id)
-                    & models.Q(
-                        subject_education_levels__education_level=education_level_id
-                    )
-                ),
+                q_filter=q_filter,
             ).values_list("id", flat=True)
         )
 

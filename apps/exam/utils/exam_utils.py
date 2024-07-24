@@ -129,6 +129,6 @@ def create_random_exam(
 
     assign_questions_to_subjects(exam_instance, random_subject_questions)
 
-    exam_qs = get_exam_detail_queryset().filter(id=exam_instance.id)  # type: ignore
+    exam_qs = Exam.get_detail_queryset().filter(id=exam_instance.id)  # type: ignore
 
     return ExamDetailSerialzer(exam_qs.first()).data
