@@ -31,6 +31,8 @@ class ExamSubjectDetailSerializer(BaseModelSerializer):
 
 
 class ExamSubjectListSerializer(serializers.ModelSerializer):
+    subject = SubjectListSerializer()
+
     class Meta:
         model = ExamSubject
         fields = [
