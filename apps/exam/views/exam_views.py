@@ -1,5 +1,6 @@
 from django.db.models import Prefetch
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.exam.models.exam_models import (
@@ -29,7 +30,9 @@ from apps.exam.serializers.subsection_serializers import (
     SubSectionEditSerializer,
     SubSectionSerializer,
 )
+from apps.exam.utils.exam_utils import create_random_exam, get_exam_detail_queryset
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
+from utils.rna_utils import make_error_response, make_success_response
 
 # ---------------------------------------------------------------------------- #
 #                                 EXAM LOOKUPS                                 #
@@ -96,21 +99,7 @@ class SubSectionViewSet(viewsets.ModelViewSet):
 
 
 class ExamViewSet(viewsets.ModelViewSet):
-    queryset = (
-        Exam.objects.all()
-        .select_related("education_level")
-        .prefetch_related(
-            "examsubject_set",
-            "examsubject_set__subject",
-            "examsubject_set__examsubjectquestion_set",
-            "examsubject_set__examsubjectquestion_set__section",
-            "examsubject_set__examsubjectquestion_set__subsection",
-            Prefetch(
-                "examsubject_set__examsubjectquestion_set__question",
-                queryset=get_question_detail_queryset(),
-            ),
-        )
-    )
+    queryset = get_exam_detail_queryset()
     serializer_class = ExamEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 
@@ -133,6 +122,23 @@ class ExamViewSet(viewsets.ModelViewSet):
         exam = serializer.save()
         response = ExamDetailSerialzer(exam).data
         return Response(response)
+
+    @action(detail=False, methods=["post"], url_path="create-random")
+    def create_random_exam(self, request):
+        exam_data = request.data.get("exam_data", {})
+        subject_question_count = request.data.get("subject_question_count", None)
+        subject_count = request.data.get("subject_count", 0)
+        education_level_id = exam_data.get("education_level", None)
+
+        exam = create_random_exam(
+            exam_data=exam_data,
+            subject_question_count=subject_question_count,
+            subject_count=subject_count,
+            education_level_id=education_level_id,
+        )
+        if isinstance(exam, Response):
+            return exam
+        return make_success_response(exam)
 
 
 # --------------------------------- SUBJECTS --------------------------------- #
