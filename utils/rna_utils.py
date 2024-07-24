@@ -26,13 +26,13 @@ def dump_json_file(data: dict, path: str):
 
 
 def make_success_response(
-    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None
+    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = ""
 ) -> Response:
     """
     Make a success response with 200 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
     return Response(
-        data,
+        {"data": data, "message": message},
         status=status.HTTP_200_OK,
     )
 
