@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from django.db import models
+from django.db.models import Count, F, Prefetch, Q, QuerySet
 
 from core.models import BaseModel
 
@@ -35,6 +34,9 @@ class Subject(BaseModel):
         EducationLevel, through="SubjectEducationLevel", related_name="subjects"
     )
 
+    class Meta:
+        app_label = "questionbank"
+
     @property
     def full_name(self):
         return f"{self.name} ({self.code})"
@@ -43,8 +45,38 @@ class Subject(BaseModel):
         self.slug = self.name.lower().replace(" ", "-")
         super().save(*args, **kwargs)
 
-    class Meta:
-        app_label = "questionbank"
+    @classmethod
+    def select_random_subjects(
+        cls,
+        subject_question_count: dict[str, int],
+        subject_count: int,
+        education_level_id: int,
+    ) -> list[int]:
+        """
+        Select random subjects which have atleast one question based on subject count and question count.
+
+        Args:
+            subject_question_count (dict[str, int]): A dictionary of subject_id and question_count.
+            subject_count (int): Number of subjects to be selected.
+            education_level_id (int): Education level id.
+
+        Returns:
+            List[int]: List of random subject ids.
+
+        """
+        return list(
+            Subject.get_random(
+                count=subject_count,
+                q_filter=Q(
+                    Q(education_level_id=education_level_id)
+                    & Q(question_count__gt=max(subject_question_count.values()))
+                ),
+                annotation={
+                    "question_count": Count("subjecteducationlevel__questions"),
+                    "education_level_id": F("subjecteducationlevel__education_level"),
+                },
+            ).values_list("id", flat=True)
+        )
 
 
 class QuestionType(BaseModel):
@@ -109,24 +141,77 @@ class Question(BaseModel):
     class Meta:
         app_label = "questionbank"
 
+    @property
+    def type_name(self):
+        return self.type.name
+
+    @classmethod
+    def get_detail_queryset(cls) -> QuerySet:
+
+        return cls.objects.all().prefetch_related(
+            "tags",
+            "choices",
+            "attempt_responses",
+            "retry_hints",
+            "questionmedia_set",
+            "questionmedia_set__media",
+            "type",
+            Prefetch(
+                "subjects",
+                queryset=QuestionSubject.objects.select_related(
+                    "subject_education_level",
+                    "difficulty_level",
+                    "measuring_unit",
+                    "subject_education_level__subject",
+                    "subject_education_level__education_level",
+                ).prefetch_related("countries"),
+            ),
+        )
+
     @classmethod
     def get_questions_for_countries(cls, country_ids: list):
-        from apps.questionbank.utils.question_utils import get_question_detail_queryset
 
         return (
-            get_question_detail_queryset()
+            cls.get_detail_queryset()
             .filter(subjects__subject_countries__country_id__in=country_ids)
             .distinct()
         )
 
     @classmethod
     def get_questions_for_subjects(cls, subject_ids: list):
-        from apps.questionbank.utils.question_utils import get_question_detail_queryset
 
         return (
-            get_question_detail_queryset()
+            cls.get_detail_queryset()
             .filter(subjects__subject_education_level__subject_id__in=subject_ids)
             .distinct()
+        )
+
+    @classmethod
+    def select_random_questions(
+        cls, education_level_id: int, subject_id: int | str, question_count: int
+    ):
+        """
+        Select random questions based on the given subject and education level.
+
+        Args:
+            education_level_id (int): Education level id.
+            subject_id (int | str): Subject id.
+            question_count (int): Number of questions to be selected.
+
+        Returns:
+            List[int]: List of random question ids.
+        """
+
+        return list(
+            cls.get_random(
+                count=question_count,
+                q_filter=models.Q(
+                    models.Q(subject_education_levels__subject=subject_id)
+                    & models.Q(
+                        subject_education_levels__education_level=education_level_id
+                    )
+                ),
+            ).values_list("id", flat=True)
         )
 
 

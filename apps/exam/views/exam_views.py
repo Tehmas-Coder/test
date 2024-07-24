@@ -30,8 +30,7 @@ from apps.exam.serializers.subsection_serializers import (
     SubSectionEditSerializer,
     SubSectionSerializer,
 )
-from apps.exam.utils.exam_utils import create_random_exam, get_exam_detail_queryset
-from apps.questionbank.utils.question_utils import get_question_detail_queryset
+from apps.exam.utils.exam_utils import create_random_exam
 from utils.rna_utils import make_error_response, make_success_response
 
 # ---------------------------------------------------------------------------- #
@@ -99,7 +98,7 @@ class SubSectionViewSet(viewsets.ModelViewSet):
 
 
 class ExamViewSet(viewsets.ModelViewSet):
-    queryset = get_exam_detail_queryset()
+    queryset = Exam.get_detail_queryset()
     serializer_class = ExamEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 

@@ -66,7 +66,6 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectDetailSerializer,
 )
-from apps.questionbank.utils.question_utils import get_question_detail_queryset
 from utils.rna_utils import debug_print
 
 
@@ -117,7 +116,7 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 #                                   QUESTION                                   #
 # ---------------------------------------------------------------------------- #
 class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = get_question_detail_queryset()
+    queryset = Question.get_detail_queryset()
     serializer_class = QuestionDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 
