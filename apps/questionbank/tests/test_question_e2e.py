@@ -39,7 +39,6 @@ class QuestionUnitTest(TestSetUp):
             data=request_body,
             format="multipart",
         )
-        debug_print(response.data)
         validate_success_201_test_response(self, response)
         return response.data
 
@@ -54,7 +53,6 @@ class QuestionUnitTest(TestSetUp):
         print_test_header("get_one_question")
         url = f"/api/questions/{question_id}/"
         response = self.client.get(url, headers=self.headers)
-        debug_print(response.data, "cyan")
         validate_success_200_test_response(self, response)
         return response.data
 
@@ -67,7 +65,6 @@ class QuestionUnitTest(TestSetUp):
             data=request_body,
             content_type="application/json",
         )
-        debug_print(response.data, "yellow")
         validate_success_200_test_response(self, response)
         return response.data
 

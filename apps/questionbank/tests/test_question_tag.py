@@ -26,7 +26,6 @@ class QuestionTagUnitTest(TestSetUp):
             headers=self.headers,
             data=request_body,
         )
-        debug_print(response.data)
         validate_success_201_test_response(self, response)
         return response.data
 

@@ -28,7 +28,6 @@ class QuestionChoiceMediaUnitTest(TestSetUp):
             data=request_body,
             format="multipart",
         )
-        debug_print(response.data)
         validate_success_201_test_response(self, response)
         return response.data
 
