@@ -13,4 +13,4 @@ class DifficultyLevelSerializer(BaseModelSerializer):
             "abbreviation",
             "sequence",
         ] + BaseModelSerializer.Meta.fields
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "slug"]

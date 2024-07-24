@@ -34,6 +34,7 @@ from apps.questionbank.serializers.question_serializers.question_choice_media_se
     QuestionChoiceMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
+    QuestionChoiceDetailSerializer,
     QuestionChoiceSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
@@ -45,6 +46,7 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_medi
     QuestionRetryHintMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintDetailSerializer,
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
@@ -59,11 +61,13 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
 )
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
     SubjectEducationLevelDetailSerializer,
+    SubjectEducationLevelEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectDetailSerializer,
 )
 from apps.questionbank.utils.question_utils import get_question_detail_queryset
+from utils.rna_utils import debug_print
 
 
 # ---------------------------------------------------------------------------- #
@@ -88,6 +92,11 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectEducationLevelDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
+
+    def get_serializer_class(self):
+        if self.action in ["create", "partial_update"]:
+            return SubjectEducationLevelEditSerializer
+        return super().get_serializer_class()
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
@@ -128,7 +137,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 )
 
         # Extract media for hints
-        for hint in request_data["retry_hints"]:
+        for hint in request_data.get("retry_hints", []):
             hint_medias = hint.pop("medias", [])
             if hint["has_media"]:
                 hint["medias"] = []
@@ -142,7 +151,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                         )
 
         # Extract media for choices
-        for choice in request_data["choices"]:
+        for choice in request_data.get("choices", []):
             choice_medias = choice.pop("medias", [])
             if choice["has_media"]:
                 choice["medias"] = []
@@ -231,7 +240,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceSerializer(question_choice)
+        serializer = QuestionChoiceDetailSerializer(question_choice)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
@@ -239,7 +248,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceSerializer(question_choice)
+        serializer = QuestionChoiceDetailSerializer(question_choice)
         return Response(serializer.data)
 
 
@@ -288,7 +297,7 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()
-        serializer = QuestionRetryHintSerializer(question_retry_hint)
+        serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

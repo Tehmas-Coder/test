@@ -6,7 +6,7 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class SubjectDetailSerializer(BaseModelSerializer):
-    education_levels = EducationLevelSerializer(many=True)
+    education_levels = EducationLevelSerializer(many=True, read_only=True)
 
     class Meta:
         model = Subject

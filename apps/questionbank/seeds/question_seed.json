@@ -1,0 +1,17 @@
+[
+    {
+        "model": "questionbank.Question",
+        "pk": 1,
+        "fields": {
+            "title": "Are you crazy?",
+            "text": null,
+            "max_retries": 2,
+            "type": 1,
+            "retry_penalty": 1,
+            "can_shuffle": true,
+            "has_media": true,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

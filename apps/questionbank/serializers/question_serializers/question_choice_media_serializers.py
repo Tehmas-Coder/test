@@ -15,6 +15,17 @@ class QuestionChoiceMediaSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
         read_only_fields = ["id"]
+        
+class QuestionChoiceMediaDetailSerializer(BaseModelSerializer):
+    media = MediaSerializer()
+    class Meta:
+        model = QuestionChoiceMedia
+        fields = [
+            "id",
+            "media"
+        ] + get_base_model_fields()
+
+        read_only_fields = ["id"]
 
 
 class QuestionChoiceMediaEditSerializer(BaseModelSerializer):

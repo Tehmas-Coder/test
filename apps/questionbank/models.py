@@ -82,7 +82,7 @@ class DifficultyLevel(BaseModel):
 
 class Question(BaseModel):
     title = models.CharField(max_length=255)
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
 
     subject_education_levels = models.ManyToManyField(
         "SubjectEducationLevel",
@@ -135,7 +135,7 @@ class QuestionChoice(BaseModel):
         Question, on_delete=models.CASCADE, related_name="choices"
     )
     title = models.CharField(max_length=255)
-    text = models.TextField()
+    text = models.TextField(blank=True, null=True)
     weight = models.IntegerField(default=0)
 
     is_negative_weight = models.BooleanField(default=False)

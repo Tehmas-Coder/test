@@ -3,7 +3,7 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionAttemptResponseSerializer(BaseModelSerializer):
-     class Meta:
+    class Meta:
         model = QuestionAttemptResponse
         fields = [
             "id",

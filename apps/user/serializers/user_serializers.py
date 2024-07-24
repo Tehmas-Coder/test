@@ -24,6 +24,7 @@ class UserDetailSerializer(BaseModelSerializer):
             "roles",
             "country",
             "phone",
+            "otp",
             "is_verified",
             "is_staff",
             "is_superuser",
@@ -65,6 +66,7 @@ class UserEditSerializer(BaseModelSerializer):
             "country",
             "password",
             "phone",
+            "otp",
             "is_verified",
             "is_staff",
             "is_superuser",
@@ -74,6 +76,7 @@ class UserEditSerializer(BaseModelSerializer):
 
         read_only_fields = [
             "id",
+            "otp",
             "full_name",
             "created_at",
             "is_verified",
@@ -97,7 +100,7 @@ class UserEditSerializer(BaseModelSerializer):
                 {"error": "Failed to send email, please try again"}
             )
 
-        color_print("OTP sent to email", "green")
+        # color_print("OTP sent to email", "green")
         return user
 
     def update(self, instance, validated_data):

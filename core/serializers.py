@@ -4,7 +4,6 @@ from django.contrib.auth.models import AnonymousUser
 
 def get_base_model_fields() -> list[str]:
     return [
-        "id",
         "description",
         "created_at",
         "created_by",
@@ -20,7 +19,6 @@ class BaseModelSerializer(serializers.ModelSerializer):
         abstract = True
         fields = get_base_model_fields()
         read_only_fields = (
-            "id",
             "created_at",
             "updated_at",
             "created_by",

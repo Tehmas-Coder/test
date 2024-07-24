@@ -64,7 +64,7 @@ class QuestionSubjectEditSerializer(BaseModelSerializer):
         queryset=MeasuringUnit.objects.all()
     )
     countries = serializers.PrimaryKeyRelatedField(
-        queryset=Country.objects.all(), many=True
+        queryset=Country.objects.all(), many=True, required=False
     )
 
     class Meta:
@@ -77,6 +77,7 @@ class QuestionSubjectEditSerializer(BaseModelSerializer):
             "countries",
             "time_limit",
             "total_marks",
+            "is_global",
             "is_optional",
         ] + get_base_model_fields()
 

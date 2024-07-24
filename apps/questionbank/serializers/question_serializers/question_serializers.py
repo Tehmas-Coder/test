@@ -7,6 +7,7 @@ from apps.questionbank.models import (
     Question,
     QuestionAttemptResponse,
     QuestionChoice,
+    QuestionMedia,
     QuestionRetryHint,
     QuestionSubject,
     SubjectEducationLevel,
@@ -15,12 +16,14 @@ from apps.questionbank.serializers.question_serializers.question_attempt_respons
     QuestionAttemptResponseEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
+    QuestionChoiceDetailSerializer,
     QuestionChoiceEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
     QuestionMediaDetailSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintDetailSerializer,
     QuestionRetryHintEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_subject_serializers import (
@@ -31,24 +34,25 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
     QuestionTypeSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print
 
 
 class QuestionSerializer(BaseModelSerializer):
-    tags = TagSerializer(many=True)
-    choices = QuestionChoiceEditSerializer(many=True)
-    attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
-    retry_hints = QuestionRetryHintEditSerializer(many=True)
-    medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
     type = QuestionTypeSerializer()
+    tags = TagSerializer(many=True)
+    choices = QuestionChoiceDetailSerializer(many=True)
+    attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
+    retry_hints = QuestionRetryHintDetailSerializer(many=True)
+    medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
 
     class Meta:
         model = Question
         fields = [
             "id",
             "title",
+            "type",
             "text",
             "max_retries",
-            "type",
             "retry_penalty",
             "can_shuffle",
             "has_media",
@@ -61,22 +65,22 @@ class QuestionSerializer(BaseModelSerializer):
 
 
 class QuestionDetailSerializer(BaseModelSerializer):
+    type = QuestionTypeSerializer()
     subjects = QuestionSubjectDetailSerializer(many=True)
     tags = TagSerializer(many=True)
-    choices = QuestionChoiceEditSerializer(many=True)
+    choices = QuestionChoiceDetailSerializer(many=True)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
-    retry_hints = QuestionRetryHintEditSerializer(many=True)
+    retry_hints = QuestionRetryHintDetailSerializer(many=True)
     medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
-    type = QuestionTypeSerializer()
 
     class Meta:
         model = Question
         fields = [
             "id",
             "title",
+            "type",
             "text",
             "max_retries",
-            "type",
             "retry_penalty",
             "can_shuffle",
             "has_media",
@@ -104,12 +108,12 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
+            "type",
             "text",
             "max_retries",
             "retry_penalty",
             "can_shuffle",
             "has_media",
-            "type",
             "subjects",
             "tags",
             "choices",
@@ -133,7 +137,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         question = Question.objects.create(**validated_data)
 
         for question_subject_data in subjects_data:
-            question_subject_countries = question_subject_data.pop("countries")
+            question_subject_countries = question_subject_data.pop("countries", [])
             subject_education_level_data = question_subject_data.pop(
                 "subject_education_level"
             )
@@ -198,6 +202,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
         # * Update question
         instance.title = validated_data.get("title", instance.title)
+        instance.type = validated_data.get("type", instance.type)
         instance.text = validated_data.get("text", instance.text)
         instance.max_retries = validated_data.get("max_retries", instance.max_retries)
         instance.retry_penalty = validated_data.get(
@@ -213,7 +218,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
             # * Update or create question subjects
             for question_subject_data in subjects_data:
-                question_subject_countries = question_subject_data.pop("countries")
+                question_subject_countries = question_subject_data.pop("countries", [])
                 subject_education_level_data = question_subject_data.pop(
                     "subject_education_level"
                 )
@@ -242,6 +247,14 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         # * Update tags
         if tags is not None:
             instance.tags.set(tags)
+
+        #! Delete choices if question type is not single select or multiple select
+        if instance.type.slug not in ["single-select", "multiple-select"]:
+            QuestionChoice.objects.filter(question=instance).delete()
+
+        #! Delete retry hints if max retries is set to 0
+        if not instance.max_retries:
+            QuestionRetryHint.objects.filter(question=instance).delete()
 
         # refresh instance
         instance.refresh_from_db()
