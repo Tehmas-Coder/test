@@ -12,6 +12,7 @@ from apps.questionbank.serializers.question_serializers.education_level_serializ
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import color_print, debug_print
+from apps.exam.serializers.exam_subject_serializers import ExamSubjectListSerializer
 
 
 class ExamEditSerializer(BaseModelSerializer):
@@ -39,6 +40,7 @@ class ExamDetailSerialzer(BaseModelSerializer):
     education_level = EducationLevelSerializer()
     questions = serializers.SerializerMethodField()
     sections = serializers.SerializerMethodField()
+    exam_subjects = serializers.SerializerMethodField()
 
     class Meta:
         model = Exam
@@ -52,9 +54,14 @@ class ExamDetailSerialzer(BaseModelSerializer):
             "total_marks",
             "pass_marks",
             "is_global",
+            "exam_subjects",
             "questions",
             "sections",
         ] + get_base_model_fields()
+
+    def get_exam_subjects(self, obj):
+        exam_subjects = obj.examsubject_set.all()
+        return ExamSubjectListSerializer(exam_subjects, many=True).data
 
     def get_questions(self, obj):
         exam_questions = []

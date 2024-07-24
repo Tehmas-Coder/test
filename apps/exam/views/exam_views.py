@@ -108,7 +108,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = ExamEditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         response = ExamDetailSerialzer(exam).data
@@ -116,7 +116,7 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = ExamEditSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         response = ExamDetailSerialzer(exam).data

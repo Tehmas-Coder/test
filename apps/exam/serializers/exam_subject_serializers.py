@@ -3,6 +3,8 @@ from apps.questionbank.serializers.question_serializers.subject_serializers impo
     SubjectListSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
+import django.db.models.base
+from rest_framework import serializers
 from utils.rna_utils import color_print, debug_print
 
 
@@ -26,6 +28,15 @@ class ExamSubjectDetailSerializer(BaseModelSerializer):
             instance.examsubjectquestion_set.all(), many=True
         ).data
         return data
+
+
+class ExamSubjectListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExamSubject
+        fields = [
+            "id",
+            "subject",
+        ]
 
 
 class ExamSubjectSerializer(BaseModelSerializer):
