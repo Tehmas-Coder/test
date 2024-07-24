@@ -256,3 +256,7 @@ def generate_otp() -> str:
     Generate a random 4 digit OTP
     """
     return str(random.randint(1000, 9999))
+
+
+def object_contains_all_values(object: dict[str, Any]) -> bool:
+    return all(object.values())
