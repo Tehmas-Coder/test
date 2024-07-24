@@ -12,3 +12,6 @@ python manage.py loaddata education_level_seed.json
 python manage.py loaddata difficulty_level_seed.json
 python manage.py loaddata subject_seed.json
 python manage.py loaddata subject_education_level_seed.json
+python manage.py loaddata question_seed.json
+python manage.py loaddata question_choice_seed.json
+python manage.py loaddata question_retry_hint_seed.json
