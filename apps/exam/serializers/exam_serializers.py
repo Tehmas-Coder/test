@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from rest_framework import serializers
 
 from apps.exam.models.exam_models import Exam, ExamSubjectQuestion
@@ -164,5 +165,28 @@ class ExamDetailSerialzer(BaseModelSerializer):
                 )
             section_data["subsections"] = subsections_list
             exam_sections.append(section_data)
+
+        section_instances = [
+            model_to_dict(one_instance) for one_instance in obj.sections.all()
+        ]
+
+        section_instances_hashmap = {}
+        for one_section_instance in section_instances:
+            section_id = one_section_instance["id"]
+            if section_id not in section_instances_hashmap:
+                section_instances_hashmap[section_id] = one_section_instance
+
+        for one_exam_section in exam_sections:
+            if one_exam_section["section"]["id"] in section_instances_hashmap:
+                section_instances_hashmap.pop(one_exam_section["section"]["id"])
+
+        for one_section_instance in section_instances_hashmap.values():
+            section_dict = {
+                "section": one_section_instance,
+                "questions": [],
+                "subsections": [],
+            }
+
+            exam_sections.append(section_dict)
 
         return exam_sections

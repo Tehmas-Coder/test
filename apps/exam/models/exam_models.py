@@ -92,6 +92,7 @@ class Exam(BaseModel):
             cls.objects.all()
             .select_related("education_level")
             .prefetch_related(
+                "sections",
                 "examsubject_set",
                 "examsubject_set__subject",
                 "examsubject_set__examsubjectquestion_set",
