@@ -38,6 +38,7 @@ from apps.questionbank.serializers.question_serializers.question_choice_serializ
     QuestionChoiceSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
+    QuestionMediaBulkCreateSerializer,
     QuestionMediaDetailSerializer,
     QuestionMediaEditSerializer,
 )
@@ -213,6 +214,29 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
         question_media = serializer.save()
         serializer = QuestionMediaDetailSerializer(question_media)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_medias(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # * Extract medias for question
+        media_keys = request_data.pop("medias", [])
+        request_data["medias"] = []
+        for key in media_keys:
+            file = request.FILES.get(key)
+            if file:
+                request_data["medias"].append(
+                    {
+                        "file": file,
+                    }
+                )
+
+        debug_print(request_data, "yellow")
+
+        serializer = QuestionMediaBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 # ----------------------------------- TAGS ----------------------------------- #

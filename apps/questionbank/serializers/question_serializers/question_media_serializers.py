@@ -40,3 +40,28 @@ class QuestionMediaDetailSerializer(BaseModelSerializer):
             "id",
             "media",
         ] + get_base_model_fields()
+
+
+class QuestionMediaBulkCreateSerializer(BaseModelSerializer):
+    medias = serializers.ListField(child=serializers.FileField(use_url=True), write_only=True)
+
+    class Meta:
+        model = QuestionMedia
+        fields = [
+            "id",
+            "question",
+            "medias",
+        ] + get_base_model_fields()
+
+    def create(self, validated_data):
+        medias = validated_data.pop("medias")
+
+        # * Create bulk media objects
+        media_serializer = MediaSerializer(data={"file": media})
+        media_serializer.is_valid(raise_exception=True)
+        media = media_serializer.save()
+
+        # * Create question media object
+        question_media = QuestionMedia.objects.create(media=media, **validated_data)
+
+        return question_media
