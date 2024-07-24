@@ -154,8 +154,12 @@ class Question(BaseModel):
         return cls.objects.all().prefetch_related(
             "tags",
             "choices",
+            "choices__questionchoicemedia_set",
+            "choices__questionchoicemedia_set__media",
             "attempt_responses",
             "retry_hints",
+            "retry_hints__questionretryhintmedia_set",
+            "retry_hints__questionretryhintmedia_set__media",
             "questionmedia_set",
             "questionmedia_set__media",
             "type",

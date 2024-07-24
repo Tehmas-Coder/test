@@ -59,19 +59,13 @@ class MediaBulkCreateSerializer(serializers.Serializer):
     files = serializers.ListField(child=serializers.FileField())
 
     def validate(self, data):
-        # Initialize a list to hold individual media validation errors
         media_serializer_errors = []
 
-        # Iterate over each file and validate it using MediaSerializer
         for file in data.get("files", []):
             media_data = {"file": file}
             media_serializer = MediaSerializer(data=media_data)
 
-            if media_serializer.is_valid():
-                # Validate successful, move to the next file
-                continue
-            else:
-                # Collect errors
+            if not media_serializer.is_valid():
                 media_serializer_errors.append(media_serializer.errors)
 
         if media_serializer_errors:
@@ -101,7 +95,11 @@ class MediaBulkCreateSerializer(serializers.Serializer):
         # Bulk create media instances
         Media.objects.bulk_create(media_instances)
 
-        return media_instances
+        created_media_instances = Media.objects.all().order_by("-created_at")[
+            : len(media_instances)
+        ]
+
+        return created_media_instances
 
     def determine_media_type(self, file):
         extension = file.name.split(".")[-1]
