@@ -30,6 +30,7 @@ from apps.questionbank.serializers.question_serializers.question_attempt_respons
     QuestionAttemptResponseSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
+    QuestionChoiceMediaBulkCreateSerializer,
     QuestionChoiceMediaEditSerializer,
     QuestionChoiceMediaSerializer,
 )
@@ -294,7 +295,7 @@ class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
     def bulk_create_question_choice_medias(self, request):
         request_data = json.loads(request.data["data"])
 
-        # * Extract medias for question
+        # * Extract medias for question choice
         media_keys = request_data.pop("medias", [])
         request_data["medias"] = []
         for key in media_keys:
@@ -306,7 +307,7 @@ class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
                     }
                 )
 
-        serializer = QuestionMediaBulkCreateSerializer(data=request_data)
+        serializer = QuestionChoiceMediaBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice_medias = serializer.save()
         serializer = QuestionChoiceMediaSerializer(question_choice_medias, many=True)
