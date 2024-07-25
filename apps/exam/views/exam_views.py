@@ -119,6 +119,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         serializer = ExamEditSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
+        exam.refresh_from_db()
         response = ExamDetailSerialzer(exam).data
         return Response(response)
 
@@ -161,9 +162,7 @@ class ExamSubjectViewSet(viewsets.ModelViewSet):
 
 
 class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
-    queryset = ExamSubjectQuestion.objects.all().select_related(
-        "exam_subject", "question", "section", "subsection"
-    )
+    queryset = ExamSubjectQuestion.objects.all().select_related("exam_subject", "question", "section", "subsection")
     serializer_class = ExamSubjectQuestionSerializer
     http_method_names = ["post", "patch", "delete"]
     pagination_class = None

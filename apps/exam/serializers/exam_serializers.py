@@ -17,9 +17,7 @@ from apps.exam.serializers.exam_subject_serializers import ExamSubjectListSerial
 
 
 class ExamEditSerializer(BaseModelSerializer):
-    subjects = serializers.PrimaryKeyRelatedField(
-        queryset=Subject.objects.all(), many=True, required=True
-    )
+    subjects = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), many=True, required=True)
 
     class Meta:
         model = Exam
@@ -74,11 +72,7 @@ class ExamDetailSerialzer(BaseModelSerializer):
                 if not exam_subject_question.section:
                     try:
                         if exam_subject_question.question:
-                            exam_questions.append(
-                                ExamSubjectQuestionDetailSerializer(
-                                    exam_subject_question
-                                ).data
-                            )
+                            exam_questions.append(ExamSubjectQuestionDetailSerializer(exam_subject_question).data)
                     except ExamSubjectQuestion.question.RelatedObjectDoesNotExist:
                         pass
         return exam_questions
@@ -100,58 +94,29 @@ class ExamDetailSerialzer(BaseModelSerializer):
                 if exam_subject_question.section:
                     if exam_subject_question.section.id not in section_questions:
                         section_questions[exam_subject_question.section.id] = {
-                            "section": SectionSerializer(
-                                exam_subject_question.section
-                            ).data,
+                            "section": SectionSerializer(exam_subject_question.section).data,
                             "questions": [],
                             "subsections": [],
                         }
 
                     # * Handling section questions
-                    if (
-                        exam_subject_question.section.id
-                        and not exam_subject_question.subsection
-                    ):
-                        section_questions[exam_subject_question.section.id][
-                            "questions"
-                        ].append(
-                            ExamSubjectQuestionDetailSerializer(
-                                exam_subject_question
-                            ).data
+                    if exam_subject_question.section.id and not exam_subject_question.subsection:
+                        section_questions[exam_subject_question.section.id]["questions"].append(
+                            ExamSubjectQuestionDetailSerializer(exam_subject_question).data
                         )
 
                     # * Handling subsections
                     if exam_subject_question.subsection:
-                        if (
-                            exam_subject_question.subsection.id
-                            not in section_questions[exam_subject_question.section.id][
-                                "subsections"
-                            ]
-                        ):
-                            section_questions[exam_subject_question.section.id][
-                                "subsections"
-                            ].append(exam_subject_question.subsection.id)
+                        if exam_subject_question.subsection.id not in section_questions[exam_subject_question.section.id]["subsections"]:
+                            section_questions[exam_subject_question.section.id]["subsections"].append(exam_subject_question.subsection.id)
 
-                            subsection_questions[
-                                exam_subject_question.subsection.id
-                            ] = []
+                            subsection_questions[exam_subject_question.subsection.id] = []
 
-                            subsection_objects[exam_subject_question.subsection.id] = (
-                                SubSectionSerializer(
-                                    exam_subject_question.subsection
-                                ).data
-                            )
+                            subsection_objects[exam_subject_question.subsection.id] = SubSectionSerializer(exam_subject_question.subsection).data
                         # * Handling subsection questions
-                        if (
-                            exam_subject_question.section.id
-                            and exam_subject_question.subsection.id
-                        ):
-                            subsection_questions[
-                                exam_subject_question.subsection.id
-                            ].append(
-                                ExamSubjectQuestionDetailSerializer(
-                                    exam_subject_question
-                                ).data
+                        if exam_subject_question.section.id and exam_subject_question.subsection.id:
+                            subsection_questions[exam_subject_question.subsection.id].append(
+                                ExamSubjectQuestionDetailSerializer(exam_subject_question).data
                             )
 
         for section_id, section_data in section_questions.items():
@@ -166,9 +131,7 @@ class ExamDetailSerialzer(BaseModelSerializer):
             section_data["subsections"] = subsections_list
             exam_sections.append(section_data)
 
-        section_instances = [
-            model_to_dict(one_instance) for one_instance in obj.sections.all()
-        ]
+        section_instances = [model_to_dict(one_instance) for one_instance in obj.sections.all()]
 
         # * Handling Sections which are not included yet because of not containing questions
 
@@ -194,10 +157,7 @@ class ExamDetailSerialzer(BaseModelSerializer):
         # * Handling Subsections which are not included yet because of not containing questions
 
         subsections_hashmap = {
-            model_to_dict(one_section)["id"]: [
-                model_to_dict(one_subsection)
-                for one_subsection in one_section.subsections.all()
-            ]
+            model_to_dict(one_section)["id"]: [model_to_dict(one_subsection) for one_subsection in one_section.subsections.all()]
             for one_section in obj.sections.all()
         }
 
@@ -207,10 +167,7 @@ class ExamDetailSerialzer(BaseModelSerializer):
         for one_section in exam_sections:
             one_section_id = one_section["section"]["id"]
             if one_section_id in subsections_hashmap:
-                existing_subsections = {
-                    one_subsection["subsection"]["id"]
-                    for one_subsection in one_section["subsections"]
-                }
+                existing_subsections = {one_subsection["subsection"]["id"] for one_subsection in one_section["subsections"]}
 
                 for one_subsection_in_hashmap in subsections_hashmap[one_section_id]:
                     one_subsection_in_hashmap_id = one_subsection_in_hashmap["id"]

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from apps.questionbank.models import QuestionTag
+from utils.rna_utils import debug_print
 
 
 class QuestionTagSerializer(BaseModelSerializer):
