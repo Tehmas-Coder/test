@@ -27,6 +27,7 @@ from apps.questionbank.serializers.question_serializers.education_level_serializ
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_attempt_response_serializers import (
+    QuestionAttemptResponseBulkCreateSerializer,
     QuestionAttemptResponseSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
@@ -324,6 +325,15 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
     queryset = QuestionAttemptResponse.objects.all()
     serializer_class = QuestionAttemptResponseSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_attempt_reponse(self, request):
+        request_data = request.data
+        serializer = QuestionAttemptResponseBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_attempt_reponse = serializer.save()
+        serializer = QuestionAttemptResponseSerializer(question_attempt_reponse, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # -------------------------------- RETRY HINTS ------------------------------- #
