@@ -1,9 +1,11 @@
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
+    QuestionChoiceMediaBulkCreateSerializer,
     QuestionChoiceMediaDetailSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from apps.questionbank.models import QuestionChoice
 from apps.lookups.serializers.media_serializers import MediaSerializer
+from django.db import transaction
 from utils.rna_utils import debug_print
 
 
@@ -29,6 +31,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
     def validate(self, attrs):
         return super().validate(attrs)
 
+    @transaction.atomic()
     def create(self, validated_data):
         try:
             request = self.context.get("request")
@@ -40,11 +43,16 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
         question_choice = QuestionChoice.objects.create(**validated_data)
 
-        for media in medias:
-            media_serializer = MediaSerializer(data=media)
-            media_serializer.is_valid(raise_exception=True)
-            media = media_serializer.save()
-            question_choice.medias.add(media)
+        # for media in medias:
+        #     media_serializer = MediaSerializer(data=media)
+        #     media_serializer.is_valid(raise_exception=True)
+        #     media = media_serializer.save()
+        #     question_choice.medias.add(media)
+
+        bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}
+        question_choice_media_serializer = QuestionChoiceMediaBulkCreateSerializer(data=bulk_create_request_data)
+        question_choice_media_serializer.is_valid(raise_exception=True)
+        question_choice_media_serializer.save()
 
         if medias:
             question_choice.has_media = True
@@ -73,9 +81,7 @@ class QuestionChoiceEditSerializer(BaseModelSerializer):
 
 
 class QuestionChoiceDetailSerializer(BaseModelSerializer):
-    medias = QuestionChoiceMediaDetailSerializer(
-        many=True, required=False, source="questionchoicemedia_set"
-    )
+    medias = QuestionChoiceMediaDetailSerializer(many=True, required=False, source="questionchoicemedia_set")
 
     class Meta:
         model = QuestionChoice
