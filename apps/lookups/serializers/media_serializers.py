@@ -11,6 +11,18 @@ MEDIA_TYPES = {
 }
 
 
+def determine_media_type(file):
+    extension = file.name.split(".")[-1]
+    if extension in ["jpg", "jpeg", "png", "gif"]:
+        return MEDIA_TYPES["image"]
+    elif extension in ["mp3", "wav", "ogg"]:
+        return MEDIA_TYPES["audio"]
+    elif extension in ["mp4", "avi", "mov"]:
+        return MEDIA_TYPES["video"]
+    else:
+        return MEDIA_TYPES["document"]
+
+
 class MediaSerializer(BaseModelSerializer):
     file = serializers.FileField(use_url=True)
 
@@ -32,7 +44,7 @@ class MediaSerializer(BaseModelSerializer):
         name = file.name
         extension = file.name.split(".")[-1]
         size = file.size
-        media_type = self.determine_media_type(file)
+        media_type = determine_media_type(file)
 
         media = Media.objects.create(
             name=name,
@@ -42,17 +54,6 @@ class MediaSerializer(BaseModelSerializer):
             type_id=media_type,
         )
         return media
-
-    def determine_media_type(self, file):
-        extension = file.name.split(".")[-1]
-        if extension in ["jpg", "jpeg", "png", "gif"]:
-            return MEDIA_TYPES["image"]
-        elif extension in ["mp3", "wav", "ogg"]:
-            return MEDIA_TYPES["audio"]
-        elif extension in ["mp4", "avi", "mov"]:
-            return MEDIA_TYPES["video"]
-        else:
-            return MEDIA_TYPES["document"]
 
 
 class MediaBulkCreateSerializer(serializers.Serializer):
@@ -81,7 +82,7 @@ class MediaBulkCreateSerializer(serializers.Serializer):
             name = file.name
             extension = file.name.split(".")[-1]
             size = file.size
-            media_type = self.determine_media_type(file)
+            media_type = determine_media_type(file)
 
             media_instance = Media(
                 name=name,
@@ -95,19 +96,6 @@ class MediaBulkCreateSerializer(serializers.Serializer):
         # Bulk create media instances
         Media.objects.bulk_create(media_instances)
 
-        created_media_instances = Media.objects.all().order_by("-created_at")[
-            : len(media_instances)
-        ]
+        created_media_instances = Media.objects.all().order_by("-created_at")[: len(media_instances)]
 
         return created_media_instances
-
-    def determine_media_type(self, file):
-        extension = file.name.split(".")[-1]
-        if extension in ["jpg", "jpeg", "png", "gif"]:
-            return MEDIA_TYPES["image"]
-        elif extension in ["mp3", "wav", "ogg"]:
-            return MEDIA_TYPES["audio"]
-        elif extension in ["mp4", "avi", "mov"]:
-            return MEDIA_TYPES["video"]
-        else:
-            return MEDIA_TYPES["document"]
