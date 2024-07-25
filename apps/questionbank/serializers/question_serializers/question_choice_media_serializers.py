@@ -80,7 +80,6 @@ class QuestionChoiceMediaBulkCreateSerializer(BaseModelSerializer):
         # * Bulk Create question choice media objects
         question_choice_media_instances = [QuestionChoiceMedia(media=media, **validated_data) for media in media_instances]
         QuestionChoiceMedia.objects.bulk_create(question_choice_media_instances)
-
         created_question_choice_media_instances = QuestionChoiceMedia.objects.all().order_by("-id")[: len(question_choice_media_instances)]
 
         return created_question_choice_media_instances

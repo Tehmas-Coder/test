@@ -6,6 +6,7 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 from apps.questionbank.models import QuestionChoice
 from apps.lookups.serializers.media_serializers import MediaSerializer
 from django.db import transaction
+from rest_framework import serializers
 from utils.rna_utils import debug_print
 
 
@@ -42,12 +43,6 @@ class QuestionChoiceSerializer(BaseModelSerializer):
             medias = validated_data.pop("medias")
 
         question_choice = QuestionChoice.objects.create(**validated_data)
-
-        # for media in medias:
-        #     media_serializer = MediaSerializer(data=media)
-        #     media_serializer.is_valid(raise_exception=True)
-        #     media = media_serializer.save()
-        #     question_choice.medias.add(media)
 
         bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}
         question_choice_media_serializer = QuestionChoiceMediaBulkCreateSerializer(data=bulk_create_request_data)
@@ -98,3 +93,36 @@ class QuestionChoiceDetailSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
         read_only_fields = ["id"]
+
+
+class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
+    question = serializers.IntegerField()
+    choices = serializers.ListField(child=QuestionChoiceEditSerializer())
+
+    def validate(self, data):
+        question_choice_serializer_errors = []
+        self.question_choices_instances_data = []
+
+        for choice in data.get("choices", []):
+            question_choice_data = {"question": data.get("question"), **choice}
+            question_choice_serializer = QuestionChoiceSerializer(data=question_choice_data)
+            if not question_choice_serializer.is_valid():
+                question_choice_serializer_errors.append(question_choice_serializer.errors)
+            else:
+                # choices_medias = question_choice_serializer.validated_data.pop("medias", [])
+                debug_print(question_choice_serializer.validated_data, "yellow")
+                self.question_choices_instances_data.append(question_choice_serializer.validated_data)
+
+        if question_choice_serializer_errors:
+            raise serializers.ValidationError({"question_choice_errors": question_choice_serializer_errors})
+
+        return data
+
+    def create(self, validated_data):
+        # * Bulk Create Question Choices
+        debug_print(self.question_choices_instances_data)
+        question_choices_instances = [QuestionChoice(**data) for data in self.question_choices_instances_data]
+        QuestionChoice.objects.bulk_create(question_choices_instances)
+        created_question_choices_instances = QuestionChoice.objects.all().order_by("-created_at")[: len(question_choices_instances)]
+
+        return created_question_choices_instances
