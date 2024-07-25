@@ -224,6 +224,4 @@ class ExamDetailSerialzer(BaseModelSerializer):
                         )
                         existing_subsections.add(one_subsection_in_hashmap_id)
 
-        # debug_print(subsections_hashmap)
-
         return exam_sections
