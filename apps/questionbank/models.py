@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Count, F, Prefetch, Q, QuerySet
 
 from core.models import BaseModel
+from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
 #                               QUESTION LOOKUPS                               #
@@ -183,17 +184,12 @@ class Question(BaseModel):
     @classmethod
     def get_questions_for_subjects(cls, subject_ids: list):
 
-        return (
-            cls.get_detail_queryset()
-            .filter(
-                subjects__subject_education_level__subject_id__in=subject_ids,
-            )
-            .distinct()
-        )
+        return cls.get_detail_queryset.filter(
+            subjects__subject_education_level__subject_id__in=subject_ids,
+        ).distinct()
 
     @classmethod
     def get_questions_for_subjects_and_education_levels(cls, subject_ids: list, education_level_ids: list):
-
         return (
             cls.get_detail_queryset()
             .filter(

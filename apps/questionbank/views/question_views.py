@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
+from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.models import (
     DifficultyLevel,
     EducationLevel,
@@ -123,6 +124,7 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------- #
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.get_detail_queryset()
+    filter_backends = [QuestionFilterBackend]
     serializer_class = QuestionDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 
