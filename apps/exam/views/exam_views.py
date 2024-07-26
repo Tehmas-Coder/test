@@ -39,7 +39,7 @@ from utils.rna_utils import make_error_response, make_success_response
 
 
 class SectionViewSet(viewsets.ModelViewSet):
-    queryset = Section.objects.all()
+    queryset = Section.objects.all().select_related("measuring_unit")
     serializer_class = SectionEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
@@ -66,7 +66,7 @@ class SectionViewSet(viewsets.ModelViewSet):
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
-    queryset = SubSection.objects.all()
+    queryset = SubSection.objects.all().select_related("section", "measuring_unit")
     serializer_class = SubSectionEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None

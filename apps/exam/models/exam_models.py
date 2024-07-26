@@ -21,9 +21,8 @@ class Schedule(BaseModel):
 
 
 class Section(BaseModel):
-    exam = models.ForeignKey(
-        "exam.Exam", on_delete=models.CASCADE, related_name="sections"
-    )
+    exam = models.ForeignKey("exam.Exam", on_delete=models.CASCADE, related_name="sections")
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="sections_measuring_unit")
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
@@ -42,9 +41,8 @@ class Section(BaseModel):
 
 class SubSection(BaseModel):
 
-    section = models.ForeignKey(
-        Section, on_delete=models.CASCADE, related_name="subsections"
-    )
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="subsections")
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="subsections_measuring_unit")
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
@@ -72,9 +70,7 @@ class Exam(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField()
 
-    education_level = models.ForeignKey(
-        "questionbank.EducationLevel", on_delete=models.CASCADE
-    )
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
 
     total_marks = models.PositiveIntegerField(default=0)
     pass_marks = models.PositiveIntegerField(default=0)
@@ -116,9 +112,7 @@ class UserExam(BaseModel):
     obtained_marks = models.PositiveIntegerField(default=0)
 
     # ? To be filled from exam
-    education_level = models.ForeignKey(
-        "questionbank.EducationLevel", on_delete=models.CASCADE
-    )
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10)
     abbreviation = models.CharField(max_length=10)
@@ -150,9 +144,7 @@ class ExamSubject(BaseModel):
     )
     subject = models.ForeignKey("questionbank.Subject", on_delete=models.CASCADE)
 
-    questions = models.ManyToManyField(
-        "questionbank.Question", through="ExamSubjectQuestion"
-    )
+    questions = models.ManyToManyField("questionbank.Question", through="ExamSubjectQuestion")
 
     class Meta:
         app_label = "exam"
@@ -162,12 +154,8 @@ class ExamSubject(BaseModel):
 class ExamSubjectQuestion(BaseModel):
     exam_subject = models.ForeignKey(ExamSubject, on_delete=models.CASCADE)
     question = models.ForeignKey("questionbank.Question", on_delete=models.CASCADE)
-    section = models.ForeignKey(
-        Section, on_delete=models.CASCADE, null=True, related_name="questions"
-    )
-    subsection = models.ForeignKey(
-        SubSection, on_delete=models.CASCADE, null=True, related_name="questions"
-    )
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, related_name="questions")
+    subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True, related_name="questions")
 
     sequence = models.PositiveIntegerField(default=1)
 
@@ -177,9 +165,7 @@ class ExamSubjectQuestion(BaseModel):
 
 
 class ExamSubjectCountry(BaseModel):
-    exam_subject = models.ForeignKey(
-        ExamSubject, on_delete=models.CASCADE, related_name="subject_countries"
-    )
+    exam_subject = models.ForeignKey(ExamSubject, on_delete=models.CASCADE, related_name="subject_countries")
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE)
 
     class Meta:
@@ -193,12 +179,8 @@ class ExamSubjectCountry(BaseModel):
 
 
 class ExamAnswer(BaseModel):
-    exam_subject_question = models.ForeignKey(
-        ExamSubjectQuestion, on_delete=models.CASCADE, related_name="answers"
-    )
-    question_attempt_response = models.ForeignKey(
-        "questionbank.QuestionAttemptResponse", on_delete=models.CASCADE
-    )
+    exam_subject_question = models.ForeignKey(ExamSubjectQuestion, on_delete=models.CASCADE, related_name="answers")
+    question_attempt_response = models.ForeignKey("questionbank.QuestionAttemptResponse", on_delete=models.CASCADE)
     is_correct = models.BooleanField(default=False)
 
     class Meta:

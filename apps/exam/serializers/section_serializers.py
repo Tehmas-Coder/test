@@ -18,6 +18,7 @@ class SectionEditSerializer(BaseModelSerializer):
         fields = [
             "id",
             "exam",
+            "measuring_unit",
             "title",
             "sequence",
             "time_limit",
@@ -35,6 +36,7 @@ class SectionSerializer(BaseModelSerializer):
         model = Section
         fields = [
             "id",
+            "measuring_unit",
             "title",
             "sequence",
             "time_limit",

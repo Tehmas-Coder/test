@@ -17,6 +17,8 @@ class SubSectionEditSerializer(BaseModelSerializer):
         model = SubSection
         fields = [
             "id",
+            "section",
+            "measuring_unit",
             "title",
             "sequence",
             "time_limit",
@@ -24,7 +26,6 @@ class SubSectionEditSerializer(BaseModelSerializer):
             "passing_marks",
             "is_global",
             "is_shuffle",
-            "section",
         ] + get_base_model_fields()
 
 
@@ -34,6 +35,7 @@ class SubSectionSerializer(BaseModelSerializer):
         model = SubSection
         fields = [
             "id",
+            "measuring_unit",
             "title",
             "sequence",
             "time_limit",
