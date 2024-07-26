@@ -1,5 +1,5 @@
 from django.db.models import Prefetch
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -63,6 +63,10 @@ class SectionViewSet(viewsets.ModelViewSet):
         section = serializer.save()
         response = SectionSerializer(section).data
         return Response(response)
+
+    def destroy(self, request, *args, **kwargs):
+        self.get_queryset().filter(pk=kwargs["pk"]).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
