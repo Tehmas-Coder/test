@@ -90,12 +90,16 @@ class Exam(BaseModel):
             .prefetch_related(
                 "examsubject_set",
                 "examsubject_set__subject",
-                "examsubject_set__examsubjectquestion_set",
-                "examsubject_set__examsubjectquestion_set__section",
-                "examsubject_set__examsubjectquestion_set__subsection",
+                Prefetch(
+                    "examsubject_set__examsubjectquestion_set",
+                    queryset=ExamSubjectQuestion.objects.filter(
+                        section__meta_status="active",
+                        subsection__meta_status="active",
+                    ).select_related("section", "subsection"),
+                ),
                 Prefetch(
                     "sections",
-                    Section.objects.all().prefetch_related("subsections"),
+                    Section.objects.filter(meta_status="active").prefetch_related("subsections"),
                 ),
                 Prefetch(
                     "examsubject_set__examsubjectquestion_set__question",

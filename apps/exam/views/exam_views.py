@@ -64,10 +64,6 @@ class SectionViewSet(viewsets.ModelViewSet):
         response = SectionSerializer(section).data
         return Response(response)
 
-    def destroy(self, request, *args, **kwargs):
-        self.get_queryset().filter(pk=kwargs["pk"]).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class SubSectionViewSet(viewsets.ModelViewSet):
     queryset = SubSection.objects.all().select_related("section", "measuring_unit")
