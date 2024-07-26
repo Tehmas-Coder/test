@@ -17,21 +17,6 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
         countries = request.query_params.get("countries")
         is_optional = request.query_params.get("is_optional")
 
-        # if subjects and education_levels:
-        #     subjects = json.loads(subjects)
-        #     education_levels = json.loads(education_levels)
-        #     try:
-        #         subjects = [int(id) for id in subjects]
-        #         education_levels = [int(id) for id in education_levels]
-
-        #     except ValueError:
-        #         raise ValidationError("subjects and education_levels must be integers")
-
-        #     return queryset.filter(
-        #         subjects__subject_education_level__subject_id__in=subjects,
-        #         subjects__subject_education_level__education_level_id__in=education_levels,
-        #     )
-
         q_filter = Q()
 
         if subjects:
