@@ -134,7 +134,7 @@ class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
             if key in self.question_choices_media_hashmap:
                 medias = [{"file": one_media["file"]} for one_media in self.question_choices_media_hashmap[key]]
                 media_instances = QuestionChoiceMediaBulkCreateSerializer(data={"question_choice": one_question_choice_instance.id, "medias": medias})
-                media_instances.is_valid()
+                media_instances.is_valid(raise_exception=True)
                 media_instances.save()
 
         return created_question_choices_instances
