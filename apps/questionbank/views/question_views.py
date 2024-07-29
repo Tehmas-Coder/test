@@ -52,6 +52,7 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_medi
     QuestionRetryHintMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintBulkCreateSerializer,
     QuestionRetryHintDetailSerializer,
     QuestionRetryHintSerializer,
 )
@@ -292,7 +293,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         # Extract media for choices
         for choice in request_data.get("choices", []):
             choice_medias = choice.pop("medias", [])
-            if choice["has_media"]:
+            if choice_medias:
                 choice["medias"] = []
                 for key in choice_medias:
                     file = request.FILES.get(key)
@@ -379,6 +380,26 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()
         serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_retry_hints(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # Extract media for retry hints
+        for retry_hint in request_data.get("retry_hints", []):
+            retry_hint_medias = retry_hint.pop("medias", [])
+            if retry_hint_medias:
+                retry_hint["medias"] = []
+                for key in retry_hint_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        retry_hint["medias"].append({"file": file})
+
+        serializer = QuestionRetryHintBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_retry_hint_medias = serializer.save()
+        serializer = QuestionRetryHintDetailSerializer(question_retry_hint_medias, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

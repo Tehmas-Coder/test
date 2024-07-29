@@ -33,7 +33,6 @@ class BaseModel(models.Model):
     meta_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="active")
 
     objects = BaseManager()
-    admin_objects = models.Manager()
 
     class Meta:
         abstract = True
