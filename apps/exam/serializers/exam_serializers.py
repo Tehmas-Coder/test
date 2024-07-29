@@ -69,13 +69,11 @@ class ExamDetailSerialzer(BaseModelSerializer):
             exam_subject_questions = exam_subject.examsubjectquestion_set.all()
 
             for exam_subject_question in exam_subject_questions:
-                color_print(model_to_dict(exam_subject_question))
                 # * If the question is not associated with a section
                 if not exam_subject_question.section:
                     if exam_subject_question.question:
                         exam_questions.append(ExamSubjectQuestionDetailSerializer(exam_subject_question).data)
 
-        debug_print(exam_questions)
         return exam_questions
 
     def get_sections(self, obj):

@@ -105,16 +105,16 @@ class Exam(BaseModel):
                                 subsection__meta_status="active",
                             )
                         )
-                    ).select_related("section", "subsection", "question"),
+                    ).select_related("section", "subsection"),
                 ),
                 Prefetch(
                     "sections",
                     Section.objects.filter(meta_status="active").prefetch_related("subsections"),
                 ),
-                # Prefetch(
-                #     "examsubject_set__examsubjectquestion_set__question",
-                #     queryset=Question.get_detail_queryset(),
-                # ),
+                Prefetch(
+                    "examsubject_set__examsubjectquestion_set__question",
+                    queryset=Question.get_detail_queryset(),
+                ),
             )
         )
 
