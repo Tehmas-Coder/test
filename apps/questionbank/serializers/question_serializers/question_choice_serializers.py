@@ -114,7 +114,6 @@ class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
                 choices_medias = question_choice_serializer.validated_data.pop("medias", [])
                 if choices_medias:
                     self.question_choices_media_hashmap[choice_title] = choices_medias
-                debug_print(question_choice_serializer.validated_data, "yellow")
                 self.question_choices_instances_data.append(question_choice_serializer.validated_data)
 
         if question_choice_serializer_errors:
@@ -124,8 +123,6 @@ class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         # * Bulk Create Question Choices
-        # debug_print(self.question_choices_instances_data)
-        debug_print(self.question_choices_media_hashmap)
         question_choices_instances = [QuestionChoice(**data) for data in self.question_choices_instances_data]
         QuestionChoice.objects.bulk_create(question_choices_instances)
         created_question_choices_instances = QuestionChoice.objects.all().order_by("-created_at")[: len(question_choices_instances)]

@@ -24,9 +24,7 @@ class ExamSubjectDetailSerializer(BaseModelSerializer):
         )
 
         data = super().to_representation(instance)
-        data["questions"] = ExamSubjectQuestionEditSerializer(
-            instance.examsubjectquestion_set.all(), many=True
-        ).data
+        data["questions"] = ExamSubjectQuestionEditSerializer(instance.examsubjectquestion_set.all(), many=True).data
         return data
 
 
