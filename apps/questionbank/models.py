@@ -317,11 +317,7 @@ class SubjectEducationLevel(BaseModel):
 
 class QuestionSubject(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="subjects")
-    subject_education_level = models.ForeignKey(
-        SubjectEducationLevel,
-        on_delete=models.CASCADE,
-        related_name="question_subjects",
-    )
+    subject_education_level = models.ForeignKey(SubjectEducationLevel, on_delete=models.CASCADE, related_name="question_subjects")
     difficulty_level = models.ForeignKey(DifficultyLevel, on_delete=models.CASCADE)
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE)
     countries = models.ManyToManyField("lookups.Country", through="QuestionSubjectCountry")
