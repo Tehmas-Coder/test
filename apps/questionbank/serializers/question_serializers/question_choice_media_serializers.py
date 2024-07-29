@@ -82,4 +82,6 @@ class QuestionChoiceMediaBulkCreateSerializer(BaseModelSerializer):
         QuestionChoiceMedia.objects.bulk_create(question_choice_media_instances)
         created_question_choice_media_instances = QuestionChoiceMedia.objects.all().order_by("-id")[: len(question_choice_media_instances)]
 
+        created_question_choice_media_instances = sorted(created_question_choice_media_instances, key=lambda instance: instance.id)
+
         return created_question_choice_media_instances

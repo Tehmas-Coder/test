@@ -56,4 +56,6 @@ class QuestionAttemptResponseBulkCreateSerializer(serializers.Serializer):
             : len(question_attempt_responses_instances)
         ]
 
+        created_question_attempt_responses_instances = sorted(created_question_attempt_responses_instances, key=lambda instance: instance.id)
+
         return created_question_attempt_responses_instances

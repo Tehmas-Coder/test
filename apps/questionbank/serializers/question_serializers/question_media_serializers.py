@@ -46,9 +46,7 @@ class QuestionMediaDetailSerializer(BaseModelSerializer):
 
 
 class QuestionMediaBulkCreateSerializer(BaseModelSerializer):
-    medias = serializers.ListField(
-        child=serializers.DictField(child=serializers.FileField()), write_only=True
-    )
+    medias = serializers.ListField(child=serializers.DictField(child=serializers.FileField()), write_only=True)
 
     class Meta:
         model = QuestionMedia
@@ -62,20 +60,16 @@ class QuestionMediaBulkCreateSerializer(BaseModelSerializer):
         medias_data = validated_data.pop("medias")
 
         # * Bulk Create media objects
-        media_serializer = MediaBulkCreateSerializer(
-            data={"files": [media["file"] for media in medias_data]}
-        )
+        media_serializer = MediaBulkCreateSerializer(data={"files": [media["file"] for media in medias_data]})
         media_serializer.is_valid(raise_exception=True)
         media_instances = media_serializer.save()
 
         # * Bulk Create question media objects
-        question_media_instances = [
-            QuestionMedia(media=media, **validated_data) for media in media_instances
-        ]
+        question_media_instances = [QuestionMedia(media=media, **validated_data) for media in media_instances]
         QuestionMedia.objects.bulk_create(question_media_instances)
 
-        created_question_media_instances = QuestionMedia.objects.all().order_by("-id")[
-            : len(question_media_instances)
-        ]
+        created_question_media_instances = QuestionMedia.objects.all().order_by("-id")[: len(question_media_instances)]
+
+        created_question_media_instances = sorted(created_question_media_instances, key=lambda instance: instance.id)
 
         return created_question_media_instances

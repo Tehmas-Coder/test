@@ -104,7 +104,7 @@ class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
         self.question_choices_instances_data = []
         self.question_choices_media_hashmap = {}
 
-        for choice in data.get("choices", []):
+        for index, choice in enumerate(data.get("choices", [])):
             question_choice_data = {"question": data.get("question"), **choice}
             question_choice_serializer = QuestionChoiceSerializer(data=question_choice_data)
             if not question_choice_serializer.is_valid():
@@ -113,7 +113,7 @@ class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
                 choice_title = question_choice_serializer.validated_data["title"]
                 choices_medias = question_choice_serializer.validated_data.pop("medias", [])
                 if choices_medias:
-                    self.question_choices_media_hashmap[choice_title] = choices_medias
+                    self.question_choices_media_hashmap[choice_title + f"_{index}"] = choices_medias
                 self.question_choices_instances_data.append(question_choice_serializer.validated_data)
 
         if question_choice_serializer_errors:
@@ -126,5 +126,15 @@ class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
         question_choices_instances = [QuestionChoice(**data) for data in self.question_choices_instances_data]
         QuestionChoice.objects.bulk_create(question_choices_instances)
         created_question_choices_instances = QuestionChoice.objects.all().order_by("-created_at")[: len(question_choices_instances)]
+        created_question_choices_instances = sorted(created_question_choices_instances, key=lambda instance: instance.id)
+
+        # * Bulk Create Question Choices Medias
+        for index, one_question_choice_instance in enumerate(created_question_choices_instances):
+            key = one_question_choice_instance.title + f"_{index}"
+            if key in self.question_choices_media_hashmap:
+                medias = [{"file": one_media["file"]} for one_media in self.question_choices_media_hashmap[key]]
+                media_instances = QuestionChoiceMediaBulkCreateSerializer(data={"question_choice": one_question_choice_instance.id, "medias": medias})
+                media_instances.is_valid()
+                media_instances.save()
 
         return created_question_choices_instances

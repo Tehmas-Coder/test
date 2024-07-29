@@ -40,5 +40,6 @@ class QuestionTagBulkCreateSerializer(serializers.Serializer):
         question_tags_instances = [QuestionTag(**data) for data in self.question_tags_instances_data]
         QuestionTag.objects.bulk_create(question_tags_instances)
         created_question_tags_instances = QuestionTag.objects.all().order_by("-created_at")[: len(question_tags_instances)]
+        created_question_tags_instances = sorted(created_question_tags_instances, key=lambda instance: instance.id)
 
         return created_question_tags_instances
