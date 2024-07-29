@@ -15,3 +15,8 @@ python manage.py loaddata subject_education_level_seed.json
 python manage.py loaddata question_seed.json
 python manage.py loaddata question_choice_seed.json
 python manage.py loaddata question_retry_hint_seed.json
+REM ----------------------------- EXAM --------------------------------
+python manage.py loaddata schedule_seed.json
+python manage.py loaddata exam_seed.json
+python manage.py loaddata section_seed.json
+python manage.py loaddata subsection_seed.json
