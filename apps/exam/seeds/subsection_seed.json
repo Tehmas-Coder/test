@@ -1,0 +1,46 @@
+[
+    {
+        "model": "exam.SubSection",
+        "pk": 1,
+        "fields": {
+            "section": 1,
+            "measuring_unit": 1,
+            "title": "SubSection 1",
+            "sequence": 1,
+            "time_limit": 10,
+            "total_marks": 20,
+            "is_global": 1,
+            "is_shuffle": 1,
+            "passing_marks": 10,
+            "is_negative_marking": 0,
+            "description": "SubSection 1 description",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": "system",
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": "system",
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam.SubSection",
+        "pk": 2,
+        "fields": {
+            "section": 1,
+            "measuring_unit": 2,
+            "title": "SubSection 2",
+            "sequence": 2,
+            "time_limit": 10,
+            "total_marks": 20,
+            "is_global": 1,
+            "is_shuffle": 0,
+            "passing_marks": 10,
+            "is_negative_marking": 0,
+            "description": "SubSection 2 description",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": "system",
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": "system",
+            "meta_status": "active"
+        }
+    }
+]
