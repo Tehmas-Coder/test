@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Case, Prefetch, Q, QuerySet, When
 
 from apps.questionbank.models import Question
 from core.models import BaseModel
@@ -93,18 +93,28 @@ class Exam(BaseModel):
                 Prefetch(
                     "examsubject_set__examsubjectquestion_set",
                     queryset=ExamSubjectQuestion.objects.filter(
-                        section__meta_status="active",
-                        subsection__meta_status="active",
-                    ).select_related("section", "subsection"),
+                        Q(
+                            Q(section__isnull=True)
+                            | Q(subsection__isnull=True)
+                            | Q(
+                                section__isnull=False,
+                                section__meta_status="active",
+                            )
+                            | Q(
+                                subsection__isnull=False,
+                                subsection__meta_status="active",
+                            )
+                        )
+                    ).select_related("section", "subsection", "question"),
                 ),
                 Prefetch(
                     "sections",
                     Section.objects.filter(meta_status="active").prefetch_related("subsections"),
                 ),
-                Prefetch(
-                    "examsubject_set__examsubjectquestion_set__question",
-                    queryset=Question.get_detail_queryset(),
-                ),
+                # Prefetch(
+                #     "examsubject_set__examsubjectquestion_set__question",
+                #     queryset=Question.get_detail_queryset(),
+                # ),
             )
         )
 

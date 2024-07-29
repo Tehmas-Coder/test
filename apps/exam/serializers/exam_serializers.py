@@ -5,6 +5,7 @@ from apps.exam.models.exam_models import Exam, ExamSubjectQuestion
 from apps.exam.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
+from apps.exam.serializers.exam_subject_serializers import ExamSubjectListSerializer
 from apps.exam.serializers.section_serializers import SectionSerializer
 from apps.exam.serializers.subsection_serializers import SubSectionSerializer
 from apps.questionbank.models import Subject
@@ -13,7 +14,6 @@ from apps.questionbank.serializers.question_serializers.education_level_serializ
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import color_print, debug_print
-from apps.exam.serializers.exam_subject_serializers import ExamSubjectListSerializer
 
 
 class ExamEditSerializer(BaseModelSerializer):
@@ -67,14 +67,15 @@ class ExamDetailSerialzer(BaseModelSerializer):
         exam_subjects = obj.examsubject_set.all()
         for exam_subject in exam_subjects:
             exam_subject_questions = exam_subject.examsubjectquestion_set.all()
+
             for exam_subject_question in exam_subject_questions:
+                color_print(model_to_dict(exam_subject_question))
                 # * If the question is not associated with a section
                 if not exam_subject_question.section:
-                    try:
-                        if exam_subject_question.question:
-                            exam_questions.append(ExamSubjectQuestionDetailSerializer(exam_subject_question).data)
-                    except ExamSubjectQuestion.question.RelatedObjectDoesNotExist:
-                        pass
+                    if exam_subject_question.question:
+                        exam_questions.append(ExamSubjectQuestionDetailSerializer(exam_subject_question).data)
+
+        debug_print(exam_questions)
         return exam_questions
 
     def get_sections(self, obj):
