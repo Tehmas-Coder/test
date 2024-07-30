@@ -1,7 +1,11 @@
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+
+from apps.lookups.models import Tag
+from apps.questionbank.models import Question, QuestionTag
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.questionbank.models import QuestionTag
-from utils.rna_utils import debug_print
+from utils.rna_utils import color_print, debug_print
 
 
 class QuestionTagSerializer(BaseModelSerializer):
@@ -14,32 +18,39 @@ class QuestionTagSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
-class QuestionTagBulkCreateSerializer(serializers.Serializer):
+class QuestionTagBulkUpsertSerializer(serializers.Serializer):
     question = serializers.IntegerField()
     tags = serializers.ListField(child=serializers.IntegerField())
 
     def validate(self, data):
-        question_tag_serializer_errors = []
-        self.question_tags_instances_data = []
+        input_tag_ids = data.get("tags", [])
 
-        for tag in data.get("tags", []):
-            question_tag_data = {"question": data.get("question"), "tag": tag}
-            question_tag_serializer = QuestionTagSerializer(data=question_tag_data)
-            if not question_tag_serializer.is_valid():
-                question_tag_serializer_errors.append(question_tag_serializer.errors)
-            else:
-                self.question_tags_instances_data.append(question_tag_serializer.validated_data)
+        tag_instances = list(Tag.objects.filter(pk__in=input_tag_ids))
 
-        if question_tag_serializer_errors:
-            raise serializers.ValidationError({"question_tag_errors": question_tag_serializer_errors})
+        if len(tag_instances) != len(input_tag_ids):
+            raise serializers.ValidationError({"tag_erros": "Unexpected tag id recieved."})
+
+        question_instance = get_object_or_404(Question, pk=data.get("question"))
+
+        existing_tag_ids = list(QuestionTag.objects.filter(question=question_instance).values_list("tag_id", flat=True))
+        to_delete = []
+        self.to_create = []
+
+        for tag in tag_instances:
+            if tag.id not in existing_tag_ids:  # type: ignore
+                self.to_create.append({"question": question_instance, "tag": tag})
+
+        for tag_id in existing_tag_ids:
+            if tag_id not in input_tag_ids:
+                to_delete.append(tag_id)
+
+        QuestionTag.objects.filter(tag_id__in=to_delete).delete()
 
         return data
 
     def create(self, validated_data):
-        # * Bulk Create Question Tags
-        question_tags_instances = [QuestionTag(**data) for data in self.question_tags_instances_data]
+        # * Bulk Upsert Question Tags
+        question_tags_instances = [QuestionTag(**data) for data in self.to_create]
         QuestionTag.objects.bulk_create(question_tags_instances)
-        created_question_tags_instances = QuestionTag.objects.all().order_by("-created_at")[: len(question_tags_instances)]
-        created_question_tags_instances = sorted(created_question_tags_instances, key=lambda instance: instance.id)
 
-        return created_question_tags_instances
+        return QuestionTag.objects.all()

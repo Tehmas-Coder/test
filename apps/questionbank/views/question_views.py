@@ -61,7 +61,7 @@ from apps.questionbank.serializers.question_serializers.question_serializers imp
     QuestionEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
-    QuestionTagBulkCreateSerializer,
+    QuestionTagBulkUpsertSerializer,
     QuestionTagSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
@@ -255,10 +255,10 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionTagSerializer
     http_method_names = ["post", "delete"]
 
-    @action(detail=False, methods=["post"], url_path="bulk-create")
-    def bulk_create_question_tags(self, request):
+    @action(detail=False, methods=["post"], url_path="bulk-upsert")
+    def bulk_upsert_question_tags(self, request):
         request_data = request.data
-        serializer = QuestionTagBulkCreateSerializer(data=request_data)
+        serializer = QuestionTagBulkUpsertSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_tags = serializer.save()
         serializer = QuestionTagSerializer(question_tags, many=True)
