@@ -128,15 +128,16 @@ class CandidateExam(BaseModel):
     # ? To be filled from exam
     education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=10)
-    abbreviation = models.CharField(max_length=10)
-    instructions = models.TextField()
+    code = models.CharField(max_length=10, blank=True)
+    abbreviation = models.CharField(max_length=10, blank=True)
+    instructions = models.TextField(blank=True)
 
     total_marks = models.PositiveIntegerField(default=0)
     pass_marks = models.PositiveIntegerField(default=0)
+
     date = models.DateField(auto_now=False, auto_now_add=False)
-    start_time = models.TimeField(auto_now=False, auto_now_add=False)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False)
+    start_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
+    end_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
     waiting_duration = models.PositiveIntegerField(null=True)
     extra_duration = models.PositiveIntegerField(null=True)
 
