@@ -193,6 +193,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "core.middlewares.current_user_middleware.CurrentUserMiddleware",
+    "core.middlewares.response_middleware.ResponseMiddleware",
 ]
 if DEBUG:
     MIDDLEWARE += [
