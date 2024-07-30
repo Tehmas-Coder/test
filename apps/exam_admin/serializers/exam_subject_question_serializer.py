@@ -33,7 +33,7 @@ class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
 
 class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
     subject = SubjectListSerializer(read_only=True, source="exam_subject.subject")
-    question = QuestionSerializer(read_only=True)
+    question = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamSubjectQuestion
@@ -49,6 +49,31 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         read_only_fields = [
             "id",
         ]
+
+    def get_question(self, obj):
+        # QuestionDetailSerializer(obj.question)
+        question_data = QuestionDetailSerializer(obj.question).data
+        question_subject_data = question_data.pop("subjects")  # type: ignore
+        # debug_print(obj.exam_subject.subject.id)
+        exam_subject_id = obj.exam_subject.subject.id
+        exam_subject_education_level_id = obj.exam_subject.exam.education_level.id
+
+        # ? TO DO: here i didn't applied education level filter yet because that is yet to be decided
+        question_more_data: dict = {}
+        # debug_print(question_subject_data)
+        for one_dict in question_subject_data:
+            if one_dict["subject"]["id"] == exam_subject_id:
+                question_more_data["education_level"] = one_dict.pop("education_level")
+                question_more_data["difficulty_level"] = one_dict.pop("difficulty_level")
+                question_more_data["measuring_unit"] = one_dict.pop("measuring_unit")
+                question_more_data["countries"] = one_dict.pop("countries")
+                question_more_data["time_limit"] = one_dict.pop("time_limit")
+                question_more_data["total_marks"] = one_dict.pop("total_marks")
+                question_more_data["is_optional"] = one_dict.pop("is_optional")
+                question_more_data["is_global"] = one_dict.pop("is_global")
+        question_data.update(question_more_data)  # type: ignore
+        # debug_print(question_more_data)
+        return question_data
 
 
 class ExamSubjectQuestionSerializer(BaseModelSerializer):

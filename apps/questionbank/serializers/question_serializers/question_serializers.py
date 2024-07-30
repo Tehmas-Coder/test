@@ -44,6 +44,7 @@ class QuestionSerializer(BaseModelSerializer):
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
     retry_hints = QuestionRetryHintDetailSerializer(many=True)
     medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
+    subjects = QuestionSubjectDetailSerializer(many=True)
 
     class Meta:
         model = Question
@@ -61,6 +62,7 @@ class QuestionSerializer(BaseModelSerializer):
             "attempt_responses",
             "retry_hints",
             "medias",
+            "subjects",
         ] + get_base_model_fields()
 
 
