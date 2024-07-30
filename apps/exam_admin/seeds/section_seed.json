@@ -1,6 +1,6 @@
 [
     {
-        "model": "exam.Section",
+        "model": "exam_admin.Section",
         "pk": 1,
         "fields": {
             "exam": 1,
@@ -22,7 +22,7 @@
         }
     },
     {
-        "model": "exam.Section",
+        "model": "exam_admin.Section",
         "pk": 2,
         "fields": {
             "exam": 1,

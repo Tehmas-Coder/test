@@ -1,6 +1,6 @@
 [
     {
-        "model": "exam.ExamSubject",
+        "model": "exam_admin.ExamSubject",
         "pk": 1,
         "fields": {
             "exam": 1,
@@ -14,7 +14,7 @@
         }
     },
     {
-        "model": "exam.ExamSubject",
+        "model": "exam_admin.ExamSubject",
         "pk": 2,
         "fields": {
             "exam": 1,

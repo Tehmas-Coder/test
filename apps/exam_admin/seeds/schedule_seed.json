@@ -1,6 +1,6 @@
 [
     {
-        "model": "exam.Schedule",
+        "model": "exam_admin.Schedule",
         "pk": 1,
         "fields": {
             "title": "Schedule 1",
@@ -18,7 +18,7 @@
         }
     },
     {
-        "model": "exam.Schedule",
+        "model": "exam_admin.Schedule",
         "pk": 2,
         "fields": {
             "title": "Schedule 2",

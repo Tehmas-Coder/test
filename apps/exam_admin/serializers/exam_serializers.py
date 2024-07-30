@@ -1,13 +1,15 @@
 from django.forms import model_to_dict
 from rest_framework import serializers
 
-from apps.exam.models.exam_models import Exam, ExamSubjectQuestion
-from apps.exam.serializers.exam_subject_question_serializer import (
+from apps.exam_admin.models.exam_models import Exam, ExamSubjectQuestion
+from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
-from apps.exam.serializers.exam_subject_serializers import ExamSubjectListSerializer
-from apps.exam.serializers.section_serializers import SectionSerializer
-from apps.exam.serializers.subsection_serializers import SubSectionSerializer
+from apps.exam_admin.serializers.exam_subject_serializers import (
+    ExamSubjectListSerializer,
+)
+from apps.exam_admin.serializers.section_serializers import SectionSerializer
+from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
 from apps.questionbank.models import Subject
 from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,

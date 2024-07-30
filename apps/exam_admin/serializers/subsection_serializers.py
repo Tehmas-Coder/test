@@ -1,23 +1,23 @@
 from rest_framework import serializers
 
-from apps.exam.models.exam_models import Section, SubSection
-from apps.exam.serializers.exam_subject_question_serializer import (
+from apps.exam_admin.models.exam_models import SubSection
+from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
-from apps.exam.serializers.subsection_serializers import SubSectionSerializer
 from apps.questionbank.models import Question
 from apps.questionbank.serializers.question_serializers.question_serializers import (
-    QuestionSerializer,
+    QuestionDetailSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class SectionEditSerializer(BaseModelSerializer):
+class SubSectionEditSerializer(BaseModelSerializer):
+
     class Meta:
-        model = Section
+        model = SubSection
         fields = [
             "id",
-            "exam",
+            "section",
             "measuring_unit",
             "title",
             "sequence",
@@ -26,14 +26,13 @@ class SectionEditSerializer(BaseModelSerializer):
             "passing_marks",
             "is_global",
             "is_shuffle",
-            "is_negative_marking",
         ] + get_base_model_fields()
 
 
-class SectionSerializer(BaseModelSerializer):
+class SubSectionSerializer(BaseModelSerializer):
 
     class Meta:
-        model = Section
+        model = SubSection
         fields = [
             "id",
             "measuring_unit",
@@ -44,5 +43,4 @@ class SectionSerializer(BaseModelSerializer):
             "passing_marks",
             "is_global",
             "is_shuffle",
-            "is_negative_marking",
         ] + get_base_model_fields()

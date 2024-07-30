@@ -1,5 +1,8 @@
-from apps.exam.models.exam_models import ExamSubject, ExamSubjectQuestion
-from apps.exam.serializers.exam_subject_serializers import ExamSubjectSerializer
+from rest_framework import serializers
+from rest_framework.response import Response
+
+from apps.exam_admin.models.exam_models import ExamSubject, ExamSubjectQuestion
+from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionDetailSerializer,
     QuestionSerializer,
@@ -8,8 +11,6 @@ from apps.questionbank.serializers.question_serializers.subject_serializers impo
     SubjectListSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from rest_framework import serializers
-from rest_framework.response import Response
 from utils.rna_utils import debug_print
 
 
@@ -85,8 +86,8 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
             exam_subject_request_data = one_dict.get("exam_subject")
 
             for one_exam_subject in exam_subjects:
-                if (one_exam_subject.exam_id == exam_subject_request_data["exam"].id) and (
-                    one_exam_subject.subject_id == exam_subject_request_data["subject"].id
+                if (one_exam_subject.exam_id == exam_subject_request_data["exam"].id) and (  # type:ignore
+                    one_exam_subject.subject_id == exam_subject_request_data["subject"].id  # type:ignore
                 ):
                     one_dict["exam_subject"] = one_exam_subject
 
@@ -94,7 +95,7 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
 
         ExamSubjectQuestion.objects.bulk_create(exam_subject_question_instances)
         created_exam_subject_questions_instances = ExamSubjectQuestion.objects.all().order_by("-created_at")[: len(exam_subject_question_instances)]
-        created_exam_subject_questions_instances = sorted(created_exam_subject_questions_instances, key=lambda instance: instance.id)
+        created_exam_subject_questions_instances = sorted(created_exam_subject_questions_instances, key=lambda instance: instance.id)  # type:ignore
 
         return created_exam_subject_questions_instances
 

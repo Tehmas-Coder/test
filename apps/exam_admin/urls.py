@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from apps.exam.views.exam_views import (
+from apps.exam_admin.views.exam_admin_views import (
     ExamSubjectQuestionViewSet,
     ExamSubjectViewSet,
     ExamViewSet,

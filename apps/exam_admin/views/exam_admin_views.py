@@ -3,35 +3,35 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.exam.models.exam_models import (
+from apps.exam_admin.models.exam_models import (
     Exam,
     ExamSubject,
     ExamSubjectQuestion,
     Section,
     SubSection,
 )
-from apps.exam.serializers.exam_serializers import (
+from apps.exam_admin.serializers.exam_serializers import (
     ExamDetailSerializer,
     ExamEditSerializer,
 )
-from apps.exam.serializers.exam_subject_question_serializer import (
+from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionBulkCreateSerializer,
     ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
-from apps.exam.serializers.exam_subject_serializers import (
+from apps.exam_admin.serializers.exam_subject_serializers import (
     ExamSubjectDetailSerializer,
     ExamSubjectSerializer,
 )
-from apps.exam.serializers.section_serializers import (
+from apps.exam_admin.serializers.section_serializers import (
     SectionEditSerializer,
     SectionSerializer,
 )
-from apps.exam.serializers.subsection_serializers import (
+from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionEditSerializer,
     SubSectionSerializer,
 )
-from apps.exam.utils.exam_utils import create_random_exam
+from apps.exam_admin.utils.exam_utils import create_random_exam
 from utils.rna_utils import make_error_response, make_success_response
 
 # ---------------------------------------------------------------------------- #
@@ -120,7 +120,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         serializer = ExamEditSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
-        exam.refresh_from_db()
+        exam.refresh_from_db()  # type:ignore
         response = ExamDetailSerializer(exam).data
         return Response(response)
 

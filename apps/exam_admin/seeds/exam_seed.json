@@ -1,6 +1,6 @@
 [
     {
-        "model": "exam.Exam",
+        "model": "exam_admin.Exam",
         "pk": 1,
         "fields": {
             "name": "Exam 1",
@@ -20,7 +20,7 @@
         }
     },
     {
-        "model": "exam.Exam",
+        "model": "exam_admin.Exam",
         "pk": 2,
         "fields": {
             "name": "Exam 2",

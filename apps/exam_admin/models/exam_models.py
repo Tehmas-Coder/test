@@ -17,11 +17,11 @@ class Schedule(BaseModel):
     extra_duration = models.PositiveIntegerField(null=True)
 
     class Meta:
-        app_label = "exam"
+        app_label = "exam_admin"
 
 
 class Section(BaseModel):
-    exam = models.ForeignKey("exam.Exam", on_delete=models.CASCADE, related_name="sections")
+    exam = models.ForeignKey("exam_admin.Exam", on_delete=models.CASCADE, related_name="sections")
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="sections_measuring_unit")
 
     title = models.CharField(max_length=255)
@@ -36,7 +36,7 @@ class Section(BaseModel):
     is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
-        app_label = "exam"
+        app_label = "exam_admin"
 
 
 class SubSection(BaseModel):
@@ -56,7 +56,7 @@ class SubSection(BaseModel):
     is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
-        app_label = "exam"
+        app_label = "exam_admin"
 
 
 # ---------------------------------------------------------------------------- #
@@ -80,7 +80,7 @@ class Exam(BaseModel):
     is_global = models.BooleanField(default=True)
 
     class Meta:
-        app_label = "exam"
+        app_label = "exam_admin"
 
     @classmethod
     def get_detail_queryset(cls) -> QuerySet:
@@ -143,7 +143,7 @@ class UserExam(BaseModel):
     is_global = models.BooleanField(default=True)
 
     class Meta:
-        app_label = "exam"
+        app_label = "exam_admin"
 
 
 # ---------------------------------------------------------------------------- #
@@ -161,8 +161,8 @@ class ExamSubject(BaseModel):
     questions = models.ManyToManyField("questionbank.Question", through="ExamSubjectQuestion")
 
     class Meta:
-        app_label = "exam"
-        db_table = "exam_examsubject"
+        app_label = "exam_admin"
+        db_table = "exam_admin_examsubject"
 
 
 class ExamSubjectQuestion(BaseModel):
@@ -174,8 +174,8 @@ class ExamSubjectQuestion(BaseModel):
     sequence = models.PositiveIntegerField(default=1)
 
     class Meta:
-        app_label = "exam"
-        db_table = "exam_examsubject_question"
+        app_label = "exam_admin"
+        db_table = "exam_admin_examsubject_question"
 
 
 class ExamSubjectCountry(BaseModel):
@@ -183,8 +183,8 @@ class ExamSubjectCountry(BaseModel):
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE)
 
     class Meta:
-        app_label = "exam"
-        db_table = "exam_examsubject_country"
+        app_label = "exam_admin"
+        db_table = "exam_admin_examsubject_country"
 
 
 # ---------------------------------------------------------------------------- #
@@ -198,4 +198,4 @@ class ExamAnswer(BaseModel):
     is_correct = models.BooleanField(default=False)
 
     class Meta:
-        app_label = "exam"
+        app_label = "exam_admin"
