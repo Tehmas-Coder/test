@@ -29,6 +29,7 @@ class CandidateExam(BaseModel):
     total_marks = models.PositiveIntegerField(default=0)
     pass_marks = models.PositiveIntegerField(default=0)
 
+    # ? To be filled from schedule
     date = models.DateField(auto_now=False, auto_now_add=False)
     start_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
     end_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
