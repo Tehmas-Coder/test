@@ -119,8 +119,8 @@ class Exam(BaseModel):
         )
 
 
-class UserExam(BaseModel):
-    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
+class CandidateExam(BaseModel):
+    candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
     obtained_marks = models.PositiveIntegerField(default=0)

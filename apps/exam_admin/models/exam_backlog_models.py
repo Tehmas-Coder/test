@@ -6,8 +6,8 @@ from core.models import BaseModel
 # ---------------------------------------------------------------------------- #
 #                               QUESTION BACKLOGS                              #
 # ---------------------------------------------------------------------------- #
-class UserExamQuestionBacklog(BaseModel):
-    user_exam = models.ForeignKey("exam_admin.UserExam", on_delete=models.CASCADE)
+class CandidateExamQuestionBacklog(BaseModel):
+    candidate_exam = models.ForeignKey("exam_admin.CandidateExam", on_delete=models.CASCADE)
     subject = models.ForeignKey("questionbank.Subject", on_delete=models.CASCADE)
     subject_name = models.CharField(max_length=255)
     # * Question Fields
@@ -22,7 +22,7 @@ class UserExamQuestionBacklog(BaseModel):
     has_media = models.BooleanField(default=False)
     sequence = models.PositiveIntegerField(default=1)
 
-    medias = models.ManyToManyField("lookups.Media", through="UserExamQuestionBacklogMedia")
+    medias = models.ManyToManyField("lookups.Media", through="CandidateExamQuestionBacklogMedia")
 
     difficulty = models.ForeignKey("questionbank.DifficultyLevel", on_delete=models.CASCADE)
     difficulty_name = models.CharField(max_length=255)
@@ -35,24 +35,24 @@ class UserExamQuestionBacklog(BaseModel):
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog"
+        db_table = "exam_admin_candidateexam_questionbacklog"
 
 
-class UserExamQuestionBacklogMedia(BaseModel):
-    user_exam_question_backlog = models.ForeignKey(UserExamQuestionBacklog, on_delete=models.CASCADE)
+class CandidateExamQuestionBacklogMedia(BaseModel):
+    candidate_exam_question_backlog = models.ForeignKey(CandidateExamQuestionBacklog, on_delete=models.CASCADE)
 
     media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog_media"
+        db_table = "exam_admin_candidateexam_questionbacklog_media"
 
 
 # ------------------------------ CHOICE BACKLOGS ----------------------------- #
 
 
-class UserExamQuestionBacklogChoice(BaseModel):
-    user_exam_question_backlog = models.ForeignKey(UserExamQuestionBacklog, on_delete=models.CASCADE)
+class CandidateExamQuestionBacklogChoice(BaseModel):
+    candidate_exam_question_backlog = models.ForeignKey(CandidateExamQuestionBacklog, on_delete=models.CASCADE)
     # * Question Choice Fields
     question_choice = models.ForeignKey("questionbank.QuestionChoice", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
@@ -65,68 +65,68 @@ class UserExamQuestionBacklogChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField("lookups.Media", through="UserExamQuestionBacklogChoiceMedia")
+    medias = models.ManyToManyField("lookups.Media", through="CandidateExamQuestionBacklogChoiceMedia")
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog_choice"
+        db_table = "exam_admin_candidateexam_questionbacklog_choice"
 
 
-class UserExamQuestionBacklogChoiceMedia(BaseModel):
-    user_exam_question_backlog_choice = models.ForeignKey(UserExamQuestionBacklogChoice, on_delete=models.CASCADE)
+class CandidateExamQuestionBacklogChoiceMedia(BaseModel):
+    candidate_exam_question_backlog_choice = models.ForeignKey(CandidateExamQuestionBacklogChoice, on_delete=models.CASCADE)
 
     media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog_choice_media"
+        db_table = "exam_admin_candidateexam_questionbacklog_choice_media"
 
 
 # ------------------------------- TAG BACKLOGS ------------------------------- #
 
 
-class UserExamQuestionBacklogTag(BaseModel):
-    user_exam_question_backlog = models.ForeignKey(UserExamQuestionBacklog, on_delete=models.CASCADE)
+class CandidateExamQuestionBacklogTag(BaseModel):
+    candidate_exam_question_backlog = models.ForeignKey(CandidateExamQuestionBacklog, on_delete=models.CASCADE)
     # * Question Tag Fields
     tag = models.ForeignKey("lookups.Tag", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog_tag"
+        db_table = "exam_admin_candidateexam_questionbacklog_tag"
 
 
 # ---------------------------- RETRY HINT BACKLOGS --------------------------- #
-class UserExamQuestionBacklogRetryHint(BaseModel):
-    user_exam_question_backlog = models.ForeignKey(UserExamQuestionBacklog, on_delete=models.CASCADE)
+class CandidateExamQuestionBacklogRetryHint(BaseModel):
+    candidate_exam_question_backlog = models.ForeignKey(CandidateExamQuestionBacklog, on_delete=models.CASCADE)
     # * Question Retry Hint Fields
     retry_hint = models.ForeignKey("questionbank.QuestionRetryHint", on_delete=models.CASCADE)
     text = models.TextField()
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
 
-    medias = models.ManyToManyField("lookups.Media", through="UserExamQuestionBacklogRetryHintMedia")
+    medias = models.ManyToManyField("lookups.Media", through="CandidateExamQuestionBacklogRetryHintMedia")
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog_retryhint"
+        db_table = "exam_admin_candidateexam_questionbacklog_retryhint"
 
 
-class UserExamQuestionBacklogRetryHintMedia(BaseModel):
-    user_exam_question_backlog_retry_hint = models.ForeignKey(UserExamQuestionBacklogRetryHint, on_delete=models.CASCADE)
+class CandidateExamQuestionBacklogRetryHintMedia(BaseModel):
+    candidate_exam_question_backlog_retry_hint = models.ForeignKey(CandidateExamQuestionBacklogRetryHint, on_delete=models.CASCADE)
 
     media = models.ForeignKey("lookups.Media", on_delete=models.CASCADE)
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog_retryhint_media"
+        db_table = "exam_admin_candidateexam_questionbacklog_retryhint_media"
 
 
 # ------------------------- ATTEMPT RESPONSE BACKLOG ------------------------- #
 
 
-class UserExamQuestionBacklogAttemptResponse(BaseModel):
-    user_exam_question_backlog = models.ForeignKey(UserExamQuestionBacklog, on_delete=models.CASCADE)
+class CandidateExamQuestionBacklogAttemptResponse(BaseModel):
+    candidate_exam_question_backlog = models.ForeignKey(CandidateExamQuestionBacklog, on_delete=models.CASCADE)
     # * Question Attempt Response Fields
     attempt_response = models.ForeignKey("questionbank.QuestionAttemptResponse", on_delete=models.CASCADE)
     text = models.TextField()
@@ -142,14 +142,14 @@ class UserExamQuestionBacklogAttemptResponse(BaseModel):
 
     class Meta:
         app_label = "exam_admin"
-        db_table = "exam_admin_userexam_questionbacklog_attemptresponse"
+        db_table = "exam_admin_candidateexam_questionbacklog_attemptresponse"
 
 
 # ----------------------------- SECTION BACKLOGS ----------------------------- #
 
 
 class SectionBacklog(BaseModel):
-    user_exam = models.ForeignKey("exam_admin.UserExam", on_delete=models.CASCADE)
+    candidate_exam = models.ForeignKey("exam_admin.CandidateExam", on_delete=models.CASCADE)
     subsections = models.ManyToManyField("exam_admin.SubSectionBacklog", through="SectionBacklogSubSection")
     # * Section Fields
     section = models.ForeignKey("exam_admin.Section", on_delete=models.CASCADE)
@@ -171,7 +171,7 @@ class SectionBacklog(BaseModel):
 
 
 class SubSectionBacklog(BaseModel):
-    user_exam = models.ForeignKey("exam_admin.UserExam", on_delete=models.CASCADE)
+    candidate_exam = models.ForeignKey("exam_admin.CandidateExam", on_delete=models.CASCADE)
     # * SubSection Fields
     subsection = models.ForeignKey("exam_admin.SubSection", on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
