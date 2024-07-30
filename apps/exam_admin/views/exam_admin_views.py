@@ -16,6 +16,7 @@ from apps.exam_admin.serializers.exam_serializers import (
 )
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionBulkCreateSerializer,
+    ExamSubjectQuestionBulkUpdateSerializer,
     ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
@@ -196,6 +197,15 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         exam_subject_questions = serializer.save()
         serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["patch"], url_path="bulk-update")
+    def bulk_update_exam_subject_question_sequence(self, request):
+        request_data = {"update_list": request.data}
+        serializer = ExamSubjectQuestionBulkUpdateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        exam_subject_questions = serializer.bulk_update_sequence(serializer.validated_data)  # type: ignore
+        serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # ---------------------------------------------------------------------------- #

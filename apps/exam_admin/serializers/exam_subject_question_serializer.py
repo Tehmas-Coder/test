@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import ExamSubject, ExamSubjectQuestion
@@ -98,6 +99,31 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
         created_exam_subject_questions_instances = sorted(created_exam_subject_questions_instances, key=lambda instance: instance.id)  # type:ignore
 
         return created_exam_subject_questions_instances
+
+
+class ExamSubjectQuestionBulkUpdateSerializer(serializers.Serializer):
+    update_list = serializers.ListField(child=serializers.DictField(child=serializers.IntegerField()))
+
+    def bulk_update_sequence(self, validated_data):
+        validated_data = validated_data["update_list"]
+        input_exam_subject_question_ids = [one_dict.get("id") for one_dict in validated_data]
+        exam_subject_question_instances = ExamSubjectQuestion.objects.filter(pk__in=input_exam_subject_question_ids)
+
+        if len(input_exam_subject_question_ids) != len(exam_subject_question_instances):
+            raise ValidationError({"Exam Subject Question Errors": "Some of the provided exam subject questions doesn't exist"})
+
+        exam_subject_question_id_sequence_hashmap = {}
+        for one_dict in validated_data:
+            id = one_dict["id"]
+            if id not in exam_subject_question_id_sequence_hashmap:
+                exam_subject_question_id_sequence_hashmap[id] = one_dict["sequence"]
+
+        for one_instance in exam_subject_question_instances:
+            one_instance.sequence = exam_subject_question_id_sequence_hashmap[one_instance.id]  # type: ignore
+
+        ExamSubjectQuestion.objects.bulk_update(exam_subject_question_instances, ["sequence"])
+
+        return exam_subject_question_instances
 
 
 # ? This Serializer was for when we want to get_or_create exam subjects bu that senario was not occcuring as we would have question pool containing only questions with existing exam_subject
