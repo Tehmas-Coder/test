@@ -119,34 +119,6 @@ class Exam(BaseModel):
         )
 
 
-class CandidateExam(BaseModel):
-    candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
-    obtained_marks = models.PositiveIntegerField(default=0)
-
-    # ? To be filled from exam
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=10, blank=True)
-    abbreviation = models.CharField(max_length=10, blank=True)
-    instructions = models.TextField(blank=True)
-
-    total_marks = models.PositiveIntegerField(default=0)
-    pass_marks = models.PositiveIntegerField(default=0)
-
-    date = models.DateField(auto_now=False, auto_now_add=False)
-    start_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
-    waiting_duration = models.PositiveIntegerField(null=True)
-    extra_duration = models.PositiveIntegerField(null=True)
-
-    is_global = models.BooleanField(default=True)
-
-    class Meta:
-        app_label = "exam_admin"
-
-
 # ---------------------------------------------------------------------------- #
 #                                   MAPPINGS                                   #
 # ---------------------------------------------------------------------------- #
@@ -186,17 +158,3 @@ class ExamSubjectCountry(BaseModel):
     class Meta:
         app_label = "exam_admin"
         db_table = "exam_admin_examsubject_country"
-
-
-# ---------------------------------------------------------------------------- #
-#                                    ANSWER                                    #
-# ---------------------------------------------------------------------------- #
-
-
-class ExamAnswer(BaseModel):
-    exam_subject_question = models.ForeignKey(ExamSubjectQuestion, on_delete=models.CASCADE, related_name="answers")
-    question_attempt_response = models.ForeignKey("questionbank.QuestionAttemptResponse", on_delete=models.CASCADE)
-    is_correct = models.BooleanField(default=False)
-
-    class Meta:
-        app_label = "exam_admin"

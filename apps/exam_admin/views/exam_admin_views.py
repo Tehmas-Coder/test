@@ -3,7 +3,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.exam_admin.models.exam_models import (
+from apps.exam_admin.models.exam_admin_models import (
     Exam,
     ExamSubject,
     ExamSubjectQuestion,
@@ -196,3 +196,8 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         exam_subject_questions = serializer.save()
         serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# ---------------------------------------------------------------------------- #
+#                                EXAM CANDIDATE                                #
+# ---------------------------------------------------------------------------- #

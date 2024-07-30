@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.exam_admin.models.exam_models import Section, SubSection
+from apps.exam_admin.models.exam_admin_models import Section, SubSection
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )

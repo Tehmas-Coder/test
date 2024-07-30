@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.response import Response
 
-from apps.exam_admin.models.exam_models import ExamSubject, ExamSubjectQuestion
+from apps.exam_admin.models.exam_admin_models import ExamSubject, ExamSubjectQuestion
 from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionDetailSerializer,

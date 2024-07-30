@@ -1,7 +1,7 @@
 import django.db.models.base
 from rest_framework import serializers
 
-from apps.exam_admin.models.exam_models import ExamSubject
+from apps.exam_admin.models.exam_admin_models import ExamSubject
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectListSerializer,
 )
