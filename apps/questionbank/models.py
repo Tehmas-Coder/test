@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Count, F, Prefetch, Q, QuerySet
 
 from core.models import BaseModel
+from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
 #                               QUESTION LOOKUPS                               #
@@ -30,9 +31,7 @@ class Subject(BaseModel):
     code = models.CharField(max_length=10, unique=True)
     abbreviation = models.CharField(max_length=10, blank=True)
 
-    education_levels = models.ManyToManyField(
-        EducationLevel, through="SubjectEducationLevel", related_name="subjects"
-    )
+    education_levels = models.ManyToManyField(EducationLevel, through="SubjectEducationLevel", related_name="subjects")
 
     class Meta:
         app_label = "questionbank"
@@ -127,9 +126,7 @@ class Question(BaseModel):
 
     type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
 
-    tags = models.ManyToManyField(
-        "lookups.Tag", related_name="questions", through="QuestionTag"
-    )
+    tags = models.ManyToManyField("lookups.Tag", related_name="questions", through="QuestionTag")
 
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
@@ -137,9 +134,7 @@ class Question(BaseModel):
     can_shuffle = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(
-        MEDIA_MODEL, related_name="questions", through="QuestionMedia"
-    )
+    medias = models.ManyToManyField(MEDIA_MODEL, related_name="questions", through="QuestionMedia")
 
     class Meta:
         app_label = "questionbank"
@@ -154,8 +149,12 @@ class Question(BaseModel):
         return cls.objects.all().prefetch_related(
             "tags",
             "choices",
+            "choices__questionchoicemedia_set",
+            "choices__questionchoicemedia_set__media",
             "attempt_responses",
             "retry_hints",
+            "retry_hints__questionretryhintmedia_set",
+            "retry_hints__questionretryhintmedia_set__media",
             "questionmedia_set",
             "questionmedia_set__media",
             "type",
@@ -176,16 +175,27 @@ class Question(BaseModel):
 
         return (
             cls.get_detail_queryset()
-            .filter(subjects__subject_countries__country_id__in=country_ids)
+            .filter(
+                subjects__subject_countries__country_id__in=country_ids,
+            )
             .distinct()
         )
 
     @classmethod
     def get_questions_for_subjects(cls, subject_ids: list):
 
+        return cls.get_detail_queryset.filter(
+            subjects__subject_education_level__subject_id__in=subject_ids,
+        ).distinct()
+
+    @classmethod
+    def get_questions_for_subjects_and_education_levels(cls, subject_ids: list, education_level_ids: list):
         return (
             cls.get_detail_queryset()
-            .filter(subjects__subject_education_level__subject_id__in=subject_ids)
+            .filter(
+                subjects__subject_education_level__subject_id__in=subject_ids,
+                subjects__subject_education_level__education_level_id__in=education_level_ids,
+            )
             .distinct()
         )
 
@@ -222,9 +232,7 @@ class Question(BaseModel):
 
 
 class QuestionChoice(BaseModel):
-    question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="choices"
-    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
     title = models.CharField(max_length=255)
     text = models.TextField(blank=True, null=True)
     weight = models.IntegerField(default=0)
@@ -234,9 +242,7 @@ class QuestionChoice(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField(
-        MEDIA_MODEL, related_name="choices", through="QuestionChoiceMedia"
-    )
+    medias = models.ManyToManyField(MEDIA_MODEL, related_name="choices", through="QuestionChoiceMedia")
 
     class Meta:
         app_label = "questionbank"
@@ -251,9 +257,7 @@ class QuestionChoice(BaseModel):
 
 
 class QuestionAttemptResponse(BaseModel):
-    question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="attempt_responses"
-    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="attempt_responses")
     text = models.TextField()
 
     TYPE_CHOICES = (
@@ -271,9 +275,7 @@ class QuestionAttemptResponse(BaseModel):
 
 
 class QuestionRetryHint(BaseModel):
-    question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="retry_hints"
-    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="retry_hints")
     text = models.TextField()
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
@@ -314,21 +316,11 @@ class SubjectEducationLevel(BaseModel):
 
 
 class QuestionSubject(BaseModel):
-    question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="subjects"
-    )
-    subject_education_level = models.ForeignKey(
-        SubjectEducationLevel,
-        on_delete=models.CASCADE,
-        related_name="question_subjects",
-    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="subjects")
+    subject_education_level = models.ForeignKey(SubjectEducationLevel, on_delete=models.CASCADE, related_name="question_subjects")
     difficulty_level = models.ForeignKey(DifficultyLevel, on_delete=models.CASCADE)
-    measuring_unit = models.ForeignKey(
-        "lookups.MeasuringUnit", on_delete=models.CASCADE
-    )
-    countries = models.ManyToManyField(
-        "lookups.Country", through="QuestionSubjectCountry"
-    )
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE)
+    countries = models.ManyToManyField("lookups.Country", through="QuestionSubjectCountry")
 
     time_limit = models.IntegerField(default=0)
     total_marks = models.IntegerField(default=0)
@@ -341,9 +333,7 @@ class QuestionSubject(BaseModel):
 
 
 class QuestionSubjectCountry(BaseModel):
-    question_subject = models.ForeignKey(
-        QuestionSubject, on_delete=models.CASCADE, related_name="subject_countries"
-    )
+    question_subject = models.ForeignKey(QuestionSubject, on_delete=models.CASCADE, related_name="subject_countries")
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE)
 
     class Meta:

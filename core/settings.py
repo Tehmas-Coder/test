@@ -24,9 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (
-    True if config("ENV") != "production" else False,
-)  #! SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = (True if config("ENV") != "production" else False,)  #! SECURITY WARNING: don't run with debug turned on in production!
 
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
@@ -44,21 +42,15 @@ try:
         print("### >> Please specify 'APP_KEY' value before proceeding forward!!")
         exit(0)
 except:
-    print(
-        "### >> Please specify 'APP_KEY' variable in '.env' before proceeding forward!!"
-    )
+    print("### >> Please specify 'APP_KEY' variable in '.env' before proceeding forward!!")
     exit(0)
 
 # ---------------------------------------------------------------------------- #
 #                                     AUTH                                     #
 # ---------------------------------------------------------------------------- #
 
-REFRESH_TOKEN_VALIDITY = (
-    int(config("REFRESH_TOKEN_VALIDITY")) if config("REFRESH_TOKEN_VALIDITY") else 1
-)
-ACCESS_TOKEN_VALIDITY = (
-    int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 150
-)
+REFRESH_TOKEN_VALIDITY = int(config("REFRESH_TOKEN_VALIDITY")) if config("REFRESH_TOKEN_VALIDITY") else 1
+ACCESS_TOKEN_VALIDITY = int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 150
 AUTH_USER_MODEL = "user.BaseUser"
 
 SIMPLE_JWT = {
@@ -169,9 +161,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",

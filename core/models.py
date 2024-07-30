@@ -30,9 +30,7 @@ class BaseModel(models.Model):
         ("inactive", "Inactive"),
         ("deleted", "Deleted"),
     )
-    meta_status = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default="active"
-    )
+    meta_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="active")
 
     objects = BaseManager()
 
@@ -40,9 +38,7 @@ class BaseModel(models.Model):
         abstract = True
 
     @classmethod
-    def get_random(
-        cls, count: int | None = None, q_filter: Q | None = Q(), annotation: dict = {}
-    ):
+    def get_random(cls, count: int | None = None, q_filter: Q | None = Q(), annotation: dict = {}):
         qs = cls.objects.annotate(**annotation).filter(q_filter).order_by("?")
         if count:
             return qs[:count]

@@ -1,5 +1,5 @@
 from django.db.models import Prefetch
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -11,10 +11,11 @@ from apps.exam.models.exam_models import (
     SubSection,
 )
 from apps.exam.serializers.exam_serializers import (
-    ExamDetailSerialzer,
+    ExamDetailSerializer,
     ExamEditSerializer,
 )
 from apps.exam.serializers.exam_subject_question_serializer import (
+    ExamSubjectQuestionBulkCreateSerializer,
     ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
@@ -39,7 +40,7 @@ from utils.rna_utils import make_error_response, make_success_response
 
 
 class SectionViewSet(viewsets.ModelViewSet):
-    queryset = Section.objects.all()
+    queryset = Section.objects.all().select_related("measuring_unit")
     serializer_class = SectionEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
@@ -66,7 +67,7 @@ class SectionViewSet(viewsets.ModelViewSet):
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
-    queryset = SubSection.objects.all()
+    queryset = SubSection.objects.all().select_related("section", "measuring_unit")
     serializer_class = SubSectionEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
@@ -104,22 +105,23 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
-            return ExamDetailSerialzer
+            return ExamDetailSerializer
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = ExamEditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
-        response = ExamDetailSerialzer(exam).data
+        response = ExamDetailSerializer(exam).data
         return Response(response)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = ExamEditSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
-        response = ExamDetailSerialzer(exam).data
+        exam.refresh_from_db()
+        response = ExamDetailSerializer(exam).data
         return Response(response)
 
     @action(detail=False, methods=["post"], url_path="create-random")
@@ -161,9 +163,7 @@ class ExamSubjectViewSet(viewsets.ModelViewSet):
 
 
 class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
-    queryset = ExamSubjectQuestion.objects.all().select_related(
-        "exam_subject", "question", "section", "subsection"
-    )
+    queryset = ExamSubjectQuestion.objects.all().select_related("exam_subject", "question", "section", "subsection")
     serializer_class = ExamSubjectQuestionSerializer
     http_method_names = ["post", "patch", "delete"]
     pagination_class = None
@@ -187,3 +187,12 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         exam_subject_question = serializer.save()
         response = ExamSubjectQuestionSerializer(exam_subject_question).data
         return Response(response)
+
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_exam_subject_question(self, request):
+        request_data = {"create_list": request.data}
+        serializer = ExamSubjectQuestionBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        exam_subject_questions = serializer.save()
+        serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

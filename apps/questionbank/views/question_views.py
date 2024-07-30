@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
+from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.models import (
     DifficultyLevel,
     EducationLevel,
@@ -27,25 +28,31 @@ from apps.questionbank.serializers.question_serializers.education_level_serializ
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_attempt_response_serializers import (
+    QuestionAttemptResponseBulkCreateSerializer,
     QuestionAttemptResponseSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
+    QuestionChoiceMediaBulkCreateSerializer,
     QuestionChoiceMediaEditSerializer,
     QuestionChoiceMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
+    QuestionChoiceBulkCreateSerializer,
     QuestionChoiceDetailSerializer,
     QuestionChoiceSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
+    QuestionMediaBulkCreateSerializer,
     QuestionMediaDetailSerializer,
     QuestionMediaEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
+    QuestionRetryHintMediaBulkCreateSerializer,
     QuestionRetryHintMediaEditSerializer,
     QuestionRetryHintMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
+    QuestionRetryHintBulkCreateSerializer,
     QuestionRetryHintDetailSerializer,
     QuestionRetryHintSerializer,
 )
@@ -54,6 +61,7 @@ from apps.questionbank.serializers.question_serializers.question_serializers imp
     QuestionEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
+    QuestionTagBulkUpsertSerializer,
     QuestionTagSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
@@ -117,6 +125,7 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------- #
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.get_detail_queryset()
+    filter_backends = [QuestionFilterBackend]
     serializer_class = QuestionDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 
@@ -203,7 +212,7 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
     queryset = QuestionMedia.objects.all()
     serializer_class = QuestionMediaEditSerializer
     http_method_names = ["post", "delete"]
-    parser_classes = [FormParser, MultiPartParser]
+    # parser_classes = [FormParser, MultiPartParser]
 
     def create(self, request, *args, **kwargs):
         request_data = request.data
@@ -213,6 +222,30 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
         serializer = QuestionMediaDetailSerializer(question_media)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_medias(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # * Extract medias for question
+        media_keys = request_data.pop("medias", [])
+        request_data["medias"] = []
+        for key in media_keys:
+            file = request.FILES.get(key)
+            if file:
+                request_data["medias"].append({"file": file})
+
+        serializer = QuestionMediaBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_medias = serializer.save()
+        serializer = QuestionMediaDetailSerializer(question_medias, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    def bulk_delete_question_medias(self, request):
+        delete_request_ids = request.data.get("ids", [])
+        QuestionMedia.objects.filter(id__in=delete_request_ids).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 # ----------------------------------- TAGS ----------------------------------- #
 
@@ -221,6 +254,15 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
     queryset = QuestionTag.objects.all()
     serializer_class = QuestionTagSerializer
     http_method_names = ["post", "delete"]
+
+    @action(detail=False, methods=["post"], url_path="bulk-upsert")
+    def bulk_upsert_question_tags(self, request):
+        request_data = request.data
+        serializer = QuestionTagBulkUpsertSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_tags = serializer.save()
+        serializer = QuestionTagSerializer(question_tags, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # ---------------------------------- CHOICES --------------------------------- #
@@ -250,6 +292,26 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = QuestionChoiceDetailSerializer(question_choice)
         return Response(serializer.data)
 
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_choices(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # Extract media for choices
+        for choice in request_data.get("choices", []):
+            choice_medias = choice.pop("medias", [])
+            if choice_medias:
+                choice["medias"] = []
+                for key in choice_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        choice["medias"].append({"file": file})
+
+        serializer = QuestionChoiceBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_choice_medias = serializer.save()
+        serializer = QuestionChoiceDetailSerializer(question_choice_medias, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 # ------------------------------- CHOICES MEDIA ------------------------------ #
 
@@ -267,6 +329,30 @@ class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return res
 
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_choice_medias(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # * Extract medias for question choice
+        media_keys = request_data.pop("medias", [])
+        request_data["medias"] = []
+        for key in media_keys:
+            file = request.FILES.get(key)
+            if file:
+                request_data["medias"].append({"file": file})
+
+        serializer = QuestionChoiceMediaBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_choice_medias = serializer.save()
+        serializer = QuestionChoiceMediaSerializer(question_choice_medias, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    def bulk_delete_question_choice_medias(self, request):
+        delete_request_ids = request.data.get("ids", [])
+        QuestionChoiceMedia.objects.filter(id__in=delete_request_ids).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 # ------------------------- QUESTION ATTEMPT RESPONSE ------------------------ #
 
@@ -275,6 +361,15 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
     queryset = QuestionAttemptResponse.objects.all()
     serializer_class = QuestionAttemptResponseSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_attempt_reponse(self, request):
+        request_data = request.data
+        serializer = QuestionAttemptResponseBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_attempt_reponse = serializer.save()
+        serializer = QuestionAttemptResponseSerializer(question_attempt_reponse, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # -------------------------------- RETRY HINTS ------------------------------- #
@@ -299,6 +394,26 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_retry_hints(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # Extract media for retry hints
+        for retry_hint in request_data.get("retry_hints", []):
+            retry_hint_medias = retry_hint.pop("medias", [])
+            if retry_hint_medias:
+                retry_hint["medias"] = []
+                for key in retry_hint_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        retry_hint["medias"].append({"file": file})
+
+        serializer = QuestionRetryHintBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_retry_hint_medias = serializer.save()
+        serializer = QuestionRetryHintDetailSerializer(question_retry_hint_medias, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 # ----------------------------- RETRY HINT MEDIA ----------------------------- #
 
@@ -315,3 +430,27 @@ class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
             serializer = QuestionRetryHintMediaSerializer(instance)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return res
+
+    @action(detail=False, methods=["post"], url_path="bulk-create")
+    def bulk_create_question_retry_hint_medias(self, request):
+        request_data = json.loads(request.data["data"])
+
+        # * Extract medias for question retry hint
+        media_keys = request_data.pop("medias", [])
+        request_data["medias"] = []
+        for key in media_keys:
+            file = request.FILES.get(key)
+            if file:
+                request_data["medias"].append({"file": file})
+
+        serializer = QuestionRetryHintMediaBulkCreateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question_retry_hint_medias = serializer.save()
+        serializer = QuestionRetryHintMediaSerializer(question_retry_hint_medias, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    def bulk_delete_question_retry_hint_medias(self, request):
+        delete_request_ids = request.data.get("ids", [])
+        QuestionRetryHintMedia.objects.filter(id__in=delete_request_ids).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
