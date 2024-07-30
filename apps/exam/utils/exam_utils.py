@@ -6,7 +6,7 @@ from rest_framework.utils.serializer_helpers import ReturnList
 
 from apps.exam.models.exam_models import Exam
 from apps.exam.serializers.exam_serializers import (
-    ExamDetailSerialzer,
+    ExamDetailSerializer,
     ExamEditSerializer,
 )
 from apps.exam.serializers.exam_subject_question_serializer import (
@@ -44,19 +44,13 @@ def create_random_exam(
     def select_subjects() -> Union[None, Response]:
         if not exam_data.get("subjects"):
             # * If subjects are not provided, select random subjects which have at least one question based on subject count
-            subjects = Subject.select_random_subjects(
-                subject_question_count, subject_count, education_level_id
-            )
+            subjects = Subject.select_random_subjects(subject_question_count, subject_count, education_level_id)
             if not subjects:
-                return make_error_response(
-                    message="Not enough subjects found for the given criteria!"
-                )
+                return make_error_response(message="Not enough subjects found for the given criteria!")
             exam_data["subjects"] = subjects
         return None
 
-    def get_subject_id(
-        original_exam_data: Dict[str, Any], subject_id: str
-    ) -> Union[None, str]:
+    def get_subject_id(original_exam_data: Dict[str, Any], subject_id: str) -> Union[None, str]:
         if not original_exam_data.get("subjects"):
             # * Break if array index is out of range
             if int(subject_id) >= len(exam_data["subjects"]):
@@ -72,14 +66,10 @@ def create_random_exam(
             subject_id = get_subject_id(original_exam_data, subject_id)
             if subject_id is None:
                 break
-            random_subject_questions[subject_id] = Question.select_random_questions(
-                education_level_id, subject_id, question_count
-            )
+            random_subject_questions[subject_id] = Question.select_random_questions(education_level_id, subject_id, question_count)
         return random_subject_questions
 
-    def assign_questions_to_subjects(
-        exam_instance: Any, random_subject_questions: Dict[str, List[int]]
-    ) -> None:
+    def assign_questions_to_subjects(exam_instance: Any, random_subject_questions: Dict[str, List[int]]) -> None:
         # * Assign Questions to Subjects
         for subject_id, question_ids in random_subject_questions.items():
             for sequence, question_id in enumerate(question_ids, start=1):
@@ -117,9 +107,7 @@ def create_random_exam(
     # * Check if enough questions are found for the given criteria
     all_subjects_have_questions = object_contains_all_values(random_subject_questions)
     if not all_subjects_have_questions:
-        return make_error_response(
-            message="Not enough questions found for the given criteria!"
-        )
+        return make_error_response(message="Not enough questions found for the given criteria!")
 
     exam_instance = create_exam_instance(exam_data=exam_data)
 
@@ -127,4 +115,4 @@ def create_random_exam(
 
     exam_qs = Exam.get_detail_queryset().filter(id=exam_instance.id)  # type: ignore
 
-    return ExamDetailSerialzer(exam_qs.first()).data
+    return ExamDetailSerializer(exam_qs.first()).data

@@ -35,7 +35,7 @@ class ExamEditSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
-class ExamDetailSerialzer(BaseModelSerializer):
+class ExamDetailSerializer(BaseModelSerializer):
     education_level = EducationLevelSerializer()
     questions = serializers.SerializerMethodField()
     sections = serializers.SerializerMethodField()

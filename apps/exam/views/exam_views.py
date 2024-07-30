@@ -11,7 +11,7 @@ from apps.exam.models.exam_models import (
     SubSection,
 )
 from apps.exam.serializers.exam_serializers import (
-    ExamDetailSerialzer,
+    ExamDetailSerializer,
     ExamEditSerializer,
 )
 from apps.exam.serializers.exam_subject_question_serializer import (
@@ -105,14 +105,14 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
-            return ExamDetailSerialzer
+            return ExamDetailSerializer
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
         serializer = ExamEditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
-        response = ExamDetailSerialzer(exam).data
+        response = ExamDetailSerializer(exam).data
         return Response(response)
 
     def partial_update(self, request, *args, **kwargs):
@@ -121,7 +121,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         exam.refresh_from_db()
-        response = ExamDetailSerialzer(exam).data
+        response = ExamDetailSerializer(exam).data
         return Response(response)
 
     @action(detail=False, methods=["post"], url_path="create-random")
