@@ -22,6 +22,7 @@ class CandidateExamAnswer(BaseModel):
 
     score = models.FloatField(default=0)
     is_correct = models.BooleanField(default=False)
+    seconds_taken = models.IntegerField(default=0)
 
     class Meta:
         app_label = "exam_public"
