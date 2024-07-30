@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     "apps.user",
     "apps.questionbank",
     "apps.exam",
+    "apps.student",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -268,4 +269,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "user" / "seeds",
     BASE_DIR / "apps" / "questionbank" / "seeds",
     BASE_DIR / "apps" / "exam" / "seeds",
+    BASE_DIR / "apps" / "student" / "seeds",
 ]
