@@ -13,6 +13,7 @@ from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionSerializer,
 )
 from apps.questionbank.models import Question, Subject
+from core.middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response, object_contains_all_values
 
 
@@ -27,26 +28,26 @@ def create_random_exam(
     subject_question_count: Dict[str, int],
     subject_count: int,
     education_level_id: int,
-) -> Union[Response, ReturnList, Any]:
+) -> Union[ReturnList, Any]:
     """
     This function generates a random exam with a given number of questions from a given question bank.
     """
 
-    def validate_inputs() -> Union[None, Response]:
+    def validate_inputs() -> None:
         if not subject_question_count:
-            return make_error_response(message="Question count is required!")
+            ResponseMiddleware.return_now(make_error_response(message="Question count is required!"))
         if not subject_count:
-            return make_error_response(message="Subject count is required!")
+            ResponseMiddleware.return_now(make_error_response(message="Subject count is required!"))
         if not education_level_id:
-            return make_error_response(message="Education level is required!")
+            ResponseMiddleware.return_now(make_error_response(message="Education level is required!"))
         return None
 
-    def select_subjects() -> Union[None, Response]:
+    def select_subjects() -> None:
         if not exam_data.get("subjects"):
             # * If subjects are not provided, select random subjects which have at least one question based on subject count
             subjects = Subject.select_random_subjects(subject_question_count, subject_count, education_level_id)
             if not subjects:
-                return make_error_response(message="Not enough subjects found for the given criteria!")
+                ResponseMiddleware.return_now(make_error_response(message="Not enough subjects found for the given criteria!"))
             exam_data["subjects"] = subjects
         return None
 
@@ -99,15 +100,13 @@ def create_random_exam(
     original_exam_data = exam_data.copy()
 
     error_response = select_subjects()
-    if error_response:
-        return error_response
 
     random_subject_questions = fetch_random_questions()
 
     # * Check if enough questions are found for the given criteria
     all_subjects_have_questions = object_contains_all_values(random_subject_questions)
     if not all_subjects_have_questions:
-        return make_error_response(message="Not enough questions found for the given criteria!")
+        ResponseMiddleware.return_now(make_error_response(message="Not enough questions found for the given criteria!"))
 
     exam_instance = create_exam_instance(exam_data=exam_data)
 

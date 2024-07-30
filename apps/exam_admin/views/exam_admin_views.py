@@ -138,8 +138,6 @@ class ExamViewSet(viewsets.ModelViewSet):
             subject_count=subject_count,
             education_level_id=education_level_id,
         )
-        if isinstance(exam, Response):
-            return exam
         return make_success_response(exam)
 
 
@@ -206,8 +204,3 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         exam_subject_questions = serializer.bulk_update_sequence(serializer.validated_data)  # type: ignore
         serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-# ---------------------------------------------------------------------------- #
-#                                EXAM CANDIDATE                                #
-# ---------------------------------------------------------------------------- #
