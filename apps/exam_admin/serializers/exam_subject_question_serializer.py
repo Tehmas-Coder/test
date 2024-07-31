@@ -123,6 +123,7 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
         ExamSubjectQuestion.objects.bulk_create(exam_subject_question_instances)
         created_exam_subject_questions_instances = ExamSubjectQuestion.objects.all().order_by("-created_at")[: len(exam_subject_question_instances)]
         created_exam_subject_questions_instances = sorted(created_exam_subject_questions_instances, key=lambda instance: instance.id)  # type:ignore
+        debug_print(created_exam_subject_questions_instances, "yellow")
 
         return created_exam_subject_questions_instances
 
