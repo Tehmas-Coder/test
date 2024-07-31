@@ -1,6 +1,8 @@
+from django.db.models import Prefetch, Q
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
+from apps.exam_admin.models.exam_admin_models import ExamSubjectQuestion, Section
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -10,6 +12,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
 )
+from apps.questionbank.models import Question
 from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
@@ -48,8 +51,38 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             "candidate",
             "candidate__user",
             "candidate__user__country",
+            "exam__education_level",
         )
-        .prefetch_related("candidate__user__roles")
+        .prefetch_related(
+            "candidate__user__roles",
+            "exam__examsubject_set",
+            "exam__examsubject_set__subject",
+            Prefetch(
+                "exam__examsubject_set__examsubjectquestion_set",
+                queryset=ExamSubjectQuestion.objects.filter(
+                    Q(
+                        Q(section__isnull=True)
+                        | Q(subsection__isnull=True)
+                        | Q(
+                            section__isnull=False,
+                            section__meta_status="active",
+                        )
+                        | Q(
+                            subsection__isnull=False,
+                            subsection__meta_status="active",
+                        )
+                    )
+                ).select_related("section", "subsection"),
+            ),
+            Prefetch(
+                "exam__sections",
+                Section.objects.filter(meta_status="active").prefetch_related("subsections"),
+            ),
+            Prefetch(
+                "exam__examsubject_set__examsubjectquestion_set__question",
+                queryset=Question.get_detail_queryset(),
+            ),
+        )
     )
     serializer_class = CandidateExamEditSerializer
     pagination_class = None

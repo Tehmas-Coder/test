@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer
-from apps.user.serializers.user_serializers import UserDetailSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
 
