@@ -2,7 +2,11 @@ from django.db.models import Prefetch, Q
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from apps.exam_admin.models.exam_admin_models import ExamSubjectQuestion, Section
+from apps.exam_admin.models.exam_admin_models import Exam, ExamSubjectQuestion, Section
+from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializer
+from apps.exam_public.classes.candidate_exam_backlogs_helper import (
+    CandidateExamBacklogs,
+)
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -77,7 +81,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             ),
             Prefetch(
                 "exam__sections",
-                Section.objects.filter(meta_status="active").prefetch_related("subsections"),
+                queryset=Section.objects.filter(meta_status="active").prefetch_related("subsections"),
             ),
             Prefetch(
                 "exam__examsubject_set__examsubjectquestion_set__question",
@@ -101,14 +105,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         candidate_exam_instances = serializer.save()
         # * Fetching newly created instances
-        created_candidate_exam_instances = (
-            CandidateExam.objects.all()
-            .select_related("exam", "schedule", "candidate", "candidate__user", "candidate__user__country")
-            .prefetch_related(
-                "candidate__user__roles",
-            )
-            .order_by("-created_at")[: len(candidate_exam_instances)]
-        )
+        created_candidate_exam_instances = self.get_queryset().order_by("-created_at")[: len(candidate_exam_instances)]
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)  # type:ignore
+
+        # * Creating Backlogs for Candidate Exam
+        candidate_exam_data = CandidateExamDetailSerializer(created_candidate_exam_instances, many=True).data
+        candidate_exam_backlogs = CandidateExamBacklogs(candidate_exam_list=candidate_exam_data)  # type: ignore
+        candidate_exam_backlogs.create_backlogs()
+
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
         return Response(response_data, status=status.HTTP_201_CREATED)
