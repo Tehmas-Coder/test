@@ -71,6 +71,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
                 question_more_data["total_marks"] = one_dict.pop("total_marks")
                 question_more_data["is_optional"] = one_dict.pop("is_optional")
                 question_more_data["is_global"] = one_dict.pop("is_global")
+                break
         question_data.update(question_more_data)  # type: ignore
         # debug_print(question_more_data)
         return question_data

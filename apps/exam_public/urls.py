@@ -1,11 +1,12 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from apps.exam_public.views.views import CandidateViewSet
+from apps.exam_public.views.views import CandidateExamViewSet, CandidateViewSet
 
 router = routers.DefaultRouter()
 
 router.register(r"candidate", CandidateViewSet)
+router.register(r"candidate-exam", CandidateExamViewSet)
 
 
 urlpatterns = [
