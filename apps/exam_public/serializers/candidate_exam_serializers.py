@@ -52,10 +52,8 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             bulk_create_instances_list.append(CandidateExam(candidate=one_instance, **validated_data))
 
         CandidateExam.objects.bulk_create(bulk_create_instances_list)
-        created_candidate_exam_instances = CandidateExam.objects.all().order_by("-created_at")[: len(bulk_create_instances_list)]
-        created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)  # type:ignore
 
-        return created_candidate_exam_instances
+        return bulk_create_instances_list
 
 
 class CandidateExamDetailSerializer(BaseModelSerializer):
