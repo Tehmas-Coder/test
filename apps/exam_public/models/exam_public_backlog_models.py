@@ -150,11 +150,11 @@ class CandidateExamQuestionBacklogAttemptResponse(BaseModel):
 
 class SectionBacklog(BaseModel):
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE)
-    subsections = models.ManyToManyField("exam_public.SubSectionBacklog", through="SectionBacklogSubSection")
     # * Section Fields
-    section = models.ForeignKey("exam_admin.Section", on_delete=models.CASCADE)
+    section = models.ForeignKey("exam_admin.Section", on_delete=models.DO_NOTHING)
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
+
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
     sequence = models.PositiveIntegerField(default=1)
 
     time_limit = models.PositiveIntegerField(null=True)
@@ -173,9 +173,11 @@ class SectionBacklog(BaseModel):
 class SubSectionBacklog(BaseModel):
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE)
     # * SubSection Fields
-    subsection = models.ForeignKey("exam_admin.SubSection", on_delete=models.CASCADE)
+    subsection = models.ForeignKey("exam_admin.SubSection", on_delete=models.DO_NOTHING)
+    section = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING)
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
+
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
     sequence = models.PositiveIntegerField(default=1)
 
     time_limit = models.PositiveIntegerField(null=True)
@@ -189,12 +191,3 @@ class SubSectionBacklog(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_subsectionbacklog"
-
-
-class SectionBacklogSubSection(BaseModel):
-    section_backlog = models.ForeignKey(SectionBacklog, on_delete=models.CASCADE)
-    subsection_backlog = models.ForeignKey(SubSectionBacklog, on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = "exam_public"
-        db_table = "exam_public_sectionbacklog_subsectionbacklog"

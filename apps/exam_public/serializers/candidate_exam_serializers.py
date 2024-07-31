@@ -55,6 +55,33 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         return bulk_create_instances_list
 
 
+class CandidateExamListSerializer(BaseModelSerializer):
+    candidate = CandidateDetailSerializer(required=True)
+
+    class Meta:
+        model = CandidateExam
+        fields = [
+            "id",
+            "candidate",
+            "exam",
+            "schedule",
+            "obtained_marks",
+            "education_level",
+            "name",
+            "code",
+            "abbreviation",
+            "instructions",
+            "total_marks",
+            "pass_marks",
+            "date",
+            "start_time",
+            "end_time",
+            "waiting_duration",
+            "extra_duration",
+            "is_global",
+        ] + get_base_model_fields()
+
+
 class CandidateExamDetailSerializer(BaseModelSerializer):
     candidate = CandidateDetailSerializer(required=True)
 

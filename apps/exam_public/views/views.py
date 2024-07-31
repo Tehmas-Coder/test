@@ -11,6 +11,7 @@ from apps.exam_public.serializers.candiate_serializers import (
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
+    CandidateExamListSerializer,
 )
 from apps.questionbank.models import Question
 from utils.rna_utils import debug_print
@@ -89,7 +90,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch"]
 
     def get_serializer_class(self):
-        if self.action in ["list", "retrieve"]:
+        if self.action == "list":
+            return CandidateExamListSerializer
+        if self.action == "retrieve":
             return CandidateExamDetailSerializer
         return super().get_serializer_class()
 
@@ -97,7 +100,15 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         candidate_exam_instances = serializer.save()
-        created_candidate_exam_instances = self.get_queryset().order_by("-created_at")[: len(candidate_exam_instances)]
+        # * Fetching newly created instances
+        created_candidate_exam_instances = (
+            CandidateExam.objects.all()
+            .select_related("exam", "schedule", "candidate", "candidate__user", "candidate__user__country")
+            .prefetch_related(
+                "candidate__user__roles",
+            )
+            .order_by("-created_at")[: len(candidate_exam_instances)]
+        )
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)  # type:ignore
-        serializer = CandidateExamDetailSerializer(created_candidate_exam_instances, many=True)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
+        return Response(response_data, status=status.HTTP_201_CREATED)
