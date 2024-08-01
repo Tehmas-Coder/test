@@ -1,5 +1,13 @@
+from django.db.models import F
 from django.forms import model_to_dict
 
+from apps.exam_public.models.exam_public_backlog_models import (
+    SectionBacklog,
+    SubSectionBacklog,
+)
+from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
+    ExamBacklogEditSerializer,
+)
 from apps.exam_public.serializers.backlog_serializers.section_backlog_serializers import (
     SectionBacklogEditSerializer,
 )
@@ -14,48 +22,76 @@ class ExamBacklogs:
         self.exam_data = exam_data
 
     def create_backlogs(self):
+        # * Fetching other data from Exam Data
         exam_data = self.exam_data
-        exam_subjects = exam_data.pop("exam_subjects")
-        questions = exam_data.pop("questions")
+        exam_data.pop("exam_subjects")
+
+        exam_questions = exam_data.pop("questions")
         exam_sections = exam_data.pop("sections")
-        subsections = exam_data.pop("subsections")
-        debug_print(exam_data, "yellow")
-        # for one_candidate_dict in self.candidate_exam_list:
-        #     self.candidate_exam_id = one_candidate_dict["id"]
-        #     exam_data = one_candidate_dict["exam"]
-        #     exam_sections_data = exam_data["sections"]
-        #     exam_subject_data = exam_data["exam_subjects"]
-        #     exam_questions_data = exam_data["questions"]
+        exam_subsections = exam_data.pop("subsections")
 
-        # self.create_questions_backlog(exam_questions_data)
-        # self.create_sections_backlogs(exam_sections_data)
-        return
+        # * Creating Exam Backlog
+        education_level = exam_data.pop("education_level")
+        exam_data["exam"] = exam_data.pop("id")
+        exam_data["education_level"] = education_level["id"]
+        exam_data["education_level_name"] = education_level["name"]
 
-    def create_questions_backlog(self, question_list):
-        for one_question in question_list:
-            debug_print(one_question, "yellow")
-            return
+        serializer = ExamBacklogEditSerializer(data=exam_data)
+        serializer.is_valid(raise_exception=True)
+        self.exam_backlog_id = serializer.save().id
+
+        # * Creating other Exam Related Backlogs
+        self.create_sections_backlogs(exam_sections)
+        # self.create_subsections_backlogs(exam_subsections)
 
     def create_sections_backlogs(self, exam_section_list):
-        for one_section_dict in exam_section_list:
-            # * Creating Section Backlog
-            section_data = one_section_dict["section"]
-            section_data["section"] = section_data.pop("id")
-            section_data["candidate_exam"] = self.candidate_exam_id
-            section_backlog_serializer = SectionBacklogEditSerializer(data=section_data)
-            section_backlog_serializer.is_valid(raise_exception=True)
-            section_backlog_serializer.save()
-            section_backlog_id = section_backlog_serializer.data["id"]
+        bulk_create_section_backlog_instances_list = []
+        for section_dict in exam_section_list:
+            # * Creating Sections Backlogs
+            section_id = section_dict.pop("id")
+            measuring_unit_id = section_dict.pop("measuring_unit")
+            bulk_create_section_backlog_instances_list.append(
+                SectionBacklog(section_id=section_id, measuring_unit_id=measuring_unit_id, exam_backlog_id=self.exam_backlog_id, **section_dict)
+            )
 
-            # * Creating subsections backlogs if subsections of a section exists
-            if one_section_dict["subsections"]:
-                subsections_list = one_section_dict["subsections"]
-                for one_subsection_dict in subsections_list:
-                    subsection_data = one_subsection_dict["subsection"]
-                    subsection_data["subsection"] = subsection_data.pop("id")
-                    subsection_data["section"] = section_backlog_id
-                    subsection_data["candidate_exam"] = self.candidate_exam_id
-                    subsection_backlog_serializer = SubSectionBacklogEditSerializer(data=subsection_data)
-                    subsection_backlog_serializer.is_valid(raise_exception=True)
-                    subsection_backlog_serializer.save()
-                    subsection_backlog_id = subsection_backlog_serializer.data["id"]
+        # * Bulk creating the sections Backlog
+        SectionBacklog.objects.bulk_create(bulk_create_section_backlog_instances_list)
+        created_section_backlog_queryset = (
+            SectionBacklog.objects.annotate(sec_id=F("section__id")).all().order_by("-id")[: len(bulk_create_section_backlog_instances_list)]
+        )
+        created_section_backlog_instance_list = sorted(created_section_backlog_queryset, key=lambda instance: instance.id)
+
+        # * Creating a hashmap which has section_ids as keys and section_backlog_ids as values
+        self.section_backlog_ids_hashmap = {}
+        for one_section_backlog in created_section_backlog_instance_list:
+            section_id = one_section_backlog.sec_id
+            section_backlog_id = one_section_backlog.id
+            if not section_id in self.section_backlog_ids_hashmap:
+                self.section_backlog_ids_hashmap[section_id] = section_backlog_id
+
+    def create_subsections_backlogs(self, subsections_list):
+        bulk_create_subsection_backlog_instances_list = []
+        for subsection_dict in subsections_list:
+            # * Creating SubSections Backlogs
+            subsection_id = subsection_dict.pop("id")
+            measuring_unit_id = subsection_dict.pop("measuring_unit")
+            bulk_create_subsection_backlog_instances_list.append(
+                SubSectionBacklog(
+                    subsection_id=subsection_id, measuring_unit_id=measuring_unit_id, exam_backlog_id=self.exam_backlog_id, **subsection_dict
+                )
+            )
+
+        # * Bulk creating the subsections Backlog
+        SubSectionBacklog.objects.bulk_create(bulk_create_subsection_backlog_instances_list)
+        created_section_backlog_queryset = (
+            SubSectionBacklog.objects.annotate(sec_id=F("section__id")).all().order_by("-id")[: len(bulk_create_subsection_backlog_instances_list)]
+        )
+        created_section_backlog_instance_list = sorted(created_section_backlog_queryset, key=lambda instance: instance.id)
+
+        # * Creating a hashmap which has subsection_ids as keys and section_backlog_ids as values
+        self.section_backlog_ids_hashmap = {}
+        for one_section_backlog in created_section_backlog_instance_list:
+            subsection_id = one_section_backlog.sec_id
+            section_backlog_id = one_section_backlog.id
+            if not subsection_id in self.section_backlog_ids_hashmap:
+                self.section_backlog_ids_hashmap[subsection_id] = section_backlog_id

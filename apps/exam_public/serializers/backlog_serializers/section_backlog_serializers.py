@@ -8,7 +8,7 @@ class SectionBacklogEditSerializer(BaseModelSerializer):
         model = SectionBacklog
         fields = [
             "id",
-            "candidate_exam",
+            "exam_backlog",
             "section",
             "measuring_unit",
             "title",

@@ -193,7 +193,7 @@ class ExamBacklogQuestionAttemptResponse(BaseModel):
 
 
 class SectionBacklog(BaseModel):
-    exam = models.ForeignKey("exam_admin.Exam", on_delete=models.CASCADE)
+    exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE)
     # * Section Fields
     section = models.ForeignKey("exam_admin.Section", on_delete=models.DO_NOTHING)
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
@@ -218,7 +218,7 @@ class SectionBacklog(BaseModel):
 
 
 class SubSectionBacklog(BaseModel):
-    exam = models.ForeignKey("exam_admin.Exam", on_delete=models.CASCADE)
+    exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE)
     # * SubSection Fields
     subsection = models.ForeignKey("exam_admin.SubSection", on_delete=models.DO_NOTHING)
     section = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING)
