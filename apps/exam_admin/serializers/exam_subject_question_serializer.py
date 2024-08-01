@@ -32,7 +32,8 @@ class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
 
 
 class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
-    subject = SubjectListSerializer(read_only=True, source="exam_subject.subject")
+    subject = SubjectListSerializer(read_only=True, source="exam_subject.subject_education_level.subject")
+    education_level = SubjectListSerializer(read_only=True, source="exam_subject.subject_education_level.education_level")
     question = serializers.SerializerMethodField()
 
     class Meta:
@@ -40,6 +41,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         fields = [
             "id",
             "subject",
+            "education_level",
             "question",
             "section",
             "subsection",
@@ -55,14 +57,14 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         question_data = QuestionDetailSerializer(obj.question).data
         question_subject_data = question_data.pop("subjects")  # type: ignore
         # debug_print(obj.exam_subject.subject.id)
-        exam_subject_id = obj.exam_subject.subject.id
-        exam_subject_education_level_id = obj.exam_subject.exam.education_level.id
+        exam_subject_id = obj.exam_subject.subject_education_level.subject.id
+        exam_subject_education_level_id = obj.exam_subject.subject_education_level.education_level.id
 
         # TODO : here i didn't applied education level filter yet because that is yet to be decided
         question_more_data: dict = {}
         # debug_print(question_subject_data)
         for one_dict in question_subject_data:
-            if one_dict["subject"]["id"] == exam_subject_id:
+            if (one_dict["subject"]["id"] == exam_subject_id) and (one_dict["education_level"]["id"] == exam_subject_education_level_id):
                 question_more_data["education_level"] = one_dict.pop("education_level")
                 question_more_data["difficulty_level"] = one_dict.pop("difficulty_level")
                 question_more_data["measuring_unit"] = one_dict.pop("measuring_unit")
@@ -114,7 +116,7 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
 
             for one_exam_subject in exam_subjects:
                 if (one_exam_subject.exam_id == exam_subject_request_data["exam"].id) and (  # type:ignore
-                    one_exam_subject.subject_id == exam_subject_request_data["subject"].id  # type:ignore
+                    one_exam_subject.subject_education_level_id == exam_subject_request_data["subject_education_level"].id  # type:ignore
                 ):
                     one_dict["exam_subject"] = one_exam_subject
 

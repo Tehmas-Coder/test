@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "exam": 1,
-            "subject": 1,
+            "subject_education_level": 1,
             "description": "",
             "created_at": "2024-07-05T07:17:54.260105Z",
             "created_by": "system",
@@ -18,7 +18,7 @@
         "pk": 2,
         "fields": {
             "exam": 1,
-            "subject": 2,
+            "subject_education_level": 7,
             "description": "",
             "created_at": "2024-07-05T07:17:54.260105Z",
             "created_by": "system",

@@ -1,22 +1,21 @@
-import django.db.models.base
 from rest_framework import serializers
 
 from apps.exam_admin.models.exam_admin_models import ExamSubject
-from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectListSerializer,
+from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
+    SubjectEducationLevelDetailSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import color_print, debug_print
 
 
 class ExamSubjectDetailSerializer(BaseModelSerializer):
-    subject = SubjectListSerializer()
+    subject_education_level = SubjectEducationLevelDetailSerializer()
 
     class Meta:
         model = ExamSubject
         fields = [
             "id",
-            "subject",
+            "subject_education_level",
         ] + get_base_model_fields()
 
     def to_representation(self, instance):
@@ -30,13 +29,13 @@ class ExamSubjectDetailSerializer(BaseModelSerializer):
 
 
 class ExamSubjectListSerializer(serializers.ModelSerializer):
-    subject = SubjectListSerializer()
+    subject_education_level = SubjectEducationLevelDetailSerializer()
 
     class Meta:
         model = ExamSubject
         fields = [
             "id",
-            "subject",
+            "subject_education_level",
         ]
 
 
@@ -47,7 +46,7 @@ class ExamSubjectSerializer(BaseModelSerializer):
         fields = [
             "id",
             "exam",
-            "subject",
+            "subject_education_level",
         ] + get_base_model_fields()
 
         read_only_fields = [
@@ -57,7 +56,7 @@ class ExamSubjectSerializer(BaseModelSerializer):
     def create(self, validated_data):
         instance, _ = ExamSubject.objects.get_or_create(
             exam=validated_data["exam"],
-            subject=validated_data["subject"],
+            subject_education_level=validated_data["subject_education_level"],
             defaults=validated_data,
         )
 

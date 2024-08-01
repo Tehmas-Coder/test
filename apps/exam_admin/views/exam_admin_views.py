@@ -145,7 +145,9 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 
 class ExamSubjectViewSet(viewsets.ModelViewSet):
-    queryset = ExamSubject.objects.all().select_related("exam", "subject")
+    queryset = ExamSubject.objects.all().select_related(
+        "exam", "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level"
+    )
     serializer_class = ExamSubjectSerializer
     http_method_names = ["post", "delete"]
     pagination_class = None

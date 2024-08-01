@@ -10,7 +10,7 @@ from apps.exam_admin.serializers.exam_subject_serializers import (
 )
 from apps.exam_admin.serializers.section_serializers import SectionSerializer
 from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
-from apps.questionbank.models import Subject
+from apps.questionbank.models import Subject, SubjectEducationLevel
 from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
@@ -19,7 +19,7 @@ from utils.rna_utils import color_print, debug_print
 
 
 class ExamEditSerializer(BaseModelSerializer):
-    subjects = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), many=True, required=True)
+    subjects = serializers.PrimaryKeyRelatedField(queryset=SubjectEducationLevel.objects.all(), many=True, required=True)
 
     class Meta:
         model = Exam
