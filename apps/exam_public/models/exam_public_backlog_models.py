@@ -39,10 +39,10 @@ class ExamBacklogQuestion(BaseModel):
     text = models.TextField()
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
+    sequence = models.PositiveIntegerField(default=1)
 
     can_shuffle = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
-    sequence = models.PositiveIntegerField(default=1)
 
     medias = models.ManyToManyField("lookups.Media", through="ExamBacklogQuestionMedia")
 

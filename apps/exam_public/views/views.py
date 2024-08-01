@@ -1,8 +1,7 @@
-from django.db.models import Prefetch, Q
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from apps.exam_admin.models.exam_admin_models import Exam, ExamSubjectQuestion, Section
+from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializer
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
@@ -15,7 +14,6 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
 )
-from apps.questionbank.models import Question
 from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
