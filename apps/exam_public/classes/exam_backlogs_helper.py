@@ -9,21 +9,22 @@ from apps.exam_public.serializers.backlog_serializers.subsection_backlog_seriali
 from utils.rna_utils import debug_print
 
 
-class CandidateExamBacklogs:
-    def __init__(self, candidate_exam_list: list[dict]) -> None:
-        self.candidate_exam_list = candidate_exam_list
+class ExamBacklogs:
+    def __init__(self, exam_data: dict) -> None:
+        self.exam_data = exam_data
 
     def create_backlogs(self):
-        for one_candidate_dict in self.candidate_exam_list:
-            self.candidate_exam_id = one_candidate_dict["id"]
-            exam_data = one_candidate_dict["exam"]
-            exam_sections_data = exam_data["sections"]
-            exam_subject_data = exam_data["exam_subjects"]
-            exam_questions_data = exam_data["questions"]
+        debug_print(self.exam_data)
+        # for one_candidate_dict in self.candidate_exam_list:
+        #     self.candidate_exam_id = one_candidate_dict["id"]
+        #     exam_data = one_candidate_dict["exam"]
+        #     exam_sections_data = exam_data["sections"]
+        #     exam_subject_data = exam_data["exam_subjects"]
+        #     exam_questions_data = exam_data["questions"]
 
-            # self.create_questions_backlog(exam_questions_data)
-            self.create_sections_backlogs(exam_sections_data)
-            return
+        # self.create_questions_backlog(exam_questions_data)
+        # self.create_sections_backlogs(exam_sections_data)
+        return
 
     def create_questions_backlog(self, question_list):
         for one_question in question_list:

@@ -15,7 +15,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         fields = [
             "id",
             "candidates",
-            "exam",
+            "exam_backlog",
             "schedule",
         ] + get_base_model_fields()
 
@@ -24,18 +24,9 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         candidates = validated_data.pop("candidates")
         candidates_instances = list(Candidate.objects.filter(pk__in=candidates))
 
-        # * Setting up data to be fetched from exam and schedule model
-        exam = validated_data.get("exam")
+        # * Setting up data to be fetched from schedule model
         schedule = validated_data.get("schedule")
         related_data_for_creation = {
-            "education_level": exam.education_level,
-            "name": exam.name,
-            "code": exam.code,
-            "abbreviation": exam.abbreviation,
-            "instructions": exam.instructions,
-            "total_marks": exam.total_marks,
-            "pass_marks": exam.pass_marks,
-            "is_global": exam.is_global,
             "date": schedule.date,
             "start_time": schedule.start_time,
             "end_time": schedule.end_time,
@@ -62,48 +53,31 @@ class CandidateExamListSerializer(BaseModelSerializer):
         fields = [
             "id",
             "candidate",
-            "exam",
+            "exam_backlog",
             "schedule",
             "obtained_marks",
-            "education_level",
-            "name",
-            "code",
-            "abbreviation",
-            "instructions",
-            "total_marks",
-            "pass_marks",
             "date",
             "start_time",
             "end_time",
             "waiting_duration",
             "extra_duration",
-            "is_global",
         ] + get_base_model_fields()
 
 
 class CandidateExamDetailSerializer(BaseModelSerializer):
     candidate = CandidateDetailSerializer(required=True)
-    exam = ExamDetailSerializer()
 
     class Meta:
         model = CandidateExam
         fields = [
             "id",
             "candidate",
-            "exam",
+            "exam_backlog",
             "schedule",
             "obtained_marks",
-            "education_level",
-            "name",
-            "code",
-            "abbreviation",
-            "instructions",
-            "total_marks",
-            "pass_marks",
             "date",
             "start_time",
             "end_time",
             "waiting_duration",
             "extra_duration",
-            "is_global",
         ] + get_base_model_fields()

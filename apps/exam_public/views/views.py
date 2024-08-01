@@ -4,9 +4,7 @@ from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam, ExamSubjectQuestion, Section
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializer
-from apps.exam_public.classes.candidate_exam_backlogs_helper import (
-    CandidateExamBacklogs,
-)
+from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -51,43 +49,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     queryset = (
         CandidateExam.objects.all()
         .select_related(
-            "exam",
+            "exam_backlog",
             "schedule",
             "candidate",
             "candidate__user",
             "candidate__user__country",
-            "exam__education_level",
         )
-        .prefetch_related(
-            "candidate__user__roles",
-            "exam__examsubject_set",
-            "exam__examsubject_set__subject",
-            Prefetch(
-                "exam__examsubject_set__examsubjectquestion_set",
-                queryset=ExamSubjectQuestion.objects.filter(
-                    Q(
-                        Q(section__isnull=True)
-                        | Q(subsection__isnull=True)
-                        | Q(
-                            section__isnull=False,
-                            section__meta_status="active",
-                        )
-                        | Q(
-                            subsection__isnull=False,
-                            subsection__meta_status="active",
-                        )
-                    )
-                ).select_related("section", "subsection"),
-            ),
-            Prefetch(
-                "exam__sections",
-                queryset=Section.objects.filter(meta_status="active").prefetch_related("subsections"),
-            ),
-            Prefetch(
-                "exam__examsubject_set__examsubjectquestion_set__question",
-                queryset=Question.get_detail_queryset(),
-            ),
-        )
+        .prefetch_related("candidate__user__roles")
     )
     serializer_class = CandidateExamEditSerializer
     pagination_class = None
@@ -101,17 +69,23 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        request_data = request.data
+        exam_id = request_data.pop("exam")
+        exam_instance = Exam.get_detail_queryset().get(pk=exam_id)
+
+        # * Creating Backlogs for Exam
+        exam_data = ExamDetailSerializer(exam_instance).data
+        exam_backlogs = ExamBacklogs(exam_data=exam_data)
+        exambacklog_id = exam_backlogs.create_backlogs()
+
+        # * Assigning Exam to Candidates
+        request_data["exam_backlog"] = exambacklog_id
+        serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         candidate_exam_instances = serializer.save()
         # * Fetching newly created instances
         created_candidate_exam_instances = self.get_queryset().order_by("-created_at")[: len(candidate_exam_instances)]
-        created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)  # type:ignore
-
-        # * Creating Backlogs for Candidate Exam
-        candidate_exam_data = CandidateExamDetailSerializer(created_candidate_exam_instances, many=True).data
-        candidate_exam_backlogs = CandidateExamBacklogs(candidate_exam_list=candidate_exam_data)  # type: ignore
-        candidate_exam_backlogs.create_backlogs()
+        created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)
 
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
         return Response(response_data, status=status.HTTP_201_CREATED)
