@@ -62,10 +62,8 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
 
         # TODO : here i didn't applied education level filter yet because that is yet to be decided
         question_more_data: dict = {}
-        # debug_print(question_subject_data)
         for one_dict in question_subject_data:
             if (one_dict["subject"]["id"] == exam_subject_id) and (one_dict["education_level"]["id"] == exam_subject_education_level_id):
-                question_more_data["education_level"] = one_dict.pop("education_level")
                 question_more_data["difficulty_level"] = one_dict.pop("difficulty_level")
                 question_more_data["measuring_unit"] = one_dict.pop("measuring_unit")
                 question_more_data["countries"] = one_dict.pop("countries")
@@ -74,8 +72,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
                 question_more_data["is_optional"] = one_dict.pop("is_optional")
                 question_more_data["is_global"] = one_dict.pop("is_global")
                 break
-        question_data.update(question_more_data)  # type: ignore
-        # debug_print(question_more_data)
+        question_data.update(question_more_data)
         return question_data
 
 

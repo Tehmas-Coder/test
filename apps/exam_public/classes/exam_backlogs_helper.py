@@ -14,7 +14,12 @@ class ExamBacklogs:
         self.exam_data = exam_data
 
     def create_backlogs(self):
-        debug_print(self.exam_data)
+        exam_data = self.exam_data
+        exam_subjects = exam_data.pop("exam_subjects")
+        questions = exam_data.pop("questions")
+        exam_sections = exam_data.pop("sections")
+        subsections = exam_data.pop("subsections")
+        debug_print(exam_data, "yellow")
         # for one_candidate_dict in self.candidate_exam_list:
         #     self.candidate_exam_id = one_candidate_dict["id"]
         #     exam_data = one_candidate_dict["exam"]
@@ -53,4 +58,4 @@ class ExamBacklogs:
                     subsection_backlog_serializer = SubSectionBacklogEditSerializer(data=subsection_data)
                     subsection_backlog_serializer.is_valid(raise_exception=True)
                     subsection_backlog_serializer.save()
-                    subsection_backlog_id = subsection_backlog_serializer.data["id"]  # type: ignore
+                    subsection_backlog_id = subsection_backlog_serializer.data["id"]

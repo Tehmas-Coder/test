@@ -1,7 +1,10 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from apps.exam_public.views.views import CandidateExamViewSet, CandidateViewSet
+from apps.exam_public.views.exam_public_views import (
+    CandidateExamViewSet,
+    CandidateViewSet,
+)
 
 router = routers.DefaultRouter()
 

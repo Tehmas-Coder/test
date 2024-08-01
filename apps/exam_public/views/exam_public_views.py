@@ -2,7 +2,10 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
-from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializer
+from apps.exam_admin.serializers.exam_serializers import (
+    ExamDetailSerializer,
+    ExamDetailSerializerForBacklogs,
+)
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.candiate_serializers import (
@@ -72,7 +75,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         exam_instance = Exam.get_detail_queryset().get(pk=exam_id)
 
         # * Creating Backlogs for Exam
-        exam_data = ExamDetailSerializer(exam_instance).data
+        exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
         exam_backlogs = ExamBacklogs(exam_data=exam_data)
         exambacklog_id = exam_backlogs.create_backlogs()
 

@@ -183,3 +183,55 @@ class ExamDetailSerializer(BaseModelSerializer):
                         existing_subsections.add(one_subsection_in_hashmap_id)
 
         return exam_sections
+
+
+class ExamDetailSerializerForBacklogs(BaseModelSerializer):
+    education_level = EducationLevelSerializer()
+    exam_subjects = serializers.SerializerMethodField()
+    questions = serializers.SerializerMethodField()
+    sections = serializers.SerializerMethodField()
+    subsections = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Exam
+        fields = [
+            "id",
+            "name",
+            "code",
+            "abbreviation",
+            "instructions",
+            "education_level",
+            "total_marks",
+            "pass_marks",
+            "is_global",
+            "exam_subjects",
+            "questions",
+            "sections",
+            "subsections",
+        ] + get_base_model_fields()
+
+    def get_exam_subjects(self, obj):
+        self.exam_subjects = obj.examsubject_set.all()
+        return ExamSubjectListSerializer(self.exam_subjects, many=True).data
+
+    def get_questions(self, obj):
+        exam_questions = []
+        for exam_subject in self.exam_subjects:
+            exam_subject_questions = exam_subject.examsubjectquestion_set.all()
+            if exam_subject_questions:
+                exam_questions.append(ExamSubjectQuestionDetailSerializer(exam_subject_questions, many=True).data)
+
+        return exam_questions
+
+    def get_sections(self, obj):
+        self.exam_sections = obj.sections.all()
+        return SectionSerializer(self.exam_sections, many=True).data
+
+    def get_subsections(self, obj):
+        exam_subsections = []
+        for one_section in self.exam_sections:
+            one_section_subsections = one_section.subsections.all()
+            if one_section_subsections:
+                exam_subsections.append(SubSectionSerializer(one_section_subsections, many=True).data)
+
+        return exam_subsections

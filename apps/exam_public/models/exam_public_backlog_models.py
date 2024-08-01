@@ -14,7 +14,8 @@ class ExamBacklog(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField()
 
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.DO_NOTHING)
+    education_level_name = models.CharField(max_length=255)
 
     total_marks = models.PositiveIntegerField(default=0)
     pass_marks = models.PositiveIntegerField(default=0)
