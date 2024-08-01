@@ -17,7 +17,6 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             "candidates",
             "exam",
             "schedule",
-            "obtained_marks",
         ] + get_base_model_fields()
 
     def create(self, validated_data):
@@ -29,7 +28,6 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         exam = validated_data.get("exam")
         schedule = validated_data.get("schedule")
         related_data_for_creation = {
-            "obtained_marks": 0,
             "education_level": exam.education_level,
             "name": exam.name,
             "code": exam.code,

@@ -52,5 +52,6 @@ class QuestionTagBulkUpsertSerializer(serializers.Serializer):
         # * Bulk Upsert Question Tags
         question_tags_instances = [QuestionTag(**data) for data in self.to_create]
         QuestionTag.objects.bulk_create(question_tags_instances)
+        question_tag_instances = QuestionTag.objects.filter(question=validated_data["question"])
 
-        return QuestionTag.objects.all()
+        return question_tag_instances

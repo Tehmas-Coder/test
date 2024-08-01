@@ -21,13 +21,13 @@ class CandidateExamBacklogs:
             exam_subject_data = exam_data["exam_subjects"]
             exam_questions_data = exam_data["questions"]
 
-            self.create_questions_backlog(exam_questions_data)
-            # self.create_sections_backlogs(exam_sections_data)
+            # self.create_questions_backlog(exam_questions_data)
+            self.create_sections_backlogs(exam_sections_data)
             return
 
     def create_questions_backlog(self, question_list):
         for one_question in question_list:
-            debug_print(one_question, "green")
+            debug_print(one_question, "yellow")
             return
 
     def create_sections_backlogs(self, exam_section_list):

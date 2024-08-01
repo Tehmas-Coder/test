@@ -58,7 +58,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         exam_subject_id = obj.exam_subject.subject.id
         exam_subject_education_level_id = obj.exam_subject.exam.education_level.id
 
-        # ? TO DO: here i didn't applied education level filter yet because that is yet to be decided
+        # TODO : here i didn't applied education level filter yet because that is yet to be decided
         question_more_data: dict = {}
         # debug_print(question_subject_data)
         for one_dict in question_subject_data:
@@ -123,7 +123,6 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
         ExamSubjectQuestion.objects.bulk_create(exam_subject_question_instances)
         created_exam_subject_questions_instances = ExamSubjectQuestion.objects.all().order_by("-created_at")[: len(exam_subject_question_instances)]
         created_exam_subject_questions_instances = sorted(created_exam_subject_questions_instances, key=lambda instance: instance.id)  # type:ignore
-        debug_print(created_exam_subject_questions_instances, "yellow")
 
         return created_exam_subject_questions_instances
 
