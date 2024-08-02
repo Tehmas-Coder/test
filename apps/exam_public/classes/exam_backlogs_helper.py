@@ -3,8 +3,11 @@ from django.forms import model_to_dict
 
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestion,
+    ExamBacklogQuestionAttemptResponse,
     ExamBacklogQuestionChoice,
     ExamBacklogQuestionCountry,
+    ExamBacklogQuestionRetryHint,
+    ExamBacklogQuestionTag,
     SectionBacklog,
     SubSectionBacklog,
 )
@@ -132,8 +135,8 @@ class ExamBacklogs:
                     measuring_unit_name=question_data["measuring_unit"]["name"],
                     sequence=one_exam_question["sequence"],
                     description=one_exam_question["description"],
-                    section_id=int(self.section_backlog_ids_hashmap[one_exam_question["section"]]) if one_exam_question["section"] else None,
-                    subsection_id=(
+                    section_backlog_id=int(self.section_backlog_ids_hashmap[one_exam_question["section"]]) if one_exam_question["section"] else None,
+                    subsection_backlog_id=(
                         int(self.subsection_backlog_ids_hashmap[one_exam_question["subsection"]]) if one_exam_question["subsection"] else None
                     ),
                 )
@@ -151,18 +154,37 @@ class ExamBacklogs:
         )
         created_question_backlog_instance_list = sorted(created_question_backlog_queryset, key=lambda instance: instance.id)
 
+        # * Intializing Bulk create lists for question related data
         self.question_country_bulk_create_list = []
         self.question_choices_bulk_create_list = []
+        self.question_tags_bulk_create_list = []
+        self.question_retry_hints_bulk_create_list = []
+        self.question_attempt_responses_bulk_create_list = []
+
         for index, one_exam_question in enumerate(exam_question_list):
-            exam_question_backlog_id: int = created_question_backlog_instance_list[index].id
+            # * Fetching and setting up data from the question to pass it to the backlogs creation functions
+            exam_backlog_question_id: int = created_question_backlog_instance_list[index].id
             exam_question_countries: list = one_exam_question["question"]["countries"]
             exam_question_choices: list = one_exam_question["question"]["choices"]
+            exam_question_tags: list = one_exam_question["question"]["tags"]
+            exam_question_retry_hints: list = one_exam_question["question"]["retry_hints"]
+            exam_question_attempt_responses: list = one_exam_question["question"]["attempt_responses"]
 
+            # * Calling Backlogs creation functions to fetch bulk create list of question related data
             if len(exam_question_countries):
-                self.create_question_country_backlogs(exam_question_backlog_id, exam_question_countries)
+                self.create_question_country_backlogs(exam_backlog_question_id, exam_question_countries)
 
             if len(exam_question_choices):
-                self.create_question_choices_backlogs(exam_question_backlog_id, exam_question_choices)
+                self.create_question_choices_backlogs(exam_backlog_question_id, exam_question_choices)
+
+            if len(exam_question_tags):
+                self.create_question_tags_backlogs(exam_backlog_question_id, exam_question_tags)
+
+            if len(exam_question_retry_hints):
+                self.create_question_retry_hints_backlogs(exam_backlog_question_id, exam_question_retry_hints)
+
+            if len(exam_question_attempt_responses):
+                self.create_question_attempt_responses_backlogs(exam_backlog_question_id, exam_question_attempt_responses)
 
         # * Bulk Create Questions all Related data
         if len(self.question_country_bulk_create_list):
@@ -171,27 +193,68 @@ class ExamBacklogs:
         if len(self.question_choices_bulk_create_list):
             ExamBacklogQuestionChoice.objects.bulk_create(self.question_choices_bulk_create_list)
 
-    def create_question_country_backlogs(self, exam_question_backlog_id, exam_question_countries):
+        if len(self.question_tags_bulk_create_list):
+            ExamBacklogQuestionTag.objects.bulk_create(self.question_tags_bulk_create_list)
+
+        if len(self.question_retry_hints_bulk_create_list):
+            ExamBacklogQuestionRetryHint.objects.bulk_create(self.question_retry_hints_bulk_create_list)
+
+        if len(self.question_attempt_responses_bulk_create_list):
+            ExamBacklogQuestionAttemptResponse.objects.bulk_create(self.question_attempt_responses_bulk_create_list)
+
+    def create_question_country_backlogs(self, exam_backlog_question_id, exam_question_countries):
         for one_dict in exam_question_countries:
             self.question_country_bulk_create_list.append(
                 ExamBacklogQuestionCountry(
-                    exam_question_backlog_id=exam_question_backlog_id,
+                    exam_backlog_question_id=exam_backlog_question_id,
                     country_id=one_dict["id"],
                 )
             )
 
-    def create_question_choices_backlogs(self, exam_question_backlog_id, exam_question_choices):
+    def create_question_choices_backlogs(self, exam_backlog_question_id, exam_question_choices):
         for one_dict in exam_question_choices:
             self.question_choices_bulk_create_list.append(
                 ExamBacklogQuestionChoice(
-                    exam_question_backlog_id=exam_question_backlog_id,
+                    exam_backlog_question_id=exam_backlog_question_id,
                     question_choice_id=one_dict["id"],
-                    name="TEST",
                     title=one_dict["title"],
                     text=one_dict["text"],
                     weight=one_dict["weight"],
                     is_negative_weight=one_dict["is_negative_weight"],
                     is_correct=one_dict["is_correct"],
                     has_media=one_dict["has_media"],
+                )
+            )
+
+    def create_question_tags_backlogs(self, exam_backlog_question_id, exam_question_tags):
+        for one_dict in exam_question_tags:
+            self.question_tags_bulk_create_list.append(
+                ExamBacklogQuestionTag(
+                    exam_backlog_question_id=exam_backlog_question_id,
+                    tag_id=one_dict["id"],
+                    name=one_dict["name"],
+                )
+            )
+
+    def create_question_retry_hints_backlogs(self, exam_backlog_question_id, exam_question_retry_hints):
+        for one_dict in exam_question_retry_hints:
+            self.question_retry_hints_bulk_create_list.append(
+                ExamBacklogQuestionRetryHint(
+                    exam_backlog_question_id=exam_backlog_question_id,
+                    retry_hint_id=one_dict["id"],
+                    text=one_dict["text"],
+                    sequence=one_dict["sequence"],
+                    has_media=one_dict["has_media"],
+                )
+            )
+
+    def create_question_attempt_responses_backlogs(self, exam_backlog_question_id, exam_question_attempt_responses):
+        for one_dict in exam_question_attempt_responses:
+            self.question_attempt_responses_bulk_create_list.append(
+                ExamBacklogQuestionAttemptResponse(
+                    exam_backlog_question_id=exam_backlog_question_id,
+                    attempt_response_id=one_dict["id"],
+                    text=one_dict["text"],
+                    type=one_dict["type"],
                 )
             )
