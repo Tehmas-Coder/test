@@ -28,8 +28,8 @@ class ExamBacklogs:
         self.question_backlog_ids_hashmap = {}
         self.exam_backlog_id = None
 
-    def create_backlogs(self):
-        # * Fetching other data from Exam Data
+    def create_backlogs(self) -> int:
+        # * Fetching exam related data from Exam Data
         exam_data = self.exam_data
         exam_data.pop("exam_subjects")
 
@@ -47,7 +47,7 @@ class ExamBacklogs:
         serializer.is_valid(raise_exception=True)
         self.exam_backlog_id = serializer.save().id
 
-        # * Creating other Exam Related Backlogs
+        # * Creating Exam Related Backlogs
         self.create_sections_backlogs(exam_sections)
         self.create_subsections_backlogs(exam_subsections)
         self.create_questions_backlogs(exam_questions)
@@ -226,7 +226,7 @@ class ExamBacklogs:
         if len(self.question_attempt_responses_bulk_create_list):
             ExamBacklogQuestionAttemptResponse.objects.bulk_create(self.question_attempt_responses_bulk_create_list)
 
-        self.media_backlog_creation(exam_question_list)
+        self.question_related_media_backlog_creation()
 
     def create_question_medias_backlogs(self, exam_backlog_question_id, exam_question_medias):
         for one_dict in exam_question_medias:
@@ -294,7 +294,7 @@ class ExamBacklogs:
                 )
             )
 
-    def media_backlog_creation(self, exam_question_list):
+    def question_related_media_backlog_creation(self):
         newly_created_choices_backlog_queryset = ExamBacklogQuestionChoice.objects.all().order_by("-created_at")[
             : len(self.question_choices_bulk_create_list)
         ]
@@ -305,7 +305,7 @@ class ExamBacklogs:
         ]
         newly_created_retry_hints_backlog_instance_list = sorted(newly_created_retry_hints_backlog_queryset, key=lambda instance: instance.id)
 
-        # QUESTION CHOICE MEDIA BACKLOG
+        # * QUESTION CHOICE MEDIA BACKLOG
         self.question_choices_medias_bulk_create_list = []
         for one_question_choice_backlog in newly_created_choices_backlog_instance_list:
             from_backlog_question_choice_id = one_question_choice_backlog.question_choice_id
@@ -324,7 +324,7 @@ class ExamBacklogs:
         if len(self.question_choices_medias_bulk_create_list):
             ExamBacklogQuestionChoiceMedia.objects.bulk_create(self.question_choices_medias_bulk_create_list)
 
-        # QUESTION RETRY HINTS MEDIA BACKLOG
+        # * QUESTION RETRY HINTS MEDIA BACKLOG
         self.question_retry_hints_medias_bulk_create_list = []
         for one_question_retry_hint_backlog in newly_created_retry_hints_backlog_instance_list:
             from_backlog_question_retry_hint_id = one_question_retry_hint_backlog.retry_hint_id
