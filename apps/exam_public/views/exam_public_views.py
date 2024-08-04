@@ -2,11 +2,13 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
-from apps.exam_admin.serializers.exam_serializers import (
-    ExamDetailSerializer,
-    ExamDetailSerializerForBacklogs,
-)
+from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from apps.exam_public.models.exam_public_backlog_models import (
+    ExamBacklog,
+    ExamBacklogQuestion,
+    ExamBacklogQuestionCountry,
+)
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -17,6 +19,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
 )
+from apps.user.models import BaseUser
 from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
@@ -90,3 +93,37 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+# ------------------------------- EXAM BACKLOG ------------------------------- #
+
+
+# class ExamBacklogViewSet(viewsets.ModelViewSet):
+#     queryset = ExamBacklog.objects.all()
+#     serializer_class = CandidateExamEditSerializer
+#     pagination_class = None
+#     http_method_names = ["get"]
+
+# def retrieve(self, request, *args, **kwargs):
+#     logged_in_user_id = self.request.user.id
+#     exam_question_backlog = list(ExamBacklogQuestion.objects.filter(exam_backlog_id=71).values("is_global", "id"))
+
+#     is_global_exam_question_backlog_ids_list = []
+#     is_not_global_exam_question_backlog_ids_list = []
+#     for one_question in exam_question_backlog:
+#         one_question_backlog_id = one_question["id"]
+
+#         if one_question["is_global"]:
+#             is_global_exam_question_backlog_ids_list.append(one_question_backlog_id)
+#         else:
+#             user_country_id = BaseUser.objects.get(pk=4).country_id
+#             exam_question_backlog_ids_for_user_country = ExamBacklogQuestionCountry.objects.get(
+#                 exam_backlog_question_id=one_question_backlog_id, country_id=user_country_id
+#             ).exam_backlog_question_id
+
+#             is_not_global_exam_question_backlog_ids_list.append(exam_question_backlog_ids_for_user_country)
+
+#     final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
+
+#     final_user_backlog_question_list = list(ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list).values())
+#     return Response(final_user_backlog_question_list, status=status.HTTP_200_OK)

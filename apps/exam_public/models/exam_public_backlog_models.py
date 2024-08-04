@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Prefetch, Q, QuerySet
 
 from core.models import BaseModel
 
@@ -25,12 +26,32 @@ class ExamBacklog(BaseModel):
     class Meta:
         app_label = "exam_public"
 
+    # @classmethod
+    # def get_detail_queryset(cls) -> QuerySet:
+    #     return cls.objects.all().prefetch_related(
+    #         Prefetch(
+    #             "question_backlogs",
+    #             queryset=ExamBacklogQuestion.objects.filter().select_related(
+    #                 "section_backlog",
+    #                 "subsection_backlog",
+    #             ),
+    #         ),
+    #         Prefetch(
+    #             "section_backlogs",
+    #             SectionBacklog.objects.filter(meta_status="active").prefetch_related("subsection_backlogs"),
+    #         ),
+    #         # Prefetch(
+    #         #     "examsubject_set__examsubjectquestion_set__question",
+    #         #     queryset=Question.get_detail_queryset(),
+    #         # ),
+    #     )
+
 
 # ---------------------------------------------------------------------------- #
 #                               QUESTION BACKLOGS                              #
 # ---------------------------------------------------------------------------- #
 class ExamBacklogQuestion(BaseModel):
-    exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE)
+    exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE, related_name="question_backlogs")
     subject = models.ForeignKey("questionbank.Subject", on_delete=models.DO_NOTHING)
     subject_name = models.CharField(max_length=255)
     education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.DO_NOTHING)
@@ -68,7 +89,7 @@ class ExamBacklogQuestion(BaseModel):
         db_table = "exam_public_exambacklog_question"
 
 
-# ------------------------- QUESTION COUNTRY BACKLOG ------------------------- #
+# -------------------------- QUESTION MEDIA BACKLOG -------------------------- #
 
 
 class ExamBacklogQuestionMedia(BaseModel):
@@ -80,7 +101,7 @@ class ExamBacklogQuestionMedia(BaseModel):
         db_table = "exam_public_exambacklog_question_media"
 
 
-# -------------------------- QUESTION MEDIA BACKLOG -------------------------- #
+# ------------------------- QUESTION COUNTRY BACKLOG ------------------------- #
 
 
 class ExamBacklogQuestionCountry(BaseModel):
@@ -192,7 +213,7 @@ class ExamBacklogQuestionAttemptResponse(BaseModel):
 
 
 class SectionBacklog(BaseModel):
-    exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE)
+    exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE, related_name="section_backlogs")
     # * Section Fields
     section = models.ForeignKey("exam_admin.Section", on_delete=models.DO_NOTHING)
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
@@ -220,7 +241,7 @@ class SubSectionBacklog(BaseModel):
     exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE)
     # * SubSection Fields
     subsection = models.ForeignKey("exam_admin.SubSection", on_delete=models.DO_NOTHING)
-    section = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING)
+    section = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING, related_name="subsection_backlogs")
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
 
     title = models.CharField(max_length=255)

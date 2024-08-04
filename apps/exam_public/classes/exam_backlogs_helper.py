@@ -5,8 +5,11 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestion,
     ExamBacklogQuestionAttemptResponse,
     ExamBacklogQuestionChoice,
+    ExamBacklogQuestionChoiceMedia,
     ExamBacklogQuestionCountry,
+    ExamBacklogQuestionMedia,
     ExamBacklogQuestionRetryHint,
+    ExamBacklogQuestionRetryHintMedia,
     ExamBacklogQuestionTag,
     SectionBacklog,
     SubSectionBacklog,
@@ -48,6 +51,8 @@ class ExamBacklogs:
         self.create_sections_backlogs(exam_sections)
         self.create_subsections_backlogs(exam_subsections)
         self.create_questions_backlogs(exam_questions)
+
+        return self.exam_backlog_id
 
     def create_sections_backlogs(self, exam_section_list):
         bulk_create_section_backlog_instances_list = []
@@ -152,18 +157,31 @@ class ExamBacklogs:
             .all()
             .order_by("-created_at")[: len(question_bulk_create_list)]
         )
-        created_question_backlog_instance_list = sorted(created_question_backlog_queryset, key=lambda instance: instance.id)
+        self.created_question_backlog_instance_list = sorted(created_question_backlog_queryset, key=lambda instance: instance.id)
 
         # * Intializing Bulk create lists for question related data
+        """
+        ->
+        """
+        self.question_medias_bulk_create_list = []
         self.question_country_bulk_create_list = []
         self.question_choices_bulk_create_list = []
+        self.question_choices_medias_bulk_create_list = []
         self.question_tags_bulk_create_list = []
         self.question_retry_hints_bulk_create_list = []
         self.question_attempt_responses_bulk_create_list = []
 
+        self.question_choices_hashmap = {}
+        self.question_retry_hints_hashmap = {}
         for index, one_exam_question in enumerate(exam_question_list):
+            self.question_choices_hashmap = {one_choice["id"]: one_choice for one_choice in one_exam_question["question"]["choices"]}
+            self.question_retry_hints_hashmap = {
+                one_retry_hints["id"]: one_retry_hints for one_retry_hints in one_exam_question["question"]["retry_hints"]
+            }
+
             # * Fetching and setting up data from the question to pass it to the backlogs creation functions
-            exam_backlog_question_id: int = created_question_backlog_instance_list[index].id
+            exam_backlog_question_id: int = self.created_question_backlog_instance_list[index].id
+            exam_question_medias: list = one_exam_question["question"]["medias"]
             exam_question_countries: list = one_exam_question["question"]["countries"]
             exam_question_choices: list = one_exam_question["question"]["choices"]
             exam_question_tags: list = one_exam_question["question"]["tags"]
@@ -171,6 +189,9 @@ class ExamBacklogs:
             exam_question_attempt_responses: list = one_exam_question["question"]["attempt_responses"]
 
             # * Calling Backlogs creation functions to fetch bulk create list of question related data
+            if len(exam_question_medias):
+                self.create_question_medias_backlogs(exam_backlog_question_id, exam_question_medias)
+
             if len(exam_question_countries):
                 self.create_question_country_backlogs(exam_backlog_question_id, exam_question_countries)
 
@@ -187,6 +208,9 @@ class ExamBacklogs:
                 self.create_question_attempt_responses_backlogs(exam_backlog_question_id, exam_question_attempt_responses)
 
         # * Bulk Create Questions all Related data
+        if len(self.question_medias_bulk_create_list):
+            ExamBacklogQuestionMedia.objects.bulk_create(self.question_medias_bulk_create_list)
+
         if len(self.question_country_bulk_create_list):
             ExamBacklogQuestionCountry.objects.bulk_create(self.question_country_bulk_create_list)
 
@@ -201,6 +225,17 @@ class ExamBacklogs:
 
         if len(self.question_attempt_responses_bulk_create_list):
             ExamBacklogQuestionAttemptResponse.objects.bulk_create(self.question_attempt_responses_bulk_create_list)
+
+        self.media_backlog_creation(exam_question_list)
+
+    def create_question_medias_backlogs(self, exam_backlog_question_id, exam_question_medias):
+        for one_dict in exam_question_medias:
+            self.question_medias_bulk_create_list.append(
+                ExamBacklogQuestionMedia(
+                    exam_backlog_question_id=exam_backlog_question_id,
+                    media_id=one_dict["media"]["id"],
+                )
+            )
 
     def create_question_country_backlogs(self, exam_backlog_question_id, exam_question_countries):
         for one_dict in exam_question_countries:
@@ -258,3 +293,53 @@ class ExamBacklogs:
                     type=one_dict["type"],
                 )
             )
+
+    def media_backlog_creation(self, exam_question_list):
+        newly_created_choices_backlog_queryset = ExamBacklogQuestionChoice.objects.all().order_by("-created_at")[
+            : len(self.question_choices_bulk_create_list)
+        ]
+        newly_created_choices_backlog_instance_list = sorted(newly_created_choices_backlog_queryset, key=lambda instance: instance.id)
+
+        newly_created_retry_hints_backlog_queryset = ExamBacklogQuestionRetryHint.objects.all().order_by("-created_at")[
+            : len(self.question_retry_hints_bulk_create_list)
+        ]
+        newly_created_retry_hints_backlog_instance_list = sorted(newly_created_retry_hints_backlog_queryset, key=lambda instance: instance.id)
+
+        # QUESTION CHOICE MEDIA BACKLOG
+        self.question_choices_medias_bulk_create_list = []
+        for one_question_choice_backlog in newly_created_choices_backlog_instance_list:
+            from_backlog_question_choice_id = one_question_choice_backlog.question_choice_id
+            question_choice_data = self.question_choices_hashmap[from_backlog_question_choice_id]
+            one_question_choice_backlog_id = one_question_choice_backlog.id
+            choices_media_list = question_choice_data["medias"]
+            if len(choices_media_list):
+                for one_dict in choices_media_list:
+                    self.question_choices_medias_bulk_create_list.append(
+                        ExamBacklogQuestionChoiceMedia(
+                            exam_backlog_question_choice_id=one_question_choice_backlog_id,
+                            media_id=one_dict["media"]["id"],
+                        )
+                    )
+
+        if len(self.question_choices_medias_bulk_create_list):
+            ExamBacklogQuestionChoiceMedia.objects.bulk_create(self.question_choices_medias_bulk_create_list)
+
+        # QUESTION RETRY HINTS MEDIA BACKLOG
+        self.question_retry_hints_medias_bulk_create_list = []
+        for one_question_retry_hint_backlog in newly_created_retry_hints_backlog_instance_list:
+            from_backlog_question_retry_hint_id = one_question_retry_hint_backlog.retry_hint_id
+
+            question_retry_hint_data = self.question_retry_hints_hashmap[from_backlog_question_retry_hint_id]
+            one_question_retry_hint_backlog_id = one_question_retry_hint_backlog.id
+            retry_hints_media_list = question_retry_hint_data["medias"]
+            if len(retry_hints_media_list):
+                for one_dict in retry_hints_media_list:
+                    self.question_retry_hints_medias_bulk_create_list.append(
+                        ExamBacklogQuestionRetryHintMedia(
+                            exam_backlog_question_retry_hint_id=one_question_retry_hint_backlog_id,
+                            media_id=one_dict["media"]["id"],
+                        )
+                    )
+
+        if len(self.question_retry_hints_medias_bulk_create_list):
+            ExamBacklogQuestionRetryHintMedia.objects.bulk_create(self.question_retry_hints_medias_bulk_create_list)
