@@ -52,11 +52,9 @@ class ExamBacklogQuestion(BaseModel):
     is_global = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
 
-    difficulty = models.ForeignKey("questionbank.DifficultyLevel", on_delete=models.DO_NOTHING)
-    difficulty_name = models.CharField(max_length=255)
+    difficulty_level = models.ForeignKey("questionbank.DifficultyLevel", on_delete=models.DO_NOTHING)
 
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
-    measuring_unit_name = models.CharField(max_length=255)
 
     section_backlog = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING, null=True)
     subsection_backlog = models.ForeignKey("exam_public.SubSectionBacklog", on_delete=models.DO_NOTHING, null=True)

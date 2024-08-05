@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 from apps.exam_public.models.exam_public_backlog_models import ExamBacklogQuestion
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_attempt_response_serializer import (
     ExamBacklogQuestionAttemptResponseSerializer,
@@ -17,6 +19,11 @@ from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retry
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_tag_serializer import (
     ExamBacklogQuestionTagSerializer,
 )
+from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
+from apps.lookups.serializers.tag_serializers import TagSerializer
+from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
+    DifficultyLevelSerializer,
+)
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
     QuestionTypeSerializer,
 )
@@ -25,10 +32,12 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 class ExamBacklogQuestionSerializer(BaseModelSerializer):
     type = QuestionTypeSerializer()
-    # tags = ExamBacklogQuestionTagSerializer(many=True)
-    # choices = ExamBacklogQuestionChoiceSerializer(many=True)
-    # attempt_responses = ExamBacklogQuestionAttemptResponseSerializer(many=True)
-    # retry_hints = ExamBacklogQuestionRetryHintSerializer(many=True)
+    difficulty_level = DifficultyLevelSerializer()
+    measuring_unit = MeasuringUnitSerializer()
+    tags = serializers.SerializerMethodField()
+    choices = serializers.SerializerMethodField()
+    attempt_responses = serializers.SerializerMethodField()
+    retry_hints = serializers.SerializerMethodField()
     medias = ExamBacklogQuestionMediaSerializer(many=True, source="exambacklogquestionmedia_set")
     countries = ExamBacklogQuestionCountrySerializer(many=True, source="exambacklogquestioncountry_set")
 
@@ -37,17 +46,37 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
         fields = [
             "id",
             "subject_name",
-            "title",
+            "education_level_name",
             "type",
+            "title",
             "text",
             "max_retries",
             "retry_penalty",
             "can_shuffle",
+            "sequence",
+            "time_limit",
+            "total_marks",
+            "difficulty_level",
+            "measuring_unit",
+            "is_optional",
+            "is_global",
             "has_media",
             "medias",
-            # "choices",
-            # "attempt_responses",
-            # "retry_hints",
-            # "tags",
+            "choices",
+            "attempt_responses",
+            "retry_hints",
+            "tags",
             "countries",
         ] + get_base_model_fields()
+
+    def get_tags(self, obj):
+        return ExamBacklogQuestionTagSerializer(obj.backlog_tags.all(), many=True).data
+
+    def get_choices(self, obj):
+        return ExamBacklogQuestionChoiceSerializer(obj.backlog_choices.all(), many=True).data
+
+    def get_attempt_responses(self, obj):
+        return ExamBacklogQuestionAttemptResponseSerializer(obj.backlog_attempt_responses, many=True).data
+
+    def get_retry_hints(self, obj):
+        return ExamBacklogQuestionRetryHintSerializer(obj.backlog_retry_hints.all(), many=True).data
