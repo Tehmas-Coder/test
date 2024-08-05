@@ -86,21 +86,18 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                         "exambacklogquestionmedia_set",
                         "exambacklogquestionmedia_set__media",
                         "exambacklogquestioncountry_set",
+                        "exambacklogquestioncountry_set__country",
                     )
                     .select_related(
                         "type",
                         "measuring_unit",
                         "difficulty_level",
-                        "section_backlog",
-                        "section_backlog__measuring_unit",
-                        "subsection_backlog",
-                        "subsection_backlog__measuring_unit",
+                        # "section_backlog",
+                        # "section_backlog__measuring_unit",
+                        # "subsection_backlog",
+                        # "subsection_backlog__measuring_unit",
                     ),
-                ),
-                Prefetch(
-                    "exam_backlog__section_backlogs",
-                    SectionBacklog.objects.all().prefetch_related("subsection_backlogs"),
-                ),
+                )
             )
         return super().get_queryset()
 

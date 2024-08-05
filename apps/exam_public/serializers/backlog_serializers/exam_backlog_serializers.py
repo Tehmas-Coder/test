@@ -33,7 +33,7 @@ class ExamBacklogEditSerializer(BaseModelSerializer):
 
 
 class ExamBacklogDetailSerializer(BaseModelSerializer):
-    sections = serializers.SerializerMethodField()
+    # sections = serializers.SerializerMethodField()
     questions = serializers.SerializerMethodField()
 
     class Meta:
@@ -48,7 +48,7 @@ class ExamBacklogDetailSerializer(BaseModelSerializer):
             "total_marks",
             "pass_marks",
             "is_global",
-            "sections",
+            # "sections",
             "questions",
         ] + get_base_model_fields()
 
