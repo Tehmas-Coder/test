@@ -52,10 +52,6 @@ class ExamBacklogDetailSerializer(BaseModelSerializer):
             "sections",
         ] + get_base_model_fields()
 
-    def get_sections(self, obj):
-        exam_sections = obj.section_backlogs.all()
-        return SectionBacklogSerializer(exam_sections, many=True).data
-
     def get_questions(self, obj):
         exam_questions = obj.backlog_questions.all()
         response_exam_questions = []
@@ -63,9 +59,9 @@ class ExamBacklogDetailSerializer(BaseModelSerializer):
         for exam_question in exam_questions:
             # * If the question is not associated with a section
             if not exam_question.section_backlog:
-                response_exam_questions.append(ExamBacklogQuestionSerializer(exam_question).data)
+                response_exam_questions.append(exam_question)
 
-        return response_exam_questions
+        return ExamBacklogQuestionSerializer(response_exam_questions, many=True).data
 
     def get_sections(self, obj):
         section_questions = {}
