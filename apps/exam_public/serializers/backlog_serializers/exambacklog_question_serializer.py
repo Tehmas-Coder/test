@@ -67,6 +67,8 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
             "retry_hints",
             "tags",
             "countries",
+            "section_backlog",
+            "subsection_backlog",
         ] + get_base_model_fields()
 
     def get_tags(self, obj):

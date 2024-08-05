@@ -92,10 +92,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                         "type",
                         "measuring_unit",
                         "difficulty_level",
-                        # "section_backlog",
-                        # "section_backlog__measuring_unit",
-                        # "subsection_backlog",
-                        # "subsection_backlog__measuring_unit",
+                        "section_backlog",
+                        "section_backlog__measuring_unit",
+                        "subsection_backlog",
+                        "subsection_backlog__measuring_unit",
                     ),
                 )
             )
