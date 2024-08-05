@@ -5,7 +5,6 @@ from rest_framework import serializers
 from apps.lookups.models import Tag
 from apps.questionbank.models import Question, QuestionTag
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print, debug_print
 
 
 class QuestionTagSerializer(BaseModelSerializer):

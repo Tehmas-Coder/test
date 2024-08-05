@@ -2,6 +2,9 @@ from rest_framework import serializers
 
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializer
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
+from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
+    ExamBacklogDetailSerializer,
+)
 from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
@@ -66,6 +69,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
 
 class CandidateExamDetailSerializer(BaseModelSerializer):
     candidate = CandidateDetailSerializer(required=True)
+    exam_backlog = ExamBacklogDetailSerializer(required=True)
 
     class Meta:
         model = CandidateExam
