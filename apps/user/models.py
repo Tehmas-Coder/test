@@ -1,12 +1,11 @@
+from datetime import date
 from typing import Any
-from django.db import models
 
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from django.db import models
 from core.models import BaseModel
-from datetime import date
 from utils.email_utils import send_verification_link_or_otp_to_email
 from utils.rna_utils import debug_print, generate_otp
 
@@ -48,11 +47,9 @@ class BaseUser(BaseModel, AbstractUser):
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
-    country = models.ForeignKey(
-        "lookups.Country", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
 
-    roles = models.ManyToManyField("Role", related_name="users", blank=True)
+    roles = models.ManyToManyField("Role", related_name="users", blank=True, through="UserRole")
 
     objects = CustomUserManager()
 
@@ -73,14 +70,7 @@ class BaseUser(BaseModel, AbstractUser):
     def age(self):
         if self.date_of_birth:
             today = date.today()
-            return (
-                today.year
-                - self.date_of_birth.year
-                - (
-                    (today.month, today.day)
-                    < (self.date_of_birth.month, self.date_of_birth.day)
-                )
-            )
+            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
         return None
 
     @classmethod
@@ -137,10 +127,40 @@ class BaseUser(BaseModel, AbstractUser):
 # ---------------------------------------------------------------------------- #
 class Role(BaseModel):
     name = models.CharField(max_length=255)
-    permissions = models.ManyToManyField("Permission", related_name="roles", blank=True)
+    permissions = models.ManyToManyField("Permission", related_name="roles", blank=True, through="RolePermission")
 
     class Meta:
         app_label = "user"
+
+
+class UserRole(BaseModel):
+    user = models.ForeignKey(BaseUser, on_delete=models.PROTECT)
+    role = models.ForeignKey(Role, on_delete=models.PROTECT)
+
+    class Meta:
+        app_label = "user"
+        db_table = "user_baseuser_role"
+
+
+class Permission(BaseModel):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        app_label = "user"
+
+
+class RolePermission(BaseModel):
+    role = models.ForeignKey(Role, on_delete=models.PROTECT)
+    permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
+
+    class Meta:
+        app_label = "user"
+        db_table = "user_role_permission"
+
+
+# ---------------------------------------------------------------------------- #
+#                                  ROLE RESOURCE                                 #
+# ---------------------------------------------------------------------------- #
 
 
 class Resource(BaseModel):
@@ -152,8 +172,11 @@ class Resource(BaseModel):
         app_label = "user"
 
 
-class Permission(BaseModel):
-    name = models.CharField(max_length=255)
+class RoleResource(BaseModel):
+
+    role = models.ForeignKey(Role, on_delete=models.PROTECT)
+    resource = models.ForeignKey(Resource, on_delete=models.PROTECT)
 
     class Meta:
         app_label = "user"
+        db_table = "user_role_resource"
