@@ -75,7 +75,7 @@ class Exam(BaseModel):
     total_marks = models.PositiveIntegerField(default=0)
     pass_marks = models.PositiveIntegerField(default=0)
 
-    subjects = models.ManyToManyField("questionbank.Subject", through="ExamSubject")
+    subjects = models.ManyToManyField("questionbank.SubjectEducationLevel", through="ExamSubject")
 
     is_global = models.BooleanField(default=True)
 
@@ -88,8 +88,12 @@ class Exam(BaseModel):
             cls.objects.all()
             .select_related("education_level")
             .prefetch_related(
-                "examsubject_set",
-                "examsubject_set__subject",
+                Prefetch(
+                    "examsubject_set",
+                    queryset=ExamSubject.objects.all().select_related(
+                        "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level"
+                    ),
+                ),
                 Prefetch(
                     "examsubject_set__examsubjectquestion_set",
                     queryset=ExamSubjectQuestion.objects.filter(
@@ -119,33 +123,6 @@ class Exam(BaseModel):
         )
 
 
-class UserExam(BaseModel):
-    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
-    obtained_marks = models.PositiveIntegerField(default=0)
-
-    # ? To be filled from exam
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=10)
-    abbreviation = models.CharField(max_length=10)
-    instructions = models.TextField()
-
-    total_marks = models.PositiveIntegerField(default=0)
-    pass_marks = models.PositiveIntegerField(default=0)
-    date = models.DateField(auto_now=False, auto_now_add=False)
-    start_time = models.TimeField(auto_now=False, auto_now_add=False)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False)
-    waiting_duration = models.PositiveIntegerField(null=True)
-    extra_duration = models.PositiveIntegerField(null=True)
-
-    is_global = models.BooleanField(default=True)
-
-    class Meta:
-        app_label = "exam_admin"
-
-
 # ---------------------------------------------------------------------------- #
 #                                   MAPPINGS                                   #
 # ---------------------------------------------------------------------------- #
@@ -156,7 +133,7 @@ class ExamSubject(BaseModel):
         Exam,
         on_delete=models.CASCADE,
     )
-    subject = models.ForeignKey("questionbank.Subject", on_delete=models.CASCADE)
+    subject_education_level = models.ForeignKey("questionbank.SubjectEducationLevel", on_delete=models.CASCADE)
 
     questions = models.ManyToManyField("questionbank.Question", through="ExamSubjectQuestion")
 
@@ -185,17 +162,3 @@ class ExamSubjectCountry(BaseModel):
     class Meta:
         app_label = "exam_admin"
         db_table = "exam_admin_examsubject_country"
-
-
-# ---------------------------------------------------------------------------- #
-#                                    ANSWER                                    #
-# ---------------------------------------------------------------------------- #
-
-
-class ExamAnswer(BaseModel):
-    exam_subject_question = models.ForeignKey(ExamSubjectQuestion, on_delete=models.CASCADE, related_name="answers")
-    question_attempt_response = models.ForeignKey("questionbank.QuestionAttemptResponse", on_delete=models.CASCADE)
-    is_correct = models.BooleanField(default=False)
-
-    class Meta:
-        app_label = "exam_admin"

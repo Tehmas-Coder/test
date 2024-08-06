@@ -1,7 +1,7 @@
 from django.forms import model_to_dict
 from rest_framework import serializers
 
-from apps.exam_admin.models.exam_models import Exam, ExamSubjectQuestion
+from apps.exam_admin.models.exam_admin_models import Exam, ExamSubjectQuestion
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
@@ -9,8 +9,11 @@ from apps.exam_admin.serializers.exam_subject_serializers import (
     ExamSubjectListSerializer,
 )
 from apps.exam_admin.serializers.section_serializers import SectionSerializer
-from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
-from apps.questionbank.models import Subject
+from apps.exam_admin.serializers.subsection_serializers import (
+    SubSectionEditSerializer,
+    SubSectionSerializer,
+)
+from apps.questionbank.models import Subject, SubjectEducationLevel
 from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
@@ -19,7 +22,7 @@ from utils.rna_utils import color_print, debug_print
 
 
 class ExamEditSerializer(BaseModelSerializer):
-    subjects = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), many=True, required=True)
+    subjects = serializers.PrimaryKeyRelatedField(queryset=SubjectEducationLevel.objects.all(), many=True, required=True)
 
     class Meta:
         model = Exam
@@ -183,3 +186,55 @@ class ExamDetailSerializer(BaseModelSerializer):
                         existing_subsections.add(one_subsection_in_hashmap_id)
 
         return exam_sections
+
+
+class ExamDetailSerializerForBacklogs(BaseModelSerializer):
+    education_level = EducationLevelSerializer()
+    exam_subjects = serializers.SerializerMethodField()
+    questions = serializers.SerializerMethodField()
+    sections = serializers.SerializerMethodField()
+    subsections = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Exam
+        fields = [
+            "id",
+            "name",
+            "code",
+            "abbreviation",
+            "instructions",
+            "education_level",
+            "total_marks",
+            "pass_marks",
+            "is_global",
+            "exam_subjects",
+            "questions",
+            "sections",
+            "subsections",
+        ] + get_base_model_fields()
+
+    def get_exam_subjects(self, obj):
+        self.exam_subjects = obj.examsubject_set.all()
+        return ExamSubjectListSerializer(self.exam_subjects, many=True).data
+
+    def get_questions(self, obj):
+        exam_questions = []
+        for exam_subject in self.exam_subjects:
+            exam_subject_questions = exam_subject.examsubjectquestion_set.all()
+            if exam_subject_questions:
+                exam_questions.extend(ExamSubjectQuestionDetailSerializer(exam_subject_questions, many=True).data)
+
+        return exam_questions
+
+    def get_sections(self, obj):
+        self.exam_sections = obj.sections.all()
+        return SectionSerializer(self.exam_sections, many=True).data
+
+    def get_subsections(self, obj):
+        exam_subsections = []
+        for one_section in self.exam_sections:
+            one_section_subsections = one_section.subsections.all()
+            if one_section_subsections:
+                exam_subsections.extend((SubSectionEditSerializer(one_section_subsections, many=True).data))
+
+        return exam_subsections

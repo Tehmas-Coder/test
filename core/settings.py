@@ -144,6 +144,7 @@ INSTALLED_APPS = [
     "apps.user",
     "apps.questionbank",
     "apps.exam_admin",
+    "apps.exam_public",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -162,8 +163,8 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": 100,
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 50,
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -192,6 +193,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "core.middlewares.current_user_middleware.CurrentUserMiddleware",
+    "core.middlewares.response_middleware.ResponseMiddleware",
 ]
 if DEBUG:
     MIDDLEWARE += [
@@ -258,4 +260,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "user" / "seeds",
     BASE_DIR / "apps" / "questionbank" / "seeds",
     BASE_DIR / "apps" / "exam_admin" / "seeds",
+    BASE_DIR / "apps" / "exam_public" / "seeds",
 ]

@@ -44,6 +44,7 @@ class QuestionSerializer(BaseModelSerializer):
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
     retry_hints = QuestionRetryHintDetailSerializer(many=True)
     medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
+    subjects = QuestionSubjectDetailSerializer(many=True)
 
     class Meta:
         model = Question
@@ -61,6 +62,7 @@ class QuestionSerializer(BaseModelSerializer):
             "attempt_responses",
             "retry_hints",
             "medias",
+            "subjects",
         ] + get_base_model_fields()
 
 
@@ -142,6 +144,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             subject_education_level, _ = SubjectEducationLevel.objects.get_or_create(
                 subject=subject_education_level_data["subject"],
                 education_level=subject_education_level_data["education_level"],
+                defaults=subject_education_level_data,
             )
 
             # * Create question subject
@@ -213,6 +216,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
                 subject_education_level, _ = SubjectEducationLevel.objects.get_or_create(
                     subject=subject_education_level_data["subject"],
                     education_level=subject_education_level_data["education_level"],
+                    defaults=subject_education_level_data,
                 )
 
                 # * Get or create question subject

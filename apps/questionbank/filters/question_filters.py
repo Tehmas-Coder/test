@@ -1,4 +1,5 @@
 import json
+
 from django.db.models import Q
 from rest_framework import filters
 from rest_framework.exceptions import ValidationError
@@ -16,6 +17,7 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
         difficulty_levels = request.query_params.get("difficulty_levels")
         countries = request.query_params.get("countries")
         is_optional = request.query_params.get("is_optional")
+        subject_education_levels = request.query_params.get("subject_education_levels")
 
         q_filter = Q()
 
@@ -28,6 +30,11 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
             education_levels = json.loads(education_levels)
             education_levels = [int(id) for id in education_levels]
             q_filter &= Q(subjects__subject_education_level__education_level_id__in=education_levels)
+
+        if subject_education_levels:
+            subject_education_levels = json.loads(subject_education_levels)
+            subject_education_levels = [int(id) for id in subject_education_levels]
+            q_filter &= Q(subjects__subject_education_level_id__in=subject_education_levels)
 
         if types:
             types = json.loads(types)
@@ -53,4 +60,5 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
             is_optional = int(is_optional)
             q_filter &= Q(subjects__is_optional=is_optional)
 
+        # ? Here i have removed .distinct() from the below queryset as it gets unique questions but we want if a question exist multiple times it must be in different subjects or in same subject but from different education level so we have removed distinct
         return queryset.filter(q_filter).distinct()

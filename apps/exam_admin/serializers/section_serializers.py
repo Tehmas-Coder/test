@@ -1,14 +1,4 @@
-from rest_framework import serializers
-
-from apps.exam_admin.models.exam_models import Section, SubSection
-from apps.exam_admin.serializers.exam_subject_question_serializer import (
-    ExamSubjectQuestionDetailSerializer,
-)
-from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
-from apps.questionbank.models import Question
-from apps.questionbank.serializers.question_serializers.question_serializers import (
-    QuestionSerializer,
-)
+from apps.exam_admin.models.exam_admin_models import Section
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

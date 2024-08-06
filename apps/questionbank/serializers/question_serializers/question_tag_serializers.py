@@ -5,7 +5,6 @@ from rest_framework import serializers
 from apps.lookups.models import Tag
 from apps.questionbank.models import Question, QuestionTag
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print, debug_print
 
 
 class QuestionTagSerializer(BaseModelSerializer):
@@ -52,5 +51,6 @@ class QuestionTagBulkUpsertSerializer(serializers.Serializer):
         # * Bulk Upsert Question Tags
         question_tags_instances = [QuestionTag(**data) for data in self.to_create]
         QuestionTag.objects.bulk_create(question_tags_instances)
+        question_tag_instances = QuestionTag.objects.filter(question=validated_data["question"])
 
-        return QuestionTag.objects.all()
+        return question_tag_instances

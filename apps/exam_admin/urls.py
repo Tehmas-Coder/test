@@ -5,6 +5,7 @@ from apps.exam_admin.views.exam_admin_views import (
     ExamSubjectQuestionViewSet,
     ExamSubjectViewSet,
     ExamViewSet,
+    ScheduleViewSet,
     SectionViewSet,
     SubSectionViewSet,
 )
@@ -16,6 +17,7 @@ router.register(r"exam-subject", ExamSubjectViewSet)
 router.register(r"exam-subject-question", ExamSubjectQuestionViewSet)
 router.register(r"sections", SectionViewSet)
 router.register(r"subsections", SubSectionViewSet)
+router.register(r"schedules", ScheduleViewSet)
 
 
 urlpatterns = [

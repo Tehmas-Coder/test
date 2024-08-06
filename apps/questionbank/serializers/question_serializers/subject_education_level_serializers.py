@@ -1,3 +1,5 @@
+from urllib import request
+
 from rest_framework import serializers
 
 from apps.questionbank.models import SubjectEducationLevel
@@ -39,6 +41,7 @@ class SubjectEducationLevelEditSerializer(BaseModelSerializer):
         instance, _ = self.Meta.model.objects.get_or_create(
             subject=validated_data["subject"],
             education_level=validated_data["education_level"],
+            defaults=validated_data,
         )
 
         return instance

@@ -1,7 +1,8 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from apps.exam_admin.models.exam_models import ExamSubject, ExamSubjectQuestion
+from apps.exam_admin.models.exam_admin_models import ExamSubject, ExamSubjectQuestion
 from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionDetailSerializer,
@@ -31,14 +32,16 @@ class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
 
 
 class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
-    subject = SubjectListSerializer(read_only=True, source="exam_subject.subject")
-    question = QuestionSerializer(read_only=True)
+    subject = SubjectListSerializer(read_only=True, source="exam_subject.subject_education_level.subject")
+    education_level = SubjectListSerializer(read_only=True, source="exam_subject.subject_education_level.education_level")
+    question = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamSubjectQuestion
         fields = [
             "id",
             "subject",
+            "education_level",
             "question",
             "section",
             "subsection",
@@ -48,6 +51,29 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         read_only_fields = [
             "id",
         ]
+
+    def get_question(self, obj):
+        # QuestionDetailSerializer(obj.question)
+        question_data = QuestionDetailSerializer(obj.question).data
+        question_subject_data = question_data.pop("subjects")  # type: ignore
+        # debug_print(obj.exam_subject.subject.id)
+        exam_subject_id = obj.exam_subject.subject_education_level.subject.id
+        exam_subject_education_level_id = obj.exam_subject.subject_education_level.education_level.id
+
+        # TODO : here i didn't applied education level filter yet because that is yet to be decided
+        question_more_data: dict = {}
+        for one_dict in question_subject_data:
+            if (one_dict["subject"]["id"] == exam_subject_id) and (one_dict["education_level"]["id"] == exam_subject_education_level_id):
+                question_more_data["difficulty_level"] = one_dict.pop("difficulty_level")
+                question_more_data["measuring_unit"] = one_dict.pop("measuring_unit")
+                question_more_data["countries"] = one_dict.pop("countries")
+                question_more_data["time_limit"] = one_dict.pop("time_limit")
+                question_more_data["total_marks"] = one_dict.pop("total_marks")
+                question_more_data["is_optional"] = one_dict.pop("is_optional")
+                question_more_data["is_global"] = one_dict.pop("is_global")
+                break
+        question_data.update(question_more_data)
+        return question_data
 
 
 class ExamSubjectQuestionSerializer(BaseModelSerializer):
@@ -87,7 +113,7 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
 
             for one_exam_subject in exam_subjects:
                 if (one_exam_subject.exam_id == exam_subject_request_data["exam"].id) and (  # type:ignore
-                    one_exam_subject.subject_id == exam_subject_request_data["subject"].id  # type:ignore
+                    one_exam_subject.subject_education_level_id == exam_subject_request_data["subject_education_level"].id  # type:ignore
                 ):
                     one_dict["exam_subject"] = one_exam_subject
 
@@ -98,6 +124,31 @@ class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
         created_exam_subject_questions_instances = sorted(created_exam_subject_questions_instances, key=lambda instance: instance.id)  # type:ignore
 
         return created_exam_subject_questions_instances
+
+
+class ExamSubjectQuestionBulkUpdateSerializer(serializers.Serializer):
+    update_list = serializers.ListField(child=serializers.DictField(child=serializers.IntegerField()))
+
+    def bulk_update_sequence(self, validated_data):
+        validated_data = validated_data["update_list"]
+        input_exam_subject_question_ids = [one_dict.get("id") for one_dict in validated_data]
+        exam_subject_question_instances = ExamSubjectQuestion.objects.filter(pk__in=input_exam_subject_question_ids)
+
+        if len(input_exam_subject_question_ids) != len(exam_subject_question_instances):
+            raise ValidationError({"Exam Subject Question Errors": "Some of the provided exam subject questions doesn't exist"})
+
+        exam_subject_question_id_sequence_hashmap = {}
+        for one_dict in validated_data:
+            id = one_dict["id"]
+            if id not in exam_subject_question_id_sequence_hashmap:
+                exam_subject_question_id_sequence_hashmap[id] = one_dict["sequence"]
+
+        for one_instance in exam_subject_question_instances:
+            one_instance.sequence = exam_subject_question_id_sequence_hashmap[one_instance.id]  # type: ignore
+
+        ExamSubjectQuestion.objects.bulk_update(exam_subject_question_instances, ["sequence"])
+
+        return exam_subject_question_instances
 
 
 # ? This Serializer was for when we want to get_or_create exam subjects bu that senario was not occcuring as we would have question pool containing only questions with existing exam_subject

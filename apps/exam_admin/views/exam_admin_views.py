@@ -3,10 +3,11 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.exam_admin.models.exam_models import (
+from apps.exam_admin.models.exam_admin_models import (
     Exam,
     ExamSubject,
     ExamSubjectQuestion,
+    Schedule,
     Section,
     SubSection,
 )
@@ -16,6 +17,7 @@ from apps.exam_admin.serializers.exam_serializers import (
 )
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionBulkCreateSerializer,
+    ExamSubjectQuestionBulkUpdateSerializer,
     ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
@@ -23,6 +25,7 @@ from apps.exam_admin.serializers.exam_subject_serializers import (
     ExamSubjectDetailSerializer,
     ExamSubjectSerializer,
 )
+from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
 from apps.exam_admin.serializers.section_serializers import (
     SectionEditSerializer,
     SectionSerializer,
@@ -64,6 +67,13 @@ class SectionViewSet(viewsets.ModelViewSet):
         section = serializer.save()
         response = SectionSerializer(section).data
         return Response(response)
+
+
+class ScheduleViewSet(viewsets.ModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
@@ -137,8 +147,6 @@ class ExamViewSet(viewsets.ModelViewSet):
             subject_count=subject_count,
             education_level_id=education_level_id,
         )
-        if isinstance(exam, Response):
-            return exam
         return make_success_response(exam)
 
 
@@ -146,7 +154,9 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 
 class ExamSubjectViewSet(viewsets.ModelViewSet):
-    queryset = ExamSubject.objects.all().select_related("exam", "subject")
+    queryset = ExamSubject.objects.all().select_related(
+        "exam", "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level"
+    )
     serializer_class = ExamSubjectSerializer
     http_method_names = ["post", "delete"]
     pagination_class = None
@@ -196,3 +206,12 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         exam_subject_questions = serializer.save()
         serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["patch"], url_path="bulk-update")
+    def bulk_update_exam_subject_question_sequence(self, request):
+        request_data = {"update_list": request.data}
+        serializer = ExamSubjectQuestionBulkUpdateSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        exam_subject_questions = serializer.bulk_update_sequence(serializer.validated_data)  # type: ignore
+        serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
