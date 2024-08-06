@@ -7,6 +7,7 @@ from apps.exam_admin.models.exam_admin_models import (
     Exam,
     ExamSubject,
     ExamSubjectQuestion,
+    Schedule,
     Section,
     SubSection,
 )
@@ -24,6 +25,7 @@ from apps.exam_admin.serializers.exam_subject_serializers import (
     ExamSubjectDetailSerializer,
     ExamSubjectSerializer,
 )
+from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
 from apps.exam_admin.serializers.section_serializers import (
     SectionEditSerializer,
     SectionSerializer,
@@ -65,6 +67,13 @@ class SectionViewSet(viewsets.ModelViewSet):
         section = serializer.save()
         response = SectionSerializer(section).data
         return Response(response)
+
+
+class ScheduleViewSet(viewsets.ModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
