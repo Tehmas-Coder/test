@@ -109,64 +109,52 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             )
             .first()
         )
-        user_country_id = candidate_exam_data["country_id"]
 
         exam_question_backlog = list(
             ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
         )
-        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog]
-        exam_backlog_question_country_queryset: list = ExamBacklogQuestionCountry.objects.filter(
-            exam_backlog_question_id__in=exam_question_backlog_ids
+        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
+
+        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
+        is_not_global_exam_question_backlog_ids_list: list = list(
+            ExamBacklogQuestionCountry.objects.filter(
+                exam_backlog_question_id__in=exam_question_backlog_ids,
+                country_id=candidate_exam_data["country_id"],
+            ).values_list("exam_backlog_question", flat=True)
         )
-        debug_print(exam_backlog_question_country_queryset)
+        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
 
-        # is_global_exam_question_backlog_ids_list = []
-        # is_not_global_exam_question_backlog_ids_list = []
-        # for one_question in exam_question_backlog:
-        #     one_question_backlog_id = one_question["id"]
+        final_candidate_exam_backlog_question_list = CandidateExamDetailSerializer(
+            self.queryset.filter(id=self.kwargs["pk"]).prefetch_related(
+                Prefetch(
+                    "exam_backlog__backlog_questions",
+                    queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
+                    .prefetch_related(
+                        "backlog_tags",
+                        "backlog_choices",
+                        "backlog_choices__exambacklogquestionchoicemedia_set",
+                        "backlog_choices__exambacklogquestionchoicemedia_set__media",
+                        "backlog_attempt_responses",
+                        "backlog_retry_hints",
+                        "backlog_retry_hints__exambacklogquestionretryhintmedia_set",
+                        "backlog_retry_hints__exambacklogquestionretryhintmedia_set__media",
+                        "exambacklogquestionmedia_set",
+                        "exambacklogquestionmedia_set__media",
+                        "exambacklogquestioncountry_set",
+                        "exambacklogquestioncountry_set__country",
+                    )
+                    .select_related(
+                        "type",
+                        "measuring_unit",
+                        "difficulty_level",
+                        "section_backlog",
+                        "section_backlog__measuring_unit",
+                        "subsection_backlog",
+                        "subsection_backlog__measuring_unit",
+                    ),
+                )
+            ),
+            many=True,
+        ).data
 
-        #     if one_question["is_global"]:
-        #         is_global_exam_question_backlog_ids_list.append(one_question_backlog_id)
-        #     else:
-        #         print("pass")
-        #         if user_country_id in list(
-        #             ExamBacklogQuestionCountry.objects.filter(exam_backlog_question_id=one_question_backlog_id).values_list("country_id", flat=True)
-        #         ):
-        #             is_not_global_exam_question_backlog_ids_list.append(one_question_backlog_id)
-
-        # final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
-
-        # final_candidate_exam_backlog_question_list = CandidateExamDetailSerializer(
-        #     self.queryset.filter(id=self.kwargs["pk"]).prefetch_related(
-        #         Prefetch(
-        #             "exam_backlog__backlog_questions",
-        #             queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
-        #             .prefetch_related(
-        #                 "backlog_tags",
-        #                 "backlog_choices",
-        #                 "backlog_choices__exambacklogquestionchoicemedia_set",
-        #                 "backlog_choices__exambacklogquestionchoicemedia_set__media",
-        #                 "backlog_attempt_responses",
-        #                 "backlog_retry_hints",
-        #                 "backlog_retry_hints__exambacklogquestionretryhintmedia_set",
-        #                 "backlog_retry_hints__exambacklogquestionretryhintmedia_set__media",
-        #                 "exambacklogquestionmedia_set",
-        #                 "exambacklogquestionmedia_set__media",
-        #                 "exambacklogquestioncountry_set",
-        #                 "exambacklogquestioncountry_set__country",
-        #             )
-        #             .select_related(
-        #                 "type",
-        #                 "measuring_unit",
-        #                 "difficulty_level",
-        #                 "section_backlog",
-        #                 "section_backlog__measuring_unit",
-        #                 "subsection_backlog",
-        #                 "subsection_backlog__measuring_unit",
-        #             ),
-        #         )
-        #     ),
-        #     many=True,
-        # ).data
-
-        return Response(status=status.HTTP_200_OK)
+        return Response(final_candidate_exam_backlog_question_list[0], status=status.HTTP_200_OK)
