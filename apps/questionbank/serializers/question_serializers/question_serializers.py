@@ -144,6 +144,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             subject_education_level, _ = SubjectEducationLevel.objects.get_or_create(
                 subject=subject_education_level_data["subject"],
                 education_level=subject_education_level_data["education_level"],
+                defaults=subject_education_level_data,
             )
 
             # * Create question subject
@@ -215,6 +216,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
                 subject_education_level, _ = SubjectEducationLevel.objects.get_or_create(
                     subject=subject_education_level_data["subject"],
                     education_level=subject_education_level_data["education_level"],
+                    defaults=subject_education_level_data,
                 )
 
                 # * Get or create question subject

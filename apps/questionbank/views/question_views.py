@@ -74,7 +74,7 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectDetailSerializer,
 )
-from utils.rna_utils import debug_print
+from utils.rna_utils import debug_print, make_error_response
 
 
 # ---------------------------------------------------------------------------- #
@@ -104,6 +104,14 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
         if self.action in ["create", "partial_update"]:
             return SubjectEducationLevelEditSerializer
         return super().get_serializer_class()
+
+    def create(self, request, *args, **kwargs):
+        if SubjectEducationLevel.objects.filter(
+            subject_id=request.data["subject"],
+            education_level_id=request.data["education_level"],
+        ).exists():
+            return make_error_response(data=request.data, message="Subject education level already exists.")
+        return super().create(request, *args, **kwargs)
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
