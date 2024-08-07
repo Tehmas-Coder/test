@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from apps.user.views.auth_views import *
-from apps.user.views.role_views import *
+from apps.user.views.role_permission_views import *
 from apps.user.views.user_views import *
 
 router = routers.DefaultRouter()

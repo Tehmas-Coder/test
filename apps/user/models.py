@@ -40,9 +40,7 @@ class BaseUser(BaseModel, AbstractUser):
 
     otp = models.CharField(_("otp"), max_length=6, blank=True)
     is_verified = models.BooleanField(_("verified"), default=False)
-
     is_superuser = models.BooleanField(_("superuser"), default=False)
-    is_staff = models.BooleanField(_("staff status"), default=True)
 
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)

@@ -1,5 +1,7 @@
+from django.db import transaction
+from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
-from rest_framework import views, viewsets
+from rest_framework import serializers, views, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -10,7 +12,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
-from utils.rna_utils import make_error_response, make_success_response
+from utils.rna_utils import debug_print, make_error_response, make_success_response
 
 from ..models import BaseUser
 
@@ -18,16 +20,33 @@ from ..models import BaseUser
 class RegisterApiView(views.APIView):
     permission_classes = [AllowAny]
 
+    @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        request.data["is_staff"] = True
-        request.data["is_superuser"] = False
-        serializer = UserEditSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        if "email" in serializer.errors:
-            return Response({"error": "User with this email already exists"}, status=400)
-        return Response(serializer.errors, status=400)
+        if "is_superuser" in request.data:
+            try:
+                request.data["is_verified"] = True
+                super_user_instance = BaseUser.objects.create_superuser(
+                    email=request.data.pop("email"),
+                    password=request.data.pop("password"),
+                    **request.data,
+                )
+                super_user_detail = model_to_dict(super_user_instance)
+                serializer = UserEditSerializer(super_user_detail)
+                return Response(serializer.data, status=201)
+            except Exception as e:
+                return make_error_response(message=f"{str(e)}")
+        else:
+            serializer = UserEditSerializer(data=request.data)
+            if serializer.is_valid():
+                candidate_instance = serializer.save()
+                candidate_instance.roles.add(4)
+                if not candidate_instance.send_otp():
+                    transaction.set_rollback(True)
+                    raise serializers.ValidationError({"error": "Failed to send email, please try again"})
+                return Response(serializer.data, status=201)
+            if "email" in serializer.errors:
+                return Response({"error": "User with this email already exists"}, status=400)
+            return Response(serializer.errors, status=400)
 
 
 class LoginApiView(TokenObtainPairView):

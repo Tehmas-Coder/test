@@ -3,7 +3,7 @@
         "model": "user.Role",
         "pk": 1,
         "fields": {
-            "name": "Super Admin",
+            "name": "Admin",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -12,7 +12,7 @@
         "model": "user.Role",
         "pk": 2,
         "fields": {
-            "name": "Organization Super Admin",
+            "name": "Administrator",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -21,15 +21,6 @@
         "model": "user.Role",
         "pk": 3,
         "fields": {
-            "name": "Administrator",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
-        }
-    },
-    {
-        "model": "user.Role",
-        "pk": 4,
-        "fields": {
             "name": "Examiner",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -37,7 +28,7 @@
     },
     {
         "model": "user.Role",
-        "pk": 5,
+        "pk": 4,
         "fields": {
             "name": "Candidate",
             "created_at": "1995-07-27T00:00:00Z",

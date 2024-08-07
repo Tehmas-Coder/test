@@ -1,15 +1,19 @@
+from django.db.models import F
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.user.filters.user_filter import UserFilter
+from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
 )
+from apps.utils import get_role_name, get_user_role_detail
+from utils.rna_utils import debug_print, make_error_response
 
-from ..models import BaseUser
+from ..models import BaseUser, Role
 
 # ---------------------------------------------------------------------------- #
 #                                     USER                                     #
@@ -42,11 +46,23 @@ class UserViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        request.data["is_staff"] = True
-        request.data["is_superuser"] = False
+        logged_in_user = self.request.user
+        logged_in_user_role_detail = {}
+        request_user_role_id = request.data.pop("role")
+        request_user_role_name = get_role_name(request_user_role_id)
+        if logged_in_user.is_superuser:
+            pass
+        else:
+            logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
+            if logged_in_user_role_detail["role_name"].lower() is not "candidate":
+                pass
+
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user_instance = serializer.save()
+
+            user_instance.roles.add(request_user_role_id)
+
             return Response(serializer.data, status=201)
         if "email" in serializer.errors:
             return Response({"error": "User with this email already exists"}, status=400)
