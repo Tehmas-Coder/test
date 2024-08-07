@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "apps.questionbank",
     "apps.exam_admin",
     "apps.exam_public",
+    "apps.organization",
 ]
 if DEBUG:
     INSTALLED_APPS += [
