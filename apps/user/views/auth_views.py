@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import views, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -9,10 +9,25 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from apps.user.serializers.user_serializers import LoginSerializer
+from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
 from utils.rna_utils import make_error_response, make_success_response
 
 from ..models import BaseUser
+
+
+class RegisterApiView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        request.data["is_staff"] = True
+        request.data["is_superuser"] = False
+        serializer = UserEditSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        if "email" in serializer.errors:
+            return Response({"error": "User with this email already exists"}, status=400)
+        return Response(serializer.errors, status=400)
 
 
 class LoginApiView(TokenObtainPairView):

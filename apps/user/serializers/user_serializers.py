@@ -1,11 +1,12 @@
+from django.db import transaction
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.user.models import BaseUser
 from apps.user.serializers.role_serializers import RoleSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import color_print
-from apps.lookups.serializers.country_serializers import CountrySerializer
-from django.db import transaction
-from rest_framework import serializers
 
 
 class UserDetailSerializer(BaseModelSerializer):
@@ -96,9 +97,7 @@ class UserEditSerializer(BaseModelSerializer):
 
         if not user.send_otp():
             transaction.set_rollback(True)
-            raise serializers.ValidationError(
-                {"error": "Failed to send email, please try again"}
-            )
+            raise serializers.ValidationError({"error": "Failed to send email, please try again"})
 
         # color_print("OTP sent to email", "green")
         return user

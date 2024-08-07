@@ -8,6 +8,7 @@ from apps.user.views.user_views import *
 router = routers.DefaultRouter()
 # ----------------------------------- AUTH ----------------------------------- #
 urlpatterns = [
+    path("register/", RegisterApiView.as_view(), name="register"),
     path("login/", LoginApiView.as_view(), name="token_obtain_pair"),
     path("refresh/", TokenRefreshApiView.as_view(), name="token_refresh"),
     path("logout/", LogoutApiView.as_view(), name="token_blacklist"),
