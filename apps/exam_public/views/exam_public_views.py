@@ -26,7 +26,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamListSerializer,
 )
 from apps.user.models import BaseUser
-from utils.rna_utils import debug_print
+from utils.rna_utils import debug_print, make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -109,6 +109,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             )
             .first()
         )
+
+        if not candidate_exam_data:
+            return make_error_response(message="The requested candidate exam data is not present")
 
         exam_question_backlog = list(
             ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
