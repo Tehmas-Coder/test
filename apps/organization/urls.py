@@ -9,7 +9,7 @@ router.register(r"organizations", OrganizationViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path(
-        "get_orgaization_users_list/",
+        "get_orgaization_users_list/<int:id>/",
         OrganizationRelatedViewset.as_view({"get": "get_orgaization_users_list"}),
         name="get_orgaization_users_list",
     ),

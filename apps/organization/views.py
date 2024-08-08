@@ -31,8 +31,19 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 class OrganizationRelatedViewset(viewsets.ViewSet):
 
     def get_orgaization_users_list(self, request, *args, **kwargs):
+        logged_in_user = self.request.user
+        organization_id = kwargs.get("id", None)
+
+        organization_queryset = Organization.objects.all()
+
+        filtered_organization_queryset = []
+        if logged_in_user.is_superuser:
+            filtered_organization_queryset = organization_queryset
+        else:
+            filtered_organization_queryset = organization_queryset.filter(id=organization_id)
+
         organization_list = OrganizationWithUsersListSerializer(
-            Organization.objects.all().prefetch_related(
+            filtered_organization_queryset.prefetch_related(
                 Prefetch(
                     "organization_users",
                     OrganizationUser.objects.all()
@@ -46,13 +57,27 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             many=True,
         ).data
 
+        if logged_in_user.is_superuser == None:
+            if not len(organization_list):
+                return Response([], status=status.HTTP_200_OK)
+            return Response(organization_list[0], status=status.HTTP_200_OK)
+
         return Response(organization_list, status=status.HTTP_200_OK)
 
     def get_orgaization_candidates_list(self, request, *args, **kwargs):
-        organization_id = kwargs.get("id")
-        debug_print(organization_id)
+        logged_in_user = self.request.user
+        organization_id = kwargs.get("id", None)
+
+        organization_queryset = Organization.objects.all()
+
+        filtered_organization_queryset = []
+        if logged_in_user.is_superuser:
+            filtered_organization_queryset = organization_queryset
+        else:
+            filtered_organization_queryset = organization_queryset.filter(id=organization_id)
+
         organization_with_candidates_list = OrganizationWithCandidateListSerializer(
-            Organization.objects.filter(pk=organization_id).prefetch_related(
+            filtered_organization_queryset.prefetch_related(
                 Prefetch(
                     "organization_candidates",
                     Candidate.objects.all()
@@ -62,7 +87,13 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                     )
                     .prefetch_related("user__roles"),
                 )
-            )[0]
+            ),
+            many=True,
         ).data
+
+        if logged_in_user.is_superuser == None:
+            if not len(organization_with_candidates_list):
+                return Response([], status=status.HTTP_200_OK)
+            return Response(organization_with_candidates_list[0], status=status.HTTP_200_OK)
 
         return Response(organization_with_candidates_list, status=status.HTTP_200_OK)
