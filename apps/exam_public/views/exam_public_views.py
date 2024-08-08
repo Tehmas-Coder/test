@@ -1,26 +1,49 @@
+import copy
+import json
+
+from django.db.models import F, Prefetch
+from django.forms import Media
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status, viewsets
-from django.db.models import F, Prefetch
 
-
-from apps.exam_public.models.exam_public_backlog_models import ExamBacklog, ExamBacklogQuestion, ExamBacklogQuestionCountry
-from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_admin.models.exam_admin_models import Exam
-
-
-from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer, CandidateSerializer
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
+from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from apps.exam_public.models.exam_public_backlog_models import (
+    ExamBacklog,
+    ExamBacklogQuestion,
+    ExamBacklogQuestionCountry,
+)
+from apps.exam_public.models.exam_public_models import (
+    Candidate,
+    CandidateExam,
+    CandidateExamAnswer,
+    CandidateExamAnswerMedia,
+)
+from apps.exam_public.serializers.candiate_serializers import (
+    CandidateDetailSerializer,
+    CandidateSerializer,
+)
+from apps.exam_public.serializers.candidate_exam_answer_serializers import (
+    CandidateExamAnswerSerializer,
+)
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
-
-
-from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
-from utils.rna_utils import debug_print, make_error_response, make_success_response, remove_extra_underscore_from_key_names
+from apps.lookups.serializers.media_serializers import (
+    MediaBulkCreateSerializer,
+    MediaSerializer,
+)
+from utils.rna_utils import (
+    debug_print,
+    make_error_response,
+    make_success_response,
+    remove_extra_underscore_from_key_names,
+)
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -165,7 +188,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(final_candidate_exam_backlog_question_list[0], status=status.HTTP_200_OK)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
-        print("PASS")
         exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
             ExamBacklog.objects.all().prefetch_related(
                 Prefetch(
@@ -185,3 +207,77 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         ).data
 
         return Response(exam_backlog_list, status=status.HTTP_200_OK)
+
+
+# --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
+
+
+class CandidateExamAnswerViewset(viewsets.ModelViewSet):
+    queryset = (
+        CandidateExamAnswer.objects.all().select_related("exam_backlog_question", "exam_backlog_question_choice").prefetch_related("answer_files")
+    )
+    serializer_class = CandidateExamAnswerSerializer
+    pagination_class = None
+    http_method_names = ["get", "post"]
+
+    def create(self, request, *args, **kwargs):
+        request_data = request.data["data"]
+        request_data = json.loads(request_data)
+
+        # Extract media for answers
+        answer_media_hashmap = {}
+        for answer in request_data:
+            exam_backlog_question_id = answer["exam_backlog_question"]
+            answer_files = answer.pop("answer_files", [])
+
+            if len(answer_files):
+                if exam_backlog_question_id not in answer_media_hashmap:
+                    answer_media_hashmap[exam_backlog_question_id] = {}
+                answer_media_hashmap[exam_backlog_question_id] = {"exam_backlog_question_id": exam_backlog_question_id, "files": []}
+                for key in answer_files:
+                    file = request.FILES.get(key)
+                    if file:
+                        answer_media_hashmap[exam_backlog_question_id]["files"].append(file)
+
+        CandidateExamAnswer.objects.bulk_create(
+            [
+                CandidateExamAnswer(
+                    candidate_exam_id=one_dict["candidate_exam"],
+                    exam_backlog_question_id=one_dict["exam_backlog_question"],
+                    exam_backlog_question_choice_id=one_dict["exam_backlog_question_choice"],
+                    answer_text=one_dict["answer_text"],
+                )
+                for one_dict in request_data
+            ]
+        )
+
+        newly_created_queryset = list(
+            CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
+        )
+
+        for one_dict in newly_created_queryset:
+            candidate_exam_answer_id = one_dict[0]
+            exam_backlog_question_id = one_dict[1]
+            if exam_backlog_question_id in answer_media_hashmap:
+                answer_media_hashmap[exam_backlog_question_id]["candidate_exam_answer"] = candidate_exam_answer_id
+                answer_media_hashmap
+
+        for key, value in answer_media_hashmap.items():
+            media_data = {"files": value["files"]}
+            media_serializer = MediaBulkCreateSerializer(data=media_data)
+            media_serializer.is_valid(raise_exception=True)
+            media_instances = media_serializer.save()
+            value.pop("files")
+            value["media_ids"] = [one_instance.id for one_instance in media_instances]
+
+        CandidateExamAnswerMedia.objects.bulk_create(
+            [
+                CandidateExamAnswerMedia(
+                    candidate_exam_answer_id=value["candidate_exam_answer"],
+                    media_id=one_media_id,
+                )
+                for key, value in answer_media_hashmap.items()
+                for one_media_id in value["media_ids"]
+            ]
+        )
+        return Response(status=status.HTTP_201_CREATED)
