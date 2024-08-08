@@ -8,6 +8,7 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
 from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
+from apps.exam_public.models.exam_public_backlog_models import ExamBacklog
 
 
 class CandidateExamEditSerializer(BaseModelSerializer):
@@ -84,4 +85,25 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "end_time",
             "waiting_duration",
             "extra_duration",
+        ] + get_base_model_fields()
+
+
+class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
+    candiate_exam_examsbacklog = CandidateExamListSerializer(many=True)
+
+    class Meta:
+        model = ExamBacklog
+        fields = [
+            "id",
+            "exam",
+            "name",
+            "code",
+            "abbreviation",
+            "instructions",
+            "education_level",
+            "education_level_name",
+            "total_marks",
+            "pass_marks",
+            "is_global",
+            "candiate_exam_examsbacklog",
         ] + get_base_model_fields()

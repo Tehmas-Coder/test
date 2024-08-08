@@ -1,7 +1,6 @@
 import json
 
 from django.db.models import F, Prefetch
-from django.forms import model_to_dict
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,15 +12,11 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
     ExamBacklogQuestionCountry,
-    SectionBacklog,
 )
 from apps.exam_public.models.exam_public_models import (
     Candidate,
     CandidateExam,
     CandidateExamAnswer,
-)
-from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
-    ExamBacklogEditSerializer,
 )
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -34,11 +29,12 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
+    ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.user.models import BaseUser
 from utils.rna_utils import (
     debug_print,
     make_error_response,
+    make_success_response,
     remove_extra_underscore_from_key_names,
 )
 
@@ -63,7 +59,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         if Candidate.objects.filter(
             user_id=request.data["user"],
-            organization_id=request.data["organization"],
+            organization_id=request.data.get("organization", None),
         ).exists():
             return make_error_response(data=request.data, message="Candidate with this organization already exists.")
 
@@ -184,15 +180,27 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         return Response(final_candidate_exam_backlog_question_list[0], status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"], url_path="get-candidates")
-    def bulk_create_exam_subject_question(self, request):
+    def get_exam_backlogs_with_candidate_detail(self, request):
+        print("PASS")
+        exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
+            ExamBacklog.objects.all().prefetch_related(
+                Prefetch(
+                    "candiate_exam_examsbacklog",
+                    queryset=CandidateExam.objects.all()
+                    .select_related(
+                        "exam_backlog",
+                        "schedule",
+                        "candidate",
+                        "candidate__user",
+                        "candidate__user__country",
+                    )
+                    .prefetch_related("candidate__user__roles"),
+                )
+            ),
+            many=True,
+        ).data
 
-        exam_backlog_list = remove_extra_underscore_from_key_names(list(ExamBacklog.objects.filter(id=self.kwargs["exam_backlog_id"]).values()))
-
-        exam_backlog_ids = [one_dict["id"] for one_dict in exam_backlog_list]
-        Candidate_list = remove_extra_underscore_from_key_names(list(CandidateExam.objects.filter(exam_backlog_id__in=exam_backlog_ids).values()))
-
-        return Response()
+        return Response(exam_backlog_list, status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #

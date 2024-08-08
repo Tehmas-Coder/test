@@ -1,41 +1,26 @@
-from django.db.models import Prefetch
-from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status, viewsets
+from django.db.models import F
 
-from apps.exam_admin.models.exam_admin_models import (
-    Exam,
-    ExamSubject,
-    ExamSubjectQuestion,
-    Schedule,
-    Section,
-    SubSection,
-)
-from apps.exam_admin.serializers.exam_serializers import (
-    ExamDetailSerializer,
-    ExamEditSerializer,
-)
+
+from apps.exam_admin.models.exam_admin_models import Exam, ExamSubject, ExamSubjectQuestion, Schedule, Section, SubSection
+
+
+from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectDetailSerializer, ExamSubjectSerializer
+from apps.exam_admin.serializers.subsection_serializers import SubSectionEditSerializer, SubSectionSerializer
+from apps.exam_admin.serializers.section_serializers import SectionEditSerializer, SectionSerializer
+from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializer, ExamEditSerializer
+from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionBulkCreateSerializer,
     ExamSubjectQuestionBulkUpdateSerializer,
     ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
-from apps.exam_admin.serializers.exam_subject_serializers import (
-    ExamSubjectDetailSerializer,
-    ExamSubjectSerializer,
-)
-from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
-from apps.exam_admin.serializers.section_serializers import (
-    SectionEditSerializer,
-    SectionSerializer,
-)
-from apps.exam_admin.serializers.subsection_serializers import (
-    SubSectionEditSerializer,
-    SubSectionSerializer,
-)
 from apps.exam_admin.utils.exam_utils import create_random_exam
-from utils.rna_utils import make_error_response, make_success_response
+
+from utils.rna_utils import make_success_response, remove_extra_underscore_from_key_names
 
 # ---------------------------------------------------------------------------- #
 #                                 EXAM LOOKUPS                                 #
@@ -148,6 +133,13 @@ class ExamViewSet(viewsets.ModelViewSet):
             education_level_id=education_level_id,
         )
         return make_success_response(exam)
+
+    @action(detail=False, methods=["get"], url_path="get-exams-lookup")
+    def get_exams_lookup(self, request):
+        exam_list_with_detail = remove_extra_underscore_from_key_names(
+            list(Exam.objects.all().annotate(education_level_name=F("education_level__name")).values())
+        )
+        return make_success_response(data=exam_list_with_detail)
 
 
 # --------------------------------- SUBJECTS --------------------------------- #
