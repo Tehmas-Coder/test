@@ -35,7 +35,7 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionSerializer,
 )
 from apps.exam_admin.utils.exam_utils import create_random_exam
-from utils.rna_utils import make_error_response, make_success_response
+from utils.rna_utils import make_error_response, make_success_response, remove_extra_underscore_from_key_names
 
 # ---------------------------------------------------------------------------- #
 #                                 EXAM LOOKUPS                                 #
@@ -148,6 +148,11 @@ class ExamViewSet(viewsets.ModelViewSet):
             education_level_id=education_level_id,
         )
         return make_success_response(exam)
+
+    @action(detail=False, methods=["get"], url_path="get-exams-lookup")
+    def get_exams_lookup(self):
+        exam_list_with_detail = remove_extra_underscore_from_key_names(list(Exam.objects.all().values()))
+        return make_success_response(data=exam_list_with_detail)
 
 
 # --------------------------------- SUBJECTS --------------------------------- #
