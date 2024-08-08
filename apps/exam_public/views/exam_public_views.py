@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
@@ -55,6 +56,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
         Candidate.objects.all().select_related("user", "user__country", "organization", "organization__country").prefetch_related("user__roles")
     )
     serializer_class = CandidateSerializer
+    filter_backends = [CandidateFilterBackend]
     pagination_class = None
     http_method_names = ["get", "post", "patch"]
 

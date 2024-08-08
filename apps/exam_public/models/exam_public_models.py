@@ -8,7 +8,7 @@ MEDIA_MODEL = "lookups.Media"
 
 class Candidate(BaseModel):
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
-    organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True)
+    organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
     class Meta:
         app_label = "exam_public"
