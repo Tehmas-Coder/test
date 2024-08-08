@@ -11,6 +11,7 @@ from apps.organization.serializers import (
     OrganizationWithCandidateListSerializer,
     OrganizationWithUsersListSerializer,
 )
+from utils.rna_utils import debug_print
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -48,8 +49,10 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
         return Response(organization_list, status=status.HTTP_200_OK)
 
     def get_orgaization_candidates_list(self, request, *args, **kwargs):
-        organization_list = OrganizationWithCandidateListSerializer(
-            Organization.objects.all().prefetch_related(
+        organization_id = kwargs.get("id")
+        debug_print(organization_id)
+        organization_with_candidates_list = OrganizationWithCandidateListSerializer(
+            Organization.objects.filter(pk=organization_id).prefetch_related(
                 Prefetch(
                     "organization_candidates",
                     Candidate.objects.all()
@@ -59,8 +62,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                     )
                     .prefetch_related("user__roles"),
                 )
-            ),
-            many=True,
+            )[0]
         ).data
 
-        return Response(organization_list, status=status.HTTP_200_OK)
+        return Response(organization_with_candidates_list, status=status.HTTP_200_OK)

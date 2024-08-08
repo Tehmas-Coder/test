@@ -14,7 +14,7 @@ urlpatterns = [
         name="get_orgaization_users_list",
     ),
     path(
-        "get_orgaization_candidates_list/",
+        "get_orgaization_candidates_list/<int:id>/",
         OrganizationRelatedViewset.as_view({"get": "get_orgaization_candidates_list"}),
         name="get_orgaization_candidates_list",
     ),
