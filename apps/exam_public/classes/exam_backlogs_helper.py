@@ -172,10 +172,14 @@ class ExamBacklogs:
         self.question_choices_hashmap = {}
         self.question_retry_hints_hashmap = {}
         for index, one_exam_question in enumerate(exam_question_list):
-            self.question_choices_hashmap = {one_choice["id"]: one_choice for one_choice in one_exam_question["question"]["choices"]}
-            self.question_retry_hints_hashmap = {
-                one_retry_hints["id"]: one_retry_hints for one_retry_hints in one_exam_question["question"]["retry_hints"]
-            }
+            # self.question_choices_hashmap = {one_choice["id"]: one_choice for one_choice in one_exam_question["question"]["choices"]}
+            for one_choice in one_exam_question["question"]["choices"]:
+                self.question_choices_hashmap[one_choice["id"]] = one_choice
+            # self.question_retry_hints_hashmap = {
+            #     one_retry_hints["id"]: one_retry_hints for one_retry_hints in one_exam_question["question"]["retry_hints"]
+            # }
+            for one_retry_hints in one_exam_question["question"]["retry_hints"]:
+                self.question_retry_hints_hashmap[one_retry_hints["id"]] = one_retry_hints
 
             # * Fetching and setting up data from the question to pass it to the backlogs creation functions
             exam_backlog_question_id: int = self.created_question_backlog_instance_list[index].id
