@@ -68,7 +68,7 @@ class Exam(BaseModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10, blank=True)
     abbreviation = models.CharField(max_length=10, blank=True)
-    instructions = models.TextField()
+    instructions = models.TextField(blank=True, null=True)
 
     education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
 

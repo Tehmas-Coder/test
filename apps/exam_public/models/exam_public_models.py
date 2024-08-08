@@ -1,12 +1,14 @@
 from django.db import models
 
+from apps.organization.models.organization_models import Organization
 from core.models import BaseModel
 
 MEDIA_MODEL = "lookups.Media"
 
 
 class Candidate(BaseModel):
-    user = models.OneToOneField("user.BaseUser", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
+    organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         app_label = "exam_public"

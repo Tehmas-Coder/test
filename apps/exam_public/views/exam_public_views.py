@@ -34,7 +34,9 @@ from utils.rna_utils import debug_print, make_error_response
 
 
 class CandidateViewSet(viewsets.ModelViewSet):
-    queryset = Candidate.objects.all().select_related("user", "user__country")
+    queryset = (
+        Candidate.objects.all().select_related("user", "user__country", "organization", "organization__country").prefetch_related("user__roles")
+    )
     serializer_class = CandidateSerializer
     pagination_class = None
     http_method_names = ["get", "post", "patch"]
@@ -45,6 +47,12 @@ class CandidateViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
+        if Candidate.objects.filter(
+            user_id=request.data["user"],
+            organization_id=request.data["organization"],
+        ).exists():
+            return make_error_response(data=request.data, message="Candidate with this organization already exists.")
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = serializer.save()

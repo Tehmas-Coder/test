@@ -54,7 +54,7 @@ class UserViewSet(viewsets.ModelViewSet):
             pass
         else:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() is not "candidate":
+            if logged_in_user_role_detail["role_name"].lower() != "candidate":
                 pass
 
         serializer = self.get_serializer(data=request.data)
