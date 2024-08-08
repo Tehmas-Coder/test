@@ -1,6 +1,9 @@
+import json
+
 from django.db.models import F, Prefetch
 from django.forms import model_to_dict
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
@@ -12,7 +15,11 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestionCountry,
     SectionBacklog,
 )
-from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
+from apps.exam_public.models.exam_public_models import (
+    Candidate,
+    CandidateExam,
+    CandidateExamAnswer,
+)
 from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
     ExamBacklogEditSerializer,
 )
@@ -20,13 +27,20 @@ from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
     CandidateSerializer,
 )
+from apps.exam_public.serializers.candidate_exam_answer_serializers import (
+    CandidateExamAnswerEditSerializer,
+)
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
 )
 from apps.user.models import BaseUser
-from utils.rna_utils import debug_print, make_error_response
+from utils.rna_utils import (
+    debug_print,
+    make_error_response,
+    remove_extra_underscore_from_key_names,
+)
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -169,3 +183,45 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         ).data
 
         return Response(final_candidate_exam_backlog_question_list[0], status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"], url_path="get-candidates")
+    def bulk_create_exam_subject_question(self, request):
+
+        exam_backlog_list = remove_extra_underscore_from_key_names(list(ExamBacklog.objects.filter(id=self.kwargs["exam_backlog_id"]).values()))
+
+        exam_backlog_ids = [one_dict["id"] for one_dict in exam_backlog_list]
+        Candidate_list = remove_extra_underscore_from_key_names(list(CandidateExam.objects.filter(exam_backlog_id__in=exam_backlog_ids).values()))
+
+        return Response()
+
+
+# --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
+
+
+class CandidateExamAnswerViewset(viewsets.ModelViewSet):
+    queryset = CandidateExamAnswer.objects.all().select_related("exam_backlog_question", "exam_backlog_question_choice")
+    serializer_class = CandidateExamAnswerEditSerializer
+    pagination_class = None
+    http_method_names = ["get", "post"]
+
+    def create(self, request, *args, **kwargs):
+        request_data = request.data["data"]
+        request_data = [json.loads(one_dict) for one_dict in request_data]
+
+        # Extract media for answers
+        for answer in request_data:
+            answer_medias = answer.pop("medias", [])
+            if answer_medias:
+                answer["medias"] = []
+                for key in answer_medias:
+                    file = request.FILES.get(key)
+                    if file:
+                        answer["medias"].append({"file": file})
+
+        debug_print()
+
+        serializer = CandidateExamAnswerEditSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        candidate_exam_answers = serializer.save()
+        serializer = CandidateExamAnswerEditSerializer(candidate_exam_answers, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

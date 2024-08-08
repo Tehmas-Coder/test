@@ -35,9 +35,9 @@ class CandidateExam(BaseModel):
 class CandidateExamAnswer(BaseModel):
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE)
     exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE)
-    exam_backlog_question_choice = models.ForeignKey("exam_public.ExamBacklogQuestionChoice", on_delete=models.CASCADE, null=True)
+    exam_backlog_question_choice = models.ForeignKey("exam_public.ExamBacklogQuestionChoice", on_delete=models.CASCADE, null=True, blank=True)
 
-    answer_text = models.TextField(blank=True)
+    answer_text = models.TextField(null=True, blank=True)
     answer_files = models.ManyToManyField(MEDIA_MODEL, through="exam_public.CandidateExamAnswerMedia")
 
     score = models.FloatField(default=0)
