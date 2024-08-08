@@ -4,6 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
+from apps.exam_public.serializers.candiate_serializers import (
+    CandidateWithOrganizationsSerializer,
+)
 from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.organization.serializers import (
     OrganizationSerializer,
@@ -11,6 +14,7 @@ from apps.organization.serializers import (
     OrganizationWithCandidateListSerializer,
     OrganizationWithUsersListSerializer,
 )
+from apps.user.models import BaseUser
 from utils.rna_utils import debug_print
 
 
@@ -30,7 +34,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 
 class OrganizationRelatedViewset(viewsets.ViewSet):
 
-    def get_orgaization_users_list(self, request, *args, **kwargs):
+    def get_organization_users_list(self, request, *args, **kwargs):
         logged_in_user = self.request.user
         organization_id = kwargs.get("id", None)
 
@@ -64,7 +68,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
 
         return Response(organization_list, status=status.HTTP_200_OK)
 
-    def get_orgaization_candidates_list(self, request, *args, **kwargs):
+    def get_organization_candidates_list(self, request, *args, **kwargs):
         logged_in_user = self.request.user
         organization_id = kwargs.get("id", None)
 
@@ -97,3 +101,14 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             return Response(organization_with_candidates_list[0], status=status.HTTP_200_OK)
 
         return Response(organization_with_candidates_list, status=status.HTTP_200_OK)
+
+    def get_candidate_organizations_list(self, request, *args, **kwargs):
+
+        filtered_candidate_queryset = CandidateWithOrganizationsSerializer(
+            BaseUser.objects.filter(id=self.request.user.id).prefetch_related("user_candidates"), many=True
+        ).data
+        filtered_candidate_queryset_response = {}
+        if len(filtered_candidate_queryset):
+            filtered_candidate_queryset_response = filtered_candidate_queryset[0]
+
+        return Response(filtered_candidate_queryset_response, status=status.HTTP_200_OK)

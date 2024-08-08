@@ -9,14 +9,19 @@ router.register(r"organizations", OrganizationViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path(
-        "get_orgaization_users_list/<int:id>/",
-        OrganizationRelatedViewset.as_view({"get": "get_orgaization_users_list"}),
+        "get_organization_users_list/<int:id>/",
+        OrganizationRelatedViewset.as_view({"get": "get_organization_users_list"}),
         name="get_orgaization_users_list",
     ),
     path(
-        "get_orgaization_candidates_list/<int:id>/",
-        OrganizationRelatedViewset.as_view({"get": "get_orgaization_candidates_list"}),
-        name="get_orgaization_candidates_list",
+        "get_organization_candidates_list/<int:id>/",
+        OrganizationRelatedViewset.as_view({"get": "get_organization_candidates_list"}),
+        name="get_organization_candidates_list",
+    ),
+    path(
+        "get_candidate_organizations_list/",
+        OrganizationRelatedViewset.as_view({"get": "get_candidate_organizations_list"}),
+        name="get_candidate_organizations_list",
     ),
 ]
 

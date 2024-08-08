@@ -7,7 +7,7 @@ MEDIA_MODEL = "lookups.Media"
 
 
 class Candidate(BaseModel):
-    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
     class Meta:
