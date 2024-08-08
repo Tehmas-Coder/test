@@ -49,7 +49,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         if Candidate.objects.filter(
             user_id=request.data["user"],
-            organization_id=request.data["organization"],
+            organization_id=request.data.get("organization", None),
         ).exists():
             return make_error_response(data=request.data, message="Candidate with this organization already exists.")
 
