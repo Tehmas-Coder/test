@@ -14,6 +14,11 @@ router.register(r"candidate-exam", CandidateExamViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path(
+        "get-exams-backlogs-with-candidates/",
+        CandidateExamViewSet.as_view({"get": "get_exam_backlogs_with_candidate_detail"}),
+        name="get_exams_backlogs_with_candidates",
+    ),
 ]
 
 

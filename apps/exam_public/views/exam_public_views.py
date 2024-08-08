@@ -1,32 +1,26 @@
-from django.db.models import F, Prefetch
-from django.forms import model_to_dict
-from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status, viewsets
+from django.db.models import F, Prefetch
 
-from apps.exam_admin.models.exam_admin_models import Exam
-from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
-from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
-from apps.exam_public.models.exam_public_backlog_models import (
-    ExamBacklog,
-    ExamBacklogQuestion,
-    ExamBacklogQuestionCountry,
-    SectionBacklog,
-)
+
+from apps.exam_public.models.exam_public_backlog_models import ExamBacklog, ExamBacklogQuestion, ExamBacklogQuestionCountry
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
-from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
-    ExamBacklogEditSerializer,
-)
-from apps.exam_public.serializers.candiate_serializers import (
-    CandidateDetailSerializer,
-    CandidateSerializer,
-)
+from apps.exam_admin.models.exam_admin_models import Exam
+
+
+from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer, CandidateSerializer
+from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
+    ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.user.models import BaseUser
-from utils.rna_utils import debug_print, make_error_response
+
+
+from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from utils.rna_utils import debug_print, make_error_response, make_success_response, remove_extra_underscore_from_key_names
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -169,3 +163,25 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         ).data
 
         return Response(final_candidate_exam_backlog_question_list[0], status=status.HTTP_200_OK)
+
+    def get_exam_backlogs_with_candidate_detail(self, request):
+        print("PASS")
+        exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
+            ExamBacklog.objects.all().prefetch_related(
+                Prefetch(
+                    "candiate_exam_examsbacklog",
+                    queryset=CandidateExam.objects.all()
+                    .select_related(
+                        "exam_backlog",
+                        "schedule",
+                        "candidate",
+                        "candidate__user",
+                        "candidate__user__country",
+                    )
+                    .prefetch_related("candidate__user__roles"),
+                )
+            ),
+            many=True,
+        ).data
+
+        return Response(exam_backlog_list, status=status.HTTP_200_OK)
