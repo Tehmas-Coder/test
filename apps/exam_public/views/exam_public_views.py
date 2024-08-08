@@ -26,7 +26,7 @@ from apps.exam_public.serializers.candiate_serializers import (
     CandidateSerializer,
 )
 from apps.exam_public.serializers.candidate_exam_answer_serializers import (
-    CandidateExamAnswerEditSerializer,
+    CandidateExamAnswerSerializer,
 )
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
@@ -213,8 +213,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
 
 class CandidateExamAnswerViewset(viewsets.ModelViewSet):
-    queryset = CandidateExamAnswer.objects.all().select_related("exam_backlog_question", "exam_backlog_question_choice")
-    serializer_class = CandidateExamAnswerEditSerializer
+    queryset = (
+        CandidateExamAnswer.objects.all().select_related("exam_backlog_question", "exam_backlog_question_choice").prefetch_related("answer_files")
+    )
+    serializer_class = CandidateExamAnswerSerializer
     pagination_class = None
     http_method_names = ["get", "post"]
 
