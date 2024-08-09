@@ -33,8 +33,8 @@ class CandidateExam(BaseModel):
 
 
 class CandidateExamAnswer(BaseModel):
-    candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE)
-    exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE)
+    candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="exam_answers")
+    exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE, related_name="question_answers")
     exam_backlog_question_choice = models.ForeignKey("exam_public.ExamBacklogQuestionChoice", on_delete=models.CASCADE, null=True, blank=True)
 
     answer_text = models.TextField(null=True, blank=True)

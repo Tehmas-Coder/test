@@ -19,6 +19,9 @@ from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retry
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_tag_serializer import (
     ExamBacklogQuestionTagSerializer,
 )
+from apps.exam_public.serializers.candidate_exam_answer_serializers import (
+    CandidateExamQuestionAnswerSerializer,
+)
 from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
 from apps.lookups.serializers.tag_serializers import TagSerializer
 from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
@@ -40,10 +43,12 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
     retry_hints = serializers.SerializerMethodField()
     medias = ExamBacklogQuestionMediaSerializer(many=True, source="exambacklogquestionmedia_set")
     countries = ExamBacklogQuestionCountrySerializer(many=True, source="exambacklogquestioncountry_set")
+    question_answers = serializers.SerializerMethodField()
 
     class Meta:
         model = ExamBacklogQuestion
         fields = [
+            "question_answers",
             "id",
             "subject_name",
             "education_level_name",
@@ -82,3 +87,9 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
 
     def get_retry_hints(self, obj):
         return ExamBacklogQuestionRetryHintSerializer(obj.backlog_retry_hints.all(), many=True).data
+
+    def get_question_answers(self, obj):
+        # Use context to determine if answers should be included
+        if self.context.get("get_answers", False):
+            return CandidateExamQuestionAnswerSerializer(obj.question_answers.all(), many=True).data
+        return None

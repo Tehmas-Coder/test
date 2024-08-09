@@ -2,7 +2,7 @@ import copy
 import json
 
 from django.db.models import F, Prefetch
-from django.forms import Media
+from django.forms import Media, model_to_dict
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -33,6 +33,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
+    CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.lookups.serializers.media_serializers import (
@@ -209,6 +210,80 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         ).data
 
         return Response(exam_backlog_list, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["get"], url_path="answers")
+    def candidate_exam_answers(self, request, *args, **kwargs):
+        candidate_exam_data = (
+            CandidateExam.objects.filter(id=self.kwargs["pk"])
+            .annotate(country_id=F("candidate__user__country_id"))
+            .values(
+                "country_id",
+                "exam_backlog",
+            )
+            .first()
+        )
+
+        if not candidate_exam_data:
+            return make_error_response(message="The requested candidate exam data is not present")
+
+        exam_question_backlog = list(
+            ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
+        )
+        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
+
+        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
+        is_not_global_exam_question_backlog_ids_list: list = list(
+            ExamBacklogQuestionCountry.objects.filter(
+                exam_backlog_question_id__in=exam_question_backlog_ids,
+                country_id=candidate_exam_data["country_id"],
+            ).values_list("exam_backlog_question", flat=True)
+        )
+        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
+
+        candidate_exam_backlog_question_instance = self.queryset.filter(id=self.kwargs["pk"]).prefetch_related(
+            Prefetch(
+                "exam_backlog__backlog_questions",
+                queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
+                .prefetch_related(
+                    "backlog_tags",
+                    "backlog_choices",
+                    "backlog_choices__exambacklogquestionchoicemedia_set",
+                    "backlog_choices__exambacklogquestionchoicemedia_set__media",
+                    "backlog_attempt_responses",
+                    "backlog_retry_hints",
+                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set",
+                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set__media",
+                    "exambacklogquestionmedia_set",
+                    "exambacklogquestionmedia_set__media",
+                    "exambacklogquestioncountry_set",
+                    "exambacklogquestioncountry_set__country",
+                    Prefetch(
+                        "question_answers",
+                        CandidateExamAnswer.objects.all()
+                        .select_related(
+                            "exam_backlog_question_choice",
+                        )
+                        .prefetch_related(
+                            "answer_files",
+                            "exam_backlog_question_choice__exambacklogquestionchoicemedia_set",
+                            "exam_backlog_question_choice__exambacklogquestionchoicemedia_set__media",
+                        ),
+                    ),
+                )
+                .select_related(
+                    "type",
+                    "measuring_unit",
+                    "difficulty_level",
+                    "section_backlog",
+                    "section_backlog__measuring_unit",
+                    "subsection_backlog",
+                    "subsection_backlog__measuring_unit",
+                ),
+            )
+        )[0]
+
+        data = CandidateExamWithAnswersDetailSerializer(candidate_exam_backlog_question_instance, context={"get_answers": True}).data
+        return Response(data, status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #

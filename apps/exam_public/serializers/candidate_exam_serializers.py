@@ -109,3 +109,32 @@ class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
             "is_global",
             "candiate_exam_examsbacklog",
         ] + get_base_model_fields()
+
+
+class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
+    candidate = CandidateDetailSerializer()
+    exam_backlog = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CandidateExam
+        fields = [
+            "id",
+            "candidate",
+            "exam_backlog",
+            "schedule",
+            "obtained_marks",
+            "date",
+            "start_time",
+            "end_time",
+            "waiting_duration",
+            "extra_duration",
+        ] + get_base_model_fields()
+
+    def __init__(self, *args, **kwargs):
+        get_answers = kwargs.pop("get_answers", False)
+        super().__init__(*args, **kwargs)
+        # Pass get_answers flag in the context for nested serializers
+        self.context["get_answers"] = get_answers
+
+    def get_exam_backlog(self, obj):
+        return ExamBacklogDetailSerializer(obj.exam_backlog, context=self.context).data
