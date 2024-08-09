@@ -216,7 +216,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
 class CandidateExamAnswerViewset(viewsets.ModelViewSet):
     queryset = (
-        CandidateExamAnswer.objects.all().select_related("exam_backlog_question", "exam_backlog_question_choice").prefetch_related("answer_files")
+        CandidateExamAnswer.objects.all()
+        .select_related(
+            "exam_backlog_question",
+            "exam_backlog_question_choice",
+        )
+        .prefetch_related("answer_files")
     )
     serializer_class = CandidateExamAnswerSerializer
     pagination_class = None
