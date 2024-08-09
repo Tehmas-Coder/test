@@ -50,11 +50,12 @@ class UserViewSet(viewsets.ModelViewSet):
         logged_in_user_role_detail = {}
         request_user_role_id = request.data.pop("role")
         request_user_role_name = get_role_name(request_user_role_id)
+
         if logged_in_user.is_superuser:
             pass
         else:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() != "candidate":
+            if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
                 pass
 
         serializer = self.get_serializer(data=request.data)

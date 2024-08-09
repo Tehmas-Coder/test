@@ -26,7 +26,7 @@ class IsAuthenticated(BasePermission):
             if not user_session_data.is_authenticated:
                 return False
 
-            return False
+            return True
         # role_data = model_to_dict(user_session_data.RoleID)
         # role_id = role_data["RoleID"]
 

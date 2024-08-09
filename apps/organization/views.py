@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import F, Prefetch
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,7 +15,7 @@ from apps.organization.serializers import (
     OrganizationWithUsersListSerializer,
 )
 from apps.user.models import BaseUser
-from utils.rna_utils import debug_print
+from utils.rna_utils import debug_print, make_error_response
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -26,6 +26,11 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
     def assign_organization_user(self, request):
+        if OrganizationUser.objects.filter(
+            user_id=request.data["user"],
+        ).exists():
+            return make_error_response(data=request.data, message="User in organization already exists.")
+
         serializer = OrganizationUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -112,3 +117,23 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             filtered_candidate_queryset_response = filtered_candidate_queryset[0]
 
         return Response(filtered_candidate_queryset_response, status=status.HTTP_200_OK)
+
+    def get_user_organizations_list(self, request, *args, **kwargs):
+
+        user_organization_detail = list(
+            (
+                OrganizationUser.objects.filter(user_id=self.request.user.id)
+                .select_related(
+                    "organization",
+                    "organization__country",
+                )
+                .annotate(
+                    organization_name=F("organization__name"),
+                    organization_country=F("organization__country_id"),
+                    organization_country_name=F("organization__country__name"),
+                )
+                .values()
+            )
+        )
+
+        return Response(user_organization_detail, status=status.HTTP_200_OK)

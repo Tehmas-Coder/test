@@ -14,7 +14,7 @@ from rest_framework_simplejwt.views import (
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
 from utils.rna_utils import debug_print, make_error_response, make_success_response
 
-from ..models import BaseUser
+from ..models import BaseUser, Role
 
 
 class RegisterApiView(views.APIView):
@@ -35,11 +35,13 @@ class RegisterApiView(views.APIView):
                 return Response(serializer.data, status=201)
             except Exception as e:
                 return make_error_response(message=f"{str(e)}")
+
         else:
             serializer = UserEditSerializer(data=request.data)
             if serializer.is_valid():
                 candidate_instance = serializer.save()
-                candidate_instance.roles.add(4)
+                role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
+                candidate_instance.roles.add(role_id["id"])
                 if not candidate_instance.send_otp():
                     transaction.set_rollback(True)
                     raise serializers.ValidationError({"error": "Failed to send email, please try again"})

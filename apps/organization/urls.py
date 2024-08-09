@@ -23,6 +23,11 @@ urlpatterns = [
         OrganizationRelatedViewset.as_view({"get": "get_candidate_organizations_list"}),
         name="get_candidate_organizations_list",
     ),
+    path(
+        "get_user_organizations_list/",
+        OrganizationRelatedViewset.as_view({"get": "get_user_organizations_list"}),
+        name="get_user_organizations_list",
+    ),
 ]
 
 urlpatterns += router.urls
