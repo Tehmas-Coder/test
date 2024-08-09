@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.user.filters.user_filter import UserFilter
-from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
@@ -109,29 +108,3 @@ class UserViewSet(viewsets.ModelViewSet):
         for user in users:
             user.delete()
         return Response({"status": "deleted", "message": "Users deleted!"})
-
-
-# {
-#     "model": "user.Resource",
-#     "pk": 12,
-#     "fields": {
-#         "name": "Restore User",
-#         "description": "Restore a deleted user",
-#         "regex": "^/users/[0-9]+/$",
-#         "method": "post",
-#         "created_at": "1995-07-27T00:00:00Z",
-#         "updated_at": "1995-07-27T00:00:00Z"
-#     }
-# },
-# {
-#     "model": "user.Resource",
-#     "pk": 13,
-#     "fields": {
-#         "name": "Bulk Delete Users",
-#         "description": "",
-#         "regex": "^/users/$",
-#         "method": "",
-#         "created_at": "1995-07-27T00:00:00Z",
-#         "updated_at": "1995-07-27T00:00:00Z"
-#     }
-# }

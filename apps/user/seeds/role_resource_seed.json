@@ -28,5 +28,45 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.RoleResource",
+        "pk": 4,
+        "fields": {
+            "role": 1,
+            "resource": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RoleResource",
+        "pk": 5,
+        "fields": {
+            "role": 2,
+            "resource": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RoleResource",
+        "pk": 6,
+        "fields": {
+            "role": 3,
+            "resource": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RoleResource",
+        "pk": 7,
+        "fields": {
+            "role": 4,
+            "resource": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]

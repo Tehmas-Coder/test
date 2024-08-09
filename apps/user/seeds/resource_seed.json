@@ -130,5 +130,29 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 12,
+        "fields": {
+            "name": "Restore User",
+            "description": "Restore a deleted User",
+            "regex": "^/users/[0-9]+/restore/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 13,
+        "fields": {
+            "name": "Bulk Delete all Users",
+            "description": "Bulk delete users",
+            "regex": "^/users/bulk-delete/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
