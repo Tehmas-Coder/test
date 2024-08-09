@@ -14,6 +14,7 @@ from rest_framework_simplejwt.views import (
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
 from utils.rna_utils import debug_print, make_error_response, make_success_response
 
+from apps.exam_public.models.exam_public_models import Candidate
 from ..models import BaseUser, Role
 
 
@@ -45,6 +46,8 @@ class RegisterApiView(views.APIView):
                 if not candidate_instance.send_otp():
                     transaction.set_rollback(True)
                     raise serializers.ValidationError({"error": "Failed to send email, please try again"})
+
+                Candidate.objects.create(user_id=serializer.data["id"])
                 return Response(serializer.data, status=201)
             if "email" in serializer.errors:
                 return Response({"error": "User with this email already exists"}, status=400)
