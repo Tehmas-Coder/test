@@ -1,4 +1,4 @@
-from django.db.models import F, Prefetch
+from django.db.models import Count, F, Prefetch
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -19,7 +19,14 @@ from utils.rna_utils import debug_print, make_error_response
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
-    queryset = Organization.objects.all().select_related("country")
+    queryset = (
+        Organization.objects.all()
+        .select_related("country")
+        .prefetch_related(
+            "organization_users",
+            "organization_candidates",
+        )
+    )
     serializer_class = OrganizationSerializer
     pagination_class = None
     http_method_names = ["get", "post", "patch", "delete"]

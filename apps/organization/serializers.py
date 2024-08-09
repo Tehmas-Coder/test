@@ -13,12 +13,16 @@ from utils.rna_utils import debug_print
 
 
 class OrganizationSerializer(BaseModelSerializer):
+    users_count = serializers.SerializerMethodField()
+    candidates_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
         fields = [
             "id",
             "name",
+            "users_count",
+            "candidates_count",
             "country",
         ] + get_base_model_fields()
 
@@ -29,6 +33,12 @@ class OrganizationSerializer(BaseModelSerializer):
             representation["country"] = CountrySerializer(country).data
 
         return representation
+
+    def get_users_count(self, obj):
+        return obj.organization_users.count()
+
+    def get_candidates_count(self, obj):
+        return obj.organization_candidates.count()
 
 
 class OrganizationUserSerializer(BaseModelSerializer):
