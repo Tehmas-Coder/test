@@ -105,7 +105,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
     def get_candidate_organizations_list(self, request, *args, **kwargs):
 
         filtered_candidate_queryset = CandidateWithOrganizationsSerializer(
-            BaseUser.objects.filter(id=self.request.user.id).prefetch_related("user_candidates"), many=True
+            BaseUser.objects.filter(id=self.request.user.id).prefetch_related("user_candidates", "roles").select_related("country"), many=True
         ).data
         filtered_candidate_queryset_response = {}
         if len(filtered_candidate_queryset):
