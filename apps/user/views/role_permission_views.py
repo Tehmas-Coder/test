@@ -15,7 +15,6 @@ from apps.user.serializers.role_permission_serializers import (
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    permission_classes = (permissions.IsAuthenticated,)
 
 
 # ---------------------------------------------------------------------------- #
@@ -26,4 +25,3 @@ class RoleViewSet(viewsets.ModelViewSet):
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = (permissions.IsAuthenticated,)

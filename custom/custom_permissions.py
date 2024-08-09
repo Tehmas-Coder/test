@@ -16,22 +16,17 @@ class IsAuthenticated(BasePermission):
 
         request_path = request.path.replace("/api", "")
 
-        if str(user_session_data) == "AnonymousUser":
-            if request_method == "post" and request_path == "/users/":
-                return True
-
-        elif user_session_data.is_superuser:
+        if user_session_data.is_superuser:
             return True
 
         else:
-            return True
+            if is_url_public(request_method, request_path):
+                return True
 
-        # if is_url_public(request_method, request_path):
-        #     return True
+            if not user_session_data.is_authenticated:
+                return False
 
-        # if not user_session_data.is_authenticated:
-        #     return False
-
+            return False
         # role_data = model_to_dict(user_session_data.RoleID)
         # role_id = role_data["RoleID"]
 
@@ -39,21 +34,28 @@ class IsAuthenticated(BasePermission):
         # return validate_resources(request_method, request_path, role_id)
 
 
-# def is_url_public(request_method, request_path):
-#     bypassed_api_urls_dict = {
-#         "get": [
-#             "/country/",
-#             "/state/",
-#             "/city/",
-#         ],
-#     }
-#     if request_method in bypassed_api_urls_dict:
-#         for pattern in bypassed_api_urls_dict[request_method]:
-#             # If the request path matches any pattern, return True
-#             if re.match(pattern, request_path):
-#                 return True
+def is_url_public(request_method, request_path):
+    bypassed_api_urls_dict = {
+        "get": [
+            "/countries/",
+            "/timezones/",
+            "/regions/",
+            "/states/",
+            "/languages/",
+            "/currencies/",
+            "/measuring-units/",
+            "/media-types/",
+            "/tags/",
+            # "/countries/(?P<pk>[0-9]+)/",
+        ],
+    }
+    if request_method in bypassed_api_urls_dict:
+        for pattern in bypassed_api_urls_dict[request_method]:
+            # If the request path matches any pattern, return True
+            if re.match(pattern, request_path):
+                return True
 
-#     return False
+    return False
 
 
 # def validate_resources(request_method, request_path, role_id):

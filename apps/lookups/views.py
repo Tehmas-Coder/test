@@ -29,7 +29,6 @@ from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
 class TimezoneViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
     pagination_class = None
-    permission_classes = []
     serializer_class = TimezoneSerializer
     queryset = Timezone.objects.all()
     pagination_class = None
@@ -37,7 +36,6 @@ class TimezoneViewset(viewsets.ModelViewSet):
 
 class RegionViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
-    permission_classes = []
     serializer_class = RegionDetailSerializer
     queryset = Region.objects.all().prefetch_related("countries")
     pagination_class = None
@@ -45,11 +43,8 @@ class RegionViewset(viewsets.ModelViewSet):
 
 class CountryViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
-    permission_classes = []
     serializer_class = CountryDetailSerializer
-    queryset = Country.objects.all().prefetch_related(
-        "timezones", "currencies", "languages", "states", "states__cities"
-    )
+    queryset = Country.objects.all().prefetch_related("timezones", "currencies", "languages", "states", "states__cities")
     pagination_class = None
 
     def get_serializer(self, *args, **kwargs):
@@ -60,7 +55,6 @@ class CountryViewset(viewsets.ModelViewSet):
 
 class StateViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
-    permission_classes = []
     serializer_class = StateSerializer
     queryset = State.objects.all()
     pagination_class = None
@@ -68,7 +62,6 @@ class StateViewset(viewsets.ModelViewSet):
 
 class LanguageViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
-    permission_classes = []
     serializer_class = LanguageSerializer
     queryset = Language.objects.all()
     pagination_class = None
@@ -77,7 +70,6 @@ class LanguageViewset(viewsets.ModelViewSet):
 class CurrencyViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
     pagination_class = None
-    permission_classes = []
     serializer_class = CurrencySerializer
     queryset = Currency.objects.all()
     pagination_class = None
@@ -85,7 +77,6 @@ class CurrencyViewset(viewsets.ModelViewSet):
 
 class MeasuringUnitViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
-    permission_classes = []
     serializer_class = MeasuringUnitSerializer
     pagination_class = None
     queryset = MeasuringUnit.objects.all()
@@ -93,21 +84,12 @@ class MeasuringUnitViewset(viewsets.ModelViewSet):
 
 class MediaTypeViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
-    permission_classes = []
     serializer_class = MediaTypeSerializer
     pagination_class = None
     queryset = MediaType.objects.all()
 
 
 class TagViewset(viewsets.ModelViewSet):
-    permission_classes = []
     serializer_class = TagSerializer
     pagination_class = None
     queryset = Tag.objects.all()
-
-    def get_permissions(self):
-        if self.action not in ["list", "retrieve"]:
-            self.permission_classes = [
-                IsAuthenticated,
-            ]
-        return super().get_permissions()
