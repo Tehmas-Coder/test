@@ -56,6 +56,7 @@ class OrganizationUserDetailSerializer(BaseModelSerializer):
 
 class OrganizationWithUsersListSerializer(BaseModelSerializer):
     organization_users = OrganizationUserDetailSerializer(many=True)
+    organization_users_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
@@ -63,8 +64,12 @@ class OrganizationWithUsersListSerializer(BaseModelSerializer):
             "id",
             "name",
             "country",
+            "organization_users_count",
             "organization_users",
         ] + get_base_model_fields()
+
+    def get_organization_users_count(self, obj):
+        return obj.organization_users.count()
 
 
 class CandidateWthoutOrganizationDetailSerializer(BaseModelSerializer):
@@ -81,6 +86,7 @@ class CandidateWthoutOrganizationDetailSerializer(BaseModelSerializer):
 
 class OrganizationWithCandidateListSerializer(BaseModelSerializer):
     organization_candidates = CandidateWthoutOrganizationDetailSerializer(many=True)
+    organization_candidates_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
@@ -88,5 +94,9 @@ class OrganizationWithCandidateListSerializer(BaseModelSerializer):
             "id",
             "name",
             "country",
+            "organization_candidates_count",
             "organization_candidates",
         ] + get_base_model_fields()
+
+    def get_organization_candidates_count(self, obj):
+        return obj.organization_candidates.count()
