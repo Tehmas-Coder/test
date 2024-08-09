@@ -13,6 +13,8 @@ from apps.user.serializers.user_serializers import (
 from apps.utils import get_role_name, get_user_role_detail
 from utils.rna_utils import debug_print, make_error_response
 
+from apps.exam_public.models.exam_public_models import Candidate
+from apps.organization.models.organization_models import Organization, OrganizationUser
 from ..models import BaseUser, Role
 
 # ---------------------------------------------------------------------------- #
@@ -52,10 +54,16 @@ class UserViewSet(viewsets.ModelViewSet):
         request_user_role_name = get_role_name(request_user_role_id)
 
         if logged_in_user.is_superuser:
+            if request_user_role_name.lower() == ["candidate"]:
+                Candidate.objects.create(user_id=serializer.data["id"])
             pass
+
         else:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
             if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
+                if request_user_role_name.lower() == ["candidate"]:
+                    user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
+                    Candidate.objects.create(user_id=serializer.data["id"], organization_id=user_organization_id["organization"])
                 pass
 
         serializer = self.get_serializer(data=request.data)
