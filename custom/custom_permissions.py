@@ -6,6 +6,7 @@ from django.forms.models import model_to_dict
 from numpy import True_
 from rest_framework.permissions import BasePermission
 
+from apps.user.models import Resource, RoleResource, UserRole
 from utils.rna_utils import debug_print
 
 
@@ -26,12 +27,12 @@ class IsAuthenticated(BasePermission):
             if not user_session_data.is_authenticated:
                 return False
 
-            return True
-        # role_data = model_to_dict(user_session_data.RoleID)
-        # role_id = role_data["RoleID"]
+        logged_in_user_id = user_session_data.id
+        user_role = UserRole.objects.filter(user_id=logged_in_user_id).values().first()
+        debug_print(user_role)
+        role_id = user_role["role_id"]
 
-        # return True if role_data["RoleName"].lower() == "admin" else
-        # return validate_resources(request_method, request_path, role_id)
+        return validate_resources(request_method, request_path, role_id)
 
 
 def is_url_public(request_method, request_path):
@@ -58,39 +59,36 @@ def is_url_public(request_method, request_path):
     return False
 
 
-# def validate_resources(request_method, request_path, role_id):
-#     regex_pattern = string_url_to_regex(request_path)
-#     resource_id = 0
+def validate_resources(request_method, request_path, role_id):
+    regex_pattern = string_url_to_regex(request_path)
+    resource_id = 0
 
-#     try:
-#         resource_dict = model_to_dict(Resource.objects.get(ResourceRegex__exact=regex_pattern, Method=request_method))
+    try:
+        resource_dict = model_to_dict(Resource.objects.get(regex__exact=regex_pattern, method=request_method))
+        resource_id = resource_dict["id"]
+    except:
+        print(f"No Resource ({request_method} => {request_path}) found on server.")
+        return False
 
-#         # print(json.dumps(resource_dict, indent=4, default=str))
-#         resource_id = resource_dict["ResourceID"]
+    try:
+        RoleResource.objects.get(role_id=role_id, resource_id=resource_id)
+    except:
+        print(f"RoleID ({role_id}) id un-authorized for ({request_method} => {request_path}) request.")
+        return False
 
-#     except:
-#         print(f"No Resource ({request_method} => {request_path}) found on server.")
-#         return False
-
-#     try:
-#         RoleResource.objects.get(RoleID=role_id, ResourceID=resource_id)
-#     except:
-#         print(f"RoleID ({role_id}) id un-authorized for ({request_method} => {request_path}) request.")
-#         return False
-
-#     return True
+    return True
 
 
-# def string_url_to_regex(string_url):
+def string_url_to_regex(string_url):
 
-#     # Escape special characters in the input string
-#     escaped_string = re.escape(string_url)
+    # Escape special characters in the input string
+    escaped_string = re.escape(string_url)
 
-#     # Replace the placeholder for the number with the regex notation [0-9]+
-#     regex_pattern = re.sub(r"\/[0-9]+\/", r"\/[0-9]+\/", escaped_string)
+    # Replace the placeholder for the number with the regex notation [0-9]+
+    regex_pattern = re.sub(r"\/[0-9]+\/", r"\/[0-9]+\/", escaped_string)
 
-#     # Add anchors to match the start and end of the string
-#     regex_pattern = f"^{regex_pattern}$"
-#     regex_pattern = regex_pattern.replace("\\", "")
+    # Add anchors to match the start and end of the string
+    regex_pattern = f"^{regex_pattern}$"
+    regex_pattern = regex_pattern.replace("\\", "")
 
-#     return regex_pattern
+    return regex_pattern

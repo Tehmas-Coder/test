@@ -4,6 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from apps.exam_public.models.exam_public_models import Candidate
+from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.user.filters.user_filter import UserFilter
 from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
@@ -13,8 +15,6 @@ from apps.user.serializers.user_serializers import (
 from apps.utils import get_role_name, get_user_role_detail
 from utils.rna_utils import debug_print, make_error_response
 
-from apps.exam_public.models.exam_public_models import Candidate
-from apps.organization.models.organization_models import Organization, OrganizationUser
 from ..models import BaseUser, Role
 
 # ---------------------------------------------------------------------------- #
@@ -28,6 +28,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_class = UserFilter
     USER_NOT_FOUND = {"error": "User not found"}
     USER_STATUSES = ["active", "inactive", "deleted"]
+    http_method_names = ["get", "post", "patch", "delete"]
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -92,7 +93,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], url_path="restore")
     def restore(self, request, *args, **kwargs):
         instance = self.get_object(id=kwargs.get("pk"))
         if not instance:
@@ -108,3 +109,29 @@ class UserViewSet(viewsets.ModelViewSet):
         for user in users:
             user.delete()
         return Response({"status": "deleted", "message": "Users deleted!"})
+
+
+# {
+#     "model": "user.Resource",
+#     "pk": 12,
+#     "fields": {
+#         "name": "Restore User",
+#         "description": "Restore a deleted user",
+#         "regex": "^/users/[0-9]+/$",
+#         "method": "post",
+#         "created_at": "1995-07-27T00:00:00Z",
+#         "updated_at": "1995-07-27T00:00:00Z"
+#     }
+# },
+# {
+#     "model": "user.Resource",
+#     "pk": 13,
+#     "fields": {
+#         "name": "Bulk Delete Users",
+#         "description": "",
+#         "regex": "^/users/$",
+#         "method": "",
+#         "created_at": "1995-07-27T00:00:00Z",
+#         "updated_at": "1995-07-27T00:00:00Z"
+#     }
+# }
