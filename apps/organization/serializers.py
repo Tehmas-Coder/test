@@ -1,9 +1,13 @@
 from rest_framework import serializers
 
+from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.user.models import BaseUser
-from apps.user.serializers.user_serializers import UserEditSerializer
+from apps.user.serializers.user_serializers import (
+    UserDetailSerializer,
+    UserEditSerializer,
+)
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
 
@@ -35,4 +39,54 @@ class OrganizationUserSerializer(BaseModelSerializer):
             "id",
             "organization",
             "user",
+        ] + get_base_model_fields()
+
+
+class OrganizationUserDetailSerializer(BaseModelSerializer):
+    user = UserEditSerializer()
+
+    class Meta:
+        model = OrganizationUser
+        fields = [
+            "id",
+            "organization",
+            "user",
+        ] + get_base_model_fields()
+
+
+class OrganizationWithUsersListSerializer(BaseModelSerializer):
+    organization_users = OrganizationUserDetailSerializer(many=True)
+
+    class Meta:
+        model = Organization
+        fields = [
+            "id",
+            "name",
+            "country",
+            "organization_users",
+        ] + get_base_model_fields()
+
+
+class CandidateWthoutOrganizationDetailSerializer(BaseModelSerializer):
+    user = UserDetailSerializer(required=True)
+
+    class Meta:
+        model = Candidate
+        fields = [
+            "id",
+            "user",
+            "organization",
+        ] + get_base_model_fields()
+
+
+class OrganizationWithCandidateListSerializer(BaseModelSerializer):
+    organization_candidates = CandidateWthoutOrganizationDetailSerializer(many=True)
+
+    class Meta:
+        model = Organization
+        fields = [
+            "id",
+            "name",
+            "country",
+            "organization_candidates",
         ] + get_base_model_fields()

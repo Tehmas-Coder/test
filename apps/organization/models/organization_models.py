@@ -14,8 +14,8 @@ class Organization(BaseModel):
 
 class OrganizationUser(BaseModel):
 
-    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
-    organization = models.ForeignKey("Organization", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_organizations")
+    organization = models.ForeignKey("Organization", on_delete=models.CASCADE, related_name="organization_users")
 
     class Meta:
         app_label = "organization"
