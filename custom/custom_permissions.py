@@ -29,7 +29,7 @@ class IsAuthenticated(BasePermission):
 
         logged_in_user_id = user_session_data.id
         user_role = UserRole.objects.filter(user_id=logged_in_user_id).values().first()
-        debug_print(user_role)
+
         role_id = user_role["role_id"]
 
         return validate_resources(request_method, request_path, role_id)

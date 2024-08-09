@@ -54,19 +54,6 @@ class UserViewSet(viewsets.ModelViewSet):
         request_user_role_id = request.data.pop("role")
         request_user_role_name = get_role_name(request_user_role_id)
 
-        if logged_in_user.is_superuser:
-            if request_user_role_name.lower() == ["candidate"]:
-                Candidate.objects.create(user_id=serializer.data["id"])
-            pass
-
-        else:
-            logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
-                if request_user_role_name.lower() == ["candidate"]:
-                    user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
-                    Candidate.objects.create(user_id=serializer.data["id"], organization_id=user_organization_id["organization"])
-                pass
-
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user_instance = serializer.save()
@@ -76,6 +63,19 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=201)
         if "email" in serializer.errors:
             return Response({"error": "User with this email already exists"}, status=400)
+
+        if logged_in_user.is_superuser:
+            if request_user_role_name.lower() == "candidate":
+                Candidate.objects.create(user_id=serializer.data["id"])
+
+        else:
+            logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
+            if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
+                if request_user_role_name.lower() == "candidate":
+                    user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
+                    debug_print(user_organization_id)
+                    Candidate.objects.create(user_id=serializer.data["id"], organization_id=user_organization_id["organization"])
+
         return Response(serializer.errors, status=400)
 
     def retrieve(self, request, *args, **kwargs):
