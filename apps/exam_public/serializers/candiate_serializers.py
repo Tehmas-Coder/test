@@ -40,11 +40,23 @@ class CandidateDetailSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
+class CandidateWithOrganizationDetailSerializer(BaseModelSerializer):
+    organization = OrganizationSerializer()
+
+    class Meta:
+        model = Candidate
+        fields = [
+            "id",
+            "user",
+            "organization",
+        ] + get_base_model_fields()
+
+
 class CandidateWithOrganizationsSerializer(BaseModelSerializer):
 
     roles = RoleSerializer(many=True, read_only=True)
     country = CountrySerializer(read_only=True)
-    user_candidates = CandidateSerializer(many=True)
+    user_candidates = CandidateWithOrganizationDetailSerializer(many=True)
 
     class Meta:
         model = BaseUser
