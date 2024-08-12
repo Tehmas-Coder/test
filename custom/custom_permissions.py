@@ -27,12 +27,13 @@ class IsAuthenticated(BasePermission):
             if not user_session_data.is_authenticated:
                 return False
 
-        logged_in_user_id = user_session_data.id
-        user_role = UserRole.objects.filter(user_id=logged_in_user_id).values().first()
+        return True
+        # logged_in_user_id = user_session_data.id
+        # user_role = UserRole.objects.filter(user_id=logged_in_user_id).values().first()
 
-        role_id = user_role["role_id"]
+        # role_id = user_role["role_id"]
 
-        return validate_resources(request_method, request_path, role_id)
+        # return validate_resources(request_method, request_path, role_id)
 
 
 def is_url_public(request_method, request_path):
