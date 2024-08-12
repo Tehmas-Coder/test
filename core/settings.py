@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     # * System
     "apps.lookups",
     "apps.user",
+    "apps.organization",
     "apps.questionbank",
     "apps.exam_admin",
     "apps.exam_public",
@@ -159,9 +160,10 @@ if DEBUG:
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
+    # "DEFAULT_PERMISSION_CLASSES": [
+    #     "rest_framework.permissions.IsAuthenticated",
+    # ],
+    "DEFAULT_PERMISSION_CLASSES": ["custom.custom_permissions.IsAuthenticated"],
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
@@ -261,4 +263,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "questionbank" / "seeds",
     BASE_DIR / "apps" / "exam_admin" / "seeds",
     BASE_DIR / "apps" / "exam_public" / "seeds",
+    BASE_DIR / "apps" / "organization" / "seeds",
 ]

@@ -6,4 +6,5 @@ urlpatterns = [
     path("", include("apps.questionbank.urls")),
     path("", include("apps.exam_admin.urls")),
     path("", include("apps.exam_public.urls")),
+    path("", include("apps.organization.urls")),
 ]

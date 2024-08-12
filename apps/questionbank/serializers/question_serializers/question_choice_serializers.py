@@ -1,12 +1,13 @@
+from django.db import transaction
+from rest_framework import serializers
+
+from apps.lookups.serializers.media_serializers import MediaSerializer
+from apps.questionbank.models import QuestionChoice
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
     QuestionChoiceMediaBulkCreateSerializer,
     QuestionChoiceMediaDetailSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.questionbank.models import QuestionChoice
-from apps.lookups.serializers.media_serializers import MediaSerializer
-from django.db import transaction
-from rest_framework import serializers
 from utils.rna_utils import debug_print
 
 

@@ -1,11 +1,12 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from apps.user.models import BaseUser
-from apps.user.serializers.role_serializers import RoleSerializer
-from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print
-from apps.lookups.serializers.country_serializers import CountrySerializer
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from apps.lookups.serializers.country_serializers import CountrySerializer
+from apps.user.models import BaseUser
+from apps.user.serializers.role_permission_serializers import RoleSerializer
+from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import color_print
 
 
 class UserDetailSerializer(BaseModelSerializer):
@@ -26,7 +27,6 @@ class UserDetailSerializer(BaseModelSerializer):
             "phone",
             "otp",
             "is_verified",
-            "is_staff",
             "is_superuser",
             "date_joined",
             "last_login",
@@ -43,7 +43,6 @@ class UserDetailSerializer(BaseModelSerializer):
             "country",
             "phone",
             "is_verified",
-            "is_staff",
             "is_superuser",
             "date_joined",
             "last_login",
@@ -68,7 +67,6 @@ class UserEditSerializer(BaseModelSerializer):
             "phone",
             "otp",
             "is_verified",
-            "is_staff",
             "is_superuser",
             "date_joined",
             "last_login",
@@ -81,7 +79,6 @@ class UserEditSerializer(BaseModelSerializer):
             "created_at",
             "is_verified",
             "updated_at",
-            "is_staff",
             "is_superuser",
             "date_joined",
             "last_login",
@@ -93,12 +90,6 @@ class UserEditSerializer(BaseModelSerializer):
         user = BaseUser.objects.create(**validated_data)
         user.set_password(validated_data["password"])
         user.save()
-
-        if not user.send_otp():
-            transaction.set_rollback(True)
-            raise serializers.ValidationError(
-                {"error": "Failed to send email, please try again"}
-            )
 
         # color_print("OTP sent to email", "green")
         return user
@@ -121,7 +112,6 @@ class LoginSerializer(TokenObtainPairSerializer):
         token["username"] = user.email
         token["full_name"] = user.full_name
         token["email"] = user.email
-        token["is_staff"] = user.is_staff
         token["is_superuser"] = user.is_superuser
 
         return token

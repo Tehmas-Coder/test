@@ -40,7 +40,7 @@ class ExamBacklogQuestion(BaseModel):
     question = models.ForeignKey("questionbank.Question", on_delete=models.DO_NOTHING)
     type = models.ForeignKey("questionbank.QuestionType", on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=255)
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
     sequence = models.PositiveIntegerField(default=1)

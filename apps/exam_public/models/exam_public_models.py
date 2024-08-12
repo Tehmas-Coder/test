@@ -1,12 +1,14 @@
 from django.db import models
 
+from apps.organization.models.organization_models import Organization
 from core.models import BaseModel
 
 MEDIA_MODEL = "lookups.Media"
 
 
 class Candidate(BaseModel):
-    user = models.OneToOneField("user.BaseUser", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
+    organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
     class Meta:
         app_label = "exam_public"
@@ -15,7 +17,7 @@ class Candidate(BaseModel):
 
 class CandidateExam(BaseModel):
     candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE)
-    exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE)
+    exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candiate_exam_examsbacklog")
     schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE)
     obtained_marks = models.PositiveIntegerField(default=0)
 
@@ -31,11 +33,11 @@ class CandidateExam(BaseModel):
 
 
 class CandidateExamAnswer(BaseModel):
-    candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE)
-    exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE)
-    exam_backlog_question_choice = models.ForeignKey("exam_public.ExamBacklogQuestionChoice", on_delete=models.CASCADE, null=True)
+    candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="exam_answers")
+    exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE, related_name="question_answers")
+    exam_backlog_question_choice = models.ForeignKey("exam_public.ExamBacklogQuestionChoice", on_delete=models.CASCADE, null=True, blank=True)
 
-    answer_text = models.TextField(blank=True)
+    answer_text = models.TextField(null=True, blank=True)
     answer_files = models.ManyToManyField(MEDIA_MODEL, through="exam_public.CandidateExamAnswerMedia")
 
     score = models.FloatField(default=0)

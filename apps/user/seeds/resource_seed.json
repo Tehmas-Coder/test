@@ -1,0 +1,158 @@
+[
+    {
+        "model": "user.Resource",
+        "pk": 1,
+        "fields": {
+            "name": "Register User",
+            "description": "Signup a new user account",
+            "regex": "^/register/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 2,
+        "fields": {
+            "name": "Login User",
+            "description": "Signin an existing user account",
+            "regex": "^/login/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 3,
+        "fields": {
+            "name": "Refresh Token",
+            "description": "Refresh a token",
+            "regex": "^/refresh/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 4,
+        "fields": {
+            "name": "Logout User",
+            "description": "Logout a signed in user",
+            "regex": "^/logout/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 5,
+        "fields": {
+            "name": "Verify OTP",
+            "description": "Verify a user OTP",
+            "regex": "^/verify-otp/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 6,
+        "fields": {
+            "name": "Resend OTP",
+            "description": "Resend an OTP to a user email",
+            "regex": "^/resend-otp/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 7,
+        "fields": {
+            "name": "Create User",
+            "description": "Create a new user",
+            "regex": "^/users/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 8,
+        "fields": {
+            "name": "Get one User",
+            "description": "Get one user",
+            "regex": "^/users/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 9,
+        "fields": {
+            "name": "Get All Users",
+            "description": "Get all users",
+            "regex": "^/users/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 10,
+        "fields": {
+            "name": "Update User",
+            "description": "Edit a single user",
+            "regex": "^/users/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 11,
+        "fields": {
+            "name": "Delete User",
+            "description": "Delete a User",
+            "regex": "^/users/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 12,
+        "fields": {
+            "name": "Restore User",
+            "description": "Restore a deleted User",
+            "regex": "^/users/[0-9]+/restore/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 13,
+        "fields": {
+            "name": "Bulk Delete all Users",
+            "description": "Bulk delete users",
+            "regex": "^/users/bulk-delete/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

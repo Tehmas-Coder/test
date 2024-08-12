@@ -1,32 +1,51 @@
+import copy
+import json
+
 from django.db.models import F, Prefetch
-from django.forms import model_to_dict
+from django.forms import Media, model_to_dict
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
     ExamBacklogQuestionCountry,
-    SectionBacklog,
 )
-from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
-from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
-    ExamBacklogEditSerializer,
+from apps.exam_public.models.exam_public_models import (
+    Candidate,
+    CandidateExam,
+    CandidateExamAnswer,
+    CandidateExamAnswerMedia,
 )
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
     CandidateSerializer,
 )
+from apps.exam_public.serializers.candidate_exam_answer_serializers import (
+    CandidateExamAnswerSerializer,
+)
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
+    CandidateExamWithAnswersDetailSerializer,
+    ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.user.models import BaseUser
-from utils.rna_utils import debug_print
+from apps.lookups.serializers.media_serializers import (
+    MediaBulkCreateSerializer,
+    MediaSerializer,
+)
+from utils.rna_utils import (
+    debug_print,
+    make_error_response,
+    make_success_response,
+    remove_extra_underscore_from_key_names,
+)
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -34,8 +53,11 @@ from utils.rna_utils import debug_print
 
 
 class CandidateViewSet(viewsets.ModelViewSet):
-    queryset = Candidate.objects.all().select_related("user", "user__country")
+    queryset = (
+        Candidate.objects.all().select_related("user", "user__country", "organization", "organization__country").prefetch_related("user__roles")
+    )
     serializer_class = CandidateSerializer
+    filter_backends = [CandidateFilterBackend]
     pagination_class = None
     http_method_names = ["get", "post", "patch"]
 
@@ -45,6 +67,12 @@ class CandidateViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
+        if Candidate.objects.filter(
+            user_id=request.data["user"],
+            organization_id=request.data.get("organization", None),
+        ).exists():
+            return make_error_response(data=request.data, message="Candidate with this organization already exists.")
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = serializer.save()
@@ -110,6 +138,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             .first()
         )
 
+        if not candidate_exam_data:
+            return make_error_response(message="The requested candidate exam data is not present")
+
         exam_question_backlog = list(
             ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
         )
@@ -158,3 +189,177 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         ).data
 
         return Response(final_candidate_exam_backlog_question_list[0], status=status.HTTP_200_OK)
+
+    def get_exam_backlogs_with_candidate_detail(self, request):
+        exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
+            ExamBacklog.objects.all().prefetch_related(
+                Prefetch(
+                    "candiate_exam_examsbacklog",
+                    queryset=CandidateExam.objects.all()
+                    .select_related(
+                        "exam_backlog",
+                        "schedule",
+                        "candidate",
+                        "candidate__user",
+                        "candidate__user__country",
+                    )
+                    .prefetch_related("candidate__user__roles"),
+                )
+            ),
+            many=True,
+        ).data
+
+        return Response(exam_backlog_list, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["get"], url_path="answers")
+    def candidate_exam_answers(self, request, *args, **kwargs):
+        candidate_exam_data = (
+            CandidateExam.objects.filter(id=self.kwargs["pk"])
+            .annotate(country_id=F("candidate__user__country_id"))
+            .values(
+                "country_id",
+                "exam_backlog",
+            )
+            .first()
+        )
+
+        if not candidate_exam_data:
+            return make_error_response(message="The requested candidate exam data is not present")
+
+        exam_question_backlog = list(
+            ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
+        )
+        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
+
+        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
+        is_not_global_exam_question_backlog_ids_list: list = list(
+            ExamBacklogQuestionCountry.objects.filter(
+                exam_backlog_question_id__in=exam_question_backlog_ids,
+                country_id=candidate_exam_data["country_id"],
+            ).values_list("exam_backlog_question", flat=True)
+        )
+        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
+
+        candidate_exam_backlog_question_instance = self.queryset.filter(id=self.kwargs["pk"]).prefetch_related(
+            Prefetch(
+                "exam_backlog__backlog_questions",
+                queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
+                .prefetch_related(
+                    "backlog_tags",
+                    "backlog_choices",
+                    "backlog_choices__exambacklogquestionchoicemedia_set",
+                    "backlog_choices__exambacklogquestionchoicemedia_set__media",
+                    "backlog_attempt_responses",
+                    "backlog_retry_hints",
+                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set",
+                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set__media",
+                    "exambacklogquestionmedia_set",
+                    "exambacklogquestionmedia_set__media",
+                    "exambacklogquestioncountry_set",
+                    "exambacklogquestioncountry_set__country",
+                    Prefetch(
+                        "question_answers",
+                        CandidateExamAnswer.objects.all()
+                        .select_related(
+                            "exam_backlog_question_choice",
+                        )
+                        .prefetch_related(
+                            "answer_files",
+                            "exam_backlog_question_choice__exambacklogquestionchoicemedia_set",
+                            "exam_backlog_question_choice__exambacklogquestionchoicemedia_set__media",
+                        ),
+                    ),
+                )
+                .select_related(
+                    "type",
+                    "measuring_unit",
+                    "difficulty_level",
+                    "section_backlog",
+                    "section_backlog__measuring_unit",
+                    "subsection_backlog",
+                    "subsection_backlog__measuring_unit",
+                ),
+            )
+        )[0]
+
+        data = CandidateExamWithAnswersDetailSerializer(candidate_exam_backlog_question_instance, context={"get_answers": True}).data
+        return Response(data, status=status.HTTP_200_OK)
+
+
+# --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
+
+
+class CandidateExamAnswerViewset(viewsets.ModelViewSet):
+    queryset = (
+        CandidateExamAnswer.objects.all()
+        .select_related(
+            "exam_backlog_question",
+            "exam_backlog_question_choice",
+        )
+        .prefetch_related("answer_files")
+    )
+    serializer_class = CandidateExamAnswerSerializer
+    pagination_class = None
+    http_method_names = ["get", "post"]
+
+    def create(self, request, *args, **kwargs):
+        request_data = request.data["data"]
+        request_data = json.loads(request_data)
+
+        # Extract media for answers
+        answer_media_hashmap = {}
+        for answer in request_data:
+            exam_backlog_question_id = answer["exam_backlog_question"]
+            answer_files = answer.pop("answer_files", [])
+
+            if len(answer_files):
+                if exam_backlog_question_id not in answer_media_hashmap:
+                    answer_media_hashmap[exam_backlog_question_id] = {}
+                answer_media_hashmap[exam_backlog_question_id] = {"exam_backlog_question_id": exam_backlog_question_id, "files": []}
+                for key in answer_files:
+                    file = request.FILES.get(key)
+                    if file:
+                        answer_media_hashmap[exam_backlog_question_id]["files"].append(file)
+
+        CandidateExamAnswer.objects.bulk_create(
+            [
+                CandidateExamAnswer(
+                    candidate_exam_id=one_dict["candidate_exam"],
+                    exam_backlog_question_id=one_dict["exam_backlog_question"],
+                    exam_backlog_question_choice_id=one_dict["exam_backlog_question_choice"],
+                    answer_text=one_dict["answer_text"],
+                )
+                for one_dict in request_data
+            ]
+        )
+
+        newly_created_queryset = list(
+            CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
+        )
+
+        for one_dict in newly_created_queryset:
+            candidate_exam_answer_id = one_dict[0]
+            exam_backlog_question_id = one_dict[1]
+            if exam_backlog_question_id in answer_media_hashmap:
+                answer_media_hashmap[exam_backlog_question_id]["candidate_exam_answer"] = candidate_exam_answer_id
+                answer_media_hashmap
+
+        for key, value in answer_media_hashmap.items():
+            media_data = {"files": value["files"]}
+            media_serializer = MediaBulkCreateSerializer(data=media_data)
+            media_serializer.is_valid(raise_exception=True)
+            media_instances = media_serializer.save()
+            value.pop("files")
+            value["media_ids"] = [one_instance.id for one_instance in media_instances]
+
+        CandidateExamAnswerMedia.objects.bulk_create(
+            [
+                CandidateExamAnswerMedia(
+                    candidate_exam_answer_id=value["candidate_exam_answer"],
+                    media_id=one_media_id,
+                )
+                for key, value in answer_media_hashmap.items()
+                for one_media_id in value["media_ids"]
+            ]
+        )
+        return Response(status=status.HTTP_201_CREATED)
