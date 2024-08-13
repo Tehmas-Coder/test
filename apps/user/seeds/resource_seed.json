@@ -1786,5 +1786,41 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 150,
+        "fields": {
+            "name": "Add Candidate Exam Answer",
+            "description": "Add One Candidate Exam Answer",
+            "regex": "^/candidate-exam-answer/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 151,
+        "fields": {
+            "name": "Get Candidate Exam Answer",
+            "description": "Get One Candidate Exam Answer",
+            "regex": "^/candidate-exam-answer/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 152,
+        "fields": {
+            "name": "Get Candidate Exam Answers",
+            "description": "Get All Candidate Exam Answers",
+            "regex": "^/candidate-exam-answer/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
