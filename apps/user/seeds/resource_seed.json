@@ -154,5 +154,1169 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 14,
+        "fields": {
+            "name": "Add Role",
+            "description": "Add One Role",
+            "regex": "^/roles/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 15,
+        "fields": {
+            "name": "Get Role",
+            "description": "Get One Role",
+            "regex": "^/roles/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 16,
+        "fields": {
+            "name": "Get Roles",
+            "description": "Get All Roles",
+            "regex": "^/roles/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 17,
+        "fields": {
+            "name": "Update Role",
+            "description": "Update One Role",
+            "regex": "^/roles/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 18,
+        "fields": {
+            "name": "Delete Role",
+            "description": "Delete One Role",
+            "regex": "^/roles/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 19,
+        "fields": {
+            "name": "Add Permission",
+            "description": "Add One Permission",
+            "regex": "^/permissions/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 20,
+        "fields": {
+            "name": "Get Permission",
+            "description": "Get One Permission",
+            "regex": "^/permissions/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 21,
+        "fields": {
+            "name": "Get Permissions",
+            "description": "Get All Permissions",
+            "regex": "^/permissions/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 22,
+        "fields": {
+            "name": "Update Permission",
+            "description": "Update One Permission",
+            "regex": "^/permissions/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 23,
+        "fields": {
+            "name": "Delete Permission",
+            "description": "Delete One Permission",
+            "regex": "^/permissions/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 24,
+        "fields": {
+            "name": "Add Organization",
+            "description": "Add One Organization",
+            "regex": "^/organizations/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 25,
+        "fields": {
+            "name": "Get Organization",
+            "description": "Get One Organization",
+            "regex": "^/organizations/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 26,
+        "fields": {
+            "name": "Get Organizations",
+            "description": "Get All Organizations",
+            "regex": "^/organizations/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 27,
+        "fields": {
+            "name": "Update Organization",
+            "description": "Update One Organization",
+            "regex": "^/organizations/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 28,
+        "fields": {
+            "name": "Delete Organization",
+            "description": "Delete One Organization",
+            "regex": "^/organizations/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 29,
+        "fields": {
+            "name": "Get Organization Users List",
+            "description": "Get list of all the users with in an Organization",
+            "regex": "^/get-organization-users-list/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 30,
+        "fields": {
+            "name": "Get Organization Candidates List",
+            "description": "Get list of all the candidates with in an Organization",
+            "regex": "^/get-organization-candidates-list/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 31,
+        "fields": {
+            "name": "Get Candidate Organizations List",
+            "description": "Get list of all the organizations of a Candidate",
+            "regex": "^/get-candidate-organizations-list/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 32,
+        "fields": {
+            "name": "Get Candidate Organizations List",
+            "description": "Get list of all the organizations of a User",
+            "regex": "^/get-user-organizations-list/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 60,
+        "fields": {
+            "name": "Get Country",
+            "description": "Get One Country",
+            "regex": "^/countries/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 33,
+        "fields": {
+            "name": "Get Countries",
+            "description": "Get All Countries",
+            "regex": "^/countries/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 34,
+        "fields": {
+            "name": "Get Timezone",
+            "description": "Get One Timezone",
+            "regex": "^/timezones/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 35,
+        "fields": {
+            "name": "Get Timezones",
+            "description": "Get All Timezones",
+            "regex": "^/timezones/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 36,
+        "fields": {
+            "name": "Get Region",
+            "description": "Get One Region",
+            "regex": "^/regions/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 37,
+        "fields": {
+            "name": "Get Regions",
+            "description": "Get All Regions",
+            "regex": "^/regions/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 38,
+        "fields": {
+            "name": "Get State",
+            "description": "Get One State",
+            "regex": "^/states/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 39,
+        "fields": {
+            "name": "Get States",
+            "description": "Get All States",
+            "regex": "^/states/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 40,
+        "fields": {
+            "name": "Get Language",
+            "description": "Get One Language",
+            "regex": "^/languages/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 41,
+        "fields": {
+            "name": "Get Languages",
+            "description": "Get All Languages",
+            "regex": "^/languages/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 42,
+        "fields": {
+            "name": "Get Currency",
+            "description": "Get One Currency",
+            "regex": "^/currencies/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 43,
+        "fields": {
+            "name": "Get Currencies",
+            "description": "Get All Currencies",
+            "regex": "^/currencies/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 44,
+        "fields": {
+            "name": "Get Measuring Unit",
+            "description": "Get One Measuring Unit",
+            "regex": "^/measuring-units/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 45,
+        "fields": {
+            "name": "Get Measuring Units",
+            "description": "Get All Measuring Units",
+            "regex": "^/measuring-units/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 46,
+        "fields": {
+            "name": "Get Media Type",
+            "description": "Get One Media Type",
+            "regex": "^/media-types/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 47,
+        "fields": {
+            "name": "Get Media Types",
+            "description": "Get All Media Types",
+            "regex": "^/media-types/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 48,
+        "fields": {
+            "name": "Add Tag",
+            "description": "Add One Tag",
+            "regex": "^/tags/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 49,
+        "fields": {
+            "name": "Get Tag",
+            "description": "Get One Tag",
+            "regex": "^/tags/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 50,
+        "fields": {
+            "name": "Get Tags",
+            "description": "Get All Tags",
+            "regex": "^/tags/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 51,
+        "fields": {
+            "name": "Update Tag",
+            "description": "Update One Tag",
+            "regex": "^/tags/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 52,
+        "fields": {
+            "name": "Delete Tag",
+            "description": "Delete One Tag",
+            "regex": "^/tags/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 53,
+        "fields": {
+            "name": "Get Question Type",
+            "description": "Get One Question Type",
+            "regex": "^/question-types/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 54,
+        "fields": {
+            "name": "Get Question Types",
+            "description": "Get All Question Types",
+            "regex": "^/question-types/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 55,
+        "fields": {
+            "name": "Add Difficulty Level",
+            "description": "Add One Difficulty Level",
+            "regex": "^/difficulty-levels/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 56,
+        "fields": {
+            "name": "Get Difficulty Level",
+            "description": "Get One Difficulty Level",
+            "regex": "^/difficulty-levels/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 57,
+        "fields": {
+            "name": "Get Difficulty Levels",
+            "description": "Get All Difficulty Levels",
+            "regex": "^/difficulty-levels/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 58,
+        "fields": {
+            "name": "Update Difficulty Level",
+            "description": "Update One Difficulty Level",
+            "regex": "^/difficulty-levels/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 59,
+        "fields": {
+            "name": "Delete Difficulty Level",
+            "description": "Delete One Difficulty Level",
+            "regex": "^/difficulty-levels/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 61,
+        "fields": {
+            "name": "Add Subject",
+            "description": "Add One Subject",
+            "regex": "^/subjects/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 62,
+        "fields": {
+            "name": "Get Subject",
+            "description": "Get One Subject",
+            "regex": "^/subjects/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 63,
+        "fields": {
+            "name": "Get Subjects",
+            "description": "Get All Subjects",
+            "regex": "^/subjects/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 64,
+        "fields": {
+            "name": "Update Subject",
+            "description": "Update One Subject",
+            "regex": "^/subjects/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 65,
+        "fields": {
+            "name": "Delete Subject",
+            "description": "Delete One Subject",
+            "regex": "^/subjects/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 66,
+        "fields": {
+            "name": "Add Education Level",
+            "description": "Add One Education Level",
+            "regex": "^/education-levels/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 67,
+        "fields": {
+            "name": "Get Education Level",
+            "description": "Get One Education Level",
+            "regex": "^/education-levels/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 68,
+        "fields": {
+            "name": "Get Education Levels",
+            "description": "Get All Education Levels",
+            "regex": "^/education-levels/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 69,
+        "fields": {
+            "name": "Update Education Level",
+            "description": "Update One Education Level",
+            "regex": "^/education-levels/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 70,
+        "fields": {
+            "name": "Delete Education Level",
+            "description": "Delete One Education Level",
+            "regex": "^/education-levels/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 71,
+        "fields": {
+            "name": "Add Subject Education Level",
+            "description": "Add One Subject Education Level",
+            "regex": "^/subject-education-levels/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 72,
+        "fields": {
+            "name": "Get Subject Education Level",
+            "description": "Get One Subject Education Level",
+            "regex": "^/subject-education-levels/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 73,
+        "fields": {
+            "name": "Get Subject Education Levels",
+            "description": "Get All Subject Education Levels",
+            "regex": "^/subject-education-levels/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 74,
+        "fields": {
+            "name": "Update Subject Education Level",
+            "description": "Update One Subject Education Level",
+            "regex": "^/subject-education-levels/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 75,
+        "fields": {
+            "name": "Delete Subject Education Level",
+            "description": "Delete One Subject Education Level",
+            "regex": "^/subject-education-levels/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 76,
+        "fields": {
+            "name": "Add Question",
+            "description": "Add One Question",
+            "regex": "^/questions/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 77,
+        "fields": {
+            "name": "Get Question",
+            "description": "Get One Question",
+            "regex": "^/questions/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 78,
+        "fields": {
+            "name": "Get Questions",
+            "description": "Get All Questions",
+            "regex": "^/questions/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 79,
+        "fields": {
+            "name": "Update Question",
+            "description": "Update One Question",
+            "regex": "^/questions/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 80,
+        "fields": {
+            "name": "Delete Question",
+            "description": "Delete One Question",
+            "regex": "^/questions/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 81,
+        "fields": {
+            "name": "Bulk Delete Questions",
+            "description": "Bulk Delete All Questions",
+            "regex": "^/questions/delete-all/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 82,
+        "fields": {
+            "name": "Add Question Media",
+            "description": "Add One Question Media",
+            "regex": "^/question-media/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 83,
+        "fields": {
+            "name": "Delete Question Media",
+            "description": "Delete One Question Media",
+            "regex": "^/question-media/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 84,
+        "fields": {
+            "name": "Bulk Create Question Medias",
+            "description": "Bulk Create Question Medias",
+            "regex": "^/question-media/bulk-create/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 85,
+        "fields": {
+            "name": "Bulk Delete Question Medias",
+            "description": "Bulk Delete Question Medias",
+            "regex": "^/question-media/bulk-delete/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 86,
+        "fields": {
+            "name": "Add Question Tag",
+            "description": "Add One Question Tag",
+            "regex": "^/question-tag/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 87,
+        "fields": {
+            "name": "Delete Question Tag",
+            "description": "Delete One Question Tag",
+            "regex": "^/question-tag/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 88,
+        "fields": {
+            "name": "Bulk Create Question Tags",
+            "description": "Bulk Create Question Tags",
+            "regex": "^/question-tag/bulk-upsert/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 89,
+        "fields": {
+            "name": "Add Question Choice",
+            "description": "Add One Question Choice",
+            "regex": "^/question-choice/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 90,
+        "fields": {
+            "name": "Edit Question Choice",
+            "description": "Edit One Question Choice",
+            "regex": "^/question-choice/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 91,
+        "fields": {
+            "name": "Delete Question Choice",
+            "description": "Delete One Question Choice",
+            "regex": "^/question-choice/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 92,
+        "fields": {
+            "name": "Bulk Create Question Choices",
+            "description": "Bulk Create Question Choices",
+            "regex": "^/question-choice/bulk-create/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 93,
+        "fields": {
+            "name": "Add Question Choice Media",
+            "description": "Add One Question Choice Media",
+            "regex": "^/question-choice-media/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 94,
+        "fields": {
+            "name": "Delete Question Choice Media",
+            "description": "Delete One Question Choice Media",
+            "regex": "^/question-choice-media/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 95,
+        "fields": {
+            "name": "Bulk Create Question Choice Medias",
+            "description": "Bulk Create Question Choice Medias",
+            "regex": "^/question-choice-media/bulk-create/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 96,
+        "fields": {
+            "name": "Bulk Delete Question Choice Medias",
+            "description": "Bulk Delete Question Choice Medias",
+            "regex": "^/question-choice-media/bulk-delete/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 97,
+        "fields": {
+            "name": "Add Question Attempt Response",
+            "description": "Add One Question Attempt Response",
+            "regex": "^/question-attempt-response/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 98,
+        "fields": {
+            "name": "Get Question Attempt Response",
+            "description": "Get One Question Attempt Response",
+            "regex": "^/question-attempt-response/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 99,
+        "fields": {
+            "name": "Get Question Attempt Responses",
+            "description": "Get All Question Attempt Responses",
+            "regex": "^/question-attempt-response/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 100,
+        "fields": {
+            "name": "Update Question Attempt Response",
+            "description": "Update One Question Attempt Response",
+            "regex": "^/question-attempt-response/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 101,
+        "fields": {
+            "name": "Delete Question Attempt Response",
+            "description": "Delete One Question Attempt Response",
+            "regex": "^/question-attempt-response/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 102,
+        "fields": {
+            "name": "Bulk Create Question Attempt Responses",
+            "description": "Bulk Create Question Attempt Responses",
+            "regex": "^/question-attempt-response/bulk-create/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 103,
+        "fields": {
+            "name": "Add Question Retry Hint",
+            "description": "Add One Question Retry Hint",
+            "regex": "^/question-retry-hint/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 104,
+        "fields": {
+            "name": "Update Question Retry Hint",
+            "description": "Update One Question Retry Hint",
+            "regex": "^/question-retry-hint/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 105,
+        "fields": {
+            "name": "Delete Question Retry Hint",
+            "description": "Delete One Question Retry Hint",
+            "regex": "^/question-retry-hint/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 106,
+        "fields": {
+            "name": "Bulk Create Question Retry Hints",
+            "description": "Bulk Create Question Retry Hints",
+            "regex": "^/question-retry-hint/bulk-create/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 107,
+        "fields": {
+            "name": "Add Question Retry Hint Media",
+            "description": "Add One Question Retry Hint Media",
+            "regex": "^/question-retry-hint-media/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 108,
+        "fields": {
+            "name": "Delete Question Retry Hint Media",
+            "description": "Delete One Question Retry Hint Media",
+            "regex": "^/question-retry-hint-media/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 109,
+        "fields": {
+            "name": "Bulk Create Question Retry Hint Medias",
+            "description": "Bulk Create Question Retry Hint Medias",
+            "regex": "^/question-retry-hint-media/bulk-create/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 110,
+        "fields": {
+            "name": "Bulk Delete Question Retry Hint Medias",
+            "description": "Bulk Delete Question Retry Hint Medias",
+            "regex": "^/question-retry-hint-media/bulk-delete/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]

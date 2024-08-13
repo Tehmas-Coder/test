@@ -13,6 +13,7 @@ from apps.user.serializers.role_permission_serializers import (
 
 
 class RoleViewSet(viewsets.ModelViewSet):
+    http_method_names = ["get", "post", "patch", "delete"]
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
@@ -23,5 +24,6 @@ class RoleViewSet(viewsets.ModelViewSet):
 
 
 class PermissionViewSet(viewsets.ModelViewSet):
+    http_method_names = ["get", "post", "patch", "delete"]
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer

@@ -90,6 +90,7 @@ class MediaTypeViewset(viewsets.ModelViewSet):
 
 
 class TagViewset(viewsets.ModelViewSet):
+    http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = TagSerializer
     pagination_class = None
     queryset = Tag.objects.all()
