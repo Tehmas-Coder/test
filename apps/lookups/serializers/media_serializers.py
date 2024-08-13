@@ -1,7 +1,8 @@
-from core.serializers import BaseModelSerializer, get_base_model_fields
-from apps.lookups.models import Media
-from utils.rna_utils import color_print, debug_print
 from rest_framework import serializers
+
+from apps.lookups.models import Media
+from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import color_print, debug_print
 
 MEDIA_TYPES = {
     "image": 1,

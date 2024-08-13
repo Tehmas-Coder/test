@@ -27,13 +27,13 @@ class IsAuthenticated(BasePermission):
             if not user_session_data.is_authenticated:
                 return False
 
-        return True
-        # logged_in_user_id = user_session_data.id
-        # user_role = UserRole.objects.filter(user_id=logged_in_user_id).values().first()
+        # return True
+        logged_in_user_id = user_session_data.id
+        user_role = UserRole.objects.filter(user_id=logged_in_user_id).values().first()
 
-        # role_id = user_role["role_id"]
+        role_id = user_role["role_id"]
 
-        # return validate_resources(request_method, request_path, role_id)
+        return validate_resources(request_method, request_path, role_id)
 
 
 def is_url_public(request_method, request_path):
@@ -71,11 +71,11 @@ def validate_resources(request_method, request_path, role_id):
         print(f"No Resource ({request_method} => {request_path}) found on server.")
         return False
 
-    try:
-        RoleResource.objects.get(role_id=role_id, resource_id=resource_id)
-    except:
-        print(f"RoleID ({role_id}) id un-authorized for ({request_method} => {request_path}) request.")
-        return False
+    # try:
+    #     RoleResource.objects.get(role_id=role_id, resource_id=resource_id)
+    # except:
+    #     print(f"RoleID ({role_id}) id un-authorized for ({request_method} => {request_path}) request.")
+    #     return False
 
     return True
 

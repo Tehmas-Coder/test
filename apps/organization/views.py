@@ -36,7 +36,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         if OrganizationUser.objects.filter(
             user_id=request.data["user"],
         ).exists():
-            return make_error_response(data=request.data, message="User in organization already exists.")
+            return make_error_response(data=request.data, message="This user already exists in an organization.")
 
         serializer = OrganizationUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

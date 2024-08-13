@@ -12,12 +12,13 @@ from apps.exam_admin.views.exam_admin_views import (
 
 router = routers.DefaultRouter()
 
-router.register(r"exams", ExamViewSet)
-router.register(r"exam-subject", ExamSubjectViewSet)
-router.register(r"exam-subject-question", ExamSubjectQuestionViewSet)
 router.register(r"sections", SectionViewSet)
 router.register(r"subsections", SubSectionViewSet)
 router.register(r"schedules", ScheduleViewSet)
+
+router.register(r"exams", ExamViewSet)
+router.register(r"exam-subject", ExamSubjectViewSet)
+router.register(r"exam-subject-question", ExamSubjectQuestionViewSet)
 
 
 urlpatterns = [
