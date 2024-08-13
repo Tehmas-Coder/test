@@ -1714,5 +1714,77 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 144,
+        "fields": {
+            "name": "Add Candidate Exam",
+            "description": "Add One Candidate Exam",
+            "regex": "^/candidate-exam/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 145,
+        "fields": {
+            "name": "Get Candidate Exam",
+            "description": "Get One Candidate Exam",
+            "regex": "^/candidate-exam/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 146,
+        "fields": {
+            "name": "Get Candidate Exams",
+            "description": "Get All Candidate Exams",
+            "regex": "^/candidate-exam/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 147,
+        "fields": {
+            "name": "Update Candidate Exam",
+            "description": "Update One Candidate Exam",
+            "regex": "^/candidate-exam/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 148,
+        "fields": {
+            "name": "Get One Candidate Exam Answers",
+            "description": "Get One Candidate Exam with Answers",
+            "regex": "^/candidate-exam/[0-9]+/answers/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 149,
+        "fields": {
+            "name": "Get All Candidate Exams with Candidates List",
+            "description": "Get All Candidate Exams with their associated Candidates List",
+            "regex": "^/get-exams-backlogs-with-candidates/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
