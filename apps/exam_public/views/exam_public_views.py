@@ -120,11 +120,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         candidate_exam_instances = serializer.save()
+
         # * Fetching newly created instances
         created_candidate_exam_instances = self.get_queryset().order_by("-created_at")[: len(candidate_exam_instances)]
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)
-
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
+
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):

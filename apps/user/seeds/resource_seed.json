@@ -1666,5 +1666,53 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 140,
+        "fields": {
+            "name": "Add Candidate",
+            "description": "Add One Candidate",
+            "regex": "^/candidate/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 141,
+        "fields": {
+            "name": "Get Candidate",
+            "description": "Get One Candidate",
+            "regex": "^/candidate/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 142,
+        "fields": {
+            "name": "Get Candidates",
+            "description": "Get All Candidates",
+            "regex": "^/candidate/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 143,
+        "fields": {
+            "name": "Update Candidate",
+            "description": "Update One Candidate",
+            "regex": "^/candidate/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
