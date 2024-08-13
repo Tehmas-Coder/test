@@ -1318,5 +1318,269 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 111,
+        "fields": {
+            "name": "Add Section",
+            "description": "Add One Section",
+            "regex": "^/sections/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 112,
+        "fields": {
+            "name": "Get Section",
+            "description": "Get One Section",
+            "regex": "^/sections/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 113,
+        "fields": {
+            "name": "Get Sections",
+            "description": "Get All Sections",
+            "regex": "^/sections/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 114,
+        "fields": {
+            "name": "Update Section",
+            "description": "Update One Section",
+            "regex": "^/sections/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 115,
+        "fields": {
+            "name": "Delete Section",
+            "description": "Delete One Section",
+            "regex": "^/sections/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 116,
+        "fields": {
+            "name": "Add SubSection",
+            "description": "Add One SubSection",
+            "regex": "^/subsections/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 117,
+        "fields": {
+            "name": "Get SubSection",
+            "description": "Get One SubSection",
+            "regex": "^/subsections/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 118,
+        "fields": {
+            "name": "Get SubSections",
+            "description": "Get All SubSections",
+            "regex": "^/subsections/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 119,
+        "fields": {
+            "name": "Update SubSection",
+            "description": "Update One SubSection",
+            "regex": "^/subsections/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 120,
+        "fields": {
+            "name": "Delete SubSection",
+            "description": "Delete One SubSection",
+            "regex": "^/subsections/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 121,
+        "fields": {
+            "name": "Add Schedule",
+            "description": "Add One Schedule",
+            "regex": "^/schedules/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 122,
+        "fields": {
+            "name": "Get Schedule",
+            "description": "Get One Schedule",
+            "regex": "^/schedules/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 123,
+        "fields": {
+            "name": "Get Schedules",
+            "description": "Get All Schedules",
+            "regex": "^/schedules/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 124,
+        "fields": {
+            "name": "Update Schedule",
+            "description": "Update One Schedule",
+            "regex": "^/schedules/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 125,
+        "fields": {
+            "name": "Delete Schedule",
+            "description": "Delete One Schedule",
+            "regex": "^/schedules/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 126,
+        "fields": {
+            "name": "Add Exam",
+            "description": "Add One Exam",
+            "regex": "^/exams/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 127,
+        "fields": {
+            "name": "Get Exam",
+            "description": "Get One Exam",
+            "regex": "^/exams/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 128,
+        "fields": {
+            "name": "Get Exams",
+            "description": "Get All Exams",
+            "regex": "^/exams/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 129,
+        "fields": {
+            "name": "Update Exam",
+            "description": "Update One Exam",
+            "regex": "^/exams/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 130,
+        "fields": {
+            "name": "Delete Exam",
+            "description": "Delete One Exam",
+            "regex": "^/exams/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 131,
+        "fields": {
+            "name": "Create Random Exam",
+            "description": "Create One Random Exam",
+            "regex": "^/exams/create-random/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 132,
+        "fields": {
+            "name": "Get All Exams Lookup Details",
+            "description": "Get only exam lookup details of All Exams",
+            "regex": "^/exams/get-exams-lookup/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
