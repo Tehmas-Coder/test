@@ -151,7 +151,7 @@ class ExamSubjectQuestionBulkUpdateSerializer(serializers.Serializer):
         return exam_subject_question_instances
 
 
-# ? This Serializer was for when we want to get_or_create exam subjects bu that senario was not occcuring as we would have question pool containing only questions with existing exam_subject
+# ? This Serializer was for when we want to get_or_create exam subjects but that scenario was not occcuring as we would have question pool containing only questions with existing exam_subject
 # class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
 #     create_list = ExamSubjectQuestionSerializer(many=True)
 

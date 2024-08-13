@@ -1582,5 +1582,89 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 133,
+        "fields": {
+            "name": "Add Exam Subject",
+            "description": "Add One Exam Subject",
+            "regex": "^/exam-subject/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 134,
+        "fields": {
+            "name": "Delete Exam Subject",
+            "description": "Delete One Exam Subject",
+            "regex": "^/exam-subject/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 135,
+        "fields": {
+            "name": "Add Exam Subject Question",
+            "description": "Add One Exam Subject Question",
+            "regex": "^/exam-subject-question/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 136,
+        "fields": {
+            "name": "Update Exam Subject Question",
+            "description": "Update One Exam Subject Question",
+            "regex": "^/exam-subject-question/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 137,
+        "fields": {
+            "name": "Delete Exam Subject Question",
+            "description": "Delete One Exam Subject Question",
+            "regex": "^/exam-subject-question/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 138,
+        "fields": {
+            "name": "Bulk Create Exam Subject Question",
+            "description": "Bulk Create Exam Subject Question",
+            "regex": "^/exam-subject-question/bulk-create/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 139,
+        "fields": {
+            "name": "Bulk Update All Exam Subject Questions Sequence",
+            "description": "Bulk Update All Exam Subject Questions only Sequence",
+            "regex": "^/exam-subject-question/bulk-update/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
