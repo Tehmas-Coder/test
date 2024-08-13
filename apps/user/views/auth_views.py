@@ -11,17 +11,17 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+from apps.exam_public.models.exam_public_models import Candidate
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
 from utils.rna_utils import debug_print, make_error_response, make_success_response
 
-from apps.exam_public.models.exam_public_models import Candidate
 from ..models import BaseUser, Role
 
 
 class RegisterApiView(views.APIView):
     permission_classes = [AllowAny]
 
-    @transaction.atomic()
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         if "is_superuser" in request.data:
             try:

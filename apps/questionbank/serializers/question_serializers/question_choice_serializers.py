@@ -33,7 +33,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
     def validate(self, attrs):
         return super().validate(attrs)
 
-    @transaction.atomic()
+    @transaction.atomic
     def create(self, validated_data):
         try:
             request = self.context.get("request")

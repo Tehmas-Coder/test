@@ -1,7 +1,7 @@
+from django.db import transaction
 from django.db.models import F
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
@@ -47,35 +47,34 @@ class UserViewSet(viewsets.ModelViewSet):
         self.queryset = self.queryset.filter(meta_status="active")
         return super().list(request, *args, **kwargs)
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         logged_in_user = self.request.user
-        logged_in_user_role_detail = {}
-        request_user_role_id = request.data.pop("role")
+        request_user_role_id = request.data.pop("role", None)
         request_user_role_name = get_role_name(request_user_role_id)
 
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            user_instance = serializer.save()
+        if not serializer.is_valid():
+            if "email" in serializer.errors:
+                return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            user_instance.roles.add(request_user_role_id)
-
-            return Response(serializer.data, status=201)
-        if "email" in serializer.errors:
-            return Response({"error": "User with this email already exists"}, status=400)
+        user_instance = serializer.save()
+        user_instance.roles.add(request_user_role_id)
 
         if logged_in_user.is_superuser:
             if request_user_role_name.lower() == "candidate":
-                Candidate.objects.create(user_id=serializer.data["id"])
+                Candidate.objects.create(user_id=user_instance.id)
 
-        else:
+        elif logged_in_user.is_authenticated:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
             if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
                 if request_user_role_name.lower() == "candidate":
                     user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
-                    debug_print(user_organization_id)
-                    Candidate.objects.create(user_id=serializer.data["id"], organization_id=user_organization_id["organization"])
+                    if user_organization_id:
+                        Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
 
-        return Response(serializer.errors, status=400)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object(id=kwargs.get("pk"))
