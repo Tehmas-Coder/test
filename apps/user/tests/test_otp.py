@@ -23,16 +23,16 @@ class OTPUnitTest(TestSetUp):
     # ?                  UNIT - TESTS
     # ?###################################################
 
-    def do_verify_otp(self, request_data, user_id):
+    def do_verify_otp(self, request_data):
         print_test_header("verify otp")
-        url = f"/api/users/{user_id}/verify-otp/"
+        url = f"/api/verify-otp/"
         response = self.client.post(url, data=request_data)
         return response
 
-    def do_resend_otp(self, user_id):
+    def do_resend_otp(self, request_data):
         print_test_header("resend otp")
-        url = f"/api/users/{user_id}/resend-otp/"
-        response = self.client.post(url)
+        url = f"/api/resend-otp/"
+        response = self.client.post(url, data=request_data)
         return response
 
 
@@ -55,30 +55,36 @@ class OTPTest(OTPUnitTest):
         user_id = RegisterUnitTest.do_register(self, json.dumps(test_user)).data["id"]
 
         # * Test functions are being called here
-        self.failed_test_verification_otp_not_valid(user_id)
-        self.successfull_test_resend_otp(user_id)
+        self.failed_test_verification_otp_not_valid()
+        self.successfull_test_resend_otp()
         self.successfull_test_verification_otp(user_id)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS
     # ?###################################################
 
-    def failed_test_verification_otp_not_valid(self, user_id):
-        request_data = {"otp": "1234"}
-        response = self.do_verify_otp(request_data, user_id)
+    def failed_test_verification_otp_not_valid(self):
+        request_data = {
+            "email": "register_test@gmail.com",
+            "otp": "1234",
+        }
+        response = self.do_verify_otp(request_data)
         validate_failed_400_test_response(self, response)
 
-    def successfull_test_resend_otp(self, user_id):
-        response = self.do_resend_otp(user_id)
+    def successfull_test_resend_otp(self):
+        request_data = {
+            "email": "register_test@gmail.com",
+        }
+        response = self.do_resend_otp(request_data)
         validate_success_200_test_response(self, response)
 
     def successfull_test_verification_otp(self, user_id):
-        user = BaseUser.objects.get(id=user_id)
         otp = UserUnitTest.do_get_one_user(self, user_id)["otp"]
         request_data = {
+            "email": "register_test@gmail.com",
             "otp": otp,
         }
-        response = self.do_verify_otp(request_data, user_id)
+        response = self.do_verify_otp(request_data)
         validate_success_200_test_response(self, response)
 
 
