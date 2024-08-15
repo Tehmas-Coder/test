@@ -13,9 +13,18 @@
       "capital": "Capital A",
       "flag": null,
       "is_un_member": true,
-      "timezones": [1, 2],
-      "languages": [1, 2],
-      "currencies": [1, 2],
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
       "created_at": "2024-07-19T00:00:00Z",
       "updated_at": "2024-07-19T00:00:00Z"
     }
@@ -34,9 +43,258 @@
       "capital": "Capital B",
       "flag": null,
       "is_un_member": false,
-      "timezones": [1, 2],
-      "languages": [1, 2],
-      "currencies": [1, 2],
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 3,
+    "fields": {
+      "name": "Country C",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 4,
+    "fields": {
+      "name": "Country D",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 5,
+    "fields": {
+      "name": "Country E",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 6,
+    "fields": {
+      "name": "Country F",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 7,
+    "fields": {
+      "name": "Country G",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 8,
+    "fields": {
+      "name": "Country H",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 9,
+    "fields": {
+      "name": "Country I",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 10,
+    "fields": {
+      "name": "Country J",
+      "iso2_code": "CB",
+      "iso3_code": "CTB",
+      "abbreviation": "CB",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Capital B",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
       "created_at": "2024-07-19T00:00:00Z",
       "updated_at": "2024-07-19T00:00:00Z"
     }
