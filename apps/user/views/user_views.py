@@ -1,6 +1,11 @@
+import json
+
+from cryptography.fernet import Fernet
+from decouple import config
 from django.db import transaction
 from django.db.models import F
-from rest_framework import status, viewsets
+from django.forms import model_to_dict
+from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -13,7 +18,12 @@ from apps.user.serializers.user_serializers import (
 )
 from apps.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import debug_print, make_error_response
+from utils.rna_utils import (
+    debug_print,
+    generate_random_password,
+    get_encryption_key,
+    make_error_response,
+)
 
 from ..models import BaseUser, Role
 
@@ -75,12 +85,21 @@ class UserViewSet(viewsets.ModelViewSet):
                     if user_organization_id:
                         Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
 
+        key = get_encryption_key()
+        cipher = Fernet(key)
+
+        encryption_data = {"email": request.data["email"]}
+        encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
+
+        token_data = encrypted_email.decode("utf-8")
+        url = config("BASE_URL")
+        final_url = f"{url}users/verify/account?token={token_data}"
         send_email_data_dict = {
             "first_name": request.data["first_name"],
             "last_name": request.data["last_name"],
             "email": request.data["email"],
             "password": request.data["password"],
-            "URL": "Hello World!",
+            "URL": final_url,
         }
         emai_notification_ninja = EmailNotification(send_email_data_dict)
         if not emai_notification_ninja.send_url():
@@ -133,3 +152,110 @@ class UserViewSet(viewsets.ModelViewSet):
         for user in users:
             user.delete()
         return Response({"status": "deleted", "message": "Users deleted!"})
+
+
+class InvitaionLinkAPI(views.APIView):
+
+    def get(self, request):
+        encrypted_email_token = request.query_params["token"]
+
+        # * Decrypt the email
+        key = get_encryption_key()
+        cipher = Fernet(key)
+        decrypt_user_data = cipher.decrypt(encrypted_email_token).decode()
+        user_data = json.loads(decrypt_user_data)
+
+        try:
+            user_instance = BaseUser.objects.get(email=user_data["email"])
+
+        except BaseUser.DoesNotExist:
+            return Response(
+                data={"Status": "failed", "message": "User does not exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user_data_dict = model_to_dict(user_instance)
+        if user_data_dict["is_verified"] == True:
+            return Response(
+                data={"Status": "failed", "message": "User Already Verified"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if user_data["email"] != user_data_dict["email"]:
+            return Response(
+                data={"Status": "failed", "message": "Invalid Link"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user_instance.is_verified = True
+        user_instance.save()
+
+        return Response(
+            data={
+                "Status": "success",
+                "message": "User is now verified.",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class ResendVerificationLinkAPI(views.APIView):
+
+    def post(self, request):
+        user_email = request.data["email"]
+        try:
+            user_instance = BaseUser.objects.get(email=user_email)
+
+        except BaseUser.DoesNotExist:
+            return Response(
+                data={"Status": "failed", "message": "User does not exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user_data_dict = model_to_dict(user_instance)
+        if user_data_dict["is_verified"] == True:
+            return Response(
+                data={"Status": "failed", "message": "User Already Verified"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        new_password = generate_random_password()
+        user_instance.set_password(new_password)
+        user_instance.save()
+
+        key = get_encryption_key()
+        cipher = Fernet(key)
+
+        encryption_data = {"email": user_data_dict["email"]}
+        encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
+        token_data = encrypted_email.decode("utf-8")
+
+        url = config("BASE_URL")
+        final_url = f"{url}users/verify/account?token={token_data}"
+
+        send_email_data_dict = {
+            "first_name": user_data_dict["first_name"],
+            "last_name": user_data_dict["last_name"],
+            "email": user_data_dict["email"],
+            "password": new_password,
+            "URL": final_url,
+        }
+
+        email_notification_ninja = EmailNotification(send_email_data_dict)
+        if not email_notification_ninja.send_url():
+            return Response(
+                data={
+                    "Status": "failed",
+                    "message": "Failed to send verification link.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        del email_notification_ninja
+
+        return Response(
+            data={
+                "Status": "success",
+                "message": "Verification Link Resent Successfully.",
+            },
+            status=status.HTTP_200_OK,
+        )

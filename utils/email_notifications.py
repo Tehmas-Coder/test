@@ -30,12 +30,12 @@ class EmailNotification:
 
     def send_otp(self):
         self.html_content = self.__generate_html_content_for_otp()
-        self.subject = "EDU-APPLY : On-Boarding"
+        self.subject = "Question-Bank : On-Boarding"
         return self.__send_email(self.subject, self.html_content, self.user_email)
 
     def send_url(self):
         self.html_content = self.__generate_html_content_for_url()
-        self.subject = "Question Bank : On-Boarding"
+        self.subject = "Question-Bank : On-Boarding"
         return self.__send_email(self.subject, self.html_content, self.user_email)
 
     # ! ------------------------------------------------------------

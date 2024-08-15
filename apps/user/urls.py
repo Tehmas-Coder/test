@@ -14,6 +14,8 @@ urlpatterns = [
     path("logout/", LogoutApiView.as_view(), name="token_blacklist"),
     path("verify-otp/", OTPViewSet.as_view({"post": "verify_otp"}), name="verify_otp"),
     path("resend-otp/", OTPViewSet.as_view({"post": "resend_otp"}), name="resend_otp"),
+    path("users/verify/account", InvitaionLinkAPI.as_view(), name="invitation_link"),
+    path("resend-verification-link/", ResendVerificationLinkAPI.as_view(), name="resend_verification_link"),
 ]
 
 # ----------------------------------- USERS ---------------------------------- #

@@ -1,6 +1,7 @@
 import inspect
 import json
 import random
+import string
 import threading
 from typing import Any, Type
 
@@ -273,3 +274,13 @@ def remove_extra_underscore_from_key_names(replace_list):
                 new_one_dict = rename_keys(new_one_dict, one_key, one_key.replace("_id", ""))
         new_formatted_list.append(new_one_dict)
     return new_formatted_list
+
+
+def get_encryption_key():
+    return "Ym3gHm4W9NrGredVTR8_rF-MdFyvGG4GfTffgP-tSeU="
+
+
+def generate_random_password():
+    # Choose from digits 0-9 to create a 6-digit password
+    password = "".join(random.choices(string.digits, k=6))
+    return password
