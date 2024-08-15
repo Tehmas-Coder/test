@@ -3,16 +3,17 @@ import json
 
 from rest_framework import status
 
+from apps.user.models import BaseUser
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
+
 from .test_register import RegisterUnitTest
 from .test_user import UserUnitTest
-from core.test_setup import TestSetUp
-from apps.user.models import BaseUser
 
 
 class OTPUnitTest(TestSetUp):

@@ -1822,5 +1822,29 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 153,
+        "fields": {
+            "name": "Resend Verification Link",
+            "description": "Resend verification link of a user who does not recieved an email",
+            "regex": "^/resend-verification-link/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 154,
+        "fields": {
+            "name": "User Verification Link",
+            "description": "Verifing User account via verification link",
+            "regex": "^/users/verify/account$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]

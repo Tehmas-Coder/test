@@ -6,7 +6,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel
-from utils.email_utils import send_verification_link_or_otp_to_email
+
+# from utils.email_utils import send_verification_link_or_otp_to_email
+from utils.email_notifications import EmailNotification
 from utils.rna_utils import debug_print, generate_otp
 
 
@@ -100,16 +102,16 @@ class BaseUser(BaseModel, AbstractUser):
         if not otp:
             otp = generate_otp()
 
-        if not send_verification_link_or_otp_to_email(
-            {
-                "first_name": self.first_name,
-                "last_name": self.last_name,
-                "email": self.email,
-                "otp": otp,
-            },
-            send_otp=True,
-        ):
+        send_email_data_dict = {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "OTP": otp,
+        }
+        emai_notification_ninja = EmailNotification(send_email_data_dict)
+        if not emai_notification_ninja.send_otp():
             return False
+        del emai_notification_ninja
 
         self.otp = otp
         self.save()

@@ -1,9 +1,6 @@
-import json
 import re
 
-import django.contrib.auth.models
 from django.forms.models import model_to_dict
-from numpy import True_
 from rest_framework.permissions import BasePermission
 
 from apps.user.models import Resource, RoleResource, UserRole
