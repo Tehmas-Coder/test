@@ -12,6 +12,7 @@ from apps.user.serializers.user_serializers import (
     UserEditSerializer,
 )
 from apps.utils import get_role_name, get_user_role_detail
+from utils.email_notifications import EmailNotification
 from utils.rna_utils import debug_print, make_error_response
 
 from ..models import BaseUser, Role
@@ -66,7 +67,7 @@ class UserViewSet(viewsets.ModelViewSet):
             if request_user_role_name.lower() == "candidate":
                 Candidate.objects.create(user_id=user_instance.id)
 
-        elif logged_in_user.is_authenticated:
+        else:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
             if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
                 if request_user_role_name.lower() == "candidate":
@@ -74,7 +75,32 @@ class UserViewSet(viewsets.ModelViewSet):
                     if user_organization_id:
                         Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        send_email_data_dict = {
+            "first_name": request.data["first_name"],
+            "last_name": request.data["last_name"],
+            "email": request.data["email"],
+            "password": request.data["password"],
+            "URL": "Hello World!",
+        }
+        emai_notification_ninja = EmailNotification(send_email_data_dict)
+        if not emai_notification_ninja.send_url():
+            return Response(
+                data={
+                    "Status": "failed",
+                    "message": "User created successfully and failed to sent email",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        del emai_notification_ninja
+
+        return Response(
+            {
+                "status": "success",
+                "message": "User created successfully.",
+                "data": serializer.data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object(id=kwargs.get("pk"))
