@@ -17,7 +17,7 @@ from .test_user import UserUnitTest
 
 
 class OTPUnitTest(TestSetUp):
-    fixtures = []
+    fixtures = ["role_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS

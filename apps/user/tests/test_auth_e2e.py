@@ -1,19 +1,21 @@
 import json
+
 from rest_framework import status
 
 from apps.user.models import BaseUser
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
+
 from .test_register import RegisterUnitTest
 
 
 class AuthE2EUnitTest(TestSetUp):
-    fixtures = []
+    fixtures = ["role_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -109,9 +111,7 @@ class AuthE2ETest(AuthE2EUnitTest):
         new_user_data.__dict__["is_verified"] = True
         new_user_data.save()
 
-        response = self.custom_login(
-            self.test_user["email"], self.test_user["password"]
-        )
+        response = self.custom_login(self.test_user["email"], self.test_user["password"])
         self.successfull_refresh_token_test()
 
         self.custom_login(self.test_user["email"], self.test_user["password"])

@@ -1,18 +1,19 @@
 import copy
 import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class UserUnitTest(TestSetUp):
-    fixtures = ["user_seed"]
+    fixtures = ["user_seed", "role_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -102,9 +103,7 @@ class UserTest(UserUnitTest):
         json_data = self.do_get_user_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data["results"]:
-            for (
-                one_value_from_list_of_fields_of_user_model
-            ) in self.list_of_fields_of_user_model:
+            for one_value_from_list_of_fields_of_user_model in self.list_of_fields_of_user_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_user_model,
                     test_dict,
@@ -126,9 +125,7 @@ class UserTest(UserUnitTest):
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["first_name"] = "first name edited"
         updated_request_body["last_name"] = "last name edited"
-        updated_response_json_data = self.do_update_one_user(
-            test_record_id, json.dumps(updated_request_body)
-        )
+        updated_response_json_data = self.do_update_one_user(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
 
 
