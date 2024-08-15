@@ -1,11 +1,13 @@
 import copy
 import json
 
+from cryptography.fernet import Fernet
 from rest_framework import status
 
 from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
+    get_encryption_key,
     print_test_failed,
     print_test_header,
     print_test_passed,
@@ -29,37 +31,31 @@ class UserUnitTest(TestSetUp):
         )
         return response
 
-    def do_get_user_list(self):
-        print_test_header("get_user_list")
-        url = "/api/users/"
-        response = self.client.get(url, headers=self.headers)
-        validate_success_200_test_response(self, response)
-        return response.data
-
-    def do_get_one_user(self, id):
-        print_test_header("get_one_user")
-        url = f"/api/users/{id}/"
-        response = self.client.get(url, headers=self.headers)
-        validate_success_200_test_response(self, response)
-        return response.data
-
-    def do_update_one_user(self, id, request_body):
-        print_test_header("update_user")
-        url = f"/api/users/{id}/"
-        response = self.client.patch(
+    def do_resend_verification_link(self, request_body):
+        print_test_header("resend_verification_link")
+        url = "/api/resend-verification-link/"
+        response = self.client.post(
             url,
             headers=self.headers,
             data=request_body,
             content_type="application/json",
         )
-        validate_success_200_test_response(self, response)
-        return response.data
+        return response
+
+    def do_verify_link(self, request_body):
+        print_test_header("verification_link")
+        url = f"/api/users/verify/account?token={request_body}"
+        response = self.client.get(
+            url,
+            headers=self.headers,
+        )
+        return response
 
 
 class UserTest(UserUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
-        "email": "sheryarbaloch67@gmail.com",
+        "email": "test_verification@gmail.com",
         "first_name": "umer",
         "last_name": "sheryar",
         "password": "123456789",
@@ -82,11 +78,10 @@ class UserTest(UserUnitTest):
     # ?              TESTS - CASES
     # ?###################################################
     def test_cases_user(self):
-        self.successfull_creation_of_a_record_test()
+        created_user_dict = self.successfull_creation_of_a_record_test()
         self.failed_creation_of_a_duplicate_record_test()
-        list_of_records = self.successsfull_fetching_of_list_of_records_test()
-        test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
-        self.successfull_updation_of_record_test(test_record_id)
+        self.successfull_resending_of_verification_email_test(created_user_dict)
+        self.successfull_verification_of_email(created_user_dict)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS
@@ -95,39 +90,25 @@ class UserTest(UserUnitTest):
     def successfull_creation_of_a_record_test(self):
         response = self.do_create_user(json.dumps(self.reuseable_request_body))
         validate_success_201_test_response(self, response)
+        return response.data
 
     def failed_creation_of_a_duplicate_record_test(self):
         response = self.do_create_user(self.reuseable_request_body)
         validate_failed_400_test_response(self, response)
 
-    def successsfull_fetching_of_list_of_records_test(self):
-        json_data = self.do_get_user_list()
-        self.assertGreater(len(json_data), 0)
-        for test_dict in json_data["results"]:
-            for one_value_from_list_of_fields_of_user_model in self.list_of_fields_of_user_model:
-                self.assertIn(
-                    one_value_from_list_of_fields_of_user_model,
-                    test_dict,
-                    f"The key {one_value_from_list_of_fields_of_user_model} is not present in {test_dict}",
-                )
-        return json_data["results"]
+    def successfull_resending_of_verification_email_test(self, created_user_dict):
+        request_body = {"email": created_user_dict["data"]["email"]}
+        response = self.do_resend_verification_link(json.dumps(request_body))
+        validate_success_200_test_response(self, response)
 
-    def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_user_id = list_of_records[len(list_of_records) - 1]["id"]
-        json_data = self.do_get_one_user(test_user_id)
-        self.assertEqual(
-            json_data["id"],
-            test_user_id,
-            f"The field id ({json_data['id']} is not equal to id ({test_user_id}) )",
-        )
-        return test_user_id
-
-    def successfull_updation_of_record_test(self, test_record_id):
-        updated_request_body = copy.deepcopy(self.reuseable_request_body)
-        updated_request_body["first_name"] = "first name edited"
-        updated_request_body["last_name"] = "last name edited"
-        updated_response_json_data = self.do_update_one_user(test_record_id, json.dumps(updated_request_body))
-        self.assertEqual(updated_response_json_data["id"], test_record_id)
+    def successfull_verification_of_email(self, created_user_dict):
+        key = get_encryption_key()
+        cipher = Fernet(key)
+        encryption_data = {"email": created_user_dict["data"]["email"]}
+        encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
+        token_data = encrypted_email.decode("utf-8")
+        response = self.do_verify_link(token_data)
+        validate_success_200_test_response(self, response)
 
 
 # ?###################################################
