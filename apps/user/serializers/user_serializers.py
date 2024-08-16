@@ -3,15 +3,17 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.lookups.serializers.country_serializers import CountrySerializer
+from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.user.models import BaseUser
 from apps.user.serializers.role_permission_serializers import RoleSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print
+from utils.rna_utils import color_print, debug_print
 
 
 class UserDetailSerializer(BaseModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
     country = CountrySerializer(read_only=True)
+    profile_picture = MediaSerializer(required=False)
 
     class Meta:
         model = BaseUser
@@ -22,6 +24,7 @@ class UserDetailSerializer(BaseModelSerializer):
             "last_name",
             "full_name",
             "date_of_birth",
+            "profile_picture",
             "roles",
             "country",
             "phone",
@@ -61,6 +64,7 @@ class UserEditSerializer(BaseModelSerializer):
             "last_name",
             "full_name",
             "date_of_birth",
+            "profile_picture",
             "roles",
             "country",
             "password",
@@ -91,7 +95,6 @@ class UserEditSerializer(BaseModelSerializer):
         user.set_password(validated_data["password"])
         user.save()
 
-        # color_print("OTP sent to email", "green")
         return user
 
     def update(self, instance, validated_data):
