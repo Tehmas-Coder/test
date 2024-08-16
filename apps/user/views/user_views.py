@@ -81,10 +81,15 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
             if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
+                user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
                 if request_user_role_name.lower() == "candidate":
-                    user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
                     if user_organization_id:
                         Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
+                else:
+                    OrganizationUser.objects.create(
+                        user_id=user_instance.id,
+                        organization_id=user_organization_id["organization"],
+                    )
 
         key = get_encryption_key()
         cipher = Fernet(key)

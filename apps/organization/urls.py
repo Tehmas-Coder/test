@@ -28,6 +28,11 @@ urlpatterns = [
         OrganizationRelatedViewset.as_view({"get": "get_user_organizations_list"}),
         name="get_user_organizations_list",
     ),
+    path(
+        "remove-organization-user/<int:pk>/",
+        OrganizationViewSet.as_view({"delete": "remove_organization_user"}),
+    ),
 ]
+
 
 urlpatterns += router.urls

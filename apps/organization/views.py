@@ -43,6 +43,10 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def remove_organization_user(self, request, *args, **kwargs):
+        OrganizationUser.objects.filter(id=self.kwargs["pk"]).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class OrganizationRelatedViewset(viewsets.ViewSet):
 
