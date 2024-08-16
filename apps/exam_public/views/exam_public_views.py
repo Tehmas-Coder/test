@@ -54,7 +54,9 @@ from utils.rna_utils import (
 
 class CandidateViewSet(viewsets.ModelViewSet):
     queryset = (
-        Candidate.objects.all().select_related("user", "user__country", "organization", "organization__country").prefetch_related("user__roles")
+        Candidate.objects.all()
+        .select_related("user", "user__country", "user__profile_picture", "organization", "organization__country")
+        .prefetch_related("user__roles")
     )
     serializer_class = CandidateSerializer
     filter_backends = [CandidateFilterBackend]
@@ -92,6 +94,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             "candidate",
             "candidate__user",
             "candidate__user__country",
+            "candidate__user__profile_picture",
         )
         .prefetch_related("candidate__user__roles")
     )
@@ -203,6 +206,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                         "candidate",
                         "candidate__user",
                         "candidate__user__country",
+                        "candidate__user__profile_picture",
                     )
                     .prefetch_related("candidate__user__roles"),
                 )
