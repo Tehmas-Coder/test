@@ -93,7 +93,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         token_data = encrypted_email.decode("utf-8")
         url = config("BASE_URL")
-        final_url = f"{url}users/verify/account?token={token_data}"
+        final_url = f"{url}verification?token={token_data}"
         send_email_data_dict = {
             "first_name": request.data["first_name"],
             "last_name": request.data["last_name"],
@@ -231,7 +231,7 @@ class ResendVerificationLinkAPI(views.APIView):
         token_data = encrypted_email.decode("utf-8")
 
         url = config("BASE_URL")
-        final_url = f"{url}users/verify/account?token={token_data}"
+        final_url = f"{url}verification?token={token_data}"
 
         send_email_data_dict = {
             "first_name": user_data_dict["first_name"],

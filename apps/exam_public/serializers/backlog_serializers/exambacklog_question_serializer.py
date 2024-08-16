@@ -31,6 +31,7 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
     QuestionTypeSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print
 
 
 class ExamBacklogQuestionSerializer(BaseModelSerializer):
@@ -93,3 +94,10 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
         if self.context.get("get_answers", False):
             return CandidateExamQuestionAnswerSerializer(obj.question_answers.all(), many=True).data
         return None
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Remove the key if its value is None
+        if not self.context.get("get_answers", False):
+            representation.pop("question_answers")
+        return representation

@@ -131,7 +131,8 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
     def __init__(self, *args, **kwargs):
-        get_answers = kwargs.pop("get_answers", False)
+        context = kwargs.pop("context", False)
+        get_answers = context.pop("get_answers", False)
         super().__init__(*args, **kwargs)
         # Pass get_answers flag in the context for nested serializers
         self.context["get_answers"] = get_answers

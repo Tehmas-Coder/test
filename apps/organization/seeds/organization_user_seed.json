@@ -1,0 +1,32 @@
+[
+    {
+        "model": "organization.OrganizationUser",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "organization": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "organization.OrganizationUser",
+        "pk": 2,
+        "fields": {
+            "user": 3,
+            "organization": 2,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "organization.OrganizationUser",
+        "pk": 3,
+        "fields": {
+            "user": 4,
+            "organization": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

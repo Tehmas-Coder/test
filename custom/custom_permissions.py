@@ -45,7 +45,11 @@ def is_url_public(request_method, request_path):
             "/measuring-units/",
             "/media-types/",
             "/tags/",
+            "/verification",
             # "/countries/(?P<pk>[0-9]+)/",
+        ],
+        "post": [
+            "/resend-verification-link/",
         ],
     }
     if request_method in bypassed_api_urls_dict:
