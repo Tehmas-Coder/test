@@ -39,8 +39,8 @@ class BaseUser(BaseModel, AbstractUser):
     password = models.CharField(_("password"), max_length=128, blank=True)
     phone = models.CharField(_("phone"), max_length=15, blank=True)
     date_of_birth = models.DateField(_("date of birth"), blank=True, null=True)
-
     otp = models.CharField(_("otp"), max_length=6, blank=True)
+
     is_verified = models.BooleanField(_("verified"), default=False)
     is_superuser = models.BooleanField(_("superuser"), default=False)
 
@@ -50,6 +50,8 @@ class BaseUser(BaseModel, AbstractUser):
     country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
 
     roles = models.ManyToManyField("Role", related_name="users", blank=True, through="UserRole")
+
+    profile_picture = models.ForeignKey("lookups.Media", on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = CustomUserManager()
 

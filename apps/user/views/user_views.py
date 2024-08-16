@@ -4,12 +4,13 @@ from cryptography.fernet import Fernet
 from decouple import config
 from django.db import transaction
 from django.db.models import F
-from django.forms import model_to_dict
+from django.forms import Media, model_to_dict
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
+from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.user.filters.user_filter import UserFilter
 from apps.user.serializers.user_serializers import (
@@ -33,15 +34,15 @@ from ..models import BaseUser, Role
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = BaseUser.objects.all()
+    queryset = BaseUser.objects.all().select_related("country", "profile_picture").prefetch_related("roles", "roles__permissions")
     serializer_class = UserDetailSerializer
     filterset_class = UserFilter
+    http_method_names = ["get", "post", "patch", "delete"]
     USER_NOT_FOUND = {"error": "User not found"}
     USER_STATUSES = ["active", "inactive", "deleted"]
-    http_method_names = ["get", "post", "patch", "delete"]
 
     def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
+        if self.action in ["create", "partial_update"]:
             return UserEditSerializer
 
         return super().get_serializer_class()
@@ -101,8 +102,8 @@ class UserViewSet(viewsets.ModelViewSet):
             "password": request.data["password"],
             "URL": final_url,
         }
-        emai_notification_ninja = EmailNotification(send_email_data_dict)
-        if not emai_notification_ninja.send_url():
+        email_notification_ninja = EmailNotification(send_email_data_dict)
+        if not email_notification_ninja.send_url():
             return Response(
                 data={
                     "Status": "failed",
@@ -110,7 +111,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        del emai_notification_ninja
+        del email_notification_ninja
 
         return Response(
             {
@@ -127,6 +128,17 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(self.USER_NOT_FOUND, status=404)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        profile_picture = request.data.get("profile_picture", None)
+        if profile_picture:
+            media_serializer = MediaSerializer(data={"file": profile_picture})
+            media_serializer.is_valid()
+            media_serializer.save()
+            media_id = media_serializer.data["id"]
+            request.data["profile_picture"] = media_id
+
+        return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object(id=kwargs.get("pk"))

@@ -59,6 +59,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                     .select_related(
                         "user",
                         "user__country",
+                        "user__profile_picture",
                     )
                     .prefetch_related("user__roles"),
                 )
@@ -72,7 +73,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
         logged_in_user = self.request.user
         organization_id = kwargs.get("id", None)
 
-        organization_queryset = Organization.objects.all()
+        organization_queryset = Organization.objects.filter(id=organization_id)
 
         filtered_organization_queryset = []
         if logged_in_user.is_superuser:
@@ -88,6 +89,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                     .select_related(
                         "user",
                         "user__country",
+                        "user__profile_picture",
                     )
                     .prefetch_related("user__roles"),
                 )
