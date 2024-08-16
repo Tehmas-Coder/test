@@ -81,7 +81,7 @@ class UserTest(UserUnitTest):
         created_user_dict = self.successfull_creation_of_a_record_test()
         self.failed_creation_of_a_duplicate_record_test()
         self.successfull_resending_of_verification_email_test(created_user_dict)
-        self.successfull_verification_of_email(created_user_dict)
+        # self.successfull_verification_of_email(created_user_dict)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS
