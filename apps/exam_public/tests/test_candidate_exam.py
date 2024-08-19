@@ -35,7 +35,7 @@ class CandidateExamUnitTest(TestSetUp):
         "schedule_seed",
         "organization_seed",
         "role_seed",
-        "user_seed",
+        "test_user_seed",
         "candidate_seed",
     ]
 
