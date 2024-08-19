@@ -3,7 +3,7 @@
         "model": "organization.OrganizationUser",
         "pk": 1,
         "fields": {
-            "user": 1,
+            "user": 6,
             "organization": 1,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
