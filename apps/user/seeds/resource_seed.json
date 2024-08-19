@@ -1846,5 +1846,17 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 155,
+        "fields": {
+            "name": "Delete An Organization User",
+            "description": "Delete An Organization User",
+            "regex": "^remove-organization-user/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
