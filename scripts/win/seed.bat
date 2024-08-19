@@ -3,6 +3,7 @@ python manage.py populate_country_data
 REM --------------------------------- USER -------------------------------------
 python manage.py loaddata user_seed.json
 python manage.py loaddata role_seed.json
+python manage.py loaddata user_role_seed.json
 python manage.py loaddata resource_seed.json
 python manage.py loaddata role_resource_seed.json
 REM --------------------------------- ORGANIZATION -------------------------------------

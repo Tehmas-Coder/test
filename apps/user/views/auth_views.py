@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import F
 from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, views, viewsets
@@ -15,6 +16,7 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
 from utils.rna_utils import debug_print, make_error_response, make_success_response
 
+from apps.user.models import UserRole
 from ..models import BaseUser, Role
 
 
@@ -65,8 +67,17 @@ class LoginApiView(TokenObtainPairView):
         user = BaseUser.get_user_by_email(email)
         if not user:
             return make_error_response(message="User not found!")
-        if not user.is_verified:  # type: ignore
-            return make_error_response(message="User is not verified!")
+
+        user_role_name = None
+        if "is_system_user" in request.data:
+            user_role_name = UserRole.objects.filter(user_id=user.id).annotate(role_name=F("role__name")).values("id", "user", "role_name").first()
+
+        if user_role_name == None:
+            if not user.is_verified:  # type: ignore
+                return make_error_response(message="User is not verified!")
+        else:
+            pass
+
         return super().post(request, *args, **kwargs)
 
 
