@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class SubjectEducationLevelUnitTest(TestSetUp):
@@ -46,9 +48,7 @@ class SubjectEducationLevelUnitTest(TestSetUp):
         validate_success_200_test_response(self, response)
         return response.data
 
-    def do_update_one_subject_education_level(
-        self, subject_education_level_id, request_body
-    ):
+    def do_update_one_subject_education_level(self, subject_education_level_id, request_body):
         print_test_header("update_subject_education_level")
         url = f"/api/subject-education-levels/{subject_education_level_id}/"
         response = self.client.patch(
@@ -70,8 +70,8 @@ class SubjectEducationLevelUnitTest(TestSetUp):
 class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
-        "subject": 1,
-        "education_level": 1,
+        "subject": 4,
+        "education_level": 4,
     }
     list_of_fields_of_subject_education_level_model = [
         "id",
@@ -90,9 +90,7 @@ class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_subject_education_level(
-            json.dumps(self.reuseable_request_body)
-        )
+        json_data = self.do_create_subject_education_level(json.dumps(self.reuseable_request_body))
         for key in self.reuseable_request_body:
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_subject_education_level_model:
@@ -102,9 +100,7 @@ class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
         json_data = self.do_get_subject_education_level_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_subject_education_level_model
-            ) in self.list_of_fields_of_subject_education_level_model:
+            for one_value_from_list_of_fields_of_subject_education_level_model in self.list_of_fields_of_subject_education_level_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_subject_education_level_model,
                     test_dict,
@@ -113,12 +109,8 @@ class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
         return json_data
 
     def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_subject_education_level_id = list_of_records[len(list_of_records) - 1][
-            "id"
-        ]
-        json_data = self.do_get_one_subject_education_level(
-            test_subject_education_level_id
-        )
+        test_subject_education_level_id = list_of_records[len(list_of_records) - 1]["id"]
+        json_data = self.do_get_one_subject_education_level(test_subject_education_level_id)
         self.assertEqual(
             json_data["id"],
             test_subject_education_level_id,
@@ -130,9 +122,7 @@ class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["subject"] = 2
 
-        updated_response_json_data = self.do_update_one_subject_education_level(
-            test_record_id, json.dumps(updated_request_body)
-        )
+        updated_response_json_data = self.do_update_one_subject_education_level(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             self.assertEqual(updated_response_json_data[key], updated_request_body[key])

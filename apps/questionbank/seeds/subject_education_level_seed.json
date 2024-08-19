@@ -148,15 +148,5 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
-    },
-    {
-        "model": "questionbank.SubjectEducationLevel",
-        "pk": 16,
-        "fields": {
-            "subject_id": "4",
-            "education_level_id": "4",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
-        }
     }
 ]
