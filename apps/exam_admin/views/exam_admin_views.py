@@ -126,7 +126,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         response = ExamDetailSerializer(exam).data
-        return Response(response)
+        return Response(response, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -150,7 +150,7 @@ class ExamViewSet(viewsets.ModelViewSet):
             subject_count=subject_count,
             education_level_id=education_level_id,
         )
-        return make_success_response(exam)
+        return make_success_response(exam, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
