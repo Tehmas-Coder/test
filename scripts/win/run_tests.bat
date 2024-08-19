@@ -8,3 +8,5 @@ REM ------------------------ QUESTION BANK APP TESTS ---------------------------
 python manage.py test apps.questionbank.tests
 REM ------------------------ EXAM ADMIN APP TESTS ---------------------------
 python manage.py test apps.exam_admin.tests
+REM ------------------------ EXAM PUBLIC APP TESTS ---------------------------
+python manage.py test apps.exam_public.tests
