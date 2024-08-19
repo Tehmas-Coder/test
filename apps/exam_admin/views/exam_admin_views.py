@@ -176,7 +176,7 @@ class ExamSubjectViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam_subject = serializer.save()
         response = ExamSubjectDetailSerializer(exam_subject).data
-        return Response(response)
+        return Response(response, status=status.HTTP_201_CREATED)
 
 
 # ----------------------------- SUBJECT QUESTIONS ---------------------------- #
