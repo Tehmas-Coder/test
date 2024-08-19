@@ -198,7 +198,7 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         exam_subject_question = serializer.save()
         response = ExamSubjectQuestionSerializer(exam_subject_question).data
-        return Response(response)
+        return Response(response, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
