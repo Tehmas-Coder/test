@@ -59,7 +59,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
         .prefetch_related("user__roles")
     )
     serializer_class = CandidateSerializer
-    filter_backends = [CandidateFilterBackend]
+    # filter_backends = [CandidateFilterBackend]
     pagination_class = None
     http_method_names = ["get", "post", "patch"]
 
