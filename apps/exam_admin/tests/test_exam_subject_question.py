@@ -12,19 +12,35 @@ from utils.rna_utils import (
 )
 
 
-class SubjectEducationLevelUnitTest(TestSetUp):
+class ExamSubjectQuestionUnitTest(TestSetUp):
     fixtures = [
-        "education_level_seed",
+        "question_type_seed",
+        "measuring_unit_seed",
         "subject_seed",
+        "education_level_seed",
         "subject_education_level_seed",
+        "exam_seed",
+        "exam_subject_seed",
+        "timezone_test_seed",
+        "currency_test_seed",
+        "language_test_seed",
+        "country_test_seed",
+        "measuring_unit_seed",
+        "media_type_seed",
+        "tag_seed",
+        "difficulty_level_seed",
+        "question_seed",
+        "section_seed",
+        "subsection_seed",
+        "exam_subject_question_seed",
     ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_create_subject_education_level(self, request_body):
-        print_test_header("create_subject_education_level")
-        url = "/api/subject-education-levels/"
+    def do_create_exam_subject_question(self, request_body):
+        print_test_header("create_exam_subject_question")
+        url = "/api/exam-subject-question/"
         response = self.client.post(
             url,
             headers=self.headers,
@@ -34,23 +50,9 @@ class SubjectEducationLevelUnitTest(TestSetUp):
         validate_success_201_test_response(self, response)
         return response.data
 
-    def do_get_subject_education_level_list(self):
-        print_test_header("get_subject_education_level_list")
-        url = "/api/subject-education-levels/"
-        response = self.client.get(url, headers=self.headers)
-        validate_success_200_test_response(self, response)
-        return response.data
-
-    def do_get_one_subject_education_level(self, subject_education_level_id):
-        print_test_header("get_one_subject_education_level")
-        url = f"/api/subject-education-levels/{subject_education_level_id}/"
-        response = self.client.get(url, headers=self.headers)
-        validate_success_200_test_response(self, response)
-        return response.data
-
-    def do_update_one_subject_education_level(self, subject_education_level_id, request_body):
-        print_test_header("update_subject_education_level")
-        url = f"/api/subject-education-levels/{subject_education_level_id}/"
+    def do_update_one_exam_subject_question(self, exam_id, request_body):
+        print_test_header("update_exam_subject_question")
+        url = f"/api/exam-subject-question/{exam_id}/"
         response = self.client.patch(
             url,
             headers=self.headers,
@@ -60,76 +62,63 @@ class SubjectEducationLevelUnitTest(TestSetUp):
         validate_success_200_test_response(self, response)
         return response.data
 
-    def do_delete_one_subject_education_level(self, subject_education_level_id):
-        print_test_header("delete_subject_education_level")
-        url = f"/api/subject-education-levels/{subject_education_level_id}/"
+    def do_delete_one_exam_subject_question(self, exam_subject_question_id):
+        print_test_header("delete_exam_subject_question")
+        url = f"/api/exam-subject-question/{exam_subject_question_id}/"
         response = self.client.delete(url, headers=self.headers)
         validate_success_204_test_response(self, response)
 
 
-class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
+class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
-        "subject": 4,
-        "education_level": 4,
+        "exam_subject": {
+            "subject_education_level": 5,
+            "exam": 2,
+        },
+        "question": 1,
+        "section": None,
+        "subsection": None,
+        "sequence": 5,
     }
-    list_of_fields_of_subject_education_level_model = [
+    list_of_fields_of_exam_subject_question_model = [
         "id",
-        "subject",
-        "education_level",
+        "exam_subject",
+        "question",
+        "section",
+        "subsection",
+        "sequence",
+        "description",
     ]
 
     # ?###################################################
     # ?              TESTS - CASES
     # ?###################################################
-    def test_cases_subject_education_level(self):
-        self.successfull_creation_of_a_record_test()
-        list_of_records = self.successsfull_fetching_of_list_of_records_test()
-        test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
+    def test_cases_exam_subject_question(self):
+        test_record_id = self.successfull_creation_of_a_record_test()
         self.successfull_updation_of_record_test(test_record_id)
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_subject_education_level(json.dumps(self.reuseable_request_body))
-        for key in self.reuseable_request_body:
-            self.assertEqual(json_data[key], self.reuseable_request_body[key])
-        for one_field in self.list_of_fields_of_subject_education_level_model:
+        json_data = self.do_create_exam_subject_question(json.dumps(self.reuseable_request_body))
+        for one_field in self.list_of_fields_of_exam_subject_question_model:
             self.assertIn(one_field, json_data)
-
-    def successsfull_fetching_of_list_of_records_test(self):
-        json_data = self.do_get_subject_education_level_list()
-        self.assertGreater(len(json_data), 0)
-        for test_dict in json_data:
-            for one_value_from_list_of_fields_of_subject_education_level_model in self.list_of_fields_of_subject_education_level_model:
-                self.assertIn(
-                    one_value_from_list_of_fields_of_subject_education_level_model,
-                    test_dict,
-                    f"The key {one_value_from_list_of_fields_of_subject_education_level_model} is not present in {test_dict}",
-                )
-        return json_data
-
-    def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_subject_education_level_id = list_of_records[len(list_of_records) - 1]["id"]
-        json_data = self.do_get_one_subject_education_level(test_subject_education_level_id)
-        self.assertEqual(
-            json_data["id"],
-            test_subject_education_level_id,
-            f"The field id ({json_data['id']} is not equal to id ({test_subject_education_level_id}) )",
-        )
-        return test_subject_education_level_id
+        return json_data["id"]
 
     def successfull_updation_of_record_test(self, test_record_id):
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
-        updated_request_body["subject"] = 2
-
-        updated_response_json_data = self.do_update_one_subject_education_level(test_record_id, json.dumps(updated_request_body))
+        updated_request_body["section"] = 1
+        updated_request_body["subsection"] = 2
+        updated_request_body["sequence"] = 1
+        updated_response_json_data = self.do_update_one_exam_subject_question(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
-            self.assertEqual(updated_response_json_data[key], updated_request_body[key])
+            if key in ["section", "subsection", "sequence"]:
+                self.assertEqual(updated_response_json_data[key], updated_request_body[key])
 
     # * Test to check the deletion of a record
     def successfull_deletion_of_a_record_test(self, test_record_id):
-        self.do_delete_one_subject_education_level(test_record_id)
+        self.do_delete_one_exam_subject_question(test_record_id)
 
 
 # ?###################################################

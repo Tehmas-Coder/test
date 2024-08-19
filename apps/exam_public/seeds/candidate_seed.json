@@ -1,0 +1,44 @@
+[
+    {
+        "model": "exam_public.Candidate",
+        "pk": 1,
+        "fields": {
+            "user": 3,
+            "organization": 1,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": "system",
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": "system",
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_public.Candidate",
+        "pk": 2,
+        "fields": {
+            "user": 2,
+            "organization": 2,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": "system",
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": "system",
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_public.Candidate",
+        "pk": 3,
+        "fields": {
+            "user": 4,
+            "organization": 1,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": "system",
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": "system",
+            "meta_status": "active"
+        }
+    }
+]

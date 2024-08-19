@@ -71,7 +71,12 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             many=True,
         ).data
 
-        return Response(organization_with_users_list, status=status.HTTP_200_OK)
+        if len(organization_with_users_list):
+            response_data = organization_with_users_list[0]
+        else:
+            response_data = organization_with_users_list
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
     def get_organization_candidates_list(self, request, *args, **kwargs):
         logged_in_user = self.request.user
@@ -137,4 +142,9 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             )
         )
 
-        return Response(user_organization_detail, status=status.HTTP_200_OK)
+        if len(user_organization_detail):
+            response_data = user_organization_detail[0]
+        else:
+            response_data = user_organization_detail
+
+        return Response(response_data, status=status.HTTP_200_OK)
