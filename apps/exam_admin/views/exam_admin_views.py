@@ -61,7 +61,7 @@ class SectionViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         section = serializer.save()
         response = SectionSerializer(section).data
-        return Response(response)
+        return Response(response, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -95,7 +95,7 @@ class SubSectionViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         subsection = serializer.save()
         response = SubSectionSerializer(subsection).data
-        return Response(response)
+        return Response(response, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
