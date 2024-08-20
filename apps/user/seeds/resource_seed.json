@@ -1858,5 +1858,77 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 156,
+        "fields": {
+            "name": "Add Role Permission",
+            "description": "Bulk Assign a Role Permissions",
+            "regex": "^/role-permissions/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 157,
+        "fields": {
+            "name": "Get Role Permission",
+            "description": "Get One Role Permission",
+            "regex": "^/role-permissions/[0-9]+/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 158,
+        "fields": {
+            "name": "Get Role Permissions",
+            "description": "Get All Role Permissions",
+            "regex": "^/role-permissions/$",
+            "method": "get",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 159,
+        "fields": {
+            "name": "Upsert Role Permission",
+            "description": "Bulk Upsert a Role Permissions",
+            "regex": "^/role-permissions/[0-9]+/$",
+            "method": "patch",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 160,
+        "fields": {
+            "name": "Delete Role Permission",
+            "description": "Delete One Role Permission",
+            "regex": "^/role-permissions/[0-9]+/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 161,
+        "fields": {
+            "name": "Set Role Permissions",
+            "description": "Setting a Role Permissions",
+            "regex": "^/roles/[0-9]+/set-permissions/$",
+            "method": "post",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
