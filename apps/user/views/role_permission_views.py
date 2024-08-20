@@ -17,8 +17,20 @@ from utils.rna_utils import debug_print, make_error_response
 
 class RoleViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    queryset = Role.objects.all()
+    queryset = Role.objects.all().prefetch_related("permissions")
     serializer_class = RoleSerializer
+
+    def list(self, request, *args, **kwargs):
+        user_role = request.user.roles.first()
+        if request.user.is_superuser or user_role.name.lower() == "system":
+            return super().list(request, *args, **kwargs)
+        elif user_role:
+            roles = self.get_queryset().filter(id__gt=user_role.id).exclude(name="System")
+            data = RoleSerializer(roles, many=True).data
+        else:
+            data = None
+
+        return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="set-permissions")
     def set_permissions(self, request, *args, **kwargs):
@@ -26,7 +38,7 @@ class RoleViewSet(viewsets.ModelViewSet):
         try:
             role.permissions.set(request.data["permissions"])
         except Exception as e:
-            return make_error_response(message=f"Invalid Permission")
+            return make_error_response(message=f"Invalid Permissions")
 
         return Response({"message": "Permissions set successfully"}, status=status.HTTP_200_OK)
 
@@ -54,9 +66,7 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         request_data = request.data
-        debug_print(request_data)
         role = Role.objects.filter(id=request_data["role"]).first()
         role.permissions.set(request_data["permissions"])
-        # debug_print(role.permissions.all(), color="red")
 
-        return Response([], status=status.HTTP_201_CREATED)
+        return Response({"message": "Permissions set successfully"}, status=status.HTTP_201_CREATED)

@@ -25,6 +25,7 @@ class RoleSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
+# ------------------------------ ROLE PERMISSION ----------------------------- #
 class RolePermissionSerializer(BaseModelSerializer):
     role = RoleSerializer(read_only=True)
     permission = PermissionSerializer(read_only=True)
