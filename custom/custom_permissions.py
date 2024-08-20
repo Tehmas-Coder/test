@@ -13,10 +13,13 @@ class IsAuthenticated(BasePermission):
         request_method = request.method.lower()
         request_path = request.path.replace("/api", "")
 
+        if user_session_data.is_superuser:
+            return True
+
         user_role = user_session_data.roles.all().values().first()
         role_id = user_role["id"]
 
-        if user_session_data.is_superuser or user_role["name"].lower() == "system":
+        if user_role["name"].lower() == "system":
             return True
 
         else:
