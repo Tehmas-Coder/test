@@ -136,7 +136,7 @@ class Role(BaseModel):
 
 
 class UserRole(BaseModel):
-    user = models.ForeignKey(BaseUser, on_delete=models.PROTECT, related_name="user_roles")
+    user = models.ForeignKey(BaseUser, on_delete=models.PROTECT)
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
 
     class Meta:

@@ -13,10 +13,10 @@ from rest_framework_simplejwt.views import (
 )
 
 from apps.exam_public.models.exam_public_models import Candidate
+from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
 from utils.rna_utils import debug_print, make_error_response, make_success_response
 
-from apps.user.models import UserRole
 from ..models import BaseUser, Role
 
 
@@ -70,7 +70,8 @@ class LoginApiView(TokenObtainPairView):
 
         user_role_name = None
         if "is_system_user" in request.data:
-            user_role_name = UserRole.objects.filter(user_id=user.id).annotate(role_name=F("role__name")).values("id", "user", "role_name").first()
+            # user_role_name = UserRole.objects.filter(user_id=user.id).annotate(role_name=F("role__name")).values("id", "user", "role_name").first()
+            user_role_name = user.roles.all().values().first()
 
         if user_role_name == None:
             if not user.is_verified:  # type: ignore
