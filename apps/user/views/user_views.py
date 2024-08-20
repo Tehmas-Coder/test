@@ -171,6 +171,20 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({"status": "deleted", "message": "Users deleted!"})
 
 
+class AssignUserRoleAPI(views.APIView):
+
+    def post(self, request, *args, **kwargs):
+        user = BaseUser.objects.filter(id=request.data["user"]).first()
+        if not user:
+            return Response(self.USER_NOT_FOUND, status=404)
+        try:
+            user.roles.set(request.data["roles"])
+        except Exception as e:
+            return make_error_response(message=f"Invalid Roles")
+
+        return Response({"message": "Roles set successfully"}, status=status.HTTP_200_OK)
+
+
 class InvitaionLinkAPI(views.APIView):
 
     def get(self, request):
