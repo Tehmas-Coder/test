@@ -11,10 +11,12 @@ class IsAuthenticated(BasePermission):
     def has_permission(self, request, view):
         user_session_data = request.user
         request_method = request.method.lower()
-
         request_path = request.path.replace("/api", "")
 
-        if user_session_data.is_superuser:
+        user_role = user_session_data.roles.all().values().first()
+        role_id = user_role["id"]
+
+        if user_session_data.is_superuser or user_role["name"].lower() == "system":
             return True
 
         else:
@@ -25,11 +27,6 @@ class IsAuthenticated(BasePermission):
                 return False
 
         # return True
-        logged_in_user_id = user_session_data.id
-        user_role = UserRole.objects.filter(user_id=logged_in_user_id).values().first()
-
-        role_id = user_role["role_id"]
-
         return validate_resources(request_method, request_path, role_id)
 
 

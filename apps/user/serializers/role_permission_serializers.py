@@ -1,4 +1,4 @@
-from apps.user.models import Permission, Role
+from apps.user.models import Permission, Role, RolePermission
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
@@ -22,4 +22,18 @@ class RoleSerializer(BaseModelSerializer):
             "id",
             "name",
             "permissions",
+        ] + get_base_model_fields()
+
+
+# ------------------------------ ROLE PERMISSION ----------------------------- #
+class RolePermissionSerializer(BaseModelSerializer):
+    role = RoleSerializer(read_only=True)
+    permission = PermissionSerializer(read_only=True)
+
+    class Meta:
+        model = RolePermission
+        fields = [
+            "id",
+            "role",
+            "permission",
         ] + get_base_model_fields()

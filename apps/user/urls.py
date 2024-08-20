@@ -16,13 +16,15 @@ urlpatterns = [
     path("resend-otp/", OTPViewSet.as_view({"post": "resend_otp"}), name="resend_otp"),
     path("verification", InvitaionLinkAPI.as_view(), name="invitation_link"),
     path("resend-verification-link/", ResendVerificationLinkAPI.as_view(), name="resend_verification_link"),
+    path("assign-user-roles/", AssignUserRoleAPI.as_view(), name="assign-user-role"),
 ]
 
 # ----------------------------------- USERS ---------------------------------- #
 router.register(r"users", UserViewSet)
 
-# ----------------------------------- ROLES ---------------------------------- #
+# ----------------------------- ROLE PERMISSIONS ----------------------------- #
 router.register(r"roles", RoleViewSet)
 router.register(r"permissions", PermissionViewSet)
+router.register(r"role-permissions", RolePermissionViewSet)
 
 urlpatterns += router.urls
