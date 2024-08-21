@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
+    RoleDetailSerializer,
     RolePermissionSerializer,
     RoleSerializer,
 )
@@ -20,6 +21,16 @@ class RoleViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
     queryset = Role.objects.all().prefetch_related("permissions")
     serializer_class = RoleSerializer
+
+    def get_serializer_class(self):
+        if self.action in ["list", "retrieve"]:
+            return RoleDetailSerializer
+        return super().get_serializer_class()
+
+    def get_queryset(self):
+        if self.action in ["list", "retrieve"]:
+            return Role.objects.all().prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+        return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
         new_role_data = super().create(request, *args, **kwargs)
@@ -48,11 +59,13 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="set-permissions")
     def set_permissions(self, request, *args, **kwargs):
-        role = self.get_object()
-        try:
-            role.permissions.set(request.data["permissions"])
-        except Exception as e:
-            return make_error_response(message=f"Invalid Permissions")
+        permissions = request.data["permissions"]
+        role_id = self.get_object().id
+
+        RolePermission.objects.filter(role_id=role_id).update(is_active=False)
+
+        if permissions:
+            RolePermission.objects.filter(role_id=role_id, permission_id__in=permissions).update(is_active=True)
 
         return Response({"message": "Permissions set successfully"}, status=status.HTTP_200_OK)
 
