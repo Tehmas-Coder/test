@@ -171,7 +171,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({"status": "deleted", "message": "Users deleted!"})
 
 
-class AssignUserRoleAPI(views.APIView):
+class SetUserRoleAPI(views.APIView):
 
     def post(self, request, *args, **kwargs):
         user = BaseUser.objects.filter(id=request.data["user"]).first()
