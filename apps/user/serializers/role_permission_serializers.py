@@ -21,6 +21,7 @@ class RoleSerializer(BaseModelSerializer):
         fields = [
             "id",
             "name",
+            "slug",
             "permissions",
         ] + get_base_model_fields()
 
@@ -34,6 +35,7 @@ class RolePermissionSerializer(BaseModelSerializer):
         model = RolePermission
         fields = [
             "id",
+            "is_active",
             "role",
             "permission",
         ] + get_base_model_fields()

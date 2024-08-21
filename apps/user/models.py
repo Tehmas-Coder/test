@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Any
+from django.utils.text import slugify
 
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
@@ -130,6 +131,11 @@ class BaseUser(BaseModel, AbstractUser):
 class Role(BaseModel):
     name = models.CharField(max_length=255)
     permissions = models.ManyToManyField("Permission", related_name="roles", blank=True, through="RolePermission")
+    slug = models.SlugField(max_length=100, null=True, unique=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     class Meta:
         app_label = "user"
@@ -154,6 +160,8 @@ class Permission(BaseModel):
 class RolePermission(BaseModel):
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
     permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
+
+    is_active = models.BooleanField(default=False)
 
     class Meta:
         app_label = "user"
