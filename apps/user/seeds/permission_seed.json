@@ -1,0 +1,52 @@
+[
+    {
+        "model": "user.Permission",
+        "pk": 1,
+        "fields": {
+            "name": "View Exam",
+            "description": "View an Exam",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 2,
+        "fields": {
+            "name": "Create an Exam",
+            "description": "Create an Exam",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 3,
+        "fields": {
+            "name": "Get Filtered Questions",
+            "description": "Get Filtered Questions",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 4,
+        "fields": {
+            "name": "Get Exam Question Answers",
+            "description": "Get An Exam Questions Answers",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 5,
+        "fields": {
+            "name": "Score an Exam",
+            "description": "Set Scores of an Exam",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

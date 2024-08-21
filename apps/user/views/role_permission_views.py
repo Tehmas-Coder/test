@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -22,33 +23,16 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         new_role_data = super().create(request, *args, **kwargs)
+
         new_role_id = new_role_data.data["id"]
+        permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
 
-        if new_role_id:
-            permission_list = list(Permission.objects.all().values())
+        new_role_instance = Role.objects.prefetch_related("permissions").get(pk=new_role_id)
+        if len(permission_ids_list):
+            new_role_instance.permissions.set(permission_ids_list)
 
-            if len(permission_list):
-                RolePermission.objects.bulk_create(
-                    [
-                        RolePermission(
-                            role_id=new_role_id,
-                            permission_id=one_permission["id"],
-                        )
-                        for one_permission in permission_list
-                    ]
-                )
-
-            new_role_instance = Role.objects.prefetch_related("permissions").get(pk=new_role_id)
-            new_role_permssion_data = RoleSerializer(new_role_instance).data
-            return Response(data=new_role_permssion_data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(
-                {
-                    "status": "failed",
-                    "message": "Role does not exist",
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        new_role_permssion_data = RoleSerializer(new_role_instance).data
+        return Response(new_role_permssion_data, status=status.HTTP_201_CREATED)
 
     # def list(self, request, *args, **kwargs):
     #     user_role = request.user.roles.first()

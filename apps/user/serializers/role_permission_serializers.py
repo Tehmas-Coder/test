@@ -1,5 +1,8 @@
+from rest_framework import serializers
+
 from apps.user.models import Permission, Role, RolePermission
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print
 
 
 # -------------------------------- PERMISSIONS ------------------------------- #
@@ -24,6 +27,25 @@ class RoleSerializer(BaseModelSerializer):
             "slug",
             "permissions",
         ] + get_base_model_fields()
+
+
+# class RoleSerializer(BaseModelSerializer):
+#     role_permissions = serializers.SerializerMethodField(read_only=True)
+
+#     class Meta:
+#         model = Role
+#         fields = [
+#             "id",
+#             "name",
+#             "slug",
+#             "role_permissions",
+#         ] + get_base_model_fields()
+
+#     def get_role_permissions(self, obj):
+#         role_permissions = list(obj.role_permissions.filter(is_active=True).values())
+#         debug_print(role_permissions)
+#         data = RolePermissionSerializer(role_permissions, many=True).data
+#         return data
 
 
 # ------------------------------ ROLE PERMISSION ----------------------------- #
