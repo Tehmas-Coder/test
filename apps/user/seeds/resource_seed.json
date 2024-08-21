@@ -1935,9 +1935,9 @@
         "model": "user.Resource",
         "pk": 162,
         "fields": {
-            "name": "Set Roles to a User",
-            "description": "Set Roles to a User",
-            "regex": "^/assign-user-roles/$",
+            "name": "Set User Role",
+            "description": "Set Role of a User",
+            "regex": "^/set-user-role/$",
             "method": "post",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"

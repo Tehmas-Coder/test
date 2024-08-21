@@ -175,14 +175,15 @@ class SetUserRoleAPI(views.APIView):
 
     def post(self, request, *args, **kwargs):
         user = BaseUser.objects.filter(id=request.data["user"]).first()
+        role = [request.data["role"]]
         if not user:
             return Response(self.USER_NOT_FOUND, status=404)
         try:
-            user.roles.set(request.data["roles"])
+            user.roles.set(role)
         except Exception as e:
-            return make_error_response(message=f"Invalid Roles")
+            return make_error_response(message=f"Invalid Role")
 
-        return Response({"message": "Roles set successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Role set successfully"}, status=status.HTTP_200_OK)
 
 
 class InvitaionLinkAPI(views.APIView):

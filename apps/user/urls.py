@@ -16,7 +16,7 @@ urlpatterns = [
     path("resend-otp/", OTPViewSet.as_view({"post": "resend_otp"}), name="resend_otp"),
     path("verification", InvitaionLinkAPI.as_view(), name="invitation_link"),
     path("resend-verification-link/", ResendVerificationLinkAPI.as_view(), name="resend_verification_link"),
-    path("set-user-roles/", SetUserRoleAPI.as_view(), name="set-user-role"),
+    path("set-user-role/", SetUserRoleAPI.as_view(), name="set_user_role"),
 ]
 
 # ----------------------------------- USERS ---------------------------------- #
