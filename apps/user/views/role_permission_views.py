@@ -22,7 +22,7 @@ from utils.rna_utils import debug_print, make_error_response
 
 class RoleViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
-    queryset = Role.objects.all().prefetch_related("permissions")
+    queryset = Role.objects.filter(is_system_role=False).prefetch_related("permissions")
     serializer_class = RoleSerializer
 
     def get_serializer_class(self):
@@ -32,7 +32,9 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action in ["list", "retrieve"]:
-            return Role.objects.all().prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+            return Role.objects.filter(is_system_role=False).prefetch_related(
+                Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
+            )
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
@@ -109,7 +111,7 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
         role_instance = Role.objects.filter(slug=request_role_name_slug, name=request_role_name)
 
         if not len(role_instance) and len(request_data["default_qb_permissions"]):
-            new_role_instance = Role.objects.create(name=request_role_name)
+            new_role_instance = Role.objects.create(name=request_role_name, is_system_role=True)
             permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
 
             if len(permission_ids_list):

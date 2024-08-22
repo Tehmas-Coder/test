@@ -3,6 +3,7 @@ from typing import Any
 
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
+from django.forms import BooleanField
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -132,6 +133,7 @@ class Role(BaseModel):
     name = models.CharField(max_length=255)
     permissions = models.ManyToManyField("Permission", related_name="roles", blank=True, through="RolePermission")
     slug = models.SlugField(max_length=100, null=True, unique=True)
+    is_system_role = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
