@@ -20,7 +20,7 @@ from apps.user.serializers.role_permission_serializers import (
 
 class RoleViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
-    queryset = Role.objects.filter(is_system_role=False).prefetch_related("permissions")
+    queryset = Role.objects.all().prefetch_related("permissions")
     serializer_class = RoleSerializer
 
     def get_serializer_class(self):
@@ -30,9 +30,7 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action in ["list", "retrieve"]:
-            return Role.objects.filter(is_system_role=False).prefetch_related(
-                Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
-            )
+            return Role.objects.all().prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
