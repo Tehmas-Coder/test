@@ -55,6 +55,7 @@ class RolePermissionSerializerForRole(BaseModelSerializer):
         model = RolePermission
         fields = [
             "id",
+            "role",
             "is_active",
             "permission",
         ] + get_base_model_fields()
