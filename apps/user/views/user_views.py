@@ -65,31 +65,52 @@ class UserViewSet(viewsets.ModelViewSet):
         request_user_role_id = request.data.pop("role", None)
         request_user_role_name = get_role_name(request_user_role_id)
 
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            if "email" in serializer.errors:
-                return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        user_instance = serializer.save()
-        user_instance.roles.add(request_user_role_id)
-
-        if logged_in_user.is_superuser:
-            if request_user_role_name.lower() == "candidate":
-                Candidate.objects.create(user_id=user_instance.id)
+        # User Creation form student apply
+        if (not logged_in_user.is_superuser) and len(self.request.user.roles.all()):
+            request_data = request.data
+            request_user_role = self.request.user.roles.first()
+            if request_user_role.name.lower() == "system":  # make it system
+                instance, _ = BaseUser.objects.get_or_create(
+                    email=request_data["email"],
+                    defaults={
+                        "email": request_data["email"],
+                        "first_name": request_data["first_name"],
+                        "last_name": request_data["last_name"],
+                    },
+                )
+                instance.roles.add(request_user_role_id)
+                data = model_to_dict(instance)
+                data["roles"] = data["roles"][0].id
+            else:
+                pass
 
         else:
-            logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
-                user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                if "email" in serializer.errors:
+                    return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            user_instance = serializer.save()
+            data = serializer.data
+            user_instance.roles.add(request_user_role_id)
+
+            if logged_in_user.is_superuser:
                 if request_user_role_name.lower() == "candidate":
-                    if user_organization_id:
-                        Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
-                else:
-                    OrganizationUser.objects.create(
-                        user_id=user_instance.id,
-                        organization_id=user_organization_id["organization"],
-                    )
+                    Candidate.objects.create(user_id=user_instance.id)
+
+            else:
+                logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
+                if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
+                    user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
+                    if request_user_role_name.lower() == "candidate":
+                        if user_organization_id:
+                            Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
+                    else:
+                        OrganizationUser.objects.create(
+                            user_id=user_instance.id,
+                            organization_id=user_organization_id["organization"],
+                        )
 
         key = get_encryption_key()
         cipher = Fernet(key)
@@ -104,7 +125,7 @@ class UserViewSet(viewsets.ModelViewSet):
             "first_name": request.data["first_name"],
             "last_name": request.data["last_name"],
             "email": request.data["email"],
-            "password": request.data["password"],
+            "password": request.data.get("password", None),
             "URL": final_url,
         }
         email_notification_ninja = EmailNotification(send_email_data_dict)
@@ -122,7 +143,7 @@ class UserViewSet(viewsets.ModelViewSet):
             {
                 "status": "success",
                 "message": "User created successfully.",
-                "data": serializer.data,
+                "data": data,
             },
             status=status.HTTP_201_CREATED,
         )
