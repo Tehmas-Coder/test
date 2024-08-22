@@ -68,8 +68,13 @@ class UserViewSet(viewsets.ModelViewSet):
             request_data = request.data
             request_user_role = self.request.user.roles.first()
             if request_user_role.name.lower() == "system":  # make it system
-                request_role_slug = request_data["slug"]
-                request_role_name = request_data["role_name"]
+                if "is_candidate_user" in request_data:
+                    role = Role.objects.filter(name="Candidate").first()
+                else:
+                    request_role_slug = request_data["slug"]
+                    request_role_name = request_data["role_name"]
+                    role = Role.objects.filter(name=request_role_name, slug=request_role_slug).first()
+
                 instance, _ = BaseUser.objects.get_or_create(
                     email=request_data["email"],
                     defaults={
@@ -80,7 +85,10 @@ class UserViewSet(viewsets.ModelViewSet):
                         "date_of_birth": request_data.get("date_of_birth", None),
                     },
                 )
-                role = Role.objects.filter(name=request_role_name, slug=request_role_slug).first()
+
+                if "is_candidate_user" in request_data:
+                    Candidate.objects.get_or_create(user=instance)
+
                 if len(instance.roles.all()):
                     one_role = instance.roles.first()
                     if not one_role.is_system_role:
@@ -94,6 +102,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 instance.roles.add(role.id)
                 data = model_to_dict(instance)
                 data["roles"] = data["roles"][0].id
+
             else:
                 request_user_role_id = request.data.pop("role", None)
                 request_user_role_name = get_role_name(request_user_role_id)

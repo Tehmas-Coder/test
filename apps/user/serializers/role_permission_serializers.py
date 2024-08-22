@@ -25,6 +25,7 @@ class RoleSerializer(BaseModelSerializer):
             "id",
             "name",
             "slug",
+            "is_system_role",
             "permissions",
         ] + get_base_model_fields()
 
@@ -37,6 +38,7 @@ class RoleDetailSerializer(BaseModelSerializer):
         fields = [
             "id",
             "name",
+            "is_system_role",
             "slug",
             "role_permissions",
         ] + get_base_model_fields()
