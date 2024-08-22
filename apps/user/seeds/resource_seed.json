@@ -1942,5 +1942,17 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 163,
+        "fields": {
+            "name": "Update Role Permissions from Student Apply Backend",
+            "description": "Update Role Permissions from Student Apply Backend",
+            "regex": "^/update-role-permissions-from-sa-be/$",
+            "method": "put",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]

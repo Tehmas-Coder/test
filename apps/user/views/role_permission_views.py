@@ -1,9 +1,12 @@
+import django.db
+from django.db import transaction
 from django.db.models import Prefetch
-from rest_framework import permissions, status, viewsets
+from django.utils.text import slugify
+from rest_framework import permissions, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.user.models import Permission, Role, RolePermission
+from apps.user.models import BaseUser, Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
     RoleDetailSerializer,
@@ -99,7 +102,7 @@ class PermissionViewSet(viewsets.ModelViewSet):
 
 
 class RolePermissionViewSet(viewsets.ModelViewSet):
-    http_method_names = ["get", "post", "patch", "delete"]
+    http_method_names = ["get", "post", "patch", "delete", "put"]
     queryset = RolePermission.objects.all().select_related("role", "permission")
     serializer_class = RolePermissionSerializer
 
@@ -109,3 +112,75 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
         role.permissions.set(request_data["permissions"])
 
         return Response({"message": "Permissions set successfully"}, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def update_role_permissions_from_sa_be(self, request, *args, **kwargs):
+        request_role_name = request.data["RoleName"]
+        request_role_name_slug = slugify(request_role_name)
+        role_instance = Role.objects.filter(slug=request_role_name_slug).first()
+
+        if not role_instance:
+            if not ("default_qb_permissions" in request.data):
+                return Response(
+                    {
+                        "status": "failed",
+                        "message": "Request data does not include default qb permissions",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            else:
+                new_role_instance = Role.objects.create(name=request_role_name)
+                permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
+
+                if len(permission_ids_list):
+                    new_role_instance.permissions.set(permission_ids_list)
+
+                    request_permission_ids_list = []
+
+                    for one_permission in request.data["default_qb_permissions"]:
+                        request_permission_ids_list.append(one_permission["PermissionID"])
+
+                    RolePermission.objects.filter(role_id=new_role_instance.id, permission_id__in=request_permission_ids_list).update(is_active=True)
+
+                response_role_instance = (
+                    Role.objects.filter(id=new_role_instance.id)
+                    .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+                    .first()
+                )
+
+                new_role_permission_data = RoleDetailSerializer(response_role_instance).data
+                return Response({"message": "Role and permissions set successfully", "data": new_role_permission_data}, status=status.HTTP_200_OK)
+
+        else:
+            if not ("qb_role_permissions" in request.data):
+                return Response(
+                    {
+                        "status": "failed",
+                        "message": "Request data does not include qb role permissions",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            else:
+                role_instance = Role.objects.filter(slug=slugify(request_role_name)).first()
+                bulk_update_list = []
+
+                for one_permission in request.data["qb_role_permissions"]:
+                    permission_id = one_permission["PermissionID"]
+                    is_active = one_permission["IsActive"]
+
+                    role_permission_instance = RolePermission.objects.filter(role=role_instance, permission_id=permission_id).first()
+
+                    if role_permission_instance:
+                        role_permission_instance.is_active = is_active
+                        bulk_update_list.append(role_permission_instance)
+
+                RolePermission.objects.bulk_update(bulk_update_list, ["is_active"])
+
+                response_role_instance = (
+                    Role.objects.filter(id=role_instance.id)
+                    .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+                    .first()
+                )
+
+                new_role_permission_data = RoleDetailSerializer(response_role_instance).data
+                return Response({"message": "Role and permissions set successfully", "data": new_role_permission_data}, status=status.HTTP_200_OK)

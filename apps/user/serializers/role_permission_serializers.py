@@ -42,7 +42,7 @@ class RoleDetailSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
     def get_role_permissions(self, obj):
-        # role_permissions = list(obj.role_permissions.filter(is_active=True).values())
+        # role_permissions = obj.role_permissions.filter(is_active=True)
         role_permissions = obj.role_permissions.all()
         data = RolePermissionSerializerForRole(role_permissions, many=True).data
         return data
