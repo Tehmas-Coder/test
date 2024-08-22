@@ -18,6 +18,7 @@ urlpatterns = [
     path("resend-verification-link/", ResendVerificationLinkAPI.as_view(), name="resend_verification_link"),
     path("set-user-role/", SetUserRoleAPI.as_view(), name="set_user_role"),
     path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
+    path("delete-role-with-permissions-from-sa-be/", RolePermissionViewSet.as_view({"delete": "delete_role_with_permissions"})),
 ]
 
 # ----------------------------------- USERS ---------------------------------- #

@@ -1954,5 +1954,17 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Resource",
+        "pk": 164,
+        "fields": {
+            "name": "Delete Role with its Permissions from Student Apply Backend",
+            "description": "Delete Role with its Permissions from Student Apply Backend",
+            "regex": "^/delete-role-with-permissions-from-sa-be/$",
+            "method": "delete",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]

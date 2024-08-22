@@ -134,3 +134,27 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
             )
 
         return Response(status=status.HTTP_200_OK)
+
+    @transaction.atomic
+    def delete_role_with_permissions(self, request, *args, **kwargs):
+        if (not request.user.is_superuser) and len(self.request.user.roles.all()):
+            request_user_role = self.request.user.roles.first()
+            if request_user_role.name.lower() == "admin":  # make it system
+                role_slug = request.data.get("role")
+                role_instance = Role.objects.filter(slug=role_slug).first()
+
+                if not role_instance:
+                    return Response({"error": "Role not found"}, status=status.HTTP_404_NOT_FOUND)
+
+                elif role_instance.is_system_role:
+                    role_permissions = RolePermission.objects.filter(role=role_instance)
+                    for role_permission in role_permissions:
+                        role_permission.delete()
+
+                    role_instance.delete()
+                    return Response(status=status.HTTP_204_NO_CONTENT)
+
+                else:
+                    return Response({"error": "Requested role is not a system role"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
