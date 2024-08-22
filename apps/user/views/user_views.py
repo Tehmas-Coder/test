@@ -82,7 +82,7 @@ class UserViewSet(viewsets.ModelViewSet):
                         "first_name": request_data["first_name"],
                         "last_name": request_data["last_name"],
                         "phone": request_data.get("phone", None),
-                        "date_of_birth": request_data.get("date_of_birth", None),
+                        # "date_of_birth": request_data.get("date_of_birth", None),
                     },
                 )
 
