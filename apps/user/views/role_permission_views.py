@@ -45,6 +45,18 @@ class RoleViewSet(viewsets.ModelViewSet):
         new_role_permssion_data = RoleSerializer(new_role_instance).data
         return Response(new_role_permssion_data, status=status.HTTP_201_CREATED)
 
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            temp_ref = self.kwargs["pk"]
+            is_id = temp_ref.isdigit()
+            self.kwargs["pk"] = Role.objects.get(slug=temp_ref).pk if not is_id else temp_ref
+            return super().retrieve(request, *args, **kwargs)
+        except Role.DoesNotExist:
+            return Response(
+                {"status": "error", "message": "Role not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
     # def list(self, request, *args, **kwargs):
     #     user_role = request.user.roles.first()
     #     if request.user.is_superuser or user_role.name.lower() == "system":
