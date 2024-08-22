@@ -137,7 +137,7 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
     def delete_role_with_permissions(self, request, *args, **kwargs):
         if (not request.user.is_superuser) and len(self.request.user.roles.all()):
             request_user_role = self.request.user.roles.first()
-            if request_user_role.name.lower() == "admin":  # make it system
+            if request_user_role.name.lower() == "system":  # make it system
                 role_slug = request.data.get("role")
                 role_instance = Role.objects.filter(slug=role_slug).first()
 
