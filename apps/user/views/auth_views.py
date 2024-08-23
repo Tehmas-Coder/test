@@ -1,23 +1,22 @@
-from django.db import transaction
-from django.db.models import F
-from django.forms import model_to_dict
-from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.views import TokenBlacklistView, TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers, views, viewsets
 from rest_framework.permissions import AllowAny
-from rest_framework.request import Request
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import (
-    TokenBlacklistView,
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework.request import Request
+from rest_framework import status, views
+from django.forms import model_to_dict
+from django.contrib.auth import login
+from django.db import transaction
+
 
 from apps.exam_public.models.exam_public_models import Candidate
-from apps.user.models import UserRole
-from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
-from utils.rna_utils import debug_print, make_error_response, make_success_response
-
 from ..models import BaseUser, Role
+
+from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
+
+from utils.rna_utils import debug_print, make_error_response, make_success_response
 
 
 class RegisterApiView(views.APIView):
@@ -70,7 +69,6 @@ class LoginApiView(TokenObtainPairView):
 
         user_role_name = None
         if "is_system_user" in request.data:
-            # user_role_name = UserRole.objects.filter(user_id=user.id).annotate(role_name=F("role__name")).values("id", "user", "role_name").first()
             user_role_name = user.roles.all().values().first()
 
         if user_role_name == None:
@@ -122,3 +120,30 @@ class OTPViewSet(viewsets.ViewSet):
         if not otp_sent:
             return make_error_response(message="Failed to send OTP, please try again")
         return Response({"status": "sent", "message": "OTP sent!"})
+
+
+class FromSaLoginToQBApiView(TokenObtainPairView):
+
+    def post(self, request):
+
+        if "is_system_user" in request.data:
+            email = request.data.get("email", None)
+            # email = "john.doe@example.com"
+
+            if not email:
+                return make_error_response(message="Email is required!")
+            user = BaseUser.get_user_by_email(email)
+            if not user:
+                return make_error_response(message="User not found!")
+
+            login(request, user)
+            refresh = RefreshToken.for_user(user)
+            auth_data = {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+
+            return Response(auth_data, status=status.HTTP_200_OK)
+
+        else:
+            return Response({"error": "Invalid request"}, status=status.HTTP_401_UNAUTHORIZED)
