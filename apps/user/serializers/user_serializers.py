@@ -5,13 +5,16 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.user.models import BaseUser
-from apps.user.serializers.role_permission_serializers import RoleSerializer
+from apps.user.serializers.role_permission_serializers import (
+    RoleDetailSerializer,
+    RoleSerializer,
+)
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import color_print, debug_print
 
 
 class UserDetailSerializer(BaseModelSerializer):
-    roles = RoleSerializer(many=True, read_only=True)
+    roles = RoleDetailSerializer(many=True, read_only=True)
     country = CountrySerializer(read_only=True)
     profile_picture = MediaSerializer(required=False)
 
