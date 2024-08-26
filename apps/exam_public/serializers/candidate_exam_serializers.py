@@ -73,8 +73,8 @@ class CandidateExamListSerializer(BaseModelSerializer):
 
 
 class CandidateExamDetailSerializer(BaseModelSerializer):
-    candidate = CandidateDetailSerializer(required=True)
-    exam_backlog = ExamBacklogDetailSerializer(required=True)
+    candidate = CandidateDetailSerializer()
+    exam_backlog = serializers.SerializerMethodField()
 
     class Meta:
         model = CandidateExam
@@ -83,7 +83,6 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "candidate",
             "exam_backlog",
             "schedule",
-            "obtained_marks",
             "is_preparatory",
             "date",
             "start_time",
@@ -91,6 +90,15 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "waiting_duration",
             "extra_duration",
         ] + get_base_model_fields()
+
+    def __init__(self, *args, **kwargs):
+        context = kwargs.pop("context", False)
+        get_retry_hints = context.pop("get_retry_hints", True)
+        super().__init__(*args, **kwargs)
+        self.context["get_retry_hints"] = get_retry_hints
+
+    def get_exam_backlog(self, obj):
+        return ExamBacklogDetailSerializer(obj.exam_backlog, context=self.context).data
 
 
 class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
@@ -139,7 +147,6 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
         get_answers = context.pop("get_answers", False)
         get_retry_hints = context.pop("get_retry_hints", True)
         super().__init__(*args, **kwargs)
-        # Pass get_answers flag in the context for nested serializers
         self.context["get_answers"] = get_answers
         self.context["get_retry_hints"] = get_retry_hints
 

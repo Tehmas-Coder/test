@@ -46,12 +46,14 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
     medias = ExamBacklogQuestionMediaSerializer(many=True, source="exambacklogquestionmedia_set")
     countries = ExamBacklogQuestionCountrySerializer(many=True, source="exambacklogquestioncountry_set")
     question_answers = serializers.SerializerMethodField()
+    obtained_marks = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = ExamBacklogQuestion
         fields = [
-            "question_answers",
             "id",
+            "question_answers",
+            "obtained_marks",
             "subject_name",
             "education_level_name",
             "type",
@@ -95,16 +97,24 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
         return None
 
     def get_question_answers(self, obj):
-        # Use context to determine if answers should be included
         if self.context.get("get_answers", False):
             return CandidateExamQuestionAnswerSerializer(obj.question_answers.all(), many=True).data
         return None
 
+    def get_obtained_marks(self, obj):
+        if self.context.get("get_answers", False):
+            exam_answers = CandidateExamQuestionAnswerSerializer(obj.question_answers.all(), many=True).data
+            obtained_marks = 0
+            for one_answer in exam_answers:
+                obtained_marks = obtained_marks + one_answer["score"]
+            return obtained_marks
+        return 0
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        # Remove the key if its value is None
         if not self.context.get("get_answers", False):
             representation.pop("question_answers")
+            representation.pop("obtained_marks")
         if not self.context.get("get_retry_hints", True):
             representation.pop("retry_hints")
         return representation

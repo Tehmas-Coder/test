@@ -183,7 +183,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             )
         )[0]
 
-        data = CandidateExamWithAnswersDetailSerializer(
+        data = CandidateExamDetailSerializer(
             candidate_exam_backlog_question_instance, context={"get_retry_hints": candidate_exam_backlog_question_instance.is_preparatory}
         ).data
 

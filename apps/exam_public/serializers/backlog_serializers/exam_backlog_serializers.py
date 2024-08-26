@@ -61,7 +61,6 @@ class ExamBacklogDetailSerializer(BaseModelSerializer):
             if not exam_question.section_backlog:
                 response_exam_questions.append(exam_question)
 
-        # Pass context to the nested serializer
         return ExamBacklogQuestionSerializer(response_exam_questions, many=True, context=self.context).data
 
     def get_sections(self, obj):
