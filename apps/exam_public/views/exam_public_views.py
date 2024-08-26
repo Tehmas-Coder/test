@@ -41,11 +41,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
 )
 from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import (
-    get_encryption_key,
-    make_error_response,
-    remove_extra_underscore_from_key_names,
-)
+from utils.rna_utils import debug_print, get_encryption_key, make_error_response, remove_extra_underscore_from_key_names
 
 # --------------------------------- CANDIDATE -------------------------------- #
 
@@ -345,9 +341,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 "last_name": one_canidate_detail["last_name"],
                 "email": one_canidate_detail["email"],
                 "exam": one_canidate_detail["exam"],
-                "date": one_canidate_detail["date"],
-                "start_time": one_canidate_detail["start_time"],
-                "end_time": one_canidate_detail["end_time"],
+                "date": one_canidate_detail["date"].strftime("%Y-%m-%d"),
+                "start_time": one_canidate_detail["start_time"].strftime("%H:%M:%S"),
+                "end_time": one_canidate_detail["end_time"].strftime("%H:%M:%S"),
                 "url": final_url,
             }
             email_notification_ninja = EmailNotification(send_email_data_dict)
