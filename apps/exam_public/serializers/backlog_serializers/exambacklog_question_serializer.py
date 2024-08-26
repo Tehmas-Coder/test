@@ -95,14 +95,12 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
         return None
 
     def get_question_answers(self, obj):
-        # Use context to determine if answers should be included
         if self.context.get("get_answers", False):
             return CandidateExamQuestionAnswerSerializer(obj.question_answers.all(), many=True).data
         return None
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        # Remove the key if its value is None
         if not self.context.get("get_answers", False):
             representation.pop("question_answers")
         if not self.context.get("get_retry_hints", True):
