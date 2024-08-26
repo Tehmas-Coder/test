@@ -292,14 +292,18 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
         candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
-            "exam_backlog_question_choice"
+            "exam_backlog_question_choice",
+            "exam_backlog_question",
         )
         CandidateExamAnswer.objects.bulk_update(
             [
                 CandidateExamAnswer(
                     id=one_candidate_exam_answer.id,
                     is_correct=True,
-                    score=float(one_candidate_exam_answer.exam_backlog_question_choice.weight / 100),
+                    score=float(
+                        (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
+                        * one_candidate_exam_answer.exam_backlog_question.total_marks
+                    ),
                 )
                 for one_candidate_exam_answer in candidate_exam_answers_queryset
                 if one_candidate_exam_answer.exam_backlog_question_choice
