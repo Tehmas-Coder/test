@@ -5,6 +5,7 @@ from apps.exam_public.serializers.backlog_serializers.exambacklog_question_attem
     ExamBacklogQuestionAttemptResponseSerializer,
 )
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choice_serializer import (
+    ExamBacklogQuestionChoiceForNonPreparatorySerializer,
     ExamBacklogQuestionChoiceSerializer,
 )
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_country_serializer import (
@@ -81,13 +82,17 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
         return ExamBacklogQuestionTagSerializer(obj.backlog_tags.all(), many=True).data
 
     def get_choices(self, obj):
-        return ExamBacklogQuestionChoiceSerializer(obj.backlog_choices.all(), many=True).data
+        if self.context.get("get_retry_hints", True):
+            return ExamBacklogQuestionChoiceSerializer(obj.backlog_choices.all(), many=True).data
+        return ExamBacklogQuestionChoiceForNonPreparatorySerializer(obj.backlog_choices.all(), many=True).data
 
     def get_attempt_responses(self, obj):
         return ExamBacklogQuestionAttemptResponseSerializer(obj.backlog_attempt_responses, many=True).data
 
     def get_retry_hints(self, obj):
-        return ExamBacklogQuestionRetryHintSerializer(obj.backlog_retry_hints.all(), many=True).data
+        if self.context.get("get_retry_hints", True):
+            return ExamBacklogQuestionRetryHintSerializer(obj.backlog_retry_hints.all(), many=True).data
+        return None
 
     def get_question_answers(self, obj):
         # Use context to determine if answers should be included
@@ -100,4 +105,6 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
         # Remove the key if its value is None
         if not self.context.get("get_answers", False):
             representation.pop("question_answers")
+        if not self.context.get("get_retry_hints", True):
+            representation.pop("retry_hints")
         return representation

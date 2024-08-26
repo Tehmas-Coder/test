@@ -22,6 +22,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             "candidates",
             "exam_backlog",
             "schedule",
+            "is_preparatory",
         ] + get_base_model_fields()
 
     def create(self, validated_data):
@@ -62,6 +63,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
             "exam_backlog",
             "schedule",
             "obtained_marks",
+            "is_preparatory",
             "date",
             "start_time",
             "end_time",
@@ -82,6 +84,7 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "exam_backlog",
             "schedule",
             "obtained_marks",
+            "is_preparatory",
             "date",
             "start_time",
             "end_time",
@@ -123,6 +126,7 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
             "exam_backlog",
             "schedule",
             "obtained_marks",
+            "is_preparatory",
             "date",
             "start_time",
             "end_time",
@@ -133,9 +137,11 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
     def __init__(self, *args, **kwargs):
         context = kwargs.pop("context", False)
         get_answers = context.pop("get_answers", False)
+        get_retry_hints = context.pop("get_retry_hints", True)
         super().__init__(*args, **kwargs)
         # Pass get_answers flag in the context for nested serializers
         self.context["get_answers"] = get_answers
+        self.context["get_retry_hints"] = get_retry_hints
 
     def get_exam_backlog(self, obj):
         return ExamBacklogDetailSerializer(obj.exam_backlog, context=self.context).data
