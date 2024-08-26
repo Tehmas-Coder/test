@@ -151,7 +151,7 @@ class UserViewSet(viewsets.ModelViewSet):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
 
         token_data = encrypted_email.decode("utf-8")
-        url = config("BASE_URL")
+        url = config("PUBLIC_FE_URL")
         final_url = f"{url}verification?token={token_data}"
         send_email_data_dict = {
             "first_name": request.data["first_name"],
@@ -315,7 +315,7 @@ class ResendVerificationLinkAPI(views.APIView):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
         token_data = encrypted_email.decode("utf-8")
 
-        url = config("BASE_URL")
+        url = config("PUBLIC_FE_URL")
         final_url = f"{url}verification?token={token_data}"
 
         send_email_data_dict = {

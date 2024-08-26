@@ -2002,5 +2002,17 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 168,
+    "fields": {
+      "name": "Send a exam link to candidate user",
+      "description": "Send a exam link to candidate user",
+      "regex": "^/send-exam-link-to-users/$",
+      "method": "post",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
