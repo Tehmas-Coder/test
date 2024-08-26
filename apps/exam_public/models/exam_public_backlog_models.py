@@ -99,7 +99,7 @@ class ExamBacklogQuestionChoice(BaseModel):
     # * Question Choice Fields
     question_choice = models.ForeignKey("questionbank.QuestionChoice", on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=255)
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
     weight = models.IntegerField(default=0)
 
     is_negative_weight = models.BooleanField(default=False)
@@ -143,7 +143,7 @@ class ExamBacklogQuestionRetryHint(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_retry_hints")
     # * Question Retry Hint Fields
     retry_hint = models.ForeignKey("questionbank.QuestionRetryHint", on_delete=models.DO_NOTHING)
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
     sequence = models.IntegerField(default=1)
 
     has_media = models.BooleanField(default=False)
@@ -171,7 +171,7 @@ class ExamBacklogQuestionAttemptResponse(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_attempt_responses")
     # * Question Attempt Response Fields
     attempt_response = models.ForeignKey("questionbank.QuestionAttemptResponse", on_delete=models.DO_NOTHING)
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
     TYPE_CHOICES = (
         ("correct", "Correct"),
         ("wrong", "Wrong"),

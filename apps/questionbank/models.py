@@ -258,7 +258,7 @@ class QuestionChoice(BaseModel):
 
 class QuestionAttemptResponse(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="attempt_responses")
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
 
     TYPE_CHOICES = (
         ("correct", "Correct"),
@@ -276,7 +276,7 @@ class QuestionAttemptResponse(BaseModel):
 
 class QuestionRetryHint(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="retry_hints")
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
     has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
 
