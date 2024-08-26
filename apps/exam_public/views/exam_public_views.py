@@ -3,7 +3,6 @@ import json
 from cryptography.fernet import Fernet
 from decouple import config
 from django.db.models import F, Prefetch
-from django.forms import Media, model_to_dict
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,7 +10,6 @@ from rest_framework.response import Response
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
-from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
@@ -37,10 +35,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.lookups.serializers.media_serializers import (
-    MediaBulkCreateSerializer,
-    MediaSerializer,
-)
+from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
 from utils.notification_utils import send_email_notification_to_list
 from utils.rna_utils import (
@@ -296,10 +291,23 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
-        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"])
-
-        data = CandidateExamAnswerSerializer(candidate_exam_answers_queryset, many=True).data
-        return Response(data, status=status.HTTP_200_OK)
+        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
+            "exam_backlog_question_choice"
+        )
+        CandidateExamAnswer.objects.bulk_update(
+            [
+                CandidateExamAnswer(
+                    id=one_candidate_exam_answer.id,
+                    is_correct=True,
+                    score=float(one_candidate_exam_answer.exam_backlog_question_choice.weight / 100),
+                )
+                for one_candidate_exam_answer in candidate_exam_answers_queryset
+                if one_candidate_exam_answer.exam_backlog_question_choice
+                if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
+            ],
+            fields=["is_correct", "score"],
+        )
+        return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
 
     def send_exam_link_to_users(self, request, *args, **kwargs):
         candidate_exam_ids = request.data["candidate_exam_ids"]

@@ -39,4 +39,6 @@ class CandidateExamQuestionAnswerSerializer(BaseModelSerializer):
             "exam_backlog_question_choice",
             "answer_text",
             "answer_files",
+            "score",
+            "is_correct",
         ] + get_base_model_fields()
