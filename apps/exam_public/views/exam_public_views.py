@@ -294,6 +294,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         data = CandidateExamWithAnswersDetailSerializer(candidate_exam_backlog_question_instance, context={"get_answers": True}).data
         return Response(data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["post"], url_path="submit")
+    def candidate_exam_submission(self, request, *args, **kwargs):
+        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"])
+
+        data = CandidateExamAnswerSerializer(candidate_exam_answers_queryset, many=True).data
+        return Response(data, status=status.HTTP_200_OK)
+
     def send_exam_link_to_users(self, request, *args, **kwargs):
         candidate_exam_ids = request.data["candidate_exam_ids"]
         exam_backlog_id = request.data["exam_backlog_id"]

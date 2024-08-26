@@ -1978,5 +1978,17 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 166,
+    "fields": {
+      "name": "Submit One Candidate Exam",
+      "description": "Submit One Candidate Exam",
+      "regex": "^/candidate-exam/[0-9]+/submit/$",
+      "method": "post",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
