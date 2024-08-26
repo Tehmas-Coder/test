@@ -137,9 +137,11 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
     def __init__(self, *args, **kwargs):
         context = kwargs.pop("context", False)
         get_answers = context.pop("get_answers", False)
+        get_retry_hints = context.pop("get_retry_hints", True)
         super().__init__(*args, **kwargs)
         # Pass get_answers flag in the context for nested serializers
         self.context["get_answers"] = get_answers
+        self.context["get_retry_hints"] = get_retry_hints
 
     def get_exam_backlog(self, obj):
         return ExamBacklogDetailSerializer(obj.exam_backlog, context=self.context).data
