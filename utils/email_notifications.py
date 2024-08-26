@@ -38,6 +38,11 @@ class EmailNotification:
         self.subject = "Question-Bank : On-Boarding"
         return self.__send_email(self.subject, self.html_content, self.user_email)
 
+    def send_exam_link(self):
+        self.html_content = self.__generate_html_content_for_exam_link()
+        self.subject = "Question-Bank : Exam Link"
+        return self.__send_email(self.subject, self.html_content, self.user_email)
+
     # ! ------------------------------------------------------------
     # *                 PRIVATE METHODS
     # ! ------------------------------------------------------------
@@ -62,6 +67,21 @@ class EmailNotification:
                 .replace("{EMAIL}", self.user_email)
                 .replace("{PASSWORD}", self.send_email_data_dict["password"])
                 .replace("{URL}", self.send_email_data_dict["URL"])
+            )
+        return html_content
+
+    def __generate_html_content_for_exam_link(self):
+        with open("./email_templates/exam_link.html", "r", encoding="utf-8") as file:
+            html_content = (
+                file.read()
+                .replace("{first_name}", self.first_name)
+                .replace("{last_name}", self.last_name)
+                .replace("{email}", self.user_email)
+                .replace("{exam}", self.send_email_data_dict["exam"])
+                .replace("{date}", self.send_email_data_dict["date"])
+                .replace("{start_time}", self.send_email_data_dict["start_time"])
+                .replace("{end_time}", self.send_email_data_dict["end_time"])
+                .replace("{URL}", self.send_email_data_dict["url"])
             )
         return html_content
 

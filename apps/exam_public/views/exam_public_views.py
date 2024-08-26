@@ -1,33 +1,20 @@
 import json
 
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import status, viewsets
+from django.db.models import F, Prefetch
 from cryptography.fernet import Fernet
 from decouple import config
-from django.db.models import F, Prefetch
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
 
-from apps.exam_admin.models.exam_admin_models import Exam
+from apps.exam_public.models.exam_public_models import Candidate, CandidateExam, CandidateExamAnswer, CandidateExamAnswerMedia
+from apps.exam_public.models.exam_public_backlog_models import ExamBacklog, ExamBacklogQuestion, ExamBacklogQuestionCountry
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
-from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
-from apps.exam_public.models.exam_public_backlog_models import (
-    ExamBacklog,
-    ExamBacklogQuestion,
-    ExamBacklogQuestionCountry,
-)
-from apps.exam_public.models.exam_public_models import (
-    Candidate,
-    CandidateExam,
-    CandidateExamAnswer,
-    CandidateExamAnswerMedia,
-)
-from apps.exam_public.serializers.candiate_serializers import (
-    CandidateDetailSerializer,
-    CandidateSerializer,
-)
-from apps.exam_public.serializers.candidate_exam_answer_serializers import (
-    CandidateExamAnswerSerializer,
-)
+from apps.exam_admin.models.exam_admin_models import Exam
+
+from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer, CandidateSerializer
+from apps.exam_public.serializers.candidate_exam_answer_serializers import CandidateExamAnswerSerializer
+from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
@@ -35,16 +22,11 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
+
+from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+
 from utils.email_notifications import EmailNotification
-from utils.notification_utils import send_email_notification_to_list
-from utils.rna_utils import (
-    debug_print,
-    get_encryption_key,
-    make_error_response,
-    make_success_response,
-    remove_extra_underscore_from_key_names,
-)
+from utils.rna_utils import get_encryption_key, make_error_response, remove_extra_underscore_from_key_names
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -315,59 +297,56 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def send_exam_link_to_users(self, request, *args, **kwargs):
         candidate_exam_ids = request.data["candidate_exam_ids"]
-        exam_backlog_id = request.data["exam_backlog_id"]
+        if not len(candidate_exam_ids):
+            return Response({"message": "Candidate Exam ID's required."}, status=status.HTTP_400_BAD_REQUEST)
 
         candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
             list(
-                CandidateExam.objects.filter(exam_backlog_id=exam_backlog_id, id__in=candidate_exam_ids)
+                CandidateExam.objects.filter(id__in=candidate_exam_ids)
                 .annotate(
                     email=F("candidate__user__email"),
                     first_name=F("candidate__user__first_name"),
                     last_name=F("candidate__user__last_name"),
+                    exam=F("exam_backlog__name"),
                 )
                 .values()
             )
         )
+        for one_canidate_detail in candidate_exam_detail_queryset:
+            key = get_encryption_key()
+            cipher = Fernet(key)
 
-        # for one_canidate_detail in candidate_exam_detail_queryset:
-        # key = get_encryption_key()
-        # cipher = Fernet(key)
+            encryption_data = {"email": one_canidate_detail["email"]}
+            encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
 
-        # encryption_data = {"email": request.data["email"]}
-        # encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
-
-        # token_data = encrypted_email.decode("utf-8")
-        # url = config("BASE_URL")
-        # final_url = f"{url}verification?token={token_data}"
-        # send_email_data_dict = {
-        #     "first_name": request.data["first_name"],
-        #     "last_name": request.data["last_name"],
-        #     "email": request.data["email"],
-        #     "password": request.data.get("password", ""),
-        #     "URL": final_url,
-        # }
-
-        # to_email_list = [one_dict["email"] for one_dict in candidate_exam_detail_queryset]
-        # to_email_list = ["ranataimoor1920@gmail.com", "mumtaztaimoor6@gmail.com"]
-        to_email_list = ["mumtaztaimoor6@gmail.com"]
-        from_email = config("SYSTEM_EMAIL")
-        email_body = "Email Send Successfully"
-
-        send_email_notification_to_list(
-            subject="Exam Invitations Link",
-            email_body=email_body,
-            email_body_html="",
-            to_email_list=to_email_list,
-            from_email=from_email,
-            queue=True,
-        )
+            token_data = encrypted_email.decode("utf-8")
+            url = config("PUBLIC_FE_URL")
+            final_url = f"{url}exam?token={token_data}"
+            send_email_data_dict = {
+                "first_name": one_canidate_detail["first_name"],
+                "last_name": one_canidate_detail["last_name"],
+                "email": one_canidate_detail["email"],
+                "exam": one_canidate_detail["exam"],
+                "date": one_canidate_detail["date"],
+                "start_time": one_canidate_detail["start_time"],
+                "end_time": one_canidate_detail["end_time"],
+                "url": final_url,
+            }
+            email_notification_ninja = EmailNotification(send_email_data_dict)
+            if not email_notification_ninja.send_exam_link():
+                return Response(
+                    data={
+                        "Status": "failed",
+                        "message": f"Exam link not sent to user: {one_canidate_detail['email']}",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            del email_notification_ninja
 
         return Response(status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
-
-
 class CandidateExamAnswerViewset(viewsets.ModelViewSet):
     queryset = (
         CandidateExamAnswer.objects.all()
