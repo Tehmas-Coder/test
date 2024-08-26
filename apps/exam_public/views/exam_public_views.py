@@ -1,6 +1,7 @@
-import copy
 import json
 
+from cryptography.fernet import Fernet
+from decouple import config
 from django.db.models import F, Prefetch
 from django.forms import Media, model_to_dict
 from rest_framework import status, viewsets
@@ -40,8 +41,11 @@ from apps.lookups.serializers.media_serializers import (
     MediaBulkCreateSerializer,
     MediaSerializer,
 )
+from utils.email_notifications import EmailNotification
+from utils.notification_utils import send_email_notification_to_list
 from utils.rna_utils import (
     debug_print,
+    get_encryption_key,
     make_error_response,
     make_success_response,
     remove_extra_underscore_from_key_names,
@@ -289,6 +293,57 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         data = CandidateExamWithAnswersDetailSerializer(candidate_exam_backlog_question_instance, context={"get_answers": True}).data
         return Response(data, status=status.HTTP_200_OK)
+
+    def send_exam_link_to_users(self, request, *args, **kwargs):
+        candidate_exam_ids = request.data["candidate_exam_ids"]
+        exam_backlog_id = request.data["exam_backlog_id"]
+
+        candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
+            list(
+                CandidateExam.objects.filter(exam_backlog_id=exam_backlog_id, id__in=candidate_exam_ids)
+                .annotate(
+                    email=F("candidate__user__email"),
+                    first_name=F("candidate__user__first_name"),
+                    last_name=F("candidate__user__last_name"),
+                )
+                .values()
+            )
+        )
+
+        # for one_canidate_detail in candidate_exam_detail_queryset:
+        # key = get_encryption_key()
+        # cipher = Fernet(key)
+
+        # encryption_data = {"email": request.data["email"]}
+        # encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
+
+        # token_data = encrypted_email.decode("utf-8")
+        # url = config("BASE_URL")
+        # final_url = f"{url}verification?token={token_data}"
+        # send_email_data_dict = {
+        #     "first_name": request.data["first_name"],
+        #     "last_name": request.data["last_name"],
+        #     "email": request.data["email"],
+        #     "password": request.data.get("password", ""),
+        #     "URL": final_url,
+        # }
+
+        # to_email_list = [one_dict["email"] for one_dict in candidate_exam_detail_queryset]
+        # to_email_list = ["ranataimoor1920@gmail.com", "mumtaztaimoor6@gmail.com"]
+        to_email_list = ["mumtaztaimoor6@gmail.com"]
+        from_email = config("SYSTEM_EMAIL")
+        email_body = "Email Send Successfully"
+
+        send_email_notification_to_list(
+            subject="Exam Invitations Link",
+            email_body=email_body,
+            email_body_html="",
+            to_email_list=to_email_list,
+            from_email=from_email,
+            queue=True,
+        )
+
+        return Response(status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #

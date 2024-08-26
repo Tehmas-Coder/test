@@ -1,4 +1,5 @@
 import json
+from doctest import debug
 from email import encoders
 from email.mime.base import MIMEBase
 
@@ -10,6 +11,8 @@ import boto3
 from botocore.exceptions import ClientError
 from decouple import config
 from django.core.mail import send_mail
+
+from utils.rna_utils import debug_print
 
 # ------------------------------------------------------
 # *                  SMS Utils
@@ -92,11 +95,12 @@ def send_email_notification_to_list(
 
 def add_to_email_queue(message: dict):
     sqs_client = boto3.client("sqs")
-    if config("MOCK_SEND_EMAIL") == "1":
+    if config("MOCK_SEND_EMAIL") == "0":
         return 200
     else:
         try:
             response = sqs_client.send_message(QueueUrl=config("EMAIL_QUEUE_NAME"), MessageBody=json.dumps(message))
+            debug_print(response)
             return response["ResponseMetadata"]["HTTPStatusCode"]
         except ClientError as error:
             print(error)
