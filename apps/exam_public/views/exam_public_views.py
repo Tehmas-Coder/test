@@ -2,8 +2,9 @@ import json
 
 from cryptography.fernet import Fernet
 from decouple import config
+from django.db.migrations import serializer
 from django.db.models import F, Prefetch
-from rest_framework import status, viewsets
+from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -35,6 +36,9 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
+from apps.exam_public.serializers.exambacklog_answers_key_serializer import (
+    ExamBacklogAnswersKeySerializer,
+)
 from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
 from utils.notification_utils import send_email_notification_to_list
@@ -46,9 +50,7 @@ from utils.rna_utils import (
     remove_extra_underscore_from_key_names,
 )
 
-# ---------------------------------------------------------------------------- #
-#                                   CANDIDATE                                  #
-# ---------------------------------------------------------------------------- #
+# --------------------------------- CANDIDATE -------------------------------- #
 
 
 class CandidateViewSet(viewsets.ModelViewSet):
@@ -442,3 +444,18 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             ]
         )
         return Response(status=status.HTTP_201_CREATED)
+
+
+# ------------------------- EXAM BACKLOG ANSWERS KEY ------------------------- #
+
+
+class ExamBacklogAnswerKeyAPI(views.APIView):
+
+    def get(self, request, *args, **kwargs):
+        exam_backlog = (
+            ExamBacklog.objects.filter(id=self.kwargs["pk"])
+            .prefetch_related(Prefetch("backlog_questions", queryset=ExamBacklogQuestion.objects.all().prefetch_related("backlog_choices")))
+            .first()
+        )
+        serializer = ExamBacklogAnswersKeySerializer(exam_backlog)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
