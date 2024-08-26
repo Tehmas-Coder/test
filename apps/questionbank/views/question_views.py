@@ -111,7 +111,11 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
             education_level_id=request.data["education_level"],
         ).exists():
             return make_error_response(data=request.data, message="Subject education level already exists.")
-        return super().create(request, *args, **kwargs)
+        serializer = SubjectEducationLevelEditSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        subject_education_level = serializer.save()
+        serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
