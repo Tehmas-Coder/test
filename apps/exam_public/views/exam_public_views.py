@@ -14,6 +14,7 @@ from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
+    ExamBacklogQuestionChoice,
     ExamBacklogQuestionCountry,
 )
 from apps.exam_public.models.exam_public_models import (
@@ -21,6 +22,9 @@ from apps.exam_public.models.exam_public_models import (
     CandidateExam,
     CandidateExamAnswer,
     CandidateExamAnswerMedia,
+)
+from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choice_serializer import (
+    ExamBacklogQuestionChoiceForKeySerializer,
 )
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -35,9 +39,6 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamListSerializer,
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
-)
-from apps.exam_public.serializers.exambacklog_answers_key_serializer import (
-    ExamBacklogAnswersKeySerializer,
 )
 from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
@@ -454,8 +455,25 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
     def get(self, request, *args, **kwargs):
         exam_backlog = (
             ExamBacklog.objects.filter(id=self.kwargs["pk"])
-            .prefetch_related(Prefetch("backlog_questions", queryset=ExamBacklogQuestion.objects.all().prefetch_related("backlog_choices")))
+            .prefetch_related(
+                Prefetch(
+                    "backlog_questions",
+                    queryset=ExamBacklogQuestion.objects.prefetch_related(
+                        Prefetch("backlog_choices", queryset=ExamBacklogQuestionChoice.objects.filter(is_correct=True))
+                    ),
+                )
+            )
             .first()
         )
-        serializer = ExamBacklogAnswersKeySerializer(exam_backlog)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        response_list = [
+            {
+                "question_backlog_id": question.id,
+                "question_backlog_title": question.title,
+                "correct_choices": ExamBacklogQuestionChoiceForKeySerializer(question.backlog_choices.all(), many=True).data,
+            }
+            for question in exam_backlog.backlog_questions.all()
+            if question.backlog_choices.exists()
+        ]
+
+        return Response(data=response_list, status=status.HTTP_200_OK)
