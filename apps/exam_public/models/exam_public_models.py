@@ -28,6 +28,8 @@ class CandidateExam(BaseModel):
     waiting_duration = models.PositiveIntegerField(null=True)
     extra_duration = models.PositiveIntegerField(null=True)
 
+    is_preparatory = models.BooleanField(default=False)
+
     class Meta:
         app_label = "exam_public"
 

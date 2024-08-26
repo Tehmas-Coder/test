@@ -22,6 +22,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             "candidates",
             "exam_backlog",
             "schedule",
+            "is_preparatory",
         ] + get_base_model_fields()
 
     def create(self, validated_data):
@@ -62,6 +63,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
             "exam_backlog",
             "schedule",
             "obtained_marks",
+            "is_preparatory",
             "date",
             "start_time",
             "end_time",
@@ -82,6 +84,7 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "exam_backlog",
             "schedule",
             "obtained_marks",
+            "is_preparatory",
             "date",
             "start_time",
             "end_time",
@@ -123,6 +126,7 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
             "exam_backlog",
             "schedule",
             "obtained_marks",
+            "is_preparatory",
             "date",
             "start_time",
             "end_time",
