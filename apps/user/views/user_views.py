@@ -1,30 +1,22 @@
 import json
-
-from cryptography.fernet import Fernet
-from decouple import config
-from django.db import transaction
-from django.db.models import F
-from django.forms import Media, model_to_dict
-from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status, viewsets
+from django.forms import model_to_dict
+from cryptography.fernet import Fernet
+from django.db import transaction
+from decouple import config
 
+
+from apps.user.serializers.user_serializers import UserDetailSerializer, UserEditSerializer
+from apps.organization.models.organization_models import OrganizationUser
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.media_serializers import MediaSerializer
-from apps.organization.models.organization_models import Organization, OrganizationUser
+
 from apps.user.filters.user_filter import UserFilter
-from apps.user.serializers.user_serializers import (
-    UserDetailSerializer,
-    UserEditSerializer,
-)
 from apps.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import (
-    debug_print,
-    generate_random_password,
-    get_encryption_key,
-    make_error_response,
-)
+from utils.rna_utils import generate_random_password, get_encryption_key, make_error_response
 
 from ..models import BaseUser, Role
 
@@ -62,87 +54,37 @@ class UserViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         logged_in_user = self.request.user
+        request_user_role_id = request.data.pop("role", None)
+        request_user_role_name = get_role_name(request_user_role_id)
 
-        # User Creation from student apply
-        if (not logged_in_user.is_superuser) and len(self.request.user.roles.all()):
-            request_data = request.data
-            request_user_role = self.request.user.roles.first()
-            if request_user_role.name.lower() == "system":  # make it system
-                if "is_candidate_user" in request_data:
-                    role = Role.objects.filter(name="Candidate").first()
-                else:
-                    request_role_slug = request_data["slug"]
-                    request_role_name = request_data["role_name"]
-                    role = Role.objects.filter(name=request_role_name, slug=request_role_slug).first()
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            if "email" in serializer.errors:
+                return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                instance, _ = BaseUser.objects.get_or_create(
-                    email=request_data["email"],
-                    defaults={
-                        "email": request_data["email"],
-                        "first_name": request_data["first_name"],
-                        "last_name": request_data["last_name"],
-                        "phone": request_data.get("phone", None),
-                        # "date_of_birth": request_data.get("date_of_birth", None),
-                    },
-                )
+        user_instance = serializer.save()
+        data = serializer.data
+        user_instance.roles.add(request_user_role_id)
 
-                if "is_candidate_user" in request_data:
-                    Candidate.objects.get_or_create(user=instance)
-
-                if len(instance.roles.all()):
-                    one_role = instance.roles.first()
-                    if not one_role.is_system_role:
-                        return Response(
-                            {
-                                "status": "failed",
-                                "message": "User already exists and it has a role.",
-                            },
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                instance.roles.add(role.id)
-                data = model_to_dict(instance)
-                data["roles"] = data["roles"][0].id
-
-            else:
-                request_user_role_id = request.data.pop("role", None)
-                request_user_role_name = get_role_name(request_user_role_id)
-                serializer = self.get_serializer(data=request.data)
-                if not serializer.is_valid():
-                    if "email" in serializer.errors:
-                        return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-                user_instance = serializer.save()
-                data = serializer.data
-                user_instance.roles.add(request_user_role_id)
-
-                logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-                if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
-                    user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
-                    if request_user_role_name.lower() == "candidate":
-                        if user_organization_id:
-                            Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
-                    else:
-                        OrganizationUser.objects.create(
-                            user_id=user_instance.id,
-                            organization_id=user_organization_id["organization"],
-                        )
-
-        else:
-            request_user_role_id = request.data.pop("role", None)
-            request_user_role_name = get_role_name(request_user_role_id)
-            serializer = self.get_serializer(data=request.data)
-            if not serializer.is_valid():
-                if "email" in serializer.errors:
-                    return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            user_instance = serializer.save()
-            data = serializer.data
-            user_instance.roles.add(request_user_role_id)
-
+        # * USER CREATED BY SYSTEM USER
+        if logged_in_user.is_superuser == True:
             if request_user_role_name.lower() == "candidate":
                 Candidate.objects.create(user_id=user_instance.id)
+
+        # * USER CREATED BY ORGANIZATION USER
+        else:
+            logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
+            if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
+                user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
+                if request_user_role_name.lower() == "candidate":
+                    if user_organization_id:
+                        Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
+                else:
+                    OrganizationUser.objects.create(
+                        user_id=user_instance.id,
+                        organization_id=user_organization_id["organization"],
+                    )
 
         key = get_encryption_key()
         cipher = Fernet(key)
@@ -223,10 +165,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user.delete()
         return Response({"status": "deleted", "message": "Users deleted!"})
 
-
-class SetUserRoleAPI(views.APIView):
-
-    def post(self, request, *args, **kwargs):
+    def set_user_role(self, request, *args, **kwargs):
         user = BaseUser.objects.filter(id=request.data["user"]).first()
         role = [request.data["role"]]
         if not user:
@@ -239,9 +178,9 @@ class SetUserRoleAPI(views.APIView):
         return Response({"message": "Role set successfully"}, status=status.HTTP_200_OK)
 
 
-class InvitaionLinkAPI(views.APIView):
+class UserInvitaionLinkAPI(viewsets.ViewSet):
 
-    def get(self, request):
+    def invitaion_link(self, request):
         encrypted_email_token = request.query_params["token"]
 
         # * Decrypt the email
@@ -283,10 +222,7 @@ class InvitaionLinkAPI(views.APIView):
             status=status.HTTP_200_OK,
         )
 
-
-class ResendVerificationLinkAPI(views.APIView):
-
-    def post(self, request):
+    def resend_verification_link(self, request):
         user_email = request.data["email"]
         try:
             user_instance = BaseUser.objects.get(email=user_email)
@@ -343,4 +279,84 @@ class ResendVerificationLinkAPI(views.APIView):
                 "message": "Verification Link Resent Successfully.",
             },
             status=status.HTTP_200_OK,
+        )
+
+
+class UserAPIForSystem(viewsets.ViewSet):
+
+    @transaction.atomic
+    def user_create(self, request, *args, **kwargs):
+        logged_in_user = self.request.user
+        request_data = request.data
+        request_user_role = self.request.user.roles.first()
+        if request_user_role.name.lower() == "system":  # make it system
+            if "is_candidate_user" in request_data:
+                role = Role.objects.filter(name="Candidate").first()
+            else:
+                request_role_slug = request_data["slug"]
+                request_role_name = request_data["role_name"]
+                role = Role.objects.filter(name=request_role_name, slug=request_role_slug).first()
+
+            instance, _ = BaseUser.objects.get_or_create(
+                email=request_data["email"],
+                defaults={
+                    "email": request_data["email"],
+                    "first_name": request_data["first_name"],
+                    "last_name": request_data["last_name"],
+                    "phone": request_data.get("phone", None),
+                    # "date_of_birth": request_data.get("date_of_birth", None),
+                },
+            )
+
+            if "is_candidate_user" in request_data:
+                Candidate.objects.get_or_create(user=instance)
+
+            if len(instance.roles.all()):
+                one_role = instance.roles.first()
+                if not one_role.is_system_role:
+                    return Response(
+                        {
+                            "status": "failed",
+                            "message": "User already exists and it has a role.",
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            instance.roles.add(role.id)
+            data = model_to_dict(instance)
+            data["roles"] = data["roles"][0].id
+
+        key = get_encryption_key()
+        cipher = Fernet(key)
+
+        encryption_data = {"email": request.data["email"]}
+        encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
+
+        token_data = encrypted_email.decode("utf-8")
+        url = config("PUBLIC_FE_URL")
+        final_url = f"{url}verification?token={token_data}"
+        send_email_data_dict = {
+            "first_name": request.data["first_name"],
+            "last_name": request.data["last_name"],
+            "email": request.data["email"],
+            "password": request.data.get("password", ""),
+            "URL": final_url,
+        }
+        email_notification_ninja = EmailNotification(send_email_data_dict)
+        if not email_notification_ninja.send_url():
+            return Response(
+                data={
+                    "Status": "failed",
+                    "message": "User created successfully and failed to sent email",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        del email_notification_ninja
+
+        return Response(
+            {
+                "status": "success",
+                "message": "User created successfully.",
+                "data": data,
+            },
+            status=status.HTTP_201_CREATED,
         )
