@@ -41,7 +41,12 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
 )
 from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import debug_print, get_encryption_key, make_error_response, remove_extra_underscore_from_key_names
+from utils.rna_utils import (
+    debug_print,
+    get_encryption_key,
+    make_error_response,
+    remove_extra_underscore_from_key_names,
+)
 
 # --------------------------------- CANDIDATE -------------------------------- #
 
@@ -326,24 +331,24 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 .values()
             )
         )
-        for one_canidate_detail in candidate_exam_detail_queryset:
+        for one_candidate_detail in candidate_exam_detail_queryset:
             key = get_encryption_key()
             cipher = Fernet(key)
 
-            encryption_data = {"email": one_canidate_detail["email"]}
+            encryption_data = {"email": one_candidate_detail["email"]}
             encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
 
             token_data = encrypted_email.decode("utf-8")
             url = config("PUBLIC_FE_URL")
             final_url = f"{url}exam?token={token_data}"
             send_email_data_dict = {
-                "first_name": one_canidate_detail["first_name"],
-                "last_name": one_canidate_detail["last_name"],
-                "email": one_canidate_detail["email"],
-                "exam": one_canidate_detail["exam"],
-                "date": one_canidate_detail["date"].strftime("%Y-%m-%d"),
-                "start_time": one_canidate_detail["start_time"].strftime("%H:%M:%S"),
-                "end_time": one_canidate_detail["end_time"].strftime("%H:%M:%S"),
+                "first_name": one_candidate_detail["first_name"],
+                "last_name": one_candidate_detail["last_name"],
+                "email": one_candidate_detail["email"],
+                "exam": one_candidate_detail["exam"],
+                "date": one_candidate_detail["date"].strftime("%Y-%m-%d"),
+                "start_time": one_candidate_detail["start_time"].strftime("%H:%M:%S"),
+                "end_time": one_candidate_detail["end_time"].strftime("%H:%M:%S"),
                 "url": final_url,
             }
             email_notification_ninja = EmailNotification(send_email_data_dict)
@@ -351,7 +356,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 return Response(
                     data={
                         "Status": "failed",
-                        "message": f"Exam link not sent to user: {one_canidate_detail['email']}",
+                        "message": f"Exam link not sent to user: {one_candidate_detail['email']}",
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
