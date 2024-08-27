@@ -3,7 +3,7 @@
         "model": "organization.OrganizationUser",
         "pk": 1,
         "fields": {
-            "user": 6,
+            "user": 2,
             "organization": 1,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -24,7 +24,17 @@
         "pk": 3,
         "fields": {
             "user": 4,
-            "organization": 1,
+            "organization": 3,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "organization.OrganizationUser",
+        "pk": 4,
+        "fields": {
+            "user": 6,
+            "organization": 3,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }

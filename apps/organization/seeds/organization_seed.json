@@ -3,7 +3,7 @@
         "model": "organization.Organization",
         "pk": 1,
         "fields": {
-            "name": "University Of Debrecen",
+            "name": "Student-Apply Organization",
             "country": 8,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
