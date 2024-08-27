@@ -68,6 +68,7 @@ class UserUnitTest(TestSetUp):
 
 class UserTest(UserUnitTest):
     # * These are defined here so these can be accessed by all the functions
+
     file_1 = open("./apps/questionbank/tests/test_data/images/test_image.jpeg", "rb")
     reuseable_request_body = {
         "email": "sheryarbaloch67@gmail.com",
@@ -80,6 +81,7 @@ class UserTest(UserUnitTest):
         "role": 4,
         "description": "This is a test user",
     }
+
     list_of_fields_of_user_model = [
         "id",
         "email",

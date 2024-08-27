@@ -3,8 +3,15 @@ import json
 
 from rest_framework import status
 
+from apps.exam_public.models.exam_public_models import Candidate
 from core.test_setup import TestSetUp
-from utils.rna_utils import debug_print, print_test_header, print_test_passed
+from utils.rna_utils import (
+    color_print,
+    debug_print,
+    print_test_failed,
+    print_test_header,
+    print_test_passed,
+)
 
 
 class RegisterUnitTest(TestSetUp):
@@ -31,6 +38,24 @@ class RegisterTest(RegisterUnitTest):
         "date_of_birth": "1995-07-27",
         "phone": "+9323346489529",
     }
+
+    list_of_fields_of_user_model = [
+        "id",
+        "email",
+        "first_name",
+        "last_name",
+        "full_name",
+        "date_of_birth",
+        "profile_picture",
+        "roles",
+        "country",
+        "phone",
+        "is_verified",
+        "is_superuser",
+        "date_joined",
+        "last_login",
+        "description",
+    ]
 
     # ?###################################################
     # ?              TESTS - CASES
@@ -71,9 +96,41 @@ class RegisterTest(RegisterUnitTest):
         print_test_passed()
 
     def successfull_register_user_test(self):
+        # -------------------------- Candidate Registration -------------------------- #
         response = self.do_register(json.dumps(self.test_user))
         validate_success_register_response(self, response)
+        color_print("## => Candidate Registration")
         print_test_passed()
+        json_data = response.data
+        for one_field in self.list_of_fields_of_user_model:
+            self.assertIn(one_field, json_data)
+        for key in self.test_user:
+            if key == "password":
+                continue
+            self.assertEqual(json_data[key], self.test_user[key])
+        candidate_instance = Candidate.objects.filter(user_id=json_data["id"]).first()
+        if not candidate_instance:
+            color_print("Failed: User created but Candidate not created", "red")
+
+        # -------------------------- SuperUser Registration -------------------------- #
+
+        request_body_for_superuser = copy.deepcopy(self.test_user)
+        request_body_for_superuser["email"] = "superuser123@gmail.com"
+        request_body_for_superuser["is_superuser"] = True
+        response = self.do_register(json.dumps(request_body_for_superuser))
+        validate_success_register_response(self, response)
+        color_print("## => SuperUser Registration")
+        json_data = response.data
+        for one_field in self.list_of_fields_of_user_model:
+            self.assertIn(one_field, json_data)
+        for key in request_body_for_superuser:
+            if key == "password":
+                continue
+            self.assertEqual(json_data[key], request_body_for_superuser[key])
+        if json_data["is_superuser"]:
+            print_test_passed()
+        else:
+            print_test_failed()
 
     def failed_register_user_already_exists_test(self):
         response = self.do_register(json.dumps(self.test_user))
