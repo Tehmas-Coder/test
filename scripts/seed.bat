@@ -25,9 +25,9 @@ python manage.py loaddata question_choice_seed.json
 python manage.py loaddata question_retry_hint_seed.json
 REM ----------------------------- EXAM ADMIN --------------------------------
 python manage.py loaddata schedule_seed.json
+python manage.py loaddata exam_seed.json
 python manage.py loaddata section_seed.json
 python manage.py loaddata subsection_seed.json
-python manage.py loaddata exam_seed.json
 python manage.py loaddata exam_subject_seed.json
 python manage.py loaddata exam_subject_question_seed.json
 REM ------------------------------ EXAM PUBLIC ---------------------------------

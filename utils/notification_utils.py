@@ -100,7 +100,6 @@ def add_to_email_queue(message: dict):
     else:
         try:
             response = sqs_client.send_message(QueueUrl=config("EMAIL_QUEUE_NAME"), MessageBody=json.dumps(message))
-            debug_print(response)
             return response["ResponseMetadata"]["HTTPStatusCode"]
         except ClientError as error:
             print(error)
