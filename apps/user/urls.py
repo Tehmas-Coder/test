@@ -14,12 +14,12 @@ urlpatterns = [
     path("logout/", LogoutApiView.as_view(), name="token_blacklist"),
     path("verify-otp/", OTPViewSet.as_view({"post": "verify_otp"}), name="verify_otp"),
     path("resend-otp/", OTPViewSet.as_view({"post": "resend_otp"}), name="resend_otp"),
-    path("verification", InvitaionLinkAPI.as_view(), name="invitation_link"),
-    path("resend-verification-link/", ResendVerificationLinkAPI.as_view(), name="resend_verification_link"),
-    path("set-user-role/", SetUserRoleAPI.as_view(), name="set_user_role"),
-    path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
+    path("verification", UserInvitaionLinkAPI.as_view({"get": "invitaion_link"})),
+    path("resend-verification-link/", UserInvitaionLinkAPI.as_view({"post": "resend_verification_link"})),
+    path("set-user-role/", UserViewSet.as_view({"post": "set_user_role"})),
     path("delete-role-with-permissions-from-sa-be/", RolePermissionViewSet.as_view({"delete": "delete_role_with_permissions"})),
     path("system-to-qb-login/", FromSaLoginToQBApiView.as_view()),
+    path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
 ]
 
 # ----------------------------------- USERS ---------------------------------- #
