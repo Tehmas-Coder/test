@@ -15,6 +15,7 @@ class TestSetUp(APITestCase):
     def setUp(self):
         self.tokens = None
         self.headers = {"Authorization": ""}
+        self.user = None
         self.admin_user = {
             "email": "test@gmail.com",
             "first_name": "haider",
@@ -35,10 +36,14 @@ class TestSetUp(APITestCase):
             user_serializer = UserEditSerializer(data=self.admin_user)
             user_serializer.is_valid(raise_exception=True)
             new_user_email = user_serializer.save()
-            new_user_data = BaseUser.objects.get(email=new_user_email)
-            new_user_data.__dict__["is_verified"] = True
-            new_user_data.__dict__["is_superuser"] = bool(is_superuser)
-            new_user_data.save()
+            new_user_instance = BaseUser.objects.get(email=new_user_email)
+            new_user_instance.__dict__["is_verified"] = True
+            new_user_instance.__dict__["is_superuser"] = bool(is_superuser)
+            new_user_instance.save()
+            self.user = new_user_instance
+
+        if email:
+            self.user = BaseUser.objects.get(email=email)
 
         url = "/api/login/"
         login_request_data = {

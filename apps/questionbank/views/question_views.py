@@ -213,7 +213,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["delete"], url_path="delete-all")
     def delete_all(self, request):
-        Question.objects.all().delete()
+        Question.objects.all().update(meta_status="deleted")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -255,7 +255,7 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["delete"], url_path="bulk-delete")
     def bulk_delete_question_medias(self, request):
         delete_request_ids = request.data.get("ids", [])
-        QuestionMedia.objects.filter(id__in=delete_request_ids).delete()
+        QuestionMedia.objects.filter(id__in=delete_request_ids).update(meta_status="deleted")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -362,7 +362,7 @@ class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["delete"], url_path="bulk-delete")
     def bulk_delete_question_choice_medias(self, request):
         delete_request_ids = request.data.get("ids", [])
-        QuestionChoiceMedia.objects.filter(id__in=delete_request_ids).delete()
+        QuestionChoiceMedia.objects.filter(id__in=delete_request_ids).update(meta_status="deleted")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -464,5 +464,5 @@ class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["delete"], url_path="bulk-delete")
     def bulk_delete_question_retry_hint_medias(self, request):
         delete_request_ids = request.data.get("ids", [])
-        QuestionRetryHintMedia.objects.filter(id__in=delete_request_ids).delete()
+        QuestionRetryHintMedia.objects.filter(id__in=delete_request_ids).update(meta_status="deleted")  # Bulk Delete
         return Response(status=status.HTTP_204_NO_CONTENT)

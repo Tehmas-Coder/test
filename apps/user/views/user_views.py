@@ -1,23 +1,23 @@
 import doctest
 import json
+
+from cryptography.fernet import Fernet
+from decouple import config
+from django.db import transaction
+from django.forms import model_to_dict
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status, viewsets
-from django.forms import model_to_dict
-from cryptography.fernet import Fernet
-from django.db import transaction
-from decouple import config
 
-
-from apps.user.serializers.user_serializers import UserDetailSerializer, UserEditSerializer
-from apps.organization.models.organization_models import OrganizationUser
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.media_serializers import MediaSerializer
-
+from apps.organization.models.organization_models import OrganizationUser
 from apps.user.filters.user_filter import UserFilter
+from apps.user.serializers.user_serializers import UserDetailSerializer, UserEditSerializer
 from apps.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import debug_print, generate_random_password, get_encryption_key, make_error_response
+from utils.rna_utils import generate_random_password, get_encryption_key, make_error_response
+
 
 from apps.user.models import UserRole
 from ..models import BaseUser, Role
@@ -66,10 +66,10 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         user_instance = serializer.save()
-        data = serializer.data
         user_instance.roles.add(request_user_role_id)
+        data = serializer.data
 
-        # * USER CREATED BY SYSTEM USER
+        # * USER CREATED BY SUPER USER
         if logged_in_user.is_superuser == True:
             if request_user_role_name.lower() == "candidate":
                 Candidate.objects.create(user_id=user_instance.id)
@@ -163,8 +163,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def bulk_delete(self, request):
         user_ids = request.data.get("users", [])
         users = BaseUser.objects.filter(id__in=user_ids)
-        for user in users:
-            user.delete()
+        users.update(meta_status="deleted")  # Bulk Delete
         return Response({"status": "deleted", "message": "Users deleted!"})
 
     def set_user_role(self, request, *args, **kwargs):

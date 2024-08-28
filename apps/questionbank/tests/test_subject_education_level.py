@@ -92,7 +92,7 @@ class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
     def successfull_creation_of_a_record_test(self):
         json_data = self.do_create_subject_education_level(json.dumps(self.reuseable_request_body))
         for key in self.reuseable_request_body:
-            self.assertEqual(json_data[key], self.reuseable_request_body[key])
+            self.assertEqual(json_data[key]["id"], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_subject_education_level_model:
             self.assertIn(one_field, json_data)
 

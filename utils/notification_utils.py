@@ -95,7 +95,7 @@ def send_email_notification_to_list(
 
 def add_to_email_queue(message: dict):
     sqs_client = boto3.client("sqs")
-    if config("MOCK_SEND_EMAIL") == "0":
+    if config("MOCK_SEND_EMAIL") == "1":
         return 200
     else:
         try:
