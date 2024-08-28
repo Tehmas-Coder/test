@@ -290,6 +290,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         data = CandidateExamWithAnswersDetailSerializer(candidate_exam_backlog_question_instance, context={"get_answers": True}).data
         return Response(data, status=status.HTTP_200_OK)
 
+    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
+
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
         candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
@@ -300,17 +302,21 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             [
                 CandidateExamAnswer(
                     id=one_candidate_exam_answer.id,
-                    is_correct=True,
-                    score=float(
-                        (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
-                        * one_candidate_exam_answer.exam_backlog_question.total_marks
+                    is_scored=True,
+                    is_correct=True if one_candidate_exam_answer.exam_backlog_question_choice.is_correct else False,
+                    score=(
+                        float(
+                            (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
+                            * one_candidate_exam_answer.exam_backlog_question.total_marks
+                        )
+                        if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
+                        else 0
                     ),
                 )
                 for one_candidate_exam_answer in candidate_exam_answers_queryset
                 if one_candidate_exam_answer.exam_backlog_question_choice
-                if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
             ],
-            fields=["is_correct", "score"],
+            fields=["is_scored", "is_correct", "score"],
         )
         return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
 
