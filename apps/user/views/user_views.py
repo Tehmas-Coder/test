@@ -167,8 +167,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def bulk_delete(self, request):
         user_ids = request.data.get("users", [])
         users = BaseUser.objects.filter(id__in=user_ids)
-        for user in users:
-            user.delete()
+        users.update(meta_status="deleted")  # Bulk Delete
         return Response({"status": "deleted", "message": "Users deleted!"})
 
     def set_user_role(self, request, *args, **kwargs):

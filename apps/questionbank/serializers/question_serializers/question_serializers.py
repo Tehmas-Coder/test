@@ -238,11 +238,11 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
         #! Delete choices if question type is not single select or multiple select
         if instance.type.slug not in ["single-select", "multiple-select"]:
-            QuestionChoice.objects.filter(question=instance).delete()
+            QuestionChoice.objects.filter(question=instance).update(meta_status="deleted")  # Bulk Delete
 
         #! Delete retry hints if max retries is set to 0
         if not instance.max_retries:
-            QuestionRetryHint.objects.filter(question=instance).delete()
+            QuestionRetryHint.objects.filter(question=instance).update(meta_status="deleted")  # Bulk Delete
 
         # refresh instance
         instance.refresh_from_db()

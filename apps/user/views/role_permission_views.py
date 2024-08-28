@@ -164,8 +164,7 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
 
                 elif role_instance.is_system_role:
                     role_permissions = RolePermission.objects.filter(role=role_instance)
-                    for role_permission in role_permissions:
-                        role_permission.delete()
+                    role_permissions.update(meta_status="deleted")  # Bulk Delete
 
                     role_instance.delete()
                     return Response(status=status.HTTP_204_NO_CONTENT)
