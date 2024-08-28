@@ -12,6 +12,7 @@ from apps.user.serializers.role_permission_serializers import (
     RolePermissionSerializer,
     RoleSerializer,
 )
+from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
 #                                     ROLES                                    #
@@ -29,7 +30,7 @@ class RoleViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        if self.action in ["retrieve", "list"]:
+        if self.action in ["retrieve"]:
             return Role.objects.all().prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
         return super().get_queryset()
 
@@ -47,24 +48,22 @@ class RoleViewSet(viewsets.ModelViewSet):
         return Response(new_role_permssion_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        self.queryset = Role.objects.all().prefetch_related(
+            Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
+        )
+        request_user_role = request.user.roles.first()
 
-        if request.user.is_superuser:
-            queryset = queryset
-        else:
-            request_user_role = request.user.roles.first()
+        if request_user_role:
+            if request_user_role.name.lower() == "system":
+                self.queryset = Role.objects.filter(is_system_role=True).prefetch_related(
+                    Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
+                )
+            else:
+                self.queryset = Role.objects.filter(is_system_role=False).prefetch_related(
+                    Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
+                )
 
-            if request_user_role:
-                if request_user_role.name.lower() == "system":
-                    queryset = Role.objects.filter(is_system_role=True).prefetch_related(
-                        Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
-                    )
-                else:
-                    queryset = Role.objects.filter(is_system_role=False).prefetch_related(
-                        Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
-                    )
-
-        return super().list(request, *args, **kwargs, queryset=queryset)
+        return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         try:
