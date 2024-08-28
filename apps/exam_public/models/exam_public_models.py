@@ -43,8 +43,10 @@ class CandidateExamAnswer(BaseModel):
     answer_files = models.ManyToManyField(MEDIA_MODEL, through="exam_public.CandidateExamAnswerMedia")
 
     score = models.FloatField(default=0)
-    is_correct = models.BooleanField(default=False)
     seconds_taken = models.IntegerField(default=0)
+
+    is_scored = models.BooleanField(default=False)
+    is_correct = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_public"

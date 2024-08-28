@@ -1,22 +1,23 @@
-from rest_framework_simplejwt.views import TokenBlacklistView, TokenObtainPairView, TokenRefreshView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import serializers, views, viewsets
-from rest_framework.permissions import AllowAny
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from rest_framework.request import Request
-from rest_framework import status, views
-from django.forms import model_to_dict
 from django.contrib.auth import login
 from django.db import transaction
-
+from django.forms import model_to_dict
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers, status, views, viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import (
+    TokenBlacklistView,
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 from apps.exam_public.models.exam_public_models import Candidate
-from ..models import BaseUser, Role
-
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
-
 from utils.rna_utils import debug_print, make_error_response, make_success_response
+
+from ..models import BaseUser, Role
 
 
 class RegisterApiView(views.APIView):
@@ -32,8 +33,7 @@ class RegisterApiView(views.APIView):
                     password=request.data.pop("password"),
                     **request.data,
                 )
-                super_user_detail = model_to_dict(super_user_instance)
-                serializer = UserEditSerializer(super_user_detail)
+                serializer = UserEditSerializer(super_user_instance)
                 return Response(serializer.data, status=201)
             except Exception as e:
                 return make_error_response(message=f"{str(e)}")
