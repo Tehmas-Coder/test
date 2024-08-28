@@ -1,3 +1,4 @@
+import doctest
 import json
 
 from cryptography.fernet import Fernet
@@ -12,18 +13,13 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.organization.models.organization_models import OrganizationUser
 from apps.user.filters.user_filter import UserFilter
-from apps.user.serializers.user_serializers import (
-    UserDetailSerializer,
-    UserEditSerializer,
-)
+from apps.user.serializers.user_serializers import UserDetailSerializer, UserEditSerializer
 from apps.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import (
-    generate_random_password,
-    get_encryption_key,
-    make_error_response,
-)
+from utils.rna_utils import generate_random_password, get_encryption_key, make_error_response
 
+
+from apps.user.models import UserRole
 from ..models import BaseUser, Role
 
 # ---------------------------------------------------------------------------- #
@@ -105,7 +101,7 @@ class UserViewSet(viewsets.ModelViewSet):
             "first_name": request.data["first_name"],
             "last_name": request.data["last_name"],
             "email": request.data["email"],
-            "password": request.data.get("password", ""),
+            "password": request.data["password"],
             "URL": final_url,
         }
         email_notification_ninja = EmailNotification(send_email_data_dict)
@@ -287,81 +283,76 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
         )
 
 
-class UserAPIForSystem(viewsets.ViewSet):
+class ForSytemUserAPI(viewsets.ViewSet):
 
     @transaction.atomic
-    def user_create(self, request, *args, **kwargs):
+    def system_user_create(self, request, *args, **kwargs):
         logged_in_user = self.request.user
-        request_data = request.data
-        request_user_role = self.request.user.roles.first()
-        if request_user_role.name.lower() == "system":  # make it system
-            if "is_candidate_user" in request_data:
-                role = Role.objects.filter(name="Candidate").first()
-            else:
-                request_role_slug = request_data["slug"]
-                request_role_name = request_data["role_name"]
-                role = Role.objects.filter(name=request_role_name, slug=request_role_slug).first()
+        logged_in_user_id = logged_in_user.id
 
-            instance, _ = BaseUser.objects.get_or_create(
-                email=request_data["email"],
-                defaults={
-                    "email": request_data["email"],
-                    "first_name": request_data["first_name"],
-                    "last_name": request_data["last_name"],
-                    "phone": request_data.get("phone", None),
-                    # "date_of_birth": request_data.get("date_of_birth", None),
-                },
+        logged_in_user_role_data = logged_in_user.roles.values("id", "name").first()
+        logged_in_user_role_id = logged_in_user_role_data["id"]
+        logged_in_user_role_name = logged_in_user_role_data["name"]
+
+        if logged_in_user_role_name.lower() != "system":
+            return Response(
+                {"status": "failed", "message": "User in invalid"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-            if "is_candidate_user" in request_data:
-                Candidate.objects.get_or_create(user=instance)
+        request_data = request.data
 
-            if len(instance.roles.all()):
-                one_role = instance.roles.first()
-                if not one_role.is_system_role:
+        # Check if sytem role is already created
+        if not Role.objects.filter(slug=request_data[0]["Slug"], is_system_role=True).exists():
+            return Response(
+                {"status": "failed", "message": f"Yet role '{logged_in_user_role_name}' is not created in QB."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        logged_in_user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user_id).values("organization").first()["organization"]
+
+        for one_user in request_data:
+            email = one_user["Email"]
+            if not BaseUser.objects.filter(email=email).exists():
+                if not UserRole.objects.filter(user__email=email).exists():
+                    user_instance = BaseUser.objects.create(
+                        email=one_user["Email"],
+                        first_name=one_user["FirstName"],
+                        last_name=one_user["LastName"],
+                        phone=one_user["PhoneNumber"],
+                        date_of_birth=one_user["DateOfBirth"],
+                    )
+                    UserRole.objects.create(
+                        user=user_instance,
+                        role_id=logged_in_user_role_id,
+                    )
+
+            else:
+                if not UserRole.objects.filter(user__email=email).exists():
+                    UserRole.objects.create(
+                        user=user_instance,
+                        role_id=logged_in_user_role_id,
+                    )
+
+                elif not UserRole.objects.filter(role__is_system_role=True, user__email=email).exists():
+                    pass
+
+                else:
                     return Response(
                         {
                             "status": "failed",
-                            "message": "User already exists and it has a role.",
+                            "message": f"User {one_user['Email']} already exist with QB role.",
                         },
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-            instance.roles.add(role.id)
-            data = model_to_dict(instance)
-            data["roles"] = data["roles"][0].id
 
-        key = get_encryption_key()
-        cipher = Fernet(key)
+            if not OrganizationUser.objects.filter(
+                user__email=email,
+                organization_id=logged_in_user_organization_id,
+            ).exists():
+                OrganizationUser.objects.create(
+                    user=user_instance,
+                    organization_id=logged_in_user_organization_id,
+                )
 
-        encryption_data = {"email": request.data["email"]}
-        encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
-
-        token_data = encrypted_email.decode("utf-8")
-        url = config("PUBLIC_FE_URL")
-        final_url = f"{url}verification?token={token_data}"
-        send_email_data_dict = {
-            "first_name": request.data["first_name"],
-            "last_name": request.data["last_name"],
-            "email": request.data["email"],
-            "password": request.data.get("password", ""),
-            "URL": final_url,
-        }
-        email_notification_ninja = EmailNotification(send_email_data_dict)
-        if not email_notification_ninja.send_url():
-            return Response(
-                data={
-                    "Status": "failed",
-                    "message": "User created successfully and failed to sent email",
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        del email_notification_ninja
-
-        return Response(
-            {
-                "status": "success",
-                "message": "User created successfully.",
-                "data": data,
-            },
-            status=status.HTTP_201_CREATED,
-        )
+        return Response(status=status.HTTP_200_OK)
