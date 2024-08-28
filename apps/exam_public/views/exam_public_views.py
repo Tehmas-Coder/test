@@ -131,6 +131,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         return Response(response_data, status=status.HTTP_201_CREATED)
 
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get("candidate"):
+            candidate_id = int(request.query_params["candidate"])
+            self.queryset = self.queryset.filter(candidate_id=candidate_id)
+        return super().list(request, *args, **kwargs)
+
     def retrieve(self, request, *args, **kwargs):
         logged_in_user = self.request.user
         logged_in_user_id = logged_in_user.id

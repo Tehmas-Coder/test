@@ -43,7 +43,7 @@ class QuestionTagBulkUpsertSerializer(serializers.Serializer):
             if tag_id not in input_tag_ids:
                 to_delete.append(tag_id)
 
-        QuestionTag.objects.filter(tag_id__in=to_delete).delete()
+        QuestionTag.objects.filter(tag_id__in=to_delete, question=question_instance).update(meta_status="deleted")  # Bulk Delete
 
         return data
 
