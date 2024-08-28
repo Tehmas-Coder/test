@@ -54,7 +54,7 @@
         "pk": 6,
         "fields": {
             "name": "Add Question",
-            "description": "Add an Question",
+            "description": "Add a Question",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -64,7 +64,7 @@
         "pk": 7,
         "fields": {
             "name": "Edit Question",
-            "description": "Edit an Question",
+            "description": "Edit a Question",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -74,7 +74,7 @@
         "pk": 8,
         "fields": {
             "name": "Delete Question",
-            "description": "Delete an Question",
+            "description": "Delete a Question",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -105,6 +105,166 @@
         "fields": {
             "name": "View Exam Answers Key",
             "description": "View an Exam Answers Key of correct options",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 12,
+        "fields": {
+            "name": "View Schedules",
+            "description": "View all Schedules",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 13,
+        "fields": {
+            "name": "Add Schedule",
+            "description": "Add a Schedule",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 14,
+        "fields": {
+            "name": "Edit Schedule",
+            "description": "Edit a Schedule",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 15,
+        "fields": {
+            "name": "Delete Schedule",
+            "description": "Delete a Schedule",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 16,
+        "fields": {
+            "name": "View Users",
+            "description": "View all Users",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 17,
+        "fields": {
+            "name": "Add User",
+            "description": "Add a User",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 18,
+        "fields": {
+            "name": "Edit User",
+            "description": "Edit a User",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 19,
+        "fields": {
+            "name": "Delete User",
+            "description": "Delete a User",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 20,
+        "fields": {
+            "name": "View Organizations",
+            "description": "View all Organizations",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 21,
+        "fields": {
+            "name": "Add Organization",
+            "description": "Add a Organization",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 22,
+        "fields": {
+            "name": "Edit Organization",
+            "description": "Edit a Organization",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 23,
+        "fields": {
+            "name": "Delete Organization",
+            "description": "Delete a Organization",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 24,
+        "fields": {
+            "name": "Assign Organization Users",
+            "description": "Assign Users to an Organization",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 25,
+        "fields": {
+            "name": "Remove Organization Users",
+            "description": "Remove Users from an Organization",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 26,
+        "fields": {
+            "name": "View Organization Users",
+            "description": "View an Organization Users",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 27,
+        "fields": {
+            "name": "View Organization Candidates",
+            "description": "View an Organization Candidates",
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
