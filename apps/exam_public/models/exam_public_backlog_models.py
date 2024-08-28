@@ -13,7 +13,7 @@ class ExamBacklog(BaseModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10, blank=True)
     abbreviation = models.CharField(max_length=10, blank=True)
-    instructions = models.TextField()
+    instructions = models.TextField(null=True, blank=True)
 
     education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.DO_NOTHING)
     education_level_name = models.CharField(max_length=255)
