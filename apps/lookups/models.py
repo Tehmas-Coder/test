@@ -1,8 +1,9 @@
-from django.db import models
-from core.models import BaseModel
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from datetime import datetime
+from django.db import models
+
+from core.models import BaseModel
 
 
 class Timezone(BaseModel):
@@ -183,16 +184,32 @@ class Tag(BaseModel):
     class Meta:
         app_label = "lookups"
 
+
 def upload_to(instance, filename):
     folder_name = instance.__class__.__name__.lower()
     timestamp = int(datetime.now().timestamp())
     return f"{folder_name}/{timestamp}_{filename}"
+
+
 class Media(BaseModel):
     name = models.CharField(max_length=100)
     file = models.FileField(upload_to=upload_to)
     type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
     extension = models.CharField(max_length=10, blank=True)
     size = models.IntegerField(default=0)
+
+    class Meta:
+        app_label = "lookups"
+
+
+class Package(BaseModel):
+    name = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=255, null=True, blank=True)
+    users = models.PositiveIntegerField()
+    questions = models.PositiveIntegerField()
+    exams = models.PositiveIntegerField()
+    prep_exams = models.PositiveIntegerField()
+    exam_attempts = models.PositiveIntegerField()
 
     class Meta:
         app_label = "lookups"

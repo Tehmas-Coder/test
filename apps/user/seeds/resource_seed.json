@@ -2014,5 +2014,65 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 169,
+    "fields": {
+      "name": "Create Package",
+      "description": "Create a new package",
+      "regex": "^/packages/$",
+      "method": "post",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 170,
+    "fields": {
+      "name": "Get one Package",
+      "description": "Get one package",
+      "regex": "^/packages/[0-9]+/$",
+      "method": "get",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 171,
+    "fields": {
+      "name": "Get All Packages",
+      "description": "Get all users",
+      "regex": "^/packages/$",
+      "method": "get",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 172,
+    "fields": {
+      "name": "Update Package",
+      "description": "Edit a single package",
+      "regex": "^/packages/[0-9]+/$",
+      "method": "patch",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 173,
+    "fields": {
+      "name": "Delete Package",
+      "description": "Delete a package",
+      "regex": "^/packages/[0-9]+/$",
+      "method": "delete",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
