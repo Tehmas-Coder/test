@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import F
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -35,7 +36,13 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionSerializer,
 )
 from apps.exam_admin.utils.exam_utils import create_random_exam
+from apps.organization.models.organization_models import (
+    Organization,
+    OrganizationPackage,
+    OrganizationUser,
+)
 from utils.rna_utils import (
+    make_error_response,
     make_success_response,
     remove_extra_underscore_from_key_names,
 )
@@ -121,10 +128,26 @@ class ExamViewSet(viewsets.ModelViewSet):
             return ExamDetailSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = ExamEditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
+        # * Assigning Question to Organization if the requested user is not superuser
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            if not organization_id:
+                transaction.set_rollback(True)
+                return make_error_response(message=f"Failed: User doesn't belong to any organization")
+            organization = Organization.objects.get(id=organization_id)
+            # * Checking the usage of exams of Users package
+            organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
+            if not (organization_package.exams <= organization_package.total_exams):
+                transaction.set_rollback(True)
+                return make_error_response(message=f"Failed: Your limit to create exams is reached")
+            organization_package.exams = organization_package.exams + 1
+            organization_package.save()
+            organization.exams.add(exam.id)
         response = ExamDetailSerializer(exam).data
         return Response(response, status=status.HTTP_201_CREATED)
 

@@ -154,7 +154,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def parse_media(self, request):
         request_data = json.loads(request.data["data"])
 
-        # Extract media for questions
+        # * Extract media for questions
         media_keys = request_data.pop("medias", [])
         request_data["medias"] = []
         for key in media_keys:
@@ -166,7 +166,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     }
                 )
 
-        # Extract media for hints
+        # * Extract media for hints
         for hint in request_data.get("retry_hints", []):
             hint_medias = hint.pop("medias", [])
             if hint["has_media"]:
@@ -180,7 +180,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                             }
                         )
 
-        # Extract media for choices
+        # * Extract media for choices
         for choice in request_data.get("choices", []):
             choice_medias = choice.pop("medias", [])
             if choice["has_media"]:
@@ -255,6 +255,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return res
 
     def partial_update(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            question_id = self.kwargs["pk"]
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_question = OrganizationQuestion.objects.filter(organization_id=organization_id, question_id=question_id)
+            if not len(organization_question):
+                return make_error_response(message=f"Failed: This Question doesn't belong to your organization")
         request_data = request.data
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request_data, partial=True)
