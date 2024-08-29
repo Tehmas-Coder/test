@@ -95,8 +95,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             "candidate__user",
             "candidate__user__country",
             "candidate__user__profile_picture",
+            "candidate__organization",
+            "candidate__organization__country",
         )
-        .prefetch_related("candidate__user__roles")
+        .prefetch_related(
+            "candidate__user__roles",
+            "candidate__user__roles__role_permissions",
+        )
     )
 
     serializer_class = CandidateExamEditSerializer
@@ -132,9 +137,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        if request.query_params.get("candidate"):
-            candidate_id = int(request.query_params["candidate"])
-            self.queryset = self.queryset.filter(candidate_id=candidate_id)
+        user_id = request.query_params.get("user")
+        if user_id:
+            self.queryset = self.queryset.filter(candidate__user_id=user_id)
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
@@ -385,7 +390,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             token_data = encrypted_email.decode("utf-8")
             token_data = f"{candidate_Exam_id}_{token_data}"
             url = config("PUBLIC_FE_URL")
-            final_url = f"{url}exam?token={token_data}"
+            final_url = f"{url}exam/get?token={token_data}"
             send_email_data_dict = {
                 "first_name": one_candidate_detail["first_name"],
                 "last_name": one_candidate_detail["last_name"],
