@@ -41,6 +41,25 @@ class OrganizationSerializer(BaseModelSerializer):
         return obj.organization_candidates.count()
 
 
+class OrganizationEditSerializer(BaseModelSerializer):
+
+    class Meta:
+        model = Organization
+        fields = [
+            "id",
+            "name",
+            "country",
+        ] + get_base_model_fields()
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        country = instance.country
+        if country:
+            representation["country"] = CountrySerializer(country).data
+
+        return representation
+
+
 class OrganizationUserSerializer(BaseModelSerializer):
 
     class Meta:

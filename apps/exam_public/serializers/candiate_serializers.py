@@ -1,6 +1,9 @@
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.country_serializers import CountrySerializer
-from apps.organization.serializers import OrganizationSerializer
+from apps.organization.serializers import (
+    OrganizationEditSerializer,
+    OrganizationSerializer,
+)
 from apps.user.models import BaseUser
 from apps.user.serializers.role_permission_serializers import RoleSerializer
 from apps.user.serializers.user_serializers import UserDetailSerializer
@@ -29,7 +32,7 @@ class CandidateSerializer(BaseModelSerializer):
 
 class CandidateDetailSerializer(BaseModelSerializer):
     user = UserDetailSerializer(required=True)
-    organization = OrganizationSerializer()
+    organization = OrganizationEditSerializer()
 
     class Meta:
         model = Candidate
