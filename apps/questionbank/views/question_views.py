@@ -1,10 +1,17 @@
 import json
 
+from django.db import transaction
+from django.db.models import Q
+from django.db.models.lookups import Exact
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
+from apps.organization.models.organization_models import (
+    OrganizationQuestion,
+    OrganizationUser,
+)
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.models import (
     DifficultyLevel,
@@ -191,16 +198,35 @@ class QuestionViewSet(viewsets.ModelViewSet):
             return QuestionEditSerializer(*args, **kwargs)
         return super().get_serializer(*args, **kwargs)
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if "data" in request.data:
             request_data = self.parse_media(request)
         else:
             request_data = request.data
+        # * Setting Question to public if the user is a superuser
+        if request.user.is_superuser:
+            request_data["is_public"] = 1
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
+        # * Assigning Question to Organization if the requested user is not superuser
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            if not organization_id:
+                transaction.set_rollback(True)
+                return make_error_response(message=f"Failed: User doesn't belong to any organization")
+            question_id = question.id
+            OrganizationQuestion.objects.create(organization_id=organization_id, question_id=question_id)
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_question_ids = list(OrganizationQuestion.objects.filter(organization_id=organization_id).values_list("question", flat=True))
+            self.queryset = self.queryset.filter(Q(id__in=organization_question_ids) | Q(is_public=True))
+        return super().list(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         request_data = request.data

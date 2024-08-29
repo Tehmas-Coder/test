@@ -127,6 +127,7 @@ class ExamBacklogs:
                     title=question_data["title"],
                     text=question_data["text"],
                     max_retries=question_data["max_retries"],
+                    is_public=question_data["is_public"],
                     retry_penalty=question_data["retry_penalty"],
                     can_shuffle=question_data["can_shuffle"],
                     has_media=question_data["has_media"],

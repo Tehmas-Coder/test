@@ -60,6 +60,7 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
             "title",
             "text",
             "max_retries",
+            "is_public",
             "retry_penalty",
             "can_shuffle",
             "sequence",

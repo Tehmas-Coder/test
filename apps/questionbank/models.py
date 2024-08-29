@@ -133,6 +133,7 @@ class Question(BaseModel):
 
     can_shuffle = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False)
 
     medias = models.ManyToManyField(MEDIA_MODEL, related_name="questions", through="QuestionMedia")
 
