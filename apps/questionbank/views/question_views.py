@@ -2,7 +2,6 @@ import json
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
@@ -74,7 +73,7 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectDetailSerializer,
 )
-from utils.rna_utils import debug_print, make_error_response
+from utils.rna_utils import make_error_response
 
 
 # ---------------------------------------------------------------------------- #

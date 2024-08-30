@@ -34,7 +34,6 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
     QuestionTypeSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class QuestionSerializer(BaseModelSerializer):
