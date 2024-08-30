@@ -1,5 +1,4 @@
 import json
-from email import message
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -56,7 +55,13 @@ from utils.rna_utils import (
 class CandidateViewSet(viewsets.ModelViewSet):
     queryset = (
         Candidate.objects.all()
-        .select_related("user", "user__country", "user__profile_picture", "organization", "organization__country")
+        .select_related(
+            "user",
+            "user__country",
+            "user__profile_picture",
+            "organization",
+            "organization__country",
+        )
         .prefetch_related("user__roles")
     )
     serializer_class = CandidateSerializer
