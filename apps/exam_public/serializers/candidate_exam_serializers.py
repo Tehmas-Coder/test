@@ -1,6 +1,6 @@
+from django.db.models import F
 from rest_framework import serializers
 
-from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializer
 from apps.exam_public.models.exam_public_backlog_models import ExamBacklog
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
@@ -13,7 +13,7 @@ from utils.rna_utils import debug_print
 
 
 class CandidateExamEditSerializer(BaseModelSerializer):
-    candidates = serializers.ListField(child=serializers.IntegerField())
+    candidates = serializers.ListField(child=serializers.CharField())
 
     class Meta:
         model = CandidateExam
@@ -28,7 +28,8 @@ class CandidateExamEditSerializer(BaseModelSerializer):
     def create(self, validated_data):
         # * Fetching candidates instances for candidates_ids in request data
         candidates = validated_data.pop("candidates")
-        candidates_instances = list(Candidate.objects.filter(pk__in=candidates))
+        candidates_instances = list(Candidate.objects.filter(user__email__in=candidates).select_related("user").annotate(email=F("user__email")))
+        email_in_candidate_instances = [one_candidate.email for one_candidate in candidates_instances]
 
         # * Setting up data to be fetched from schedule model
         schedule = validated_data.get("schedule")
@@ -44,7 +45,11 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         # * CandidateExam bulk create
         bulk_create_instances_list = []
         for one_instance in candidates_instances:
-            bulk_create_instances_list.append(CandidateExam(candidate=one_instance, **validated_data))
+            bulk_create_instances_list.append(CandidateExam(candidate=one_instance, candidate_email=one_instance.email, **validated_data))
+
+        for one_candidate_email in candidates:
+            if one_candidate_email not in email_in_candidate_instances:
+                bulk_create_instances_list.append(CandidateExam(candidate_email=one_candidate_email, **validated_data))
 
         CandidateExam.objects.bulk_create(bulk_create_instances_list)
 
@@ -52,7 +57,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
 
 
 class CandidateExamListSerializer(BaseModelSerializer):
-    candidate = CandidateDetailSerializer(required=True)
+    candidate = CandidateDetailSerializer(required=False)
     exam_backlog = ExamBacklogEditSerializer()
 
     class Meta:
@@ -60,6 +65,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
         fields = [
             "id",
             "candidate",
+            "candidate_email",
             "exam_backlog",
             "schedule",
             "obtained_marks",
@@ -73,7 +79,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
 
 
 class CandidateExamDetailSerializer(BaseModelSerializer):
-    candidate = CandidateDetailSerializer()
+    candidate = CandidateDetailSerializer(required=False)
     exam_backlog = serializers.SerializerMethodField()
 
     class Meta:
@@ -81,6 +87,7 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
         fields = [
             "id",
             "candidate",
+            "candidate_email",
             "exam_backlog",
             "schedule",
             "is_preparatory",
@@ -123,7 +130,7 @@ class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
 
 
 class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
-    candidate = CandidateDetailSerializer()
+    candidate = CandidateDetailSerializer(required=False)
     exam_backlog = serializers.SerializerMethodField()
 
     class Meta:
@@ -131,6 +138,7 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
         fields = [
             "id",
             "candidate",
+            "candidate_email",
             "exam_backlog",
             "schedule",
             "obtained_marks",

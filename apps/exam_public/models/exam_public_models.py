@@ -16,7 +16,8 @@ class Candidate(BaseModel):
 
 
 class CandidateExam(BaseModel):
-    candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE)
+    candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE, null=True, blank=True)
+    candidate_email = models.EmailField()
     exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candiate_exam_examsbacklog")
     schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE)
     obtained_marks = models.PositiveIntegerField(default=0)
