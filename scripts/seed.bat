@@ -9,6 +9,7 @@ python manage.py loaddata role_resource_seed.json
 python manage.py loaddata permission_seed.json
 REM --------------------------------- ORGANIZATION -------------------------------------
 python manage.py loaddata organization_seed.json
+python manage.py loaddata organization_package_seed.json
 python manage.py loaddata organization_user_seed.json
 REM -------------------------------- LOOKUPS -----------------------------------
 python manage.py loaddata media_type_seed.json

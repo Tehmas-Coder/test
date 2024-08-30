@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -38,6 +38,7 @@ from apps.exam_admin.serializers.subsection_serializers import (
 from apps.exam_admin.utils.exam_utils import create_random_exam
 from apps.organization.models.organization_models import (
     Organization,
+    OrganizationExam,
     OrganizationPackage,
     OrganizationUser,
 )
@@ -133,14 +134,14 @@ class ExamViewSet(viewsets.ModelViewSet):
         serializer = ExamEditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
-        # * Assigning Question to Organization if the requested user is not superuser
+        # * Assigning Exam to Organization if the requested user is not superuser
         if not request.user.is_superuser:
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             if not organization_id:
                 transaction.set_rollback(True)
                 return make_error_response(message=f"Failed: User doesn't belong to any organization")
             organization = Organization.objects.get(id=organization_id)
-            # * Checking the usage of exams of Users package
+            # * Checking the usage of exams of Organization package
             organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
             if not (organization_package.exams <= organization_package.total_exams):
                 transaction.set_rollback(True)
@@ -151,12 +152,35 @@ class ExamViewSet(viewsets.ModelViewSet):
         response = ExamDetailSerializer(exam).data
         return Response(response, status=status.HTTP_201_CREATED)
 
+    def list(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_exam_ids = list(OrganizationExam.objects.filter(organization_id=organization_id).values_list("question", flat=True))
+            self.queryset = self.queryset.filter(id__in=organization_exam_ids)
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        res = super().retrieve(request, *args, **kwargs)
+        if not request.user.is_superuser:
+            exam_id = res.data["id"]
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_exam = OrganizationExam.objects.filter(organization_id=organization_id, exam_id=exam_id)
+            if not len(organization_exam):
+                return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
+        return res
+
     def partial_update(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            exam_id = self.kwargs["pk"]
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_exam = OrganizationExam.objects.filter(organization_id=organization_id, exam_id=exam_id)
+            if not len(organization_exam):
+                return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
         instance = self.get_object()
         serializer = ExamEditSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
-        exam.refresh_from_db()  # type:ignore
+        exam.refresh_from_db()
         response = ExamDetailSerializer(exam).data
         return Response(response)
 

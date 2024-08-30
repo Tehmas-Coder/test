@@ -223,7 +223,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 transaction.set_rollback(True)
                 return make_error_response(message=f"Failed: User doesn't belong to any organization")
             organization = Organization.objects.get(id=organization_id)
-            # * Checking the usage of questions of Users package
+            # * Checking the usage of questions of Organization package
             organization_package = (
                 OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
             )

@@ -40,10 +40,8 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.user.models import BaseUser, UserRole
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
-    debug_print,
     get_encryption_key,
     make_error_response,
     remove_extra_underscore_from_key_names,
