@@ -1,7 +1,7 @@
 from django.forms import model_to_dict
 from rest_framework import serializers
 
-from apps.exam_admin.models.exam_admin_models import Exam, ExamSubjectQuestion
+from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
@@ -13,12 +13,11 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionEditSerializer,
     SubSectionSerializer,
 )
-from apps.questionbank.models import Subject, SubjectEducationLevel
+from apps.questionbank.models import SubjectEducationLevel
 from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print, debug_print
 
 
 class ExamEditSerializer(BaseModelSerializer):

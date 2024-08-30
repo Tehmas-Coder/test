@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from apps.exam_admin.models.exam_admin_models import SubSection
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
