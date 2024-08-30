@@ -3,13 +3,11 @@ from rest_framework import serializers
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.organization.models.organization_models import Organization, OrganizationUser
-from apps.user.models import BaseUser
 from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class OrganizationSerializer(BaseModelSerializer):
