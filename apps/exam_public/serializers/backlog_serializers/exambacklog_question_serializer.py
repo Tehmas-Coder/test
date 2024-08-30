@@ -24,7 +24,6 @@ from apps.exam_public.serializers.candidate_exam_answer_serializers import (
     CandidateExamQuestionAnswerSerializer,
 )
 from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
-from apps.lookups.serializers.tag_serializers import TagSerializer
 from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
     DifficultyLevelSerializer,
 )
@@ -32,7 +31,6 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
     QuestionTypeSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class ExamBacklogQuestionSerializer(BaseModelSerializer):

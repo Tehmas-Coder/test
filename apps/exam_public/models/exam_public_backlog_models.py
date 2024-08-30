@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Prefetch, Q, QuerySet
 
 from core.models import BaseModel
 

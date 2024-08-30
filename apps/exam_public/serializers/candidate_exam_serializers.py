@@ -9,7 +9,6 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
 )
 from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class CandidateExamEditSerializer(BaseModelSerializer):
