@@ -1,7 +1,5 @@
-# myapp/middleware.py
-
 from threading import local
-from utils.rna_utils import debug_print
+
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 _user = local()
