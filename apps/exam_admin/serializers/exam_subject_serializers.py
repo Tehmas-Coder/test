@@ -5,7 +5,6 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
     SubjectEducationLevelDetailSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print, debug_print
 
 
 class ExamSubjectDetailSerializer(BaseModelSerializer):

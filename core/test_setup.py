@@ -1,12 +1,10 @@
 import json
-import os
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from apps.user.models import BaseUser
 from apps.user.serializers.user_serializers import UserEditSerializer
-from utils.rna_utils import debug_print
 
 
 class TestSetUp(APITestCase):

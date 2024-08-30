@@ -12,7 +12,6 @@ from apps.user.serializers.role_permission_serializers import (
     RolePermissionSerializer,
     RoleSerializer,
 )
-from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
 #                                     ROLES                                    #

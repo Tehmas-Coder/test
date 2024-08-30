@@ -11,7 +11,6 @@ from apps.exam_public.serializers.backlog_serializers.subsection_backlog_seriali
     SubSectionBacklogSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class ExamBacklogEditSerializer(BaseModelSerializer):

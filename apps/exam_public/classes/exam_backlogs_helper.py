@@ -1,5 +1,4 @@
 from django.db.models import F
-from django.forms import model_to_dict
 
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestion,
@@ -17,7 +16,6 @@ from apps.exam_public.models.exam_public_backlog_models import (
 from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
     ExamBacklogEditSerializer,
 )
-from utils.rna_utils import debug_print
 
 
 class ExamBacklogs:

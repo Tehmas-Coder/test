@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Case, Prefetch, Q, QuerySet, When
+from django.db.models import Prefetch, Q, QuerySet
 
 from apps.questionbank.models import Question
 from core.models import BaseModel

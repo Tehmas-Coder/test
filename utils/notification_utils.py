@@ -12,8 +12,6 @@ from botocore.exceptions import ClientError
 from decouple import config
 from django.core.mail import send_mail
 
-from utils.rna_utils import debug_print
-
 # ------------------------------------------------------
 # *                  SMS Utils
 # ------------------------------------------------------

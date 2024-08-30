@@ -3,7 +3,7 @@ import re
 from django.forms.models import model_to_dict
 from rest_framework.permissions import BasePermission
 
-from apps.user.models import Resource, RoleResource, UserRole
+from apps.user.models import Resource
 from utils.rna_utils import debug_print
 
 

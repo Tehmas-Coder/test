@@ -10,7 +10,6 @@ from apps.user.serializers.role_permission_serializers import (
     RoleSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import color_print, debug_print
 
 
 class UserDetailSerializer(BaseModelSerializer):

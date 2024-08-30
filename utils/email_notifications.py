@@ -1,5 +1,3 @@
-import json
-
 from decouple import config
 
 from utils.notification_utils import send_email_notification_to_list

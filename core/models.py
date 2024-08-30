@@ -5,7 +5,6 @@ from django.db.models import Q
 from hashids import Hashids
 
 from core.middlewares.current_user_middleware import get_current_user
-from utils.rna_utils import debug_print
 
 hashids = Hashids(min_length=8, salt="your_salt_here")
 

@@ -6,7 +6,6 @@ from apps.lookups.serializers.media_serializers import (
 )
 from apps.questionbank.models import QuestionChoiceMedia
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class QuestionChoiceMediaSerializer(BaseModelSerializer):

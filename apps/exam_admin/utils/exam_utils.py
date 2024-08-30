@@ -1,7 +1,5 @@
 from typing import Any, Dict, List, Union
 
-from django.db.models import Q
-from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnList
 
 from apps.exam_admin.models.exam_admin_models import Exam

@@ -1,4 +1,4 @@
-from django.db.models import Count, F, Prefetch
+from django.db.models import F, Prefetch
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -19,7 +19,7 @@ from apps.organization.serializers import (
     OrganizationWithUsersListSerializer,
 )
 from apps.user.models import BaseUser
-from utils.rna_utils import debug_print, make_error_response
+from utils.rna_utils import make_error_response
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
