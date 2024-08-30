@@ -1,4 +1,3 @@
-import doctest
 import json
 
 from cryptography.fernet import Fernet
@@ -13,13 +12,19 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.organization.models.organization_models import OrganizationUser
 from apps.user.filters.user_filter import UserFilter
-from apps.user.serializers.user_serializers import UserDetailSerializer, UserEditSerializer
+from apps.user.models import UserRole
+from apps.user.serializers.user_serializers import (
+    UserDetailSerializer,
+    UserEditSerializer,
+)
 from apps.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import generate_random_password, get_encryption_key, make_error_response
+from utils.rna_utils import (
+    generate_random_password,
+    get_encryption_key,
+    make_error_response,
+)
 
-
-from apps.user.models import UserRole
 from ..models import BaseUser, Role
 
 # ---------------------------------------------------------------------------- #

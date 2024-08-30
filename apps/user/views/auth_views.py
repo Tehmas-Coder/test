@@ -1,6 +1,5 @@
 from django.contrib.auth import login
 from django.db import transaction
-from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status, views, viewsets
 from rest_framework.permissions import AllowAny
@@ -15,7 +14,7 @@ from rest_framework_simplejwt.views import (
 
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
-from utils.rna_utils import debug_print, make_error_response, make_success_response
+from utils.rna_utils import make_error_response, make_success_response
 
 from ..models import BaseUser, Role
 

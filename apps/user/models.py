@@ -3,15 +3,12 @@ from typing import Any
 
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.forms import BooleanField
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel
-
-# from utils.email_utils import send_verification_link_or_otp_to_email
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import debug_print, generate_otp
+from utils.rna_utils import generate_otp
 
 
 class CustomUserManager(UserManager):
