@@ -55,7 +55,13 @@ from utils.rna_utils import (
 class CandidateViewSet(viewsets.ModelViewSet):
     queryset = (
         Candidate.objects.all()
-        .select_related("user", "user__country", "user__profile_picture", "organization", "organization__country")
+        .select_related(
+            "user",
+            "user__country",
+            "user__profile_picture",
+            "organization",
+            "organization__country",
+        )
         .prefetch_related("user__roles")
     )
     serializer_class = CandidateSerializer
@@ -371,7 +377,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             list(
                 CandidateExam.objects.filter(id__in=candidate_exam_ids)
                 .annotate(
-                    email=F("candidate__user__email"),
                     first_name=F("candidate__user__first_name"),
                     last_name=F("candidate__user__last_name"),
                     exam=F("exam_backlog__name"),
@@ -384,17 +389,17 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             cipher = Fernet(key)
             candidate_Exam_id = one_candidate_detail["id"]
 
-            encryption_data = {"email": one_candidate_detail["email"]}
+            encryption_data = {"email": one_candidate_detail["candidate_email"]}
             encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
 
             token_data = encrypted_email.decode("utf-8")
             token_data = f"{candidate_Exam_id}_{token_data}"
             url = config("PUBLIC_FE_URL")
             final_url = f"{url}exam/get?token={token_data}"
-            send_email_data_dict = {
-                "first_name": one_candidate_detail["first_name"],
-                "last_name": one_candidate_detail["last_name"],
-                "email": one_candidate_detail["email"],
+            send_email_data_dict = send_email_data_dict = {
+                "first_name": one_candidate_detail["first_name"] or "",
+                "last_name": one_candidate_detail["last_name"] or "",
+                "email": one_candidate_detail["candidate_email"],
                 "exam": one_candidate_detail["exam"],
                 "date": one_candidate_detail["date"].strftime("%Y-%m-%d"),
                 "start_time": one_candidate_detail["start_time"].strftime("%H:%M:%S"),
@@ -406,13 +411,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 return Response(
                     data={
                         "Status": "failed",
-                        "message": f"Exam link not sent to user: {one_candidate_detail['email']}",
+                        "message": f"Exam link not sent to user: {one_candidate_detail['candidate_email']}",
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             del email_notification_ninja
 
-        return Response(status=status.HTTP_200_OK)
+        return Response({"Invitation emails sent successfully"}, status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
