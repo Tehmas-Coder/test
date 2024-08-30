@@ -436,7 +436,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         request_data = request.data["data"]
         request_data = json.loads(request_data)
 
-        # Extract media for answers
+        # * Extract media for answers
         answer_media_hashmap = {}
         for answer in request_data:
             exam_backlog_question_id = answer["exam_backlog_question"]

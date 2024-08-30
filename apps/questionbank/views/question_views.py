@@ -2,11 +2,8 @@ import json
 
 from django.db import transaction
 from django.db.models import F, Q
-from django.db.models.lookups import Exact
-from django.forms import model_to_dict
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from apps.organization.models.organization_models import (
@@ -84,7 +81,7 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectDetailSerializer,
 )
-from utils.rna_utils import debug_print, make_error_response
+from utils.rna_utils import make_error_response
 
 
 # ---------------------------------------------------------------------------- #
