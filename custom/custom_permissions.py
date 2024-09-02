@@ -4,7 +4,6 @@ from django.forms.models import model_to_dict
 from rest_framework.permissions import BasePermission
 
 from apps.user.models import Resource
-from utils.rna_utils import debug_print
 
 
 class IsAuthenticated(BasePermission):

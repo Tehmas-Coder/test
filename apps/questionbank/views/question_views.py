@@ -1,6 +1,5 @@
 import json
 
-from django.db import transaction
 from django.db.models import F, Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -198,7 +197,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
             return QuestionEditSerializer(*args, **kwargs)
         return super().get_serializer(*args, **kwargs)
 
-    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if "data" in request.data:
             request_data = self.parse_media(request)
@@ -208,16 +206,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
         # * Setting Question to public if the user is a superuser
         if request.user.is_superuser:
             request_data["is_public"] = 1
-
-        serializer = self.get_serializer(data=request_data)
-        serializer.is_valid(raise_exception=True)
-        question = serializer.save()
-
-        # * Assigning Question to Organization if the requested user is not superuser
-        if not request.user.is_superuser:
+        else:
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             if not organization_id:
-                transaction.set_rollback(True)
                 return make_error_response(message=f"Failed: User doesn't belong to any organization")
             organization = Organization.objects.get(id=organization_id)
             # * Checking the usage of questions of Organization package
@@ -225,8 +216,14 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
             )
             if not (organization_package.questions <= organization_package.total_questions):
-                transaction.set_rollback(True)
                 return make_error_response(message=f"Failed: Your limit to create questions is reached")
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        question = serializer.save()
+
+        # * Assigning Question to Organization if the requested user is not superuser
+        if not request.user.is_superuser:
             organization_package.questions = organization_package.questions + 1
             organization_package.save()
             organization.questions.add(question.id)

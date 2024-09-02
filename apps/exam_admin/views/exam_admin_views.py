@@ -1,5 +1,4 @@
-from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import F
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -129,23 +128,22 @@ class ExamViewSet(viewsets.ModelViewSet):
             return ExamDetailSerializer
         return super().get_serializer_class()
 
-    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = ExamEditSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        exam = serializer.save()
-        # * Assigning Exam to Organization if the requested user is not superuser
+        # * Checking Package limit to create Exam for an Organization if the requested user is not superuser
         if not request.user.is_superuser:
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             if not organization_id:
-                transaction.set_rollback(True)
                 return make_error_response(message=f"Failed: User doesn't belong to any organization")
             organization = Organization.objects.get(id=organization_id)
             # * Checking the usage of exams of Organization package
             organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
             if not (organization_package.exams <= organization_package.total_exams):
-                transaction.set_rollback(True)
                 return make_error_response(message=f"Failed: Your limit to create exams is reached")
+        serializer.is_valid(raise_exception=True)
+        exam = serializer.save()
+        # * Assigning Exam to Organization if the requested user is not superuser
+        if not request.user.is_superuser:
             organization_package.exams = organization_package.exams + 1
             organization_package.save()
             organization.exams.add(exam.id)
@@ -269,6 +267,6 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         request_data = {"update_list": request.data}
         serializer = ExamSubjectQuestionBulkUpdateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
-        exam_subject_questions = serializer.bulk_update_sequence(serializer.validated_data)  # type: ignore
+        exam_subject_questions = serializer.bulk_update_sequence(serializer.validated_data)
         serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
