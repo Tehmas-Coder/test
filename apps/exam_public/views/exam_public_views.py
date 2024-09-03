@@ -421,7 +421,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     def candidate_exam_score(self, request, *args, **kwargs):
         request_data = request.data
         CandidateExamAnswer.objects.bulk_update(
-            [CandidateExamAnswer(id=one_dict["candidate_exam_answer"], score=one_dict["score"]) for one_dict in request_data], fields=["score"]
+            [
+                CandidateExamAnswer(
+                    id=one_dict["candidate_exam_answer"], score=one_dict["score"], is_correct=(True if one_dict["score"] > 0 else False)
+                )
+                for one_dict in request_data
+            ],
+            fields=["score", "is_correct"],
         )
         candidate_exam_id = self.kwargs["pk"]
         all_scores_sum = (
