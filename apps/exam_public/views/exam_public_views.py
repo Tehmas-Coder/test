@@ -386,7 +386,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 )
             del email_notification_ninja
 
-        return Response({"Invitation emails sent successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Invitation emails sent successfully"}, status=status.HTTP_200_OK)
 
     # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
 
