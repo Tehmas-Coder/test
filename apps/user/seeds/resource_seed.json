@@ -2014,5 +2014,17 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 169,
+    "fields": {
+      "name": "Score One Candidate Exam",
+      "description": "Score One Candidate Exam",
+      "regex": "^/candidate-exam/[0-9]+/score/$",
+      "method": "post",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
