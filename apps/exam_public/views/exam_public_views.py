@@ -2,7 +2,7 @@ import json
 
 from cryptography.fernet import Fernet
 from decouple import config
-from django.db.models import F, Prefetch
+from django.db.models import F, Prefetch, Q, Sum
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -337,35 +337,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         data = CandidateExamWithAnswersDetailSerializer(candidate_exam_backlog_question_instance, context={"get_answers": True}).data
         return Response(data, status=status.HTTP_200_OK)
 
-    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
-
-    @action(detail=True, methods=["post"], url_path="submit")
-    def candidate_exam_submission(self, request, *args, **kwargs):
-        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
-            "exam_backlog_question_choice",
-            "exam_backlog_question",
-        )
-        CandidateExamAnswer.objects.bulk_update(
-            [
-                CandidateExamAnswer(
-                    id=one_candidate_exam_answer.id,
-                    is_correct=True if one_candidate_exam_answer.exam_backlog_question_choice.is_correct else False,
-                    score=(
-                        float(
-                            (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
-                            * one_candidate_exam_answer.exam_backlog_question.total_marks
-                        )
-                        if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
-                        else 0
-                    ),
-                )
-                for one_candidate_exam_answer in candidate_exam_answers_queryset
-                if one_candidate_exam_answer.exam_backlog_question_choice
-            ],
-            fields=["is_correct", "score"],
-        )
-        return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
-
     def send_exam_link_to_users(self, request, *args, **kwargs):
         candidate_exam_ids = request.data["candidate_exam_ids"]
         if not len(candidate_exam_ids):
@@ -416,6 +387,52 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             del email_notification_ninja
 
         return Response({"Invitation emails sent successfully"}, status=status.HTTP_200_OK)
+
+    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
+
+    @action(detail=True, methods=["post"], url_path="submit")
+    def candidate_exam_submission(self, request, *args, **kwargs):
+        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
+            "exam_backlog_question_choice",
+            "exam_backlog_question",
+        )
+        CandidateExamAnswer.objects.bulk_update(
+            [
+                CandidateExamAnswer(
+                    id=one_candidate_exam_answer.id,
+                    is_correct=True if one_candidate_exam_answer.exam_backlog_question_choice.is_correct else False,
+                    score=(
+                        float(
+                            (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
+                            * one_candidate_exam_answer.exam_backlog_question.total_marks
+                        )
+                        if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
+                        else 0
+                    ),
+                )
+                for one_candidate_exam_answer in candidate_exam_answers_queryset
+                if one_candidate_exam_answer.exam_backlog_question_choice
+            ],
+            fields=["is_correct", "score"],
+        )
+        return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="score")
+    def candidate_exam_score(self, request, *args, **kwargs):
+        request_data = request.data
+        CandidateExamAnswer.objects.bulk_update(
+            [CandidateExamAnswer(id=one_dict["candidate_exam_answer"], score=one_dict["score"]) for one_dict in request_data], fields=["score"]
+        )
+        candidate_exam_id = self.kwargs["pk"]
+        all_scores_sum = (
+            CandidateExamAnswer.objects.filter(
+                candidate_exam_id=candidate_exam_id,
+            )
+            .filter(Q(score__isnull=False))
+            .aggregate(total_score=Sum("score"))["total_score"]
+        )
+        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum)
+        return Response(status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #

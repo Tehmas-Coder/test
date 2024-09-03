@@ -16,10 +16,10 @@ class CandidateExamAnswerSerializer(BaseModelSerializer):
             "candidate_exam",
             "exam_backlog_question",
             "exam_backlog_question_choice",
+            "exam_backlog_question_choice_title",
             "answer_text",
             "answer_files",
             "seconds_taken",
-            "is_scored",
             "is_correct",
             "score",
         ] + get_base_model_fields()
@@ -34,10 +34,10 @@ class CandidateExamQuestionAnswerSerializer(BaseModelSerializer):
         fields = [
             "id",
             "exam_backlog_question_choice",
+            "exam_backlog_question_choice_title",
             "answer_text",
             "answer_files",
             "seconds_taken",
-            "is_scored",
             "is_correct",
             "score",
         ] + get_base_model_fields()
