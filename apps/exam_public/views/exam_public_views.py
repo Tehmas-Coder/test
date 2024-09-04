@@ -456,11 +456,36 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="score")
     def candidate_exam_score(self, request, *args, **kwargs):
+        candidate_exam_id = int(self.kwargs["pk"])
+        candidate_exam_retry_hints_queryset = list(CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id).values())
         request_data = request.data
+        for one_dict in request_data:
+            one_dict["penalty_score"] = 0
+        candidate_exam_answers = list(
+            CandidateExamAnswer.objects.filter(id__in=[one_dict["candidate_exam_answer"] for one_dict in request_data]).values()
+        )
+
+        question_answer_ids_hashmap = {}
+        for one_dict in request_data:
+            answer_id = one_dict["candidate_exam_answer"]
+            exam_backlog_question_id = next(
+                one_dict["exam_backlog_question_id"] for one_dict in candidate_exam_answers if one_dict["id"] == answer_id
+            )
+            question_answer_ids_hashmap[exam_backlog_question_id] = answer_id
+
+        for one_dict in candidate_exam_retry_hints_queryset:
+            question_id = one_dict["exam_backlog_question_id"]
+            if question_id in question_answer_ids_hashmap:
+                for one_request_dict in request_data:
+                    if one_request_dict["candidate_exam_answer"] == question_answer_ids_hashmap[question_id]:
+                        one_request_dict["penalty_score"] = one_request_dict["penalty_score"] + one_dict["penalty_score"]
+
         CandidateExamAnswer.objects.bulk_update(
             [
                 CandidateExamAnswer(
-                    id=one_dict["candidate_exam_answer"], score=one_dict["score"], is_correct=(True if one_dict["score"] > 0 else False)
+                    id=one_dict["candidate_exam_answer"],
+                    score=one_dict["score"] - one_dict["penalty_score"],
+                    is_correct=(True if one_dict["score"] > 0 else False),
                 )
                 for one_dict in request_data
             ],

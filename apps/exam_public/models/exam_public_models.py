@@ -81,10 +81,11 @@ class CandidateExamRetryhint(BaseModel):
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="candidate_exam_retry_hints")
     exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE)
     exam_backlog_question_retry_hint = models.ForeignKey("exam_public.ExamBacklogQuestionRetryHint", on_delete=models.CASCADE)
+    penalty_score = models.IntegerField(default=0)
 
-    @property
-    def penalty_score(self):
-        return self.exam_backlog_question.retry_penalty
+    def save(self, *args, **kwargs):
+        self.penalty_score = self.exam_backlog_question.retry_penalty
+        return super().save(*args, **kwargs)
 
     class Meta:
         app_label = "exam_public"
