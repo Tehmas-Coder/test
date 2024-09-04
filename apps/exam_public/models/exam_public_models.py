@@ -1,5 +1,6 @@
 from django.db import models
 
+from apps.exam_public.models.exam_public_backlog_models import ExamBacklogQuestion
 from apps.organization.models.organization_models import Organization
 from core.models import BaseModel
 
@@ -74,3 +75,17 @@ class CandidateExamAnswerMedia(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidateexam_answer_media"
+
+
+class CandidateExamRetryhint(BaseModel):
+    candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="candidate_exam_retry_hints")
+    exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE)
+    exam_backlog_question_retry_hint = models.ForeignKey("exam_public.ExamBacklogQuestionRetryHint", on_delete=models.CASCADE)
+
+    @property
+    def penalty_score(self):
+        return self.exam_backlog_question.retry_penalty
+
+    class Meta:
+        app_label = "exam_public"
+        db_table = "exam_public_candidateexam_retryhint"

@@ -1,4 +1,5 @@
 import json
+import random
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -15,15 +16,20 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestion,
     ExamBacklogQuestionChoice,
     ExamBacklogQuestionCountry,
+    ExamBacklogQuestionRetryHint,
 )
 from apps.exam_public.models.exam_public_models import (
     Candidate,
     CandidateExam,
     CandidateExamAnswer,
     CandidateExamAnswerMedia,
+    CandidateExamRetryhint,
 )
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choice_serializer import (
     ExamBacklogQuestionChoiceForKeySerializer,
+)
+from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retryhint_serializer import (
+    ExamBacklogQuestionRetryHintSerializer,
 )
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -389,6 +395,37 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response({"message": "Invitation emails sent successfully"}, status=status.HTTP_200_OK)
 
     # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
+
+    @action(detail=True, methods=["get"], url_path="retry-hint")
+    def candidate_exam_retry_hint(self, request, *args, **kwargs):
+        question_backlog_id = request.query_params.get("question_backlog_id")
+        if not question_backlog_id:
+            return make_error_response(message="Question Backlog id is required")
+
+        question_backlog_id = int(question_backlog_id)
+        candidate_exam_id = int(self.kwargs["pk"])
+        candidate_exam_retryhints_ids = CandidateExamRetryhint.objects.filter(
+            candidate_exam_id=candidate_exam_id, exam_backlog_question_id=question_backlog_id
+        ).values_list("exam_backlog_question_retry_hint", flat=True)
+        exam_backlog_question = ExamBacklogQuestion.objects.get(id=question_backlog_id)
+        if len(candidate_exam_retryhints_ids) >= exam_backlog_question.max_retries:
+            return make_error_response(message="Max retries limit reached.")
+        else:
+            exam_backlog_question_retryhints_instances = list(
+                ExamBacklogQuestionRetryHint.objects.filter(exam_backlog_question=exam_backlog_question)
+                .prefetch_related("exambacklogquestionretryhintmedia_set", "exambacklogquestionretryhintmedia_set__media")
+                .exclude(id__in=candidate_exam_retryhints_ids)
+            )
+            if not len(exam_backlog_question_retryhints_instances):
+                return make_error_response(message="No More Retries.")
+            random.shuffle(exam_backlog_question_retryhints_instances)
+            debug_print(exam_backlog_question_retryhints_instances)
+            retry_hint_instance = exam_backlog_question_retryhints_instances[0]
+            CandidateExamRetryhint.objects.create(
+                candidate_exam_id=candidate_exam_id, exam_backlog_question=exam_backlog_question, exam_backlog_question_retry_hint=retry_hint_instance
+            )
+            data = ExamBacklogQuestionRetryHintSerializer(retry_hint_instance).data
+        return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
