@@ -437,14 +437,21 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             [
                 CandidateExamAnswer(
                     id=one_candidate_exam_answer.id,
-                    is_correct=True if one_candidate_exam_answer.exam_backlog_question_choice.is_correct else False,
+                    is_correct=one_candidate_exam_answer.exam_backlog_question_choice.is_correct,
                     score=(
                         float(
                             (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
                             * one_candidate_exam_answer.exam_backlog_question.total_marks
                         )
                         if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
-                        else 0
+                        else (
+                            -float(
+                                (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
+                                * one_candidate_exam_answer.exam_backlog_question.total_marks
+                            )
+                            if one_candidate_exam_answer.exam_backlog_question_choice.is_negative_weight
+                            else 0
+                        )
                     ),
                 )
                 for one_candidate_exam_answer in candidate_exam_answers_queryset
@@ -452,6 +459,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             ],
             fields=["is_correct", "score"],
         )
+
         return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="score")
@@ -459,12 +467,15 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         candidate_exam_id = int(self.kwargs["pk"])
         candidate_exam_retry_hints_queryset = list(CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id).values())
         request_data = request.data
+        # * Adding default 0 penalty score to request data scores
         for one_dict in request_data:
             one_dict["penalty_score"] = 0
+        # * Fetching all candidate Exam answers from request data ids
         candidate_exam_answers = list(
             CandidateExamAnswer.objects.filter(id__in=[one_dict["candidate_exam_answer"] for one_dict in request_data]).values()
         )
 
+        # * Hashmap for question_id as key and answer_ids as values
         question_answer_ids_hashmap = {}
         for one_dict in request_data:
             answer_id = one_dict["candidate_exam_answer"]
@@ -473,6 +484,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             )
             question_answer_ids_hashmap[exam_backlog_question_id] = answer_id
 
+        # * Loop through all instnaces of candidate exam retry hints, checks if the question id there matches with the question id of hashmap, then loop through request and matches the answer id, if it is present then it increments the penalty score by the penalty score set by question
         for one_dict in candidate_exam_retry_hints_queryset:
             question_id = one_dict["exam_backlog_question_id"]
             if question_id in question_answer_ids_hashmap:
@@ -480,18 +492,19 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                     if one_request_dict["candidate_exam_answer"] == question_answer_ids_hashmap[question_id]:
                         one_request_dict["penalty_score"] = one_request_dict["penalty_score"] + one_dict["penalty_score"]
 
+        # * Bulk Update the scores in Answer Table records
         CandidateExamAnswer.objects.bulk_update(
             [
                 CandidateExamAnswer(
                     id=one_dict["candidate_exam_answer"],
                     score=one_dict["score"] - one_dict["penalty_score"],
-                    is_correct=(True if one_dict["score"] > 0 else False),
+                    is_correct=one_dict["score"] > 0,
                 )
                 for one_dict in request_data
             ],
             fields=["score", "is_correct"],
         )
-        candidate_exam_id = self.kwargs["pk"]
+        # * Sum up all the scores
         all_scores_sum = (
             CandidateExamAnswer.objects.filter(
                 candidate_exam_id=candidate_exam_id,
@@ -499,6 +512,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             .filter(Q(score__isnull=False))
             .aggregate(total_score=Sum("score"))["total_score"]
         )
+        # * Update obtained marks with the sum of scores
         CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum)
         return Response(status=status.HTTP_200_OK)
 
