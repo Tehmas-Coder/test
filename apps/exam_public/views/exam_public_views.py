@@ -531,7 +531,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             .aggregate(total_score=Sum("score"))["total_score"]
         )
         # * Update obtained marks with the sum of scores
-        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum, is_scored=True)
+        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum)
         return Response({"message": "Exam scored successfully"}, status=status.HTTP_200_OK)
 
 
