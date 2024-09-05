@@ -13,7 +13,6 @@ class IsAuthenticated(BasePermission):
         request_method = request.method.lower()
         request_path = request.path.replace("/api", "")
 
-        return True
         if user_session_data.is_superuser:
             return True
 

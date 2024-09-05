@@ -1,3 +1,4 @@
+import doctest
 import json
 
 from cryptography.fernet import Fernet
@@ -19,11 +20,7 @@ from apps.user.serializers.user_serializers import (
 )
 from apps.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import (
-    generate_random_password,
-    get_encryption_key,
-    make_error_response,
-)
+from utils.rna_utils import debug_print, generate_random_password, get_encryption_key, make_error_response
 
 from ..models import BaseUser, Role
 
@@ -310,12 +307,13 @@ class ForSytemUserAPI(viewsets.ViewSet):
         # Check if sytem role is already created
         if not Role.objects.filter(slug=request_data[0]["Slug"], is_system_role=True).exists():
             return Response(
-                {"status": "failed", "message": f"Yet role '{logged_in_user_role_name}' is not created in QB."},
+                {"status": "failed", "message": f"This role '{request_data[0]['RoleName']}' is not created in QB yet."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         logged_in_user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user_id).values("organization").first()["organization"]
 
+        created_user_role_id = Role.objects.filter(slug=request_data[0]["Slug"], name=request_data[0]["RoleName"]).values("id").first()["id"]
         for one_user in request_data:
             email = one_user["Email"]
             if not BaseUser.objects.filter(email=email).exists():
@@ -329,26 +327,14 @@ class ForSytemUserAPI(viewsets.ViewSet):
                     )
                     UserRole.objects.create(
                         user=user_instance,
-                        role_id=logged_in_user_role_id,
+                        role_id=created_user_role_id,
                     )
 
             else:
                 if not UserRole.objects.filter(user__email=email).exists():
                     UserRole.objects.create(
                         user=user_instance,
-                        role_id=logged_in_user_role_id,
-                    )
-
-                elif not UserRole.objects.filter(role__is_system_role=True, user__email=email).exists():
-                    pass
-
-                else:
-                    return Response(
-                        {
-                            "status": "failed",
-                            "message": f"User {one_user['Email']} already exist with QB role.",
-                        },
-                        status=status.HTTP_400_BAD_REQUEST,
+                        role_id=created_user_role_id,
                     )
 
             if not OrganizationUser.objects.filter(
