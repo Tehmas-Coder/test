@@ -1,6 +1,8 @@
-REM --------------------------- RESETTING DATABASE ------------------------------
+REM --------------------------- DELETE MIGRATIONS ------------------------------
+call .\scripts\delete_migrations.bat
+REM ---------------------------- RESET DATABASE --------------------------------
 python .\scripts\reset_db.py
-REM --------------------------- INITIALIZING MIGRATION ------------------------------
+REM ---------------------------- MAKE MIGRATIONS -------------------------------
 call .\scripts\migrations.bat
-REM --------------------------- INITIALIZING SEED ------------------------------
+REM ---------------------------- POPULATE SEEDS --------------------------------
 call .\scripts\seed.bat

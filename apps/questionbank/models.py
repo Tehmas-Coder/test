@@ -145,7 +145,7 @@ class Question(BaseModel):
     @classmethod
     def get_detail_queryset(cls) -> QuerySet:
 
-        return cls.objects.all().prefetch_related(
+        return cls.objects.get_queryset().prefetch_related(
             "tags",
             "choices",
             "choices__questionchoicemedia_set",
