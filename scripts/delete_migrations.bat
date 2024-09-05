@@ -14,5 +14,3 @@ for /d /r "%rootDir%" %%d in (migrations) do (
 
 echo All 'migrations' folders have been processed.
 
-endlocal
-exit
