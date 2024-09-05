@@ -1,11 +1,7 @@
-import copy
 import json
-from urllib import response
 
 from rest_framework import status
 
-from apps.organization.models.organization_models import Organization
-from apps.user.models import BaseUser
 from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,

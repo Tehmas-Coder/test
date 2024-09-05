@@ -128,7 +128,7 @@ class BaseUser(BaseModel, AbstractUser):
 # ---------------------------------------------------------------------------- #
 class Role(BaseModel):
     name = models.CharField(max_length=255)
-    permissions = models.ManyToManyField("Permission", related_name="roles", blank=True, through="RolePermission")
+    permissions = models.ManyToManyField("Permission", blank=True, through="RolePermission")
     slug = models.SlugField(max_length=100, null=True, unique=True)
     is_system_role = models.BooleanField(default=False)
 

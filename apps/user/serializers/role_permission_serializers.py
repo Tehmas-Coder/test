@@ -29,8 +29,21 @@ class RoleSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
+class RolePermissionSerializerForRole(BaseModelSerializer):
+    permission = PermissionSerializer()
+
+    class Meta:
+        model = RolePermission
+        fields = [
+            "id",
+            "role",
+            "is_active",
+            "permission",
+        ] + get_base_model_fields()
+
+
 class RoleDetailSerializer(BaseModelSerializer):
-    role_permissions = serializers.SerializerMethodField(read_only=True)
+    role_permissions = RolePermissionSerializerForRole(many=True)
 
     class Meta:
         model = Role
@@ -42,24 +55,8 @@ class RoleDetailSerializer(BaseModelSerializer):
             "role_permissions",
         ] + get_base_model_fields()
 
-    def get_role_permissions(self, obj):
-        # role_permissions = obj.role_permissions.filter(is_active=True)
-        role_permissions = obj.role_permissions.all()
-        data = RolePermissionSerializerForRole(role_permissions, many=True).data
-        return data
-
-
-class RolePermissionSerializerForRole(BaseModelSerializer):
-    permission = PermissionSerializer(read_only=True)
-
-    class Meta:
-        model = RolePermission
-        fields = [
-            "id",
-            "role",
-            "is_active",
-            "permission",
-        ] + get_base_model_fields()
+    # def get_role_permissions(self, obj):
+    #     return RolePermissionSerializerForRole(obj.role_permissions.all(), many=True).data
 
 
 # ------------------------------ ROLE PERMISSION ----------------------------- #
