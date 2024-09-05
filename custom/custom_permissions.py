@@ -4,7 +4,6 @@ from django.forms.models import model_to_dict
 from rest_framework.permissions import BasePermission
 
 from apps.user.models import Resource
-from utils.rna_utils import debug_print
 
 
 class IsAuthenticated(BasePermission):
@@ -45,12 +44,8 @@ def is_url_public(request_method, request_path):
             "/measuring-units/",
             "/media-types/",
             "/tags/",
-            "/verification",
             # "/countries/(?P<pk>[0-9]+)/",
-        ],
-        "post": [
-            "/resend-verification-link/",
-        ],
+        ]
     }
     if request_method in bypassed_api_urls_dict:
         for pattern in bypassed_api_urls_dict[request_method]:
