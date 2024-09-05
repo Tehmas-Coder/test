@@ -7,6 +7,7 @@ from django.db import transaction
 from django.forms import model_to_dict
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
@@ -173,6 +174,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserInvitaionLinkAPI(viewsets.ViewSet):
+    permission_classes = [AllowAny]
 
     def invitaion_link(self, request):
         encrypted_email_token = request.query_params["token"]
