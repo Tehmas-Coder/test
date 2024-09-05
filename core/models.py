@@ -1,8 +1,9 @@
 from decouple import config
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from hashids import Hashids
+from rest_framework.authentication import get_user_model
 
 from core.middlewares.current_user_middleware import get_current_user
 
@@ -10,8 +11,13 @@ hashids = Hashids(min_length=8, salt="your_salt_here")
 
 
 class BaseManager(models.Manager):
+
     def get_queryset(self):
-        return super().get_queryset().filter(meta_status="active")
+        qs = super().get_queryset().filter(meta_status="active")
+        created_user_subquery = get_user_model().objects.filter(pk=OuterRef("created_by")).values("username")
+        updated_user_subquery = get_user_model().objects.filter(pk=OuterRef("updated_by")).values("username")
+
+        return qs.annotate(created_by_username=Subquery(created_user_subquery[:1]), updated_by_username=Subquery(updated_user_subquery[:1]))
 
 
 class BaseModel(models.Model):
@@ -19,10 +25,10 @@ class BaseModel(models.Model):
     description = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.CharField(max_length=32, default="system")
+    created_by = models.PositiveIntegerField(null=True)
 
     updated_at = models.DateTimeField(auto_now=True)
-    updated_by = models.CharField(max_length=32, default="system")
+    updated_by = models.PositiveIntegerField(null=True)
 
     STATUS_CHOICES = (
         ("active", "Active"),
@@ -50,14 +56,14 @@ class BaseModel(models.Model):
 
         if not self.pk:
             if current_user:
-                self.created_by = current_user.full_name
+                self.created_by = current_user.id
             else:
-                self.created_by = "system"
+                self.created_by = None
 
         if current_user:
-            self.updated_by = current_user.full_name
+            self.updated_by = current_user.id
         else:
-            self.updated_by = "system"
+            self.updated_by = None
 
         super().save(*args, **kwargs)
 
