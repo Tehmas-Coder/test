@@ -20,6 +20,7 @@ class CountrySerializer(BaseModelSerializer):
             "dial_code",
             "is_un_member",
             "flag",
+            "flag_svg",
         ] + get_base_model_fields()
 
 
@@ -42,6 +43,7 @@ class CountryDetailSerializer(BaseModelSerializer):
             "dial_code",
             "is_un_member",
             "flag",
+            "flag_svg",
             "timezones",
             "currencies",
             "languages",
