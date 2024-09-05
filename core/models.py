@@ -19,10 +19,10 @@ class BaseModel(models.Model):
     description = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.CharField(max_length=32, default="system")
+    created_by = models.PositiveIntegerField(null=True)
 
     updated_at = models.DateTimeField(auto_now=True)
-    updated_by = models.CharField(max_length=32, default="system")
+    updated_by = models.PositiveIntegerField(null=True)
 
     STATUS_CHOICES = (
         ("active", "Active"),
@@ -50,14 +50,14 @@ class BaseModel(models.Model):
 
         if not self.pk:
             if current_user:
-                self.created_by = current_user.full_name
+                self.created_by = current_user.id
             else:
-                self.created_by = "system"
+                self.created_by = None
 
         if current_user:
-            self.updated_by = current_user.full_name
+            self.updated_by = current_user.id
         else:
-            self.updated_by = "system"
+            self.updated_by = None
 
         super().save(*args, **kwargs)
 
