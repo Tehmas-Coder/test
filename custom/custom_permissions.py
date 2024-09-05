@@ -8,25 +8,24 @@ from apps.user.models import Resource
 
 class IsAuthenticated(BasePermission):
     def has_permission(self, request, view):
-        user_session_data = request.user
+        request_user = request.user
         request_method = request.method.lower()
         request_path = request.path.replace("/api", "")
 
-        if user_session_data.is_superuser:
+        if not request_user.is_authenticated:
+            return False
+
+        if request_user.is_superuser:
             return True
 
-        user_role = user_session_data.roles.all().values().first()
+        user_role = request_user.roles.all().values().first()
         role_id = user_role["id"]
+
+        if is_url_public(request_method, request_path):
+            return True
 
         if user_role["name"].lower() == "system":
             return True
-
-        else:
-            if is_url_public(request_method, request_path):
-                return True
-
-            if not user_session_data.is_authenticated:
-                return False
 
         # return True
         return validate_resources(request_method, request_path, role_id)

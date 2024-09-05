@@ -40,7 +40,6 @@ class CandidateExam(BaseModel):
     extra_duration = models.PositiveIntegerField(null=True)
 
     is_preparatory = models.BooleanField(default=False)
-    is_scored = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_public"
