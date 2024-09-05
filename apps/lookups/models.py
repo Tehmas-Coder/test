@@ -1,8 +1,8 @@
-from django.db import models
-from core.models import BaseModel
-from typing import TYPE_CHECKING
-
 from datetime import datetime
+
+from django.db import models
+
+from core.models import BaseModel
 
 
 class Timezone(BaseModel):
@@ -68,6 +68,8 @@ class Country(BaseModel):
     )
 
     flag = models.ImageField(upload_to="flags/", null=True, blank=True)
+
+    flag_svg = models.TextField(null=True, blank=True)
 
     is_un_member = models.BooleanField(default=False)
 
@@ -183,10 +185,13 @@ class Tag(BaseModel):
     class Meta:
         app_label = "lookups"
 
+
 def upload_to(instance, filename):
     folder_name = instance.__class__.__name__.lower()
     timestamp = int(datetime.now().timestamp())
     return f"{folder_name}/{timestamp}_{filename}"
+
+
 class Media(BaseModel):
     name = models.CharField(max_length=100)
     file = models.FileField(upload_to=upload_to)
