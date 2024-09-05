@@ -589,7 +589,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
                         if one_dict["exam_backlog_question_choice"] != None
                         else None
                     ),
-                    answer_text=one_dict["answer_text"],
+                    answer_text=one_dict.get("answer_text", None),
                 )
                 for one_dict in request_data
             ]
