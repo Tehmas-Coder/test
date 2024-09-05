@@ -2038,5 +2038,17 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 171,
+    "fields": {
+      "name": "Mark One Candidate Exam",
+      "description": "Mark One Candidate Exam",
+      "regex": "^/candidate-exam/[0-9]+/mark/$",
+      "method": "post",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

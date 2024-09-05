@@ -220,7 +220,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         question_instances_total_marks = ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list).aggregate(
             total_score=Sum("total_marks")
         )["total_score"]
-        CandidateExam.objects.filter(id=candidate_exam_id).update(total_obtainable_marks=question_instances_total_marks)
+        CandidateExam.objects.filter(id=candidate_exam_id).update(
+            total_obtainable_marks=question_instances_total_marks if question_instances_total_marks != None else 0
+        )
 
         candidate_exam_backlog_question_instance = self.queryset.filter(id=candidate_exam_id).prefetch_related(
             Prefetch(
@@ -430,7 +432,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             if not len(exam_backlog_question_retryhints_instances):
                 return make_error_response(message="No More Retries.")
             random.shuffle(exam_backlog_question_retryhints_instances)
-            debug_print(exam_backlog_question_retryhints_instances)
             retry_hint_instance = exam_backlog_question_retryhints_instances[0]
             CandidateExamRetryhint.objects.create(
                 candidate_exam_id=candidate_exam_id, exam_backlog_question=exam_backlog_question, exam_backlog_question_retry_hint=retry_hint_instance
@@ -473,8 +474,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=["post"], url_path="score")
-    def candidate_exam_score(self, request, *args, **kwargs):
+    @action(detail=True, methods=["post"], url_path="mark")
+    def candidate_exam_marking(self, request, *args, **kwargs):
         candidate_exam_id = int(self.kwargs["pk"])
         candidate_exam_retry_hints_queryset = list(CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id).values())
         request_data = request.data
@@ -495,7 +496,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             )
             question_answer_ids_hashmap[exam_backlog_question_id] = answer_id
 
-        # * Loop through all instnaces of candidate exam retry hints, checks if the question id there matches with the question id of hashmap, then loop through request and matches the answer id, if it is present then it increments the penalty score by the penalty score set by question
+        # * Loop through all instances of candidate exam retry hints, checks if the question id there matches with the question id of hashmap, then loop through request and matches the answer id, if it is present then it increments the penalty score by the penalty score set by question
         for one_dict in candidate_exam_retry_hints_queryset:
             question_id = one_dict["exam_backlog_question_id"]
             if question_id in question_answer_ids_hashmap:
@@ -515,6 +516,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             ],
             fields=["score", "is_correct"],
         )
+
+        return Response({"message": "Exam questions marked successfully"}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="score")
+    def candidate_exam_scoring(self, request, *args, **kwargs):
+        candidate_exam_id = int(self.kwargs["pk"])
         # * Sum up all the scores
         all_scores_sum = (
             CandidateExamAnswer.objects.filter(
@@ -524,8 +531,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             .aggregate(total_score=Sum("score"))["total_score"]
         )
         # * Update obtained marks with the sum of scores
-        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum)
-        return Response(status=status.HTTP_200_OK)
+        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum, is_scored=True)
+        return Response({"message": "Exam scored successfully"}, status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
