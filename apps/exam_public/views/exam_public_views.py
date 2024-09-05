@@ -67,7 +67,11 @@ class CandidateViewSet(viewsets.ModelViewSet):
             "organization",
             "organization__country",
         )
-        .prefetch_related("user__roles")
+        .prefetch_related(
+            "user__roles",
+            "user__roles__role_permissions",
+            "user__roles__role_permissions__permission",
+        )
     )
     serializer_class = CandidateSerializer
     # filter_backends = [CandidateFilterBackend]
@@ -112,6 +116,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         .prefetch_related(
             "candidate__user__roles",
             "candidate__user__roles__role_permissions",
+            "candidate__user__roles__role_permissions__permission",
         )
     )
 
@@ -154,6 +159,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
+        candidate_exam_id = self.kwargs["pk"]
         logged_in_user = self.request.user
         logged_in_user_id = logged_in_user.id
 
@@ -211,7 +217,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         )
         final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
 
-        candidate_exam_backlog_question_instance = self.queryset.filter(id=self.kwargs["pk"]).prefetch_related(
+        question_instances_total_marks = ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list).aggregate(
+            total_score=Sum("total_marks")
+        )["total_score"]
+        CandidateExam.objects.filter(id=candidate_exam_id).update(total_obtainable_marks=question_instances_total_marks)
+
+        candidate_exam_backlog_question_instance = self.queryset.filter(id=candidate_exam_id).prefetch_related(
             Prefetch(
                 "exam_backlog__backlog_questions",
                 queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)

@@ -29,6 +29,7 @@ class CandidateExam(BaseModel):
     candidate_email = models.EmailField()
     exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candiate_exam_examsbacklog")
     schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE)
+    total_obtainable_marks = models.FloatField(null=True, blank=True)
     obtained_marks = models.FloatField(null=True, blank=True)
 
     # ? To be filled from schedule
