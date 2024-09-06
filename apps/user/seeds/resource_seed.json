@@ -2021,7 +2021,7 @@
     "fields": {
       "name": "Score One Candidate Exam",
       "description": "Score One Candidate Exam",
-      "regex": "^/candidate-exam/[0-9]+/score/$",
+      "regex": "^/score-candidate-exam/$",
       "method": "post",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -2045,7 +2045,7 @@
     "fields": {
       "name": "Mark One Candidate Exam",
       "description": "Mark One Candidate Exam",
-      "regex": "^/candidate-exam/[0-9]+/mark/$",
+      "regex": "^/mark-candidate-exam/$",
       "method": "post",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"

@@ -64,7 +64,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
+        logged_in_user = request.user
         request_user_role_id = request.data.pop("role", None)
         request_user_role_name = get_role_name(request_user_role_id)
 
@@ -282,7 +282,7 @@ class ForSytemUserAPI(viewsets.ViewSet):
 
     @transaction.atomic
     def system_user_create(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
+        logged_in_user = request.user
         logged_in_user_id = logged_in_user.id
 
         logged_in_user_role_data = logged_in_user.roles.values("id", "name").first()

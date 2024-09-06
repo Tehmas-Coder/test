@@ -51,7 +51,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 class OrganizationRelatedViewset(viewsets.ViewSet):
 
     def get_organization_users_list(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
+        logged_in_user = request.user
         organization_id = kwargs.get("id", None)
 
         filtered_organization_queryset = Organization.objects.filter(id=organization_id)
@@ -79,7 +79,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
         return Response(response_data, status=status.HTTP_200_OK)
 
     def get_organization_candidates_list(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
+        logged_in_user = request.user
         organization_id = kwargs.get("id", None)
 
         organization_queryset = Organization.objects.filter(id=organization_id)
@@ -116,7 +116,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
     def get_candidate_organizations_list(self, request, *args, **kwargs):
 
         filtered_candidate_queryset = CandidateWithOrganizationsSerializer(
-            BaseUser.objects.filter(id=self.request.user.id).prefetch_related("user_candidates"), many=True
+            BaseUser.objects.filter(id=request.user.id).prefetch_related("user_candidates"), many=True
         ).data
         filtered_candidate_queryset_response = {}
         if len(filtered_candidate_queryset):
@@ -128,7 +128,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
 
         user_organization_detail = list(
             (
-                OrganizationUser.objects.filter(user_id=self.request.user.id)
+                OrganizationUser.objects.filter(user_id=request.user.id)
                 .select_related(
                     "organization",
                     "organization__country",
