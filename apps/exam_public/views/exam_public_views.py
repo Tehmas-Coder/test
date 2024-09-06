@@ -437,8 +437,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             data = ExamBacklogQuestionRetryHintSerializer(retry_hint_instance).data
         return Response(data, status=status.HTTP_200_OK)
 
-    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
-
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
