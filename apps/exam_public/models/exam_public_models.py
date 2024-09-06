@@ -32,6 +32,16 @@ class CandidateExam(BaseModel):
     total_obtainable_marks = models.FloatField(null=True, blank=True)
     obtained_marks = models.FloatField(null=True, blank=True)
 
+    EXAM_STATUS_CHOICES = (
+        ("assigned", "Assigned"),
+        ("attempted", "Attempted"),
+        ("submitted", "Submitted"),
+        ("marked", "Marked"),
+        ("scored", "Scored"),
+    )
+
+    exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
+
     # ? To be filled from schedule
     date = models.DateField(auto_now=False, auto_now_add=False)
     start_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)

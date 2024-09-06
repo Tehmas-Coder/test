@@ -19,7 +19,7 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
 
 
 class ExamBacklogs:
-    def __init__(self, exam_data: dict) -> None:
+    def __init__(self, exam_data: dict) -> int:  # type: ignore
         self.exam_data = exam_data
         self.section_backlog_ids_hashmap = {}
         self.subsection_backlog_ids_hashmap = {}
@@ -43,7 +43,7 @@ class ExamBacklogs:
 
         serializer = ExamBacklogEditSerializer(data=exam_data)
         serializer.is_valid(raise_exception=True)
-        self.exam_backlog_id = serializer.save().id
+        self.exam_backlog_id = serializer.save().id  # type: ignore
 
         # * Creating Exam Related Backlogs
         self.create_sections_backlogs(exam_sections)
@@ -67,12 +67,12 @@ class ExamBacklogs:
         created_section_backlog_queryset = (
             SectionBacklog.objects.annotate(sec_id=F("section__id")).all().order_by("-created_at")[: len(bulk_create_section_backlog_instances_list)]
         )
-        created_section_backlog_instance_list = sorted(created_section_backlog_queryset, key=lambda instance: instance.id)
+        created_section_backlog_instance_list = sorted(created_section_backlog_queryset, key=lambda instance: instance.id)  # type: ignore
 
         # * Creating a hashmap which has section_ids as keys and section_backlog_ids as values
         for one_section_backlog in created_section_backlog_instance_list:
-            section_id = one_section_backlog.sec_id
-            section_backlog_id = one_section_backlog.id
+            section_id = one_section_backlog.sec_id  # type: ignore
+            section_backlog_id = one_section_backlog.id  # type: ignore
             if not section_id in self.section_backlog_ids_hashmap:
                 self.section_backlog_ids_hashmap[section_id] = section_backlog_id
 
@@ -100,12 +100,12 @@ class ExamBacklogs:
             .all()
             .order_by("-created_at")[: len(bulk_create_subsection_backlog_instances_list)]
         )
-        created_subsection_backlog_instance_list = sorted(created_subsection_backlog_queryset, key=lambda instance: instance.id)
+        created_subsection_backlog_instance_list = sorted(created_subsection_backlog_queryset, key=lambda instance: instance.id)  # type: ignore
 
         # * Creating a hashmap which has subsection_ids as keys and subsection_backlog_ids as values
         for one_subsection_backlog in created_subsection_backlog_instance_list:
-            subsection_id = one_subsection_backlog.subsec_id
-            subsection_backlog_id = one_subsection_backlog.id
+            subsection_id = one_subsection_backlog.subsec_id  # type: ignore
+            subsection_backlog_id = one_subsection_backlog.id  # type: ignore
             if not subsection_id in self.subsection_backlog_ids_hashmap:
                 self.subsection_backlog_ids_hashmap[subsection_id] = subsection_backlog_id
 
@@ -153,7 +153,7 @@ class ExamBacklogs:
             .all()
             .order_by("-created_at")[: len(question_bulk_create_list)]
         )
-        self.created_question_backlog_instance_list = sorted(created_question_backlog_queryset, key=lambda instance: instance.id)
+        self.created_question_backlog_instance_list = sorted(created_question_backlog_queryset, key=lambda instance: instance.id)  # type: ignore
 
         # * Intializing Bulk create lists for question related data
         """
@@ -180,7 +180,7 @@ class ExamBacklogs:
                 self.question_retry_hints_hashmap[one_retry_hints["id"]] = one_retry_hints
 
             # * Fetching and setting up data from the question to pass it to the backlogs creation functions
-            exam_backlog_question_id: int = self.created_question_backlog_instance_list[index].id
+            exam_backlog_question_id: int = self.created_question_backlog_instance_list[index].id  # type: ignore
             exam_question_medias: list = one_exam_question["question"]["medias"]
             exam_question_countries: list = one_exam_question["question"]["countries"]
             exam_question_choices: list = one_exam_question["question"]["choices"]
@@ -298,19 +298,19 @@ class ExamBacklogs:
         newly_created_choices_backlog_queryset = ExamBacklogQuestionChoice.objects.all().order_by("-created_at")[
             : len(self.question_choices_bulk_create_list)
         ]
-        newly_created_choices_backlog_instance_list = sorted(newly_created_choices_backlog_queryset, key=lambda instance: instance.id)
+        newly_created_choices_backlog_instance_list = sorted(newly_created_choices_backlog_queryset, key=lambda instance: instance.id)  # type: ignore
 
         newly_created_retry_hints_backlog_queryset = ExamBacklogQuestionRetryHint.objects.all().order_by("-created_at")[
             : len(self.question_retry_hints_bulk_create_list)
         ]
-        newly_created_retry_hints_backlog_instance_list = sorted(newly_created_retry_hints_backlog_queryset, key=lambda instance: instance.id)
+        newly_created_retry_hints_backlog_instance_list = sorted(newly_created_retry_hints_backlog_queryset, key=lambda instance: instance.id)  # type: ignore
 
         # * QUESTION CHOICE MEDIA BACKLOG
         self.question_choices_medias_bulk_create_list = []
         for one_question_choice_backlog in newly_created_choices_backlog_instance_list:
-            from_backlog_question_choice_id = one_question_choice_backlog.question_choice_id
+            from_backlog_question_choice_id = one_question_choice_backlog.question_choice_id  # type: ignore
             question_choice_data = self.question_choices_hashmap[from_backlog_question_choice_id]
-            one_question_choice_backlog_id = one_question_choice_backlog.id
+            one_question_choice_backlog_id = one_question_choice_backlog.id  # type: ignore
             choices_media_list = question_choice_data["medias"]
             if len(choices_media_list):
                 for one_dict in choices_media_list:
@@ -327,10 +327,10 @@ class ExamBacklogs:
         # * QUESTION RETRY HINTS MEDIA BACKLOG
         self.question_retry_hints_medias_bulk_create_list = []
         for one_question_retry_hint_backlog in newly_created_retry_hints_backlog_instance_list:
-            from_backlog_question_retry_hint_id = one_question_retry_hint_backlog.retry_hint_id
+            from_backlog_question_retry_hint_id = one_question_retry_hint_backlog.retry_hint_id  # type: ignore
 
             question_retry_hint_data = self.question_retry_hints_hashmap[from_backlog_question_retry_hint_id]
-            one_question_retry_hint_backlog_id = one_question_retry_hint_backlog.id
+            one_question_retry_hint_backlog_id = one_question_retry_hint_backlog.id  # type: ignore
             retry_hints_media_list = question_retry_hint_data["medias"]
             if len(retry_hints_media_list):
                 for one_dict in retry_hints_media_list:

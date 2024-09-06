@@ -135,7 +135,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         exam_instance = Exam.get_detail_queryset().get(pk=exam_id)
 
         # * Creating Backlogs for Exam
-        exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
+        exam_data: dict = ExamDetailSerializerForBacklogs(exam_instance).data  # type: ignore
         exam_backlogs = ExamBacklogs(exam_data=exam_data)
         exambacklog_id = exam_backlogs.create_backlogs()
 
@@ -161,10 +161,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
         logged_in_user = self.request.user
-        logged_in_user_id = logged_in_user.id
+        logged_in_user_id = logged_in_user.id  # type: ignore
 
         # * IF ROLES ARE ( Organization Roles and Candidate )
-        logged_in_user_roles = logged_in_user.roles.all()
+        logged_in_user_roles = logged_in_user.roles.all()  # type: ignore
         if len(logged_in_user_roles):
             logged_in_user_role_name = logged_in_user_roles.values("name").first()["name"]
             if logged_in_user_role_name.lower() == "candidate":
@@ -407,12 +407,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         return Response({"message": "Invitation emails sent successfully"}, status=status.HTTP_200_OK)
 
-    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
-
     @action(detail=True, methods=["get"], url_path="retry-hint")
     def candidate_exam_retry_hint(self, request, *args, **kwargs):
-        question_backlog_id = request.query_params.get("question_backlog_id")
-        if not question_backlog_id:
+        question_backlog_id = request.query_params.get("question_backlog_id", None)
+        if question_backlog_id is None:
             return make_error_response(message="Question Backlog id is required")
 
         question_backlog_id = int(question_backlog_id)
@@ -439,16 +437,19 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             data = ExamBacklogQuestionRetryHintSerializer(retry_hint_instance).data
         return Response(data, status=status.HTTP_200_OK)
 
+    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
+
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
-        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
+        candidate_exam_id = self.kwargs["pk"]
+        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id).select_related(
             "exam_backlog_question_choice",
             "exam_backlog_question",
         )
         CandidateExamAnswer.objects.bulk_update(
             [
                 CandidateExamAnswer(
-                    id=one_candidate_exam_answer.id,
+                    id=one_candidate_exam_answer.id,  # type: ignore
                     is_correct=one_candidate_exam_answer.exam_backlog_question_choice.is_correct,
                     score=(
                         float(
@@ -471,6 +472,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             ],
             fields=["is_correct", "score"],
         )
+
+        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="submitted")
 
         return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
 
@@ -516,6 +519,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             ],
             fields=["score", "is_correct"],
         )
+        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="marked")
 
         return Response({"message": "Exam questions marked successfully"}, status=status.HTTP_200_OK)
 
@@ -531,7 +535,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             .aggregate(total_score=Sum("score"))["total_score"]
         )
         # * Update obtained marks with the sum of scores
-        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum)
+        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum, exam_status="scored")
         return Response({"message": "Exam scored successfully"}, status=status.HTTP_200_OK)
 
 
@@ -599,12 +603,13 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
         )
 
+        CandidateExam.objects.filter(id=request_data[0]["candidate_exam"]).update(exam_status="attempted")
+
         for one_dict in newly_created_queryset:
             candidate_exam_answer_id = one_dict[0]
             exam_backlog_question_id = one_dict[1]
             if exam_backlog_question_id in answer_media_hashmap:
                 answer_media_hashmap[exam_backlog_question_id]["candidate_exam_answer"] = candidate_exam_answer_id
-                answer_media_hashmap
 
         for key, value in answer_media_hashmap.items():
             media_data = {"files": value["files"]}
@@ -652,7 +657,7 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
                 "question_backlog_title": question.title,
                 "correct_choices": ExamBacklogQuestionChoiceForKeySerializer(question.backlog_choices.all(), many=True).data,
             }
-            for question in exam_backlog.backlog_questions.all()
+            for question in exam_backlog.backlog_questions.all()  # type: ignore
             if question.backlog_choices.exists()
         ]
 

@@ -63,9 +63,6 @@ class CandidateExamListSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
-            "candidate",
-            "candidate_email",
-            "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
             "schedule",
@@ -74,6 +71,10 @@ class CandidateExamListSerializer(BaseModelSerializer):
             "end_time",
             "waiting_duration",
             "extra_duration",
+            "exam_status",
+            "candidate_email",
+            "candidate",
+            "exam_backlog",
         ] + get_base_model_fields()
 
 
@@ -85,9 +86,6 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
-            "candidate",
-            "candidate_email",
-            "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
             "schedule",
@@ -96,6 +94,10 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "end_time",
             "waiting_duration",
             "extra_duration",
+            "exam_status",
+            "candidate_email",
+            "candidate",
+            "exam_backlog",
         ] + get_base_model_fields()
 
     def __init__(self, *args, **kwargs):
@@ -137,9 +139,6 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
-            "candidate",
-            "candidate_email",
-            "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
             "obtained_marks",
@@ -149,6 +148,10 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
             "end_time",
             "waiting_duration",
             "extra_duration",
+            "exam_status",
+            "candidate_email",
+            "candidate",
+            "exam_backlog",
         ] + get_base_model_fields()
 
     def __init__(self, *args, **kwargs):
