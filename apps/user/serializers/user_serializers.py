@@ -12,7 +12,7 @@ from apps.user.serializers.role_permission_serializers import (
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class UserDetailSerializer(BaseModelSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
     roles = RoleDetailSerializer(many=True, read_only=True)
     country = CountrySerializer(read_only=True)
     profile_picture = MediaSerializer(required=False)
@@ -35,7 +35,11 @@ class UserDetailSerializer(BaseModelSerializer):
             "is_superuser",
             "date_joined",
             "last_login",
-        ] + get_base_model_fields()
+            "description",
+            "created_at",
+            "updated_at",
+            "meta_status",
+        ]
 
         read_only_fields = [
             "id",
@@ -51,10 +55,12 @@ class UserDetailSerializer(BaseModelSerializer):
             "is_superuser",
             "date_joined",
             "last_login",
+            "created_at",
+            "updated_at",
         ]
 
 
-class UserEditSerializer(BaseModelSerializer):
+class UserEditSerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
 
     class Meta:
@@ -76,7 +82,11 @@ class UserEditSerializer(BaseModelSerializer):
             "is_superuser",
             "date_joined",
             "last_login",
-        ] + get_base_model_fields()
+            "description",
+            "created_at",
+            "updated_at",
+            "meta_status",
+        ]
 
         read_only_fields = [
             "id",
@@ -88,6 +98,8 @@ class UserEditSerializer(BaseModelSerializer):
             "is_superuser",
             "date_joined",
             "last_login",
+            "created_at",
+            "updated_at",
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
