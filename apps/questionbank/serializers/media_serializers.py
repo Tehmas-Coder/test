@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.lookups.models import Media
+from apps.user.models import Media
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 MEDIA_TYPES = {
@@ -97,6 +97,6 @@ class MediaBulkCreateSerializer(serializers.Serializer):
         Media.objects.bulk_create(media_instances)
 
         created_media_instances = Media.objects.all().order_by("-created_at")[: len(media_instances)]
-        created_media_instances = sorted(created_media_instances, key=lambda instance: instance.id)
+        created_media_instances = sorted(created_media_instances, key=lambda instance: instance.id)  # type: ignore
 
         return created_media_instances

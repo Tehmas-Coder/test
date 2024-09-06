@@ -1,4 +1,4 @@
-from apps.lookups.models import Tag
+from apps.questionbank.models import Tag
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

@@ -2,7 +2,7 @@ from apps.exam_public.models.exam_public_models import CandidateExamAnswer
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choice_serializer import (
     ExamBacklogQuestionChoiceSerializer,
 )
-from apps.lookups.serializers.media_serializers import MediaSerializer
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

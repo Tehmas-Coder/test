@@ -8,7 +8,6 @@ from apps.lookups.models import (
     MediaType,
     Region,
     State,
-    Tag,
     Timezone,
 )
 from apps.lookups.serializers.country_serializers import (
@@ -21,8 +20,9 @@ from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSer
 from apps.lookups.serializers.media_type_serializers import MediaTypeSerializer
 from apps.lookups.serializers.region_serializers import RegionDetailSerializer
 from apps.lookups.serializers.state_serializers import StateSerializer
-from apps.lookups.serializers.tag_serializers import TagSerializer
 from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
+from apps.questionbank.models import Tag
+from apps.questionbank.serializers.tag_serializers import TagSerializer
 
 
 class TimezoneViewset(viewsets.ModelViewSet):

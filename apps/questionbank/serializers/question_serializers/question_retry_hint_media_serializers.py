@@ -1,7 +1,10 @@
 from rest_framework import serializers
 
-from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer, MediaSerializer
 from apps.questionbank.models import QuestionRetryHintMedia
+from apps.questionbank.serializers.media_serializers import (
+    MediaBulkCreateSerializer,
+    MediaSerializer,
+)
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

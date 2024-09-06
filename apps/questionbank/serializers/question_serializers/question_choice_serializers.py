@@ -1,8 +1,8 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.questionbank.models import QuestionChoice
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
     QuestionChoiceMediaBulkCreateSerializer,
     QuestionChoiceMediaDetailSerializer,
@@ -45,7 +45,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
         question_choice = QuestionChoice.objects.create(**validated_data)
 
-        bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}
+        bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}  # type: ignore
         question_choice_media_serializer = QuestionChoiceMediaBulkCreateSerializer(data=bulk_create_request_data)
         question_choice_media_serializer.is_valid(raise_exception=True)
         question_choice_media_serializer.save()
