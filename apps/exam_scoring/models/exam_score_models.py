@@ -11,8 +11,8 @@ class CandidateExamSectionScore(BaseModel):
     score = models.FloatField(default=0)
 
     class Meta:
-        app_label = "exam_score"
-        db_table = "exam_score_candidateexam_sectionbacklog_score"
+        app_label = "exam_scoring"
+        db_table = "exam_scoring_candidateexam_sectionbacklog_score"
 
 
 class CandidateExamSubSectionScore(BaseModel):
@@ -23,5 +23,5 @@ class CandidateExamSubSectionScore(BaseModel):
     score = models.FloatField(default=0)
 
     class Meta:
-        app_label = "exam_score"
-        db_table = "exam_score_candidateexam_subsectionbacklog_score"
+        app_label = "exam_scoring"
+        db_table = "exam_scoring_candidateexam_subsectionbacklog_score"
