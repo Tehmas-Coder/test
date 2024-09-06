@@ -45,7 +45,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
+from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,

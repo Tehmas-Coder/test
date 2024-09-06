@@ -5,9 +5,7 @@
         "fields": {
             "name": "Second",
             "code": "s",
-            "abbreviation": "sec",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "sec"
         }
     },
     {
@@ -16,9 +14,7 @@
         "fields": {
             "name": "Minute",
             "code": "m",
-            "abbreviation": "min",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "min"
         }
     },
     {
@@ -27,9 +23,7 @@
         "fields": {
             "name": "Hour",
             "code": "h",
-            "abbreviation": "hr",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "hr"
         }
     },
     {
@@ -38,9 +32,7 @@
         "fields": {
             "name": "Day",
             "code": "d",
-            "abbreviation": "day",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "day"
         }
     },
     {
@@ -49,9 +41,7 @@
         "fields": {
             "name": "Week",
             "code": "w",
-            "abbreviation": "wk",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "wk"
         }
     },
     {
@@ -60,9 +50,7 @@
         "fields": {
             "name": "Month",
             "code": "mo",
-            "abbreviation": "mo",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "mo"
         }
     },
     {
@@ -71,9 +59,7 @@
         "fields": {
             "name": "Year",
             "code": "y",
-            "abbreviation": "yr",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "yr"
         }
     }
 ]

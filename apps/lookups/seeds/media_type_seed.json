@@ -5,9 +5,8 @@
         "fields": {
             "name": "Image",
             "code": "IMG",
-            "abbreviation": "IMG",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "IMG"
+
         }
     },
     {
@@ -16,9 +15,7 @@
         "fields": {
             "name": "Video",
             "code": "VID",
-            "abbreviation": "VID",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "VID"
         }
     },
     {
@@ -27,9 +24,7 @@
         "fields": {
             "name": "Audio",
             "code": "AUD",
-            "abbreviation": "AUD",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "AUD"
         }
     },
     {
@@ -38,9 +33,7 @@
         "fields": {
             "name": "Document",
             "code": "DOC",
-            "abbreviation": "DOC",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
+            "abbreviation": "DOC"
         }
     }
 ]

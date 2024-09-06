@@ -11,8 +11,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
-from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.organization.models.organization_models import OrganizationUser
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.filters.user_filter import UserFilter
 from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (

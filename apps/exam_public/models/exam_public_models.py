@@ -4,7 +4,7 @@ from apps.exam_public.models.exam_public_backlog_models import ExamBacklogQuesti
 from apps.organization.models.organization_models import Organization
 from core.models import BaseModel
 
-MEDIA_MODEL = "lookups.Media"
+MEDIA_MODEL = "user.Media"
 
 
 class Candidate(BaseModel):

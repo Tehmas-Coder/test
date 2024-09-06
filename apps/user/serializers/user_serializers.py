@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.lookups.serializers.country_serializers import CountrySerializer
-from apps.lookups.serializers.media_serializers import MediaSerializer
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.models import BaseUser
 from apps.user.serializers.role_permission_serializers import (
     RoleDetailSerializer,

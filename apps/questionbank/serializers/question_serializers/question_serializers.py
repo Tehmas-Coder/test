@@ -1,8 +1,5 @@
 from rest_framework import serializers
 
-from apps.lookups.models import Tag
-from apps.lookups.serializers.media_serializers import MediaSerializer
-from apps.lookups.serializers.tag_serializers import TagSerializer
 from apps.questionbank.models import (
     Question,
     QuestionAttemptResponse,
@@ -11,7 +8,9 @@ from apps.questionbank.models import (
     QuestionRetryHint,
     QuestionSubject,
     SubjectEducationLevel,
+    Tag,
 )
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.questionbank.serializers.question_serializers.question_attempt_response_serializers import (
     QuestionAttemptResponseEditSerializer,
 )
@@ -33,6 +32,7 @@ from apps.questionbank.serializers.question_serializers.question_subject_seriali
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
     QuestionTypeSerializer,
 )
+from apps.questionbank.serializers.tag_serializers import TagSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
