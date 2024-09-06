@@ -1,6 +1,5 @@
 from django.db import models
 
-from apps.exam_public.models.exam_public_backlog_models import ExamBacklogQuestion
 from apps.organization.models.organization_models import Organization
 from core.models import BaseModel
 
@@ -16,7 +15,7 @@ class Candidate(BaseModel):
         related_candidate_exams = CandidateExam.objects.filter(candidate_email=self.user.email)
 
         for exam in related_candidate_exams:
-            exam.candidate = self
+            exam.candidate = self  # type: ignore
             exam.save()
 
     class Meta:

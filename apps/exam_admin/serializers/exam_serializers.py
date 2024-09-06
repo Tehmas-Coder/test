@@ -218,7 +218,7 @@ class ExamDetailSerializerForBacklogs(BaseModelSerializer):
 
     def get_questions(self, obj):
         exam_questions = []
-        for exam_subject in self.exam_subjects:
+        for exam_subject in self.exam_subjects:  # type: ignore
             exam_subject_questions = exam_subject.examsubjectquestion_set.all()
             if exam_subject_questions:
                 exam_questions.extend(ExamSubjectQuestionDetailSerializer(exam_subject_questions, many=True).data)

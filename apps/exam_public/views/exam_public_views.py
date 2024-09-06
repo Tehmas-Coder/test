@@ -3,7 +3,7 @@ import random
 
 from cryptography.fernet import Fernet
 from decouple import config
-from django.db.models import F, Prefetch, Q, Sum
+from django.db.models import F, Prefetch, Sum
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -273,8 +273,14 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                         "candidate__user",
                         "candidate__user__country",
                         "candidate__user__profile_picture",
+                        "candidate__organization",
+                        "candidate__organization__country",
                     )
-                    .prefetch_related("candidate__user__roles"),
+                    .prefetch_related(
+                        "candidate__user__roles",
+                        "candidate__user__roles__role_permissions",
+                        "candidate__user__roles__role_permissions__permission",
+                    ),
                 )
             ),
             many=True,

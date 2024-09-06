@@ -150,7 +150,7 @@ class ExamViewSet(viewsets.ModelViewSet):
             subject_count=subject_count,
             education_level_id=education_level_id,
         )
-        return make_success_response(exam, status=status.HTTP_201_CREATED)
+        return make_success_response(exam)
 
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
