@@ -17,6 +17,13 @@ class BaseManager(models.Manager):
         return qs
 
 
+class BaseUserManager(models.Manager):
+
+    def get_queryset(self):
+        qs = super().get_queryset().filter(meta_status="active")
+        return qs
+
+
 class BaseModel(models.Model):
 
     description = models.TextField(blank=True)
@@ -114,7 +121,7 @@ class BaseUserModel(models.Model):
     )
     meta_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="active")
 
-    objects = BaseManager()
+    objects = BaseUserManager()
 
     class Meta:
         abstract = True

@@ -1,65 +1,79 @@
 [
-    {
-        "model": "lookups.measuringunit",
-        "pk": 1,
-        "fields": {
-            "name": "Second",
-            "code": "s",
-            "abbreviation": "sec"
-        }
-    },
-    {
-        "model": "lookups.measuringunit",
-        "pk": 2,
-        "fields": {
-            "name": "Minute",
-            "code": "m",
-            "abbreviation": "min"
-        }
-    },
-    {
-        "model": "lookups.measuringunit",
-        "pk": 3,
-        "fields": {
-            "name": "Hour",
-            "code": "h",
-            "abbreviation": "hr"
-        }
-    },
-    {
-        "model": "lookups.measuringunit",
-        "pk": 4,
-        "fields": {
-            "name": "Day",
-            "code": "d",
-            "abbreviation": "day"
-        }
-    },
-    {
-        "model": "lookups.measuringunit",
-        "pk": 5,
-        "fields": {
-            "name": "Week",
-            "code": "w",
-            "abbreviation": "wk"
-        }
-    },
-    {
-        "model": "lookups.measuringunit",
-        "pk": 6,
-        "fields": {
-            "name": "Month",
-            "code": "mo",
-            "abbreviation": "mo"
-        }
-    },
-    {
-        "model": "lookups.measuringunit",
-        "pk": 7,
-        "fields": {
-            "name": "Year",
-            "code": "y",
-            "abbreviation": "yr"
-        }
+  {
+    "model": "lookups.measuringunit",
+    "pk": 1,
+    "fields": {
+      "name": "Second",
+      "code": "s",
+      "abbreviation": "sec",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
     }
+  },
+  {
+    "model": "lookups.measuringunit",
+    "pk": 2,
+    "fields": {
+      "name": "Minute",
+      "code": "m",
+      "abbreviation": "min",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.measuringunit",
+    "pk": 3,
+    "fields": {
+      "name": "Hour",
+      "code": "h",
+      "abbreviation": "hr",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.measuringunit",
+    "pk": 4,
+    "fields": {
+      "name": "Day",
+      "code": "d",
+      "abbreviation": "day",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.measuringunit",
+    "pk": 5,
+    "fields": {
+      "name": "Week",
+      "code": "w",
+      "abbreviation": "wk",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.measuringunit",
+    "pk": 6,
+    "fields": {
+      "name": "Month",
+      "code": "mo",
+      "abbreviation": "mo",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.measuringunit",
+    "pk": 7,
+    "fields": {
+      "name": "Year",
+      "code": "y",
+      "abbreviation": "yr",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  }
 ]

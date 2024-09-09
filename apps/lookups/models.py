@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from django.db import models
+from core.models import BaseUserModel
 
 
-class Timezone(models.Model):
+class Timezone(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -12,7 +13,7 @@ class Timezone(models.Model):
         app_label = "lookups"
 
 
-class Region(models.Model):
+class Region(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -40,7 +41,7 @@ class Region(models.Model):
         return self.countries.filter(id=country.id).exists()
 
 
-class Country(models.Model):
+class Country(BaseUserModel):
     name = models.CharField(max_length=255)
     iso2_code = models.CharField(max_length=2)
     iso3_code = models.CharField(max_length=3)
@@ -99,7 +100,7 @@ class Country(models.Model):
         self.timezones.add(timezone)
 
 
-class State(models.Model):
+class State(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -116,7 +117,7 @@ class State(models.Model):
         return self.name
 
 
-class City(models.Model):
+class City(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -135,7 +136,7 @@ class City(models.Model):
         return self.name
 
 
-class Language(models.Model):
+class Language(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255, unique=True)
     abbreviation = models.CharField(max_length=10)
@@ -147,7 +148,7 @@ class Language(models.Model):
         return self.name
 
 
-class Currency(models.Model):
+class Currency(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -157,7 +158,7 @@ class Currency(models.Model):
         app_label = "lookups"
 
 
-class MeasuringUnit(models.Model):
+class MeasuringUnit(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -166,7 +167,7 @@ class MeasuringUnit(models.Model):
         app_label = "lookups"
 
 
-class MediaType(models.Model):
+class MediaType(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)

@@ -1,39 +1,46 @@
 [
-    {
-        "model": "lookups.mediatype",
-        "pk": 1,
-        "fields": {
-            "name": "Image",
-            "code": "IMG",
-            "abbreviation": "IMG"
-
-        }
-    },
-    {
-        "model": "lookups.mediatype",
-        "pk": 2,
-        "fields": {
-            "name": "Video",
-            "code": "VID",
-            "abbreviation": "VID"
-        }
-    },
-    {
-        "model": "lookups.mediatype",
-        "pk": 2,
-        "fields": {
-            "name": "Audio",
-            "code": "AUD",
-            "abbreviation": "AUD"
-        }
-    },
-    {
-        "model": "lookups.mediatype",
-        "pk": 2,
-        "fields": {
-            "name": "Document",
-            "code": "DOC",
-            "abbreviation": "DOC"
-        }
+  {
+    "model": "lookups.mediatype",
+    "pk": 1,
+    "fields": {
+      "name": "Image",
+      "code": "IMG",
+      "abbreviation": "IMG",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
     }
+  },
+  {
+    "model": "lookups.mediatype",
+    "pk": 2,
+    "fields": {
+      "name": "Video",
+      "code": "VID",
+      "abbreviation": "VID",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.mediatype",
+    "pk": 2,
+    "fields": {
+      "name": "Audio",
+      "code": "AUD",
+      "abbreviation": "AUD",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.mediatype",
+    "pk": 2,
+    "fields": {
+      "name": "Document",
+      "code": "DOC",
+      "abbreviation": "DOC",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  }
 ]
