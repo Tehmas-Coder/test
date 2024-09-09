@@ -53,12 +53,12 @@ class BaseModel(models.Model):
 
         if not self.pk:
             if current_user:
-                self.created_by = current_user.id
+                self.created_by = current_user
             else:
                 self.created_by = None
 
         if current_user:
-            self.updated_by = current_user.id
+            self.updated_by = current_user
         else:
             self.updated_by = None
 
