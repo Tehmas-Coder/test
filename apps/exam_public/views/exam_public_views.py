@@ -382,7 +382,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
             token_data = encrypted_email.decode("utf-8")
             token_data = f"{candidate_Exam_id}_{token_data}"
-            url = config("PUBLIC_FE_URL")
+            url = config("QB_PUBLIC_FE_URL")
             final_url = f"{url}exam/get?token={token_data}"
             send_email_data_dict = send_email_data_dict = {
                 "first_name": one_candidate_detail["first_name"] or "",

@@ -104,8 +104,14 @@ class UserViewSet(viewsets.ModelViewSet):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
 
         token_data = encrypted_email.decode("utf-8")
-        url = config("PUBLIC_FE_URL")
-        final_url = f"{url}verification?token={token_data}"
+        qb_public_url = config("QB_PUBLIC_FE_URL", cast=str)
+        qb_admin_url = config("QB_ADMIN_FE_URL", cast=str)
+
+        if request_user_role_name.lower() == "candidate":
+            final_url = f"{qb_public_url}verification?token={token_data}"
+        else:
+            final_url = f"{qb_admin_url}verification?token={token_data}"
+
         send_email_data_dict = {
             "first_name": request.data["first_name"],
             "last_name": request.data["last_name"],
@@ -247,7 +253,7 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
         token_data = encrypted_email.decode("utf-8")
 
-        url = config("PUBLIC_FE_URL")
+        url = config("QB_PUBLIC_FE_URL")
         final_url = f"{url}verification?token={token_data}"
 
         send_email_data_dict = {
