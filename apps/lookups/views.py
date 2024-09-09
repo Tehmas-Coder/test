@@ -43,7 +43,7 @@ class RegionViewset(viewsets.ModelViewSet):
 class CountryViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
     serializer_class = CountryDetailSerializer
-    queryset = Country.objects.all().prefetch_related("timezones", "currencies", "languages", "states", "states__cities")
+    queryset = Country.objects.all().prefetch_related("timezones", "currencies", "languages", "states", "states__cities").order_by("name")
     pagination_class = None
     permission_classes = []
 
