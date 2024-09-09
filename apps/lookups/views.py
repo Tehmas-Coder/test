@@ -45,6 +45,7 @@ class CountryViewset(viewsets.ModelViewSet):
     serializer_class = CountryDetailSerializer
     queryset = Country.objects.all().prefetch_related("timezones", "currencies", "languages", "states", "states__cities")
     pagination_class = None
+    permission_classes = []
 
     def get_serializer(self, *args, **kwargs):
         if self.action == "list":
