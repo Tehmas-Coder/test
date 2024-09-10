@@ -1,8 +1,9 @@
+from rest_framework import serializers
+
 from apps.lookups.models import Package
-from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class PackageSerializer(BaseModelSerializer):
+class PackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
         fields = [
@@ -14,4 +15,4 @@ class PackageSerializer(BaseModelSerializer):
             "exams",
             "prep_exams",
             "exam_attempts",
-        ] + get_base_model_fields()
+        ]
