@@ -126,7 +126,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         # * Creating Backlogs for Exam
         exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
-        exam_backlogs = ExamBacklogs(exam_data=exam_data)
+        exam_backlogs = ExamBacklogs(exam_data=exam_data)  # type:ignore
         exambacklog_id = exam_backlogs.create_backlogs()
 
         # * Assigning Exam to Candidates
@@ -150,7 +150,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         logged_in_user = self.request.user
-        logged_in_user_id = logged_in_user.id
+        logged_in_user_id = logged_in_user.id  # type:ignore
 
         candidate_exam_id = self.kwargs["pk"]
         try:
@@ -163,7 +163,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             candidate_exam_id = decrypted_data["candidate_exam_id"]
 
         # * IF ROLES ARE ( Organization Roles and Candidate )
-        logged_in_user_roles = logged_in_user.roles.all()
+        logged_in_user_roles = logged_in_user.roles.all()  # type:ignore
         if len(logged_in_user_roles):
             logged_in_user_role_name = logged_in_user_roles.values("name").first()["name"]
             if logged_in_user_role_name.lower() == "candidate":
@@ -351,7 +351,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         CandidateExamAnswer.objects.bulk_update(
             [
                 CandidateExamAnswer(
-                    id=one_candidate_exam_answer.id,
+                    id=one_candidate_exam_answer.id,  # type:ignore
                     is_scored=True,
                     is_correct=True if one_candidate_exam_answer.exam_backlog_question_choice.is_correct else False,
                     score=(
@@ -485,7 +485,6 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             exam_backlog_question_id = one_dict[1]
             if exam_backlog_question_id in answer_media_hashmap:
                 answer_media_hashmap[exam_backlog_question_id]["candidate_exam_answer"] = candidate_exam_answer_id
-                answer_media_hashmap
 
         for key, value in answer_media_hashmap.items():
             media_data = {"files": value["files"]}
@@ -533,7 +532,7 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
                 "question_backlog_title": question.title,
                 "correct_choices": ExamBacklogQuestionChoiceForKeySerializer(question.backlog_choices.all(), many=True).data,
             }
-            for question in exam_backlog.backlog_questions.all()
+            for question in exam_backlog.backlog_questions.all()  # type:ignore
             if question.backlog_choices.exists()
         ]
 
