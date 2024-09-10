@@ -10,14 +10,6 @@ class Candidate(BaseModel):
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        related_candidate_exams = CandidateExam.objects.filter(candidate_email=self.user.email)
-
-        for exam in related_candidate_exams:
-            exam.candidate = self
-            exam.save()
-
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidate"
