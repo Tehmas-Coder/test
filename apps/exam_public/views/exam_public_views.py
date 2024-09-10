@@ -40,8 +40,10 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
+from apps.organization.models.organization_models import OrganizationUser
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
+    debug_print,
     get_encryption_key,
     make_error_response,
     remove_extra_underscore_from_key_names,
@@ -367,6 +369,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
 
     def send_exam_link_to_users(self, request, *args, **kwargs):
+        logged_in_user = request.user
         candidate_exam_ids = request.data["candidate_exam_ids"]
         if not len(candidate_exam_ids):
             return Response({"message": "Candidate Exam ID's required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -382,16 +385,24 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 .values()
             )
         )
+        organization_id = None
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()["organization"]  # type:ignore
         for one_candidate_detail in candidate_exam_detail_queryset:
             key = get_encryption_key()
             cipher = Fernet(key)
-            candidate_Exam_id = one_candidate_detail["id"]
+            candidate_exam_id = one_candidate_detail["id"]
 
-            encryption_data = {"email": one_candidate_detail["candidate_email"]}
-            encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
+            data_to_encrypt = {
+                "email": one_candidate_detail["candidate_email"],
+                "candidate_exam_id": candidate_exam_id,
+                "organization_id": organization_id,
+            }
+            encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
 
-            token_data = encrypted_email.decode("utf-8")
-            token_data = f"{candidate_Exam_id}_{token_data}"
+            token_data = encrypted_data.decode("utf-8")
+            print(token_data)
+            token_data = f"{token_data}"
             url = config("PUBLIC_FE_URL")
             final_url = f"{url}exam/get?token={token_data}"
             send_email_data_dict = send_email_data_dict = {
