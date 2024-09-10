@@ -153,7 +153,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            organization_exam_ids = list(OrganizationExam.objects.filter(organization_id=organization_id).values_list("question", flat=True))
+            organization_exam_ids = list(OrganizationExam.objects.filter(organization_id=organization_id).values_list("exam", flat=True))
             self.queryset = self.queryset.filter(id__in=organization_exam_ids)
         return super().list(request, *args, **kwargs)
 
