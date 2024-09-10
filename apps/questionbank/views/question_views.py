@@ -207,6 +207,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if request.user.is_superuser:
             request_data["is_public"] = 1
         else:
+            request_data["is_public"] = 0
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             if not organization_id:
                 return make_error_response(message=f"Failed: User doesn't belong to any organization")
@@ -215,7 +216,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             organization_package = (
                 OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
             )
-            if not (organization_package.questions <= organization_package.total_questions):
+            if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
                 return make_error_response(message=f"Failed: Your limit to create questions is reached")
 
         serializer = self.get_serializer(data=request_data)
@@ -224,9 +225,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         # * Assigning Question to Organization if the requested user is not superuser
         if not request.user.is_superuser:
-            organization_package.questions = organization_package.questions + 1
-            organization_package.save()
-            organization.questions.add(question.id)
+            organization_package.questions = organization_package.questions + 1  # type:ignore
+            organization_package.save()  # type:ignore
+            organization.questions.add(question.id)  # type:ignore
 
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -241,10 +242,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         res = super().retrieve(request, *args, **kwargs)
         if not request.user.is_superuser:
-            question_id = res.data["id"]
+            question_id = res.data["id"]  # type:ignore
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             organization_question = OrganizationQuestion.objects.filter(organization_id=organization_id, question_id=question_id)
-            if not ((res.data["is_public"]) or len(organization_question)):
+            if not ((res.data["is_public"]) or len(organization_question)):  # type:ignore
                 return make_error_response(message=f"Failed: This Question doesn't belong to your organization")
         return res
 
