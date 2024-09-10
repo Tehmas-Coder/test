@@ -152,23 +152,25 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         logged_in_user = self.request.user
         logged_in_user_id = logged_in_user.id
 
+        candidate_exam_id = self.kwargs["pk"]
+        try:
+            candidate_exam_id = int(candidate_exam_id)
+        except:
+            token = candidate_exam_id[len("token=") :]
+            key = get_encryption_key()
+            cipher = Fernet(key)
+            decrypted_data = json.loads(cipher.decrypt(token).decode())
+            candidate_exam_id = decrypted_data["candidate_exam_id"]
+
         # * IF ROLES ARE ( Organization Roles and Candidate )
         logged_in_user_roles = logged_in_user.roles.all()
         if len(logged_in_user_roles):
             logged_in_user_role_name = logged_in_user_roles.values("name").first()["name"]
             if logged_in_user_role_name.lower() == "candidate":
                 candidate_exam_filter_data = {
-                    "id": self.kwargs["pk"],
+                    "id": candidate_exam_id,
                     "candidate__user__id": logged_in_user_id,
                 }
-
-                token = request.query_params.get("token")
-                if token != None:
-                    key = get_encryption_key()
-                    cipher = Fernet(key)
-                    decrypt_data = cipher.decrypt(token).decode()
-                    user_email = json.loads(decrypt_data)
-                    candidate_exam_filter_data["candidate__user__email"] = user_email["email"]
 
                 if not CandidateExam.objects.filter(**candidate_exam_filter_data).exists():
                     return Response(
@@ -180,7 +182,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                     )
 
         candidate_exam_data = (
-            CandidateExam.objects.filter(id=self.kwargs["pk"])
+            CandidateExam.objects.filter(id=candidate_exam_id)
             .annotate(country_id=F("candidate__user__country_id"))
             .values(
                 "country_id",
@@ -206,7 +208,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         )
         final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
 
-        candidate_exam_backlog_question_instance = self.queryset.filter(id=self.kwargs["pk"]).prefetch_related(
+        candidate_exam_backlog_question_instance = self.queryset.filter(id=candidate_exam_id).prefetch_related(
             Prefetch(
                 "exam_backlog__backlog_questions",
                 queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
