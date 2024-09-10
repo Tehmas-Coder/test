@@ -67,7 +67,7 @@ class LoginApiView(TokenObtainPairView):
             return make_error_response(message="User not found!")
 
         user_role_name = None
-        if "is_system_user" in request.data:
+        if "is_system_user" in request.data:  # type: ignore
             user_role_name = user.roles.all().values().first()
 
         if user_role_name == None:
@@ -95,6 +95,7 @@ class TokenRefreshApiView(TokenRefreshView):
 
 class OTPViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
+    USER_NOT_FOUND = {"error": "User not found!"}
 
     def verify_otp(self, request, *args, **kwargs):
         user = get_object_or_404(BaseUser, email=request.data.get("email", None))
@@ -139,7 +140,7 @@ class FromSaLoginToQBApiView(TokenObtainPairView):
             refresh = RefreshToken.for_user(user)
             auth_data = {
                 "refresh": str(refresh),
-                "access": str(refresh.access_token),
+                "access": str(refresh.access_token),  # type: ignore
             }
 
             return Response(auth_data, status=status.HTTP_200_OK)
