@@ -40,14 +40,14 @@ class RegisterApiView(views.APIView):
         else:
             serializer = UserEditSerializer(data=request.data)
             if serializer.is_valid():
-                candidate_instance = serializer.save()
+                user_isntance: BaseUser = serializer.save()  # type: ignore
                 role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
-                candidate_instance.roles.add(role_id["id"])
-                if not candidate_instance.send_otp():
+                if role_id:
+                    user_isntance.roles.add(role_id["id"])
+                if not user_isntance.send_otp():
                     transaction.set_rollback(True)
                     raise serializers.ValidationError({"error": "Failed to send email, please try again"})
-
-                Candidate.objects.create(user_id=serializer.data["id"])
+                Candidate.objects.create(user=user_isntance)
                 return Response(serializer.data, status=201)
             if "email" in serializer.errors:
                 return Response({"error": "User with this email already exists"}, status=400)
