@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.db.models import Count, F, Prefetch, Q, QuerySet
 
@@ -7,7 +9,16 @@ from core.models import BaseModel
 #                               QUESTION LOOKUPS                               #
 # ---------------------------------------------------------------------------- #
 
-MEDIA_MODEL = "lookups.Media"
+MEDIA_MODEL = "user.Media"
+
+
+class Tag(BaseModel):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255)
+    abbreviation = models.CharField(max_length=255)
+
+    class Meta:
+        app_label = "questionbank"
 
 
 class EducationLevel(BaseModel):
@@ -125,7 +136,7 @@ class Question(BaseModel):
 
     type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
 
-    tags = models.ManyToManyField("lookups.Tag", related_name="questions", through="QuestionTag")
+    tags = models.ManyToManyField("questionbank.Tag", related_name="questions", through="QuestionTag")
 
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
@@ -146,7 +157,7 @@ class Question(BaseModel):
     @classmethod
     def get_detail_queryset(cls) -> QuerySet:
 
-        return cls.objects.all().prefetch_related(
+        return cls.objects.get_queryset().prefetch_related(
             "tags",
             "choices",
             "choices__questionchoicemedia_set",
@@ -358,7 +369,7 @@ class QuestionTag(BaseModel):
         Question,
         on_delete=models.CASCADE,
     )
-    tag = models.ForeignKey("lookups.Tag", on_delete=models.CASCADE)
+    tag = models.ForeignKey("questionbank.Tag", on_delete=models.CASCADE)
 
     class Meta:
         app_label = "questionbank"

@@ -1,8 +1,9 @@
 import json
+import random
 
 from cryptography.fernet import Fernet
 from decouple import config
-from django.db.models import F, Prefetch
+from django.db.models import F, Prefetch, Q, Sum
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,15 +16,20 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestion,
     ExamBacklogQuestionChoice,
     ExamBacklogQuestionCountry,
+    ExamBacklogQuestionRetryHint,
 )
 from apps.exam_public.models.exam_public_models import (
     Candidate,
     CandidateExam,
     CandidateExamAnswer,
     CandidateExamAnswerMedia,
+    CandidateExamRetryhint,
 )
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choice_serializer import (
     ExamBacklogQuestionChoiceForKeySerializer,
+)
+from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retryhint_serializer import (
+    ExamBacklogQuestionRetryHintSerializer,
 )
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateDetailSerializer,
@@ -39,8 +45,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.lookups.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.organization.models.organization_models import OrganizationUser
+from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,
@@ -62,7 +67,11 @@ class CandidateViewSet(viewsets.ModelViewSet):
             "organization",
             "organization__country",
         )
-        .prefetch_related("user__roles")
+        .prefetch_related(
+            "user__roles",
+            "user__roles__role_permissions",
+            "user__roles__role_permissions__permission",
+        )
     )
     serializer_class = CandidateSerializer
     # filter_backends = [CandidateFilterBackend]
@@ -107,6 +116,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         .prefetch_related(
             "candidate__user__roles",
             "candidate__user__roles__role_permissions",
+            "candidate__user__roles__role_permissions__permission",
         )
     )
 
@@ -149,6 +159,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
+        candidate_exam_id = self.kwargs["pk"]
         logged_in_user = self.request.user
         logged_in_user_id = logged_in_user.id  # type:ignore
 
@@ -207,6 +218,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             ).values_list("exam_backlog_question", flat=True)
         )
         final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
+
+        question_instances_total_marks = ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list).aggregate(
+            total_score=Sum("total_marks")
+        )["total_score"]
+        CandidateExam.objects.filter(id=candidate_exam_id).update(
+            total_obtainable_marks=question_instances_total_marks if question_instances_total_marks != None else 0
+        )
 
         candidate_exam_backlog_question_instance = self.queryset.filter(id=candidate_exam_id).prefetch_related(
             Prefetch(
@@ -340,36 +358,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         data = CandidateExamWithAnswersDetailSerializer(candidate_exam_backlog_question_instance, context={"get_answers": True}).data
         return Response(data, status=status.HTTP_200_OK)
 
-    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
-
-    @action(detail=True, methods=["post"], url_path="submit")
-    def candidate_exam_submission(self, request, *args, **kwargs):
-        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
-            "exam_backlog_question_choice",
-            "exam_backlog_question",
-        )
-        CandidateExamAnswer.objects.bulk_update(
-            [
-                CandidateExamAnswer(
-                    id=one_candidate_exam_answer.id,  # type:ignore
-                    is_scored=True,
-                    is_correct=True if one_candidate_exam_answer.exam_backlog_question_choice.is_correct else False,
-                    score=(
-                        float(
-                            (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
-                            * one_candidate_exam_answer.exam_backlog_question.total_marks
-                        )
-                        if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
-                        else 0
-                    ),
-                )
-                for one_candidate_exam_answer in candidate_exam_answers_queryset
-                if one_candidate_exam_answer.exam_backlog_question_choice
-            ],
-            fields=["is_scored", "is_correct", "score"],
-        )
-        return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
-
     def send_exam_link_to_users(self, request, *args, **kwargs):
         logged_in_user = request.user
         candidate_exam_ids = request.data["candidate_exam_ids"]
@@ -403,7 +391,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
 
             token_data = encrypted_data.decode("utf-8")
-            print(token_data)
             token_data = f"{token_data}"
             url = config("PUBLIC_FE_URL")
             final_url = f"{url}exam/get?token={token_data}"
@@ -428,7 +415,134 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 )
             del email_notification_ninja
 
-        return Response({"Invitation emails sent successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Invitation emails sent successfully"}, status=status.HTTP_200_OK)
+
+    # ------------------------ EXAM SUBMISSION AND SCORING ----------------------- #
+
+    @action(detail=True, methods=["get"], url_path="retry-hint")
+    def candidate_exam_retry_hint(self, request, *args, **kwargs):
+        question_backlog_id = request.query_params.get("question_backlog_id")
+        if not question_backlog_id:
+            return make_error_response(message="Question Backlog id is required")
+
+        question_backlog_id = int(question_backlog_id)
+        candidate_exam_id = int(self.kwargs["pk"])
+        candidate_exam_retryhints_ids = CandidateExamRetryhint.objects.filter(
+            candidate_exam_id=candidate_exam_id, exam_backlog_question_id=question_backlog_id
+        ).values_list("exam_backlog_question_retry_hint", flat=True)
+        exam_backlog_question = ExamBacklogQuestion.objects.get(id=question_backlog_id)
+        if len(candidate_exam_retryhints_ids) >= exam_backlog_question.max_retries:
+            return make_error_response(message="Max retries limit reached.")
+        else:
+            exam_backlog_question_retryhints_instances = list(
+                ExamBacklogQuestionRetryHint.objects.filter(exam_backlog_question=exam_backlog_question)
+                .prefetch_related("exambacklogquestionretryhintmedia_set", "exambacklogquestionretryhintmedia_set__media")
+                .exclude(id__in=candidate_exam_retryhints_ids)
+            )
+            if not len(exam_backlog_question_retryhints_instances):
+                return make_error_response(message="No More Retries.")
+            random.shuffle(exam_backlog_question_retryhints_instances)
+            retry_hint_instance = exam_backlog_question_retryhints_instances[0]
+            CandidateExamRetryhint.objects.create(
+                candidate_exam_id=candidate_exam_id, exam_backlog_question=exam_backlog_question, exam_backlog_question_retry_hint=retry_hint_instance
+            )
+            data = ExamBacklogQuestionRetryHintSerializer(retry_hint_instance).data
+        return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="submit")
+    def candidate_exam_submission(self, request, *args, **kwargs):
+        candidate_exam_answers_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=self.kwargs["pk"]).select_related(
+            "exam_backlog_question_choice",
+            "exam_backlog_question",
+        )
+        CandidateExamAnswer.objects.bulk_update(
+            [
+                CandidateExamAnswer(
+                    id=one_candidate_exam_answer.id,  # type:ignore
+                    is_correct=one_candidate_exam_answer.exam_backlog_question_choice.is_correct,
+                    score=(
+                        float(
+                            (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
+                            * one_candidate_exam_answer.exam_backlog_question.total_marks
+                        )
+                        if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
+                        else (
+                            -float(
+                                (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
+                                * one_candidate_exam_answer.exam_backlog_question.total_marks
+                            )
+                            if one_candidate_exam_answer.exam_backlog_question_choice.is_negative_weight
+                            else 0
+                        )
+                    ),
+                )
+                for one_candidate_exam_answer in candidate_exam_answers_queryset
+                if one_candidate_exam_answer.exam_backlog_question_choice
+            ],
+            fields=["is_correct", "score"],
+        )
+
+        return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="mark")
+    def candidate_exam_marking(self, request, *args, **kwargs):
+        candidate_exam_id = int(self.kwargs["pk"])
+        candidate_exam_retry_hints_queryset = list(CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id).values())
+        request_data = request.data
+        # * Adding default 0 penalty score to request data scores
+        for one_dict in request_data:
+            one_dict["penalty_score"] = 0
+        # * Fetching all candidate Exam answers from request data ids
+        candidate_exam_answers = list(
+            CandidateExamAnswer.objects.filter(id__in=[one_dict["candidate_exam_answer"] for one_dict in request_data]).values()
+        )
+
+        # * Hashmap for question_id as key and answer_ids as values
+        question_answer_ids_hashmap = {}
+        for one_dict in request_data:
+            answer_id = one_dict["candidate_exam_answer"]
+            exam_backlog_question_id = next(
+                one_dict["exam_backlog_question_id"] for one_dict in candidate_exam_answers if one_dict["id"] == answer_id
+            )
+            question_answer_ids_hashmap[exam_backlog_question_id] = answer_id
+
+        # * Loop through all instances of candidate exam retry hints, checks if the question id there matches with the question id of hashmap, then loop through request and matches the answer id, if it is present then it increments the penalty score by the penalty score set by question
+        for one_dict in candidate_exam_retry_hints_queryset:
+            question_id = one_dict["exam_backlog_question_id"]
+            if question_id in question_answer_ids_hashmap:
+                for one_request_dict in request_data:
+                    if one_request_dict["candidate_exam_answer"] == question_answer_ids_hashmap[question_id]:
+                        one_request_dict["penalty_score"] = one_request_dict["penalty_score"] + one_dict["penalty_score"]
+
+        # * Bulk Update the scores in Answer Table records
+        CandidateExamAnswer.objects.bulk_update(
+            [
+                CandidateExamAnswer(
+                    id=one_dict["candidate_exam_answer"],
+                    score=one_dict["score"] - one_dict["penalty_score"],
+                    is_correct=one_dict["score"] > 0,
+                )
+                for one_dict in request_data
+            ],
+            fields=["score", "is_correct"],
+        )
+
+        return Response({"message": "Exam questions marked successfully"}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="score")
+    def candidate_exam_scoring(self, request, *args, **kwargs):
+        candidate_exam_id = int(self.kwargs["pk"])
+        # * Sum up all the scores
+        all_scores_sum = (
+            CandidateExamAnswer.objects.filter(
+                candidate_exam_id=candidate_exam_id,
+            )
+            .filter(Q(score__isnull=False))
+            .aggregate(total_score=Sum("score"))["total_score"]
+        )
+        # * Update obtained marks with the sum of scores
+        CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum)
+        return Response({"message": "Exam scored successfully"}, status=status.HTTP_200_OK)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
@@ -464,13 +578,28 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
                     if file:
                         answer_media_hashmap[exam_backlog_question_id]["files"].append(file)
 
+        exam_backlog_question_choices_ids = [
+            one_dict["exam_backlog_question_choice"] for one_dict in request_data if one_dict["exam_backlog_question_choice"] != None
+        ]
+
+        exam_backlog_question_choices_instances = list(
+            ExamBacklogQuestionChoice.objects.filter(id__in=exam_backlog_question_choices_ids).values("id", "title")
+        )
+
+        exam_backlog_question_choices_hashmap = {one_dict["id"]: one_dict["title"] for one_dict in exam_backlog_question_choices_instances}
+
         CandidateExamAnswer.objects.bulk_create(
             [
                 CandidateExamAnswer(
                     candidate_exam_id=one_dict["candidate_exam"],
                     exam_backlog_question_id=one_dict["exam_backlog_question"],
                     exam_backlog_question_choice_id=one_dict["exam_backlog_question_choice"],
-                    answer_text=one_dict["answer_text"],
+                    exam_backlog_question_choice_title=(
+                        exam_backlog_question_choices_hashmap[one_dict["exam_backlog_question_choice"]]
+                        if one_dict["exam_backlog_question_choice"] != None
+                        else None
+                    ),
+                    answer_text=one_dict.get("answer_text", None),
                 )
                 for one_dict in request_data
             ]

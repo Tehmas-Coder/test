@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 from django.contrib.auth.models import AbstractUser, UserManager
@@ -6,9 +6,26 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-from core.models import BaseModel
+from core.models import BaseModel, BaseUserModel
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp
+
+
+def upload_to(instance, filename):
+    folder_name = instance.__class__.__name__.lower()
+    timestamp = int(datetime.now().timestamp())
+    return f"{folder_name}/{timestamp}_{filename}"
+
+
+class Media(BaseModel):
+    name = models.CharField(max_length=100)
+    file = models.FileField(upload_to=upload_to)
+    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
+    extension = models.CharField(max_length=10, blank=True)
+    size = models.IntegerField(default=0)
+
+    class Meta:
+        app_label = "user"
 
 
 class CustomUserManager(UserManager):
@@ -26,7 +43,7 @@ class CustomUserManager(UserManager):
         return super().create_superuser(username, email, password, **extra_fields)
 
 
-class BaseUser(BaseModel, AbstractUser):
+class BaseUser(BaseUserModel, AbstractUser):
     """
     Custom user model where email is the unique identifier, inhertied from abstract user provided by auth
     """
@@ -48,9 +65,9 @@ class BaseUser(BaseModel, AbstractUser):
 
     country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
 
-    roles = models.ManyToManyField("Role", related_name="users", blank=True, through="UserRole")
+    roles = models.ManyToManyField("Role", related_name="users", blank=True, through="UserRole", through_fields=("user", "role"))
 
-    profile_picture = models.ForeignKey("lookups.Media", on_delete=models.SET_NULL, null=True, blank=True)
+    profile_picture = models.ForeignKey("user.Media", on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = CustomUserManager()
 
@@ -128,7 +145,7 @@ class BaseUser(BaseModel, AbstractUser):
 # ---------------------------------------------------------------------------- #
 class Role(BaseModel):
     name = models.CharField(max_length=255)
-    permissions = models.ManyToManyField("Permission", related_name="roles", blank=True, through="RolePermission")
+    permissions = models.ManyToManyField("Permission", blank=True, through="RolePermission")
     slug = models.SlugField(max_length=100, null=True, unique=True)
     is_system_role = models.BooleanField(default=False)
 

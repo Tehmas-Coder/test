@@ -1,9 +1,9 @@
 from rest_framework import serializers
+
 from apps.lookups.models import MeasuringUnit
-from core.serializers import BaseModelSerializer
 
 
-class MeasuringUnitSerializer(BaseModelSerializer):
+class MeasuringUnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeasuringUnit
         fields = [
@@ -12,4 +12,4 @@ class MeasuringUnitSerializer(BaseModelSerializer):
             "code",
             "abbreviation",
             "description",
-        ] + BaseModelSerializer.Meta.fields
+        ]

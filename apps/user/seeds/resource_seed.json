@@ -2019,6 +2019,42 @@
     "model": "user.Resource",
     "pk": 169,
     "fields": {
+      "name": "Score One Candidate Exam",
+      "description": "Score One Candidate Exam",
+      "regex": "^/candidate-exam/[0-9]+/score/$",
+      "method": "post",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 170,
+    "fields": {
+      "name": "Get One Retry Hint for Candidate Exam",
+      "description": "Get One Retry Hint for Candidate Exam",
+      "regex": "^/candidate-exam/[0-9]+/retry-hint/$",
+      "method": "get",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 171,
+    "fields": {
+      "name": "Mark One Candidate Exam",
+      "description": "Mark One Candidate Exam",
+      "regex": "^/candidate-exam/[0-9]+/mark/$",
+      "method": "post",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 172,
+    "fields": {
       "name": "Create Package",
       "description": "Create a new package",
       "regex": "^/packages/$",
@@ -2029,7 +2065,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 170,
+    "pk": 173,
     "fields": {
       "name": "Get one Package",
       "description": "Get one package",
@@ -2041,7 +2077,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 171,
+    "pk": 174,
     "fields": {
       "name": "Get All Packages",
       "description": "Get all users",
@@ -2053,7 +2089,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 172,
+    "pk": 175,
     "fields": {
       "name": "Update Package",
       "description": "Edit a single package",
@@ -2065,7 +2101,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 173,
+    "pk": 176,
     "fields": {
       "name": "Delete Package",
       "description": "Delete a package",

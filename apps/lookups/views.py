@@ -9,7 +9,6 @@ from apps.lookups.models import (
     Package,
     Region,
     State,
-    Tag,
     Timezone,
 )
 from apps.lookups.serializers.country_serializers import (
@@ -23,8 +22,9 @@ from apps.lookups.serializers.media_type_serializers import MediaTypeSerializer
 from apps.lookups.serializers.package_serializers import PackageSerializer
 from apps.lookups.serializers.region_serializers import RegionDetailSerializer
 from apps.lookups.serializers.state_serializers import StateSerializer
-from apps.lookups.serializers.tag_serializers import TagSerializer
 from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
+from apps.questionbank.models import Tag
+from apps.questionbank.serializers.tag_serializers import TagSerializer
 
 
 class TimezoneViewset(viewsets.ModelViewSet):
@@ -45,8 +45,9 @@ class RegionViewset(viewsets.ModelViewSet):
 class CountryViewset(viewsets.ModelViewSet):
     http_method_names = ["get"]
     serializer_class = CountryDetailSerializer
-    queryset = Country.objects.all().prefetch_related("timezones", "currencies", "languages", "states", "states__cities")
+    queryset = Country.objects.all().prefetch_related("timezones", "currencies", "languages", "states", "states__cities").order_by("name")
     pagination_class = None
+    permission_classes = []
 
     def get_serializer(self, *args, **kwargs):
         if self.action == "list":

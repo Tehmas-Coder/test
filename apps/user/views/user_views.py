@@ -1,3 +1,4 @@
+import doctest
 import json
 
 from cryptography.fernet import Fernet
@@ -6,11 +7,12 @@ from django.db import transaction
 from django.forms import model_to_dict
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
-from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.organization.models.organization_models import OrganizationUser
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.filters.user_filter import UserFilter
 from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
@@ -20,6 +22,7 @@ from apps.user.serializers.user_serializers import (
 from apps.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
+    debug_print,
     generate_random_password,
     get_encryption_key,
     make_error_response,
@@ -33,7 +36,18 @@ from ..models import BaseUser, Role
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = BaseUser.objects.all().select_related("country", "profile_picture").prefetch_related("roles", "roles__permissions")
+    queryset = (
+        BaseUser.objects.all()
+        .select_related(
+            "country",
+            "profile_picture",
+        )
+        .prefetch_related(
+            "roles",
+            "roles__role_permissions",
+            "roles__role_permissions__permission",
+        )
+    )
     serializer_class = UserDetailSerializer
     filterset_class = UserFilter
     http_method_names = ["get", "post", "patch", "delete"]
@@ -46,21 +60,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return super().get_serializer_class()
 
-    def get_object(self, id: int | None = None):
-        try:
-            return BaseUser.objects.get(pk=id or self.kwargs.get("pk"))
-        except BaseUser.DoesNotExist:
-            return None
-
     # ------------------------------------ API ----------------------------------- #
-
-    def list(self, request, *args, **kwargs):
-        self.queryset = self.queryset.filter(meta_status="active")
-        return super().list(request, *args, **kwargs)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
+        logged_in_user = request.user
         request_user_role_id = request.data.pop("role", None)
         request_user_role_name = get_role_name(request_user_role_id)
 
@@ -100,8 +104,14 @@ class UserViewSet(viewsets.ModelViewSet):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
 
         token_data = encrypted_email.decode("utf-8")
-        url = config("PUBLIC_FE_URL")
-        final_url = f"{url}verification?token={token_data}"
+        qb_public_url = config("QB_PUBLIC_FE_URL", cast=str)
+        qb_admin_url = config("QB_ADMIN_FE_URL", cast=str)
+
+        if request_user_role_name.lower() == "candidate":
+            final_url = f"{qb_public_url}verification?token={token_data}"
+        else:
+            final_url = f"{qb_admin_url}verification?token={token_data}"
+
         send_email_data_dict = {
             "first_name": request.data["first_name"],
             "last_name": request.data["last_name"],
@@ -129,13 +139,6 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object(id=kwargs.get("pk"))
-        if not instance:
-            return Response(self.USER_NOT_FOUND, status=404)
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
-
     def partial_update(self, request, *args, **kwargs):
         profile_picture = request.data.get("profile_picture", None)
         if profile_picture:
@@ -146,14 +149,6 @@ class UserViewSet(viewsets.ModelViewSet):
             request.data["profile_picture"] = media_id
 
         return super().partial_update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object(id=kwargs.get("pk"))
-        if not instance:
-            return Response({"error": "User not found"}, status=404)
-        instance.deactivate()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
 
     @action(detail=True, methods=["post"], url_path="restore")
     def restore(self, request, *args, **kwargs):
@@ -185,6 +180,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserInvitaionLinkAPI(viewsets.ViewSet):
+    permission_classes = [AllowAny]
 
     def invitaion_link(self, request):
         encrypted_email_token = request.query_params["token"]
@@ -257,7 +253,7 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
         token_data = encrypted_email.decode("utf-8")
 
-        url = config("PUBLIC_FE_URL")
+        url = config("QB_PUBLIC_FE_URL")
         final_url = f"{url}verification?token={token_data}"
 
         send_email_data_dict = {
@@ -310,12 +306,13 @@ class ForSytemUserAPI(viewsets.ViewSet):
         # Check if sytem role is already created
         if not Role.objects.filter(slug=request_data[0]["Slug"], is_system_role=True).exists():
             return Response(
-                {"status": "failed", "message": f"Yet role '{logged_in_user_role_name}' is not created in QB."},
+                {"status": "failed", "message": f"This role '{request_data[0]['RoleName']}' is not created in QB yet."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         logged_in_user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user_id).values("organization").first()["organization"]
 
+        created_user_role_id = Role.objects.filter(slug=request_data[0]["Slug"], name=request_data[0]["RoleName"]).values("id").first()["id"]
         for one_user in request_data:
             email = one_user["Email"]
             if not BaseUser.objects.filter(email=email).exists():
@@ -329,26 +326,14 @@ class ForSytemUserAPI(viewsets.ViewSet):
                     )
                     UserRole.objects.create(
                         user=user_instance,
-                        role_id=logged_in_user_role_id,
+                        role_id=created_user_role_id,
                     )
 
             else:
                 if not UserRole.objects.filter(user__email=email).exists():
                     UserRole.objects.create(
                         user=user_instance,
-                        role_id=logged_in_user_role_id,
-                    )
-
-                elif not UserRole.objects.filter(role__is_system_role=True, user__email=email).exists():
-                    pass
-
-                else:
-                    return Response(
-                        {
-                            "status": "failed",
-                            "message": f"User {one_user['Email']} already exist with QB role.",
-                        },
-                        status=status.HTTP_400_BAD_REQUEST,
+                        role_id=created_user_role_id,
                     )
 
             if not OrganizationUser.objects.filter(

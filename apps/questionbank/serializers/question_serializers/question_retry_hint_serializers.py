@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.questionbank.models import QuestionRetryHint
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
     QuestionRetryHintMediaBulkCreateSerializer,
     QuestionRetryHintMediaDetailSerializer,

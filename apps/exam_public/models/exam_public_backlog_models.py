@@ -59,7 +59,7 @@ class ExamBacklogQuestion(BaseModel):
     section_backlog = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING, null=True)
     subsection_backlog = models.ForeignKey("exam_public.SubSectionBacklog", on_delete=models.DO_NOTHING, null=True)
 
-    medias = models.ManyToManyField("lookups.Media", through="ExamBacklogQuestionMedia")
+    medias = models.ManyToManyField("user.Media", through="ExamBacklogQuestionMedia")
     countries = models.ManyToManyField("lookups.Country", through="ExamBacklogQuestionCountry")
 
     class Meta:
@@ -72,7 +72,7 @@ class ExamBacklogQuestion(BaseModel):
 
 class ExamBacklogQuestionMedia(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE)
-    media = models.ForeignKey("lookups.Media", on_delete=models.PROTECT)
+    media = models.ForeignKey("user.Media", on_delete=models.PROTECT)
 
     class Meta:
         app_label = "exam_public"
@@ -106,7 +106,7 @@ class ExamBacklogQuestionChoice(BaseModel):
     is_correct = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField("lookups.Media", through="ExamBacklogQuestionChoiceMedia")
+    medias = models.ManyToManyField("user.Media", through="ExamBacklogQuestionChoiceMedia")
 
     class Meta:
         app_label = "exam_public"
@@ -115,7 +115,7 @@ class ExamBacklogQuestionChoice(BaseModel):
 
 class ExamBacklogQuestionChoiceMedia(BaseModel):
     exam_backlog_question_choice = models.ForeignKey(ExamBacklogQuestionChoice, on_delete=models.CASCADE)
-    media = models.ForeignKey("lookups.Media", on_delete=models.PROTECT)
+    media = models.ForeignKey("user.Media", on_delete=models.PROTECT)
 
     class Meta:
         app_label = "exam_public"
@@ -128,7 +128,7 @@ class ExamBacklogQuestionChoiceMedia(BaseModel):
 class ExamBacklogQuestionTag(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_tags")
     # * Question Tag Fields
-    tag = models.ForeignKey("lookups.Tag", on_delete=models.DO_NOTHING)
+    tag = models.ForeignKey("questionbank.Tag", on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=255)
 
     class Meta:
@@ -148,7 +148,7 @@ class ExamBacklogQuestionRetryHint(BaseModel):
 
     has_media = models.BooleanField(default=False)
 
-    medias = models.ManyToManyField("lookups.Media", through="ExamBacklogQuestionRetryHintMedia")
+    medias = models.ManyToManyField("user.Media", through="ExamBacklogQuestionRetryHintMedia")
 
     class Meta:
         app_label = "exam_public"
@@ -157,7 +157,7 @@ class ExamBacklogQuestionRetryHint(BaseModel):
 
 class ExamBacklogQuestionRetryHintMedia(BaseModel):
     exam_backlog_question_retry_hint = models.ForeignKey(ExamBacklogQuestionRetryHint, on_delete=models.CASCADE)
-    media = models.ForeignKey("lookups.Media", on_delete=models.PROTECT)
+    media = models.ForeignKey("user.Media", on_delete=models.PROTECT)
 
     class Meta:
         app_label = "exam_public"

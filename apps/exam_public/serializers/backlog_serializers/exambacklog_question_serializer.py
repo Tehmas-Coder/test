@@ -105,9 +105,10 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
             exam_answers = CandidateExamQuestionAnswerSerializer(obj.question_answers.all(), many=True).data
             obtained_marks = 0
             for one_answer in exam_answers:
-                obtained_marks = obtained_marks + one_answer["score"]
+                if one_answer["score"] is not None:
+                    obtained_marks = obtained_marks + one_answer["score"]
             return obtained_marks
-        return 0
+        return None
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

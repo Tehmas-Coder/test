@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from apps.lookups.serializers.media_serializers import (
+from apps.questionbank.models import QuestionChoiceMedia
+from apps.questionbank.serializers.media_serializers import (
     MediaBulkCreateSerializer,
     MediaSerializer,
 )
-from apps.questionbank.models import QuestionChoiceMedia
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
@@ -81,6 +81,6 @@ class QuestionChoiceMediaBulkCreateSerializer(BaseModelSerializer):
         question_choice_media_instances = [QuestionChoiceMedia(media=media, **validated_data) for media in media_instances]
         QuestionChoiceMedia.objects.bulk_create(question_choice_media_instances)
         created_question_choice_media_instances = QuestionChoiceMedia.objects.all().order_by("-id")[: len(question_choice_media_instances)]
-        created_question_choice_media_instances = sorted(created_question_choice_media_instances, key=lambda instance: instance.id)
+        created_question_choice_media_instances = sorted(created_question_choice_media_instances, key=lambda instance: instance.id)  # type: ignore
 
         return created_question_choice_media_instances
