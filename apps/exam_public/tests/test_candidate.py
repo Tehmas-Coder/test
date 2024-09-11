@@ -28,21 +28,21 @@ class CandidateUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_candidate_list(self):
         print_test_header("get_candidate_list")
         url = "/api/candidate/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_candidate(self, candidate_id):
         print_test_header("get_one_candidate")
         url = f"/api/candidate/{candidate_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_candidate(self, candidate_id, request_body):
         print_test_header("update_candidate")
@@ -54,7 +54,7 @@ class CandidateUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
 
 class CandidateTest(CandidateUnitTest):

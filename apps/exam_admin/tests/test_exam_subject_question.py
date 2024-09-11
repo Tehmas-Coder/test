@@ -48,7 +48,7 @@ class ExamSubjectQuestionUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_exam_subject_question(self, exam_id, request_body):
         print_test_header("update_exam_subject_question")
@@ -60,7 +60,7 @@ class ExamSubjectQuestionUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_exam_subject_question(self, exam_subject_question_id):
         print_test_header("delete_exam_subject_question")

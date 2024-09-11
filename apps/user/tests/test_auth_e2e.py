@@ -80,7 +80,7 @@ class AuthE2ETest(AuthE2EUnitTest):
             "refresh": self.tokens,
         }
         response = self.do_token_refresh(request_data)
-        self.headers["refresh"] = response.data["refresh"]
+        self.headers["refresh"] = response.data["refresh"]  # type: ignore
         validate_success_response_with_token_check(self, response)
 
     # * failure test because of old refresh token
@@ -100,11 +100,11 @@ class AuthE2ETest(AuthE2EUnitTest):
 
     # * test to check the whole flow for tokens from register => login => logout
     def whole_flow_test(self):
-        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))
+        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))  # type: ignore
         validate_success_create_response(self, response)
 
         # * upon again registering user should not be able to register
-        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))
+        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))  # type: ignore
         bad_request_failure_response(self, response)
 
         new_user_data = BaseUser.objects.get(email=self.test_user["email"])

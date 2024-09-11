@@ -34,7 +34,7 @@ class ExamSubjectUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_exam_subject(self, exam_subject_id):
         print_test_header("delete_exam_subject")

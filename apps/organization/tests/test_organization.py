@@ -28,21 +28,21 @@ class OrganizationUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_organization_list(self):
         print_test_header("get_organization_list")
         url = "/api/organizations/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_organization(self, organization_id):
         print_test_header("get_one_organization")
         url = f"/api/organizations/{organization_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_organization(self, organization_id, request_body):
         print_test_header("update_organization")
@@ -54,7 +54,7 @@ class OrganizationUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_organization(self, organization_id):
         print_test_header("delete_organization")

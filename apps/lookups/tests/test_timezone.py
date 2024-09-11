@@ -1,11 +1,12 @@
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class TimezoneUnitTest(TestSetUp):
@@ -21,7 +22,7 @@ class TimezoneUnitTest(TestSetUp):
 
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_timezone(self, timezone_id):
         print_test_header("get_one_timezone")
@@ -29,7 +30,7 @@ class TimezoneUnitTest(TestSetUp):
 
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
 
 class TimezoneTest(TimezoneUnitTest):

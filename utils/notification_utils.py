@@ -125,7 +125,7 @@ def send_email_with_attachment(
 
             message.attach(MIMEText(email_body_html, "html"))
 
-            for attachment in attachments:
+            for attachment in attachments:  # type: ignore
                 part = MIMEBase("application", "octet-stream")
                 part.set_payload(attachment)
                 encoders.encode_base64(part)

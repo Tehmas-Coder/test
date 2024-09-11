@@ -1,11 +1,12 @@
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class QuestionChoiceMediaUnitTest(TestSetUp):
@@ -29,7 +30,7 @@ class QuestionChoiceMediaUnitTest(TestSetUp):
             format="multipart",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_question_choice_media(self, question_choice_media_id):
         print_test_header("delete_question_choice_media")
@@ -48,9 +49,7 @@ class QuestionChoiceMediaTest(QuestionChoiceMediaUnitTest):
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        media_data = open(
-            "./apps/questionbank/tests/test_data/images/test_image.jpeg", "rb"
-        )
+        media_data = open("./apps/questionbank/tests/test_data/images/test_image.jpeg", "rb")
 
         request_body = {
             "question_choice": 1,

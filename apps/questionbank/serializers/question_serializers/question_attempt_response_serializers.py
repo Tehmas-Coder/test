@@ -1,6 +1,7 @@
+from rest_framework import serializers
+
 from apps.questionbank.models import QuestionAttemptResponse
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from rest_framework import serializers
 
 
 class QuestionAttemptResponseSerializer(BaseModelSerializer):
@@ -56,6 +57,6 @@ class QuestionAttemptResponseBulkCreateSerializer(serializers.Serializer):
             : len(question_attempt_responses_instances)
         ]
 
-        created_question_attempt_responses_instances = sorted(created_question_attempt_responses_instances, key=lambda instance: instance.id)
+        created_question_attempt_responses_instances = sorted(created_question_attempt_responses_instances, key=lambda instance: instance.id)  # type: ignore
 
         return created_question_attempt_responses_instances

@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class SubjectUnitTest(TestSetUp):
@@ -26,21 +28,21 @@ class SubjectUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_subject_list(self):
         print_test_header("get_subject_list")
         url = "/api/subjects/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_subject(self, subject_id):
         print_test_header("get_one_subject")
         url = f"/api/subjects/{subject_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_subject(self, subject_id, request_body):
         print_test_header("update_subject")
@@ -52,7 +54,7 @@ class SubjectUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_subject(self, subject_id):
         print_test_header("delete_subject")
@@ -97,9 +99,7 @@ class SubjectTest(SubjectUnitTest):
         json_data = self.do_get_subject_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_subject_model
-            ) in self.list_of_fields_of_subject_model:
+            for one_value_from_list_of_fields_of_subject_model in self.list_of_fields_of_subject_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_subject_model,
                     test_dict,
@@ -123,9 +123,7 @@ class SubjectTest(SubjectUnitTest):
         updated_request_body["code"] = "DMM"
         updated_request_body["abbreviation"] = "DMM"
 
-        updated_response_json_data = self.do_update_one_subject(
-            test_record_id, json.dumps(updated_request_body)
-        )
+        updated_response_json_data = self.do_update_one_subject(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             self.assertEqual(updated_response_json_data[key], updated_request_body[key])

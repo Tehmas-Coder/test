@@ -33,14 +33,14 @@ class OrganizationUserUnitTest(TestSetUp):
         url = f"/api/get-organization-users-list/{organization_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_user_organizations_list(self):
         print_test_header("get_one_user_organizations_list")
         url = "/api/get-user-organizations-list/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_remove_one_organization_user(self, organization_user_id):
         print_test_header("remove_organization_user")
@@ -74,7 +74,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
     def successfull_assignment_of_an_organization_user_test(self):
         response = self.do_assign_organization_user(json.dumps(self.reuseable_request_body))
         validate_success_201_test_response(self, response)
-        json_data = response.data
+        json_data = response.data  # type: ignore
         for key in self.reuseable_request_body:
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_organization_user_model:

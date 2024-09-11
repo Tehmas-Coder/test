@@ -88,8 +88,8 @@ class QuestionRetryHintBulkCreateSerializer(serializers.Serializer):
             if not question_retry_hint_serializer.is_valid():
                 question_retry_hint_serializer_errors.append(question_retry_hint_serializer.errors)
             else:
-                retry_hint_text = question_retry_hint_serializer.validated_data["text"]
-                retry_hint_medias = question_retry_hint_serializer.validated_data.pop("medias", [])
+                retry_hint_text = question_retry_hint_serializer.validated_data["text"]  # type: ignore
+                retry_hint_medias = question_retry_hint_serializer.validated_data.pop("medias", [])  # type: ignore
                 if retry_hint_medias:
                     self.question_retry_hints_medias_hashmap[retry_hint_text + f"_{index}"] = retry_hint_medias
                 self.question_retry_hints_instances_data.append(question_retry_hint_serializer.validated_data)
@@ -104,15 +104,15 @@ class QuestionRetryHintBulkCreateSerializer(serializers.Serializer):
         question_retry_hints_instances = [QuestionRetryHint(**data) for data in self.question_retry_hints_instances_data]
         QuestionRetryHint.objects.bulk_create(question_retry_hints_instances)
         created_question_retry_hints_instances = QuestionRetryHint.objects.all().order_by("-created_at")[: len(question_retry_hints_instances)]
-        created_question_retry_hints_instances = sorted(created_question_retry_hints_instances, key=lambda instance: instance.id)
+        created_question_retry_hints_instances = sorted(created_question_retry_hints_instances, key=lambda instance: instance.id)  # type: ignore
 
         # * Bulk Create Question Retry Hints Medias
         for index, one_question_retry_hint_instance in enumerate(created_question_retry_hints_instances):
-            key = one_question_retry_hint_instance.text + f"_{index}"
+            key = one_question_retry_hint_instance.text + f"_{index}"  # type: ignore
             if key in self.question_retry_hints_medias_hashmap:
                 medias = [{"file": one_media["file"]} for one_media in self.question_retry_hints_medias_hashmap[key]]
                 media_instances = QuestionRetryHintMediaBulkCreateSerializer(
-                    data={"question_retry_hint": one_question_retry_hint_instance.id, "medias": medias}
+                    data={"question_retry_hint": one_question_retry_hint_instance.id, "medias": medias}  # type: ignore
                 )
                 media_instances.is_valid()
                 media_instances.save()
