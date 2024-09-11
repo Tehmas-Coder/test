@@ -298,5 +298,15 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 31,
+        "fields": {
+            "name": "View Scheduled Exams",
+            "description": "View all exams that have been scheduled",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
