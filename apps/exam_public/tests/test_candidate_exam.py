@@ -95,7 +95,6 @@ class CandidateExamTest(CandidateExamUnitTest):
         "candidate",
         "exam_backlog",
         "schedule",
-        "obtained_marks",
         "is_preparatory",
         "date",
         "start_time",

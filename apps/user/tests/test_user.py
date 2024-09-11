@@ -225,7 +225,10 @@ class UserTest(UserUnitTest):
                 self.assertEqual(json_data["roles"][0]["id"], updated_request_body[key])
                 continue
             if key == "profile_picture":
-                self.assertEqual(json_data[key], 1)
+                self.assertEqual(json_data[key]["id"], 1)
+                continue
+            if key == "country":
+                self.assertEqual(json_data[key]["id"], self.reuseable_request_body[key])
                 continue
             self.assertEqual(json_data[key], updated_request_body[key])
         self.assertEqual(updated_response_json_data["id"], test_record_id)

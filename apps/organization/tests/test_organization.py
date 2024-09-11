@@ -13,7 +13,12 @@ from utils.rna_utils import (
 
 
 class OrganizationUnitTest(TestSetUp):
-    fixtures = ["country_test_seed", "organization_seed"]
+    fixtures = [
+        "country_test_seed",
+        "organization_seed",
+        "package_seed",
+        "organization_package_seed",
+    ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
