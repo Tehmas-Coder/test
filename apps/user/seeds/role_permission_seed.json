@@ -1230,5 +1230,93 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 113,
+        "fields": {
+            "role": 1,
+            "permission": 29,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 114,
+        "fields": {
+            "role": 2,
+            "permission": 29,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 115,
+        "fields": {
+            "role": 3,
+            "permission": 29,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 116,
+        "fields": {
+            "role": 4,
+            "permission": 29,
+            "is_active": 0,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 117,
+        "fields": {
+            "role": 1,
+            "permission": 30,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 118,
+        "fields": {
+            "role": 2,
+            "permission": 30,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 119,
+        "fields": {
+            "role": 3,
+            "permission": 30,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 120,
+        "fields": {
+            "role": 4,
+            "permission": 30,
+            "is_active": 0,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
