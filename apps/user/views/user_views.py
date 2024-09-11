@@ -1,4 +1,3 @@
-import doctest
 import json
 
 from cryptography.fernet import Fernet
@@ -139,6 +138,8 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    # -------------------------------- UPDATE USER ------------------------------- #
+
     def partial_update(self, request, *args, **kwargs):
         profile_picture = request.data.get("profile_picture", None)
         if profile_picture:
@@ -148,7 +149,12 @@ class UserViewSet(viewsets.ModelViewSet):
             media_id = media_serializer.data["id"]
             request.data["profile_picture"] = media_id
 
-        return super().partial_update(request, *args, **kwargs)
+        res = super().partial_update(request, *args, **kwargs)
+        if res.data:
+            instance = self.queryset.get(id=res.data["id"])
+            serializer = UserDetailSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return res
 
     @action(detail=True, methods=["post"], url_path="restore")
     def restore(self, request, *args, **kwargs):
