@@ -1,0 +1,47 @@
+[
+    {
+        "model": "lookups.package",
+        "pk": 1,
+        "fields": {
+            "name": "Free",
+            "abbreviation": "F",
+            "users": 10,
+            "questions": 50,
+            "exams": 10,
+            "prep_exams": 10,
+            "exam_attempts": 10,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "lookups.package",
+        "pk": 2,
+        "fields": {
+            "name": "Basic",
+            "abbreviation": "B",
+            "users": 30,
+            "questions": 150,
+            "exams": 30,
+            "prep_exams": 30,
+            "exam_attempts": 30,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "lookups.package",
+        "pk": 3,
+        "fields": {
+            "name": "Premium",
+            "abbreviation": "P",
+            "users": 100,
+            "questions": 500,
+            "exams": 100,
+            "prep_exams": 100,
+            "exam_attempts": 100,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

@@ -1,9 +1,16 @@
 import json
 
+from django.db.models import F, Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.organization.models.organization_models import (
+    Organization,
+    OrganizationPackage,
+    OrganizationQuestion,
+    OrganizationUser,
+)
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.models import (
     DifficultyLevel,
@@ -143,7 +150,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def parse_media(self, request):
         request_data = json.loads(request.data["data"])
 
-        # Extract media for questions
+        # * Extract media for questions
         media_keys = request_data.pop("medias", [])
         request_data["medias"] = []
         for key in media_keys:
@@ -155,7 +162,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     }
                 )
 
-        # Extract media for hints
+        # * Extract media for hints
         for hint in request_data.get("retry_hints", []):
             hint_medias = hint.pop("medias", [])
             if hint["has_media"]:
@@ -169,7 +176,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                             }
                         )
 
-        # Extract media for choices
+        # * Extract media for choices
         for choice in request_data.get("choices", []):
             choice_medias = choice.pop("medias", [])
             if choice["has_media"]:
@@ -195,13 +202,60 @@ class QuestionViewSet(viewsets.ModelViewSet):
             request_data = self.parse_media(request)
         else:
             request_data = request.data
+
+        # * Setting Question to public if the user is a superuser
+        if request.user.is_superuser:
+            request_data["is_public"] = 1
+        else:
+            request_data["is_public"] = 0
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            if not organization_id:
+                return make_error_response(message=f"Failed: User doesn't belong to any organization")
+            organization = Organization.objects.get(id=organization_id)
+            # * Checking the usage of questions of Organization package
+            organization_package = (
+                OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
+            )
+            if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
+                return make_error_response(message=f"Failed: Your limit to create questions is reached")
+
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
+
+        # * Assigning Question to Organization if the requested user is not superuser
+        if not request.user.is_superuser:
+            organization_package.questions = organization_package.questions + 1  # type:ignore
+            organization_package.save()  # type:ignore
+            organization.questions.add(question.id)  # type:ignore
+
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def list(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_question_ids = list(OrganizationQuestion.objects.filter(organization_id=organization_id).values_list("question", flat=True))
+            self.queryset = self.queryset.filter(Q(id__in=organization_question_ids) | Q(is_public=True))
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        res = super().retrieve(request, *args, **kwargs)
+        if not request.user.is_superuser:
+            question_id = res.data["id"]  # type:ignore
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_question = OrganizationQuestion.objects.filter(organization_id=organization_id, question_id=question_id)
+            if not ((res.data["is_public"]) or len(organization_question)):  # type:ignore
+                return make_error_response(message=f"Failed: This Question doesn't belong to your organization")
+        return res
+
     def partial_update(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            question_id = self.kwargs["pk"]
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_question = OrganizationQuestion.objects.filter(organization_id=organization_id, question_id=question_id)
+            if not len(organization_question):
+                return make_error_response(message=f"Failed: This Question doesn't belong to your organization")
         request_data = request.data
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request_data, partial=True)

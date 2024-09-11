@@ -1,4 +1,3 @@
-import doctest
 import json
 
 from cryptography.fernet import Fernet
@@ -11,8 +10,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
-from apps.lookups.serializers.media_serializers import MediaSerializer
 from apps.organization.models.organization_models import OrganizationUser
+from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.filters.user_filter import UserFilter
 from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
@@ -104,8 +103,14 @@ class UserViewSet(viewsets.ModelViewSet):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
 
         token_data = encrypted_email.decode("utf-8")
-        url = config("PUBLIC_FE_URL")
-        final_url = f"{url}verification?token={token_data}"
+        qb_public_url = config("QB_PUBLIC_FE_URL", cast=str)
+        qb_admin_url = config("QB_ADMIN_FE_URL", cast=str)
+
+        if request_user_role_name.lower() == "candidate":
+            final_url = f"{qb_public_url}verification?token={token_data}"
+        else:
+            final_url = f"{qb_admin_url}verification?token={token_data}"
+
         send_email_data_dict = {
             "first_name": request.data["first_name"],
             "last_name": request.data["last_name"],
@@ -133,6 +138,8 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    # -------------------------------- UPDATE USER ------------------------------- #
+
     def partial_update(self, request, *args, **kwargs):
         profile_picture = request.data.get("profile_picture", None)
         if profile_picture:
@@ -142,7 +149,12 @@ class UserViewSet(viewsets.ModelViewSet):
             media_id = media_serializer.data["id"]
             request.data["profile_picture"] = media_id
 
-        return super().partial_update(request, *args, **kwargs)
+        res = super().partial_update(request, *args, **kwargs)
+        if res.data:
+            instance = self.queryset.get(id=res.data["id"])
+            serializer = UserDetailSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return res
 
     @action(detail=True, methods=["post"], url_path="restore")
     def restore(self, request, *args, **kwargs):
@@ -247,7 +259,7 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
         token_data = encrypted_email.decode("utf-8")
 
-        url = config("PUBLIC_FE_URL")
+        url = config("QB_PUBLIC_FE_URL")
         final_url = f"{url}verification?token={token_data}"
 
         send_email_data_dict = {

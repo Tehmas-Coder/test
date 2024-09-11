@@ -1,3 +1,6 @@
+import json
+
+from cryptography.fernet import Fernet
 from django.contrib.auth import login
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -12,9 +15,14 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from apps.exam_public.models.exam_public_models import Candidate
+from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
-from utils.rna_utils import make_error_response, make_success_response
+from utils.rna_utils import (
+    debug_print,
+    get_encryption_key,
+    make_error_response,
+    make_success_response,
+)
 
 from ..models import BaseUser, Role
 
@@ -24,6 +32,7 @@ class RegisterApiView(views.APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
+        token_data = request.query_params.get("token", None)
         if "is_superuser" in request.data:
             try:
                 request.data["is_verified"] = True
@@ -40,14 +49,28 @@ class RegisterApiView(views.APIView):
         else:
             serializer = UserEditSerializer(data=request.data)
             if serializer.is_valid():
-                candidate_instance = serializer.save()
+                user_instance = serializer.save()
                 role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
-                candidate_instance.roles.add(role_id["id"])
-                if not candidate_instance.send_otp():
+                user_instance.roles.add(role_id["id"])  # type:ignore
+                if not user_instance.send_otp():  # type:ignore
                     transaction.set_rollback(True)
                     raise serializers.ValidationError({"error": "Failed to send email, please try again"})
 
-                Candidate.objects.create(user_id=serializer.data["id"])
+                # * This if block code is for user registration on exam attempt
+                if token_data is not None:
+                    key = get_encryption_key()
+                    cipher = Fernet(key)
+                    decrypted_data = json.loads(cipher.decrypt(token_data).decode())
+                    organization_id = decrypted_data["organization_id"]
+                    candidate_exam_id = decrypted_data["candidate_exam_id"]
+                    if organization_id:
+                        candidate_instance = Candidate.objects.create(user=user_instance, organization_id=organization_id)
+                    else:
+                        candidate_instance = Candidate.objects.create(user=user_instance)
+
+                    CandidateExam.objects.filter(id=candidate_exam_id).update(candidate=candidate_instance)
+                else:
+                    Candidate.objects.create(user=user_instance)
                 return Response(serializer.data, status=201)
             if "email" in serializer.errors:
                 return Response({"error": "User with this email already exists"}, status=400)
@@ -60,21 +83,29 @@ class LoginApiView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         email = request.data.get("email", None)  # type: ignore
+        token_data = request.query_params.get("token", None)
         if not email:
             return make_error_response(message="Email is required!")
         user = BaseUser.get_user_by_email(email)
         if not user:
             return make_error_response(message="User not found!")
 
+        if token_data is not None:
+            key = get_encryption_key()
+            cipher = Fernet(key)
+            decrypted_data = json.loads(cipher.decrypt(token_data).decode())
+            organization_id = decrypted_data["organization_id"]
+            candidate_exam_id = decrypted_data["candidate_exam_id"]
+            candidate_instance, _ = Candidate.objects.get_or_create(user=user, organization_id=organization_id)
+            CandidateExam.objects.filter(id=candidate_exam_id).update(candidate=candidate_instance)
+
         user_role_name = None
-        if "is_system_user" in request.data:
+        if "is_system_user" in request.data:  # type: ignore
             user_role_name = user.roles.all().values().first()
 
         if user_role_name == None:
             if not user.is_verified:  # type: ignore
                 return make_error_response(message="User is not verified!")
-        else:
-            pass
 
         return super().post(request, *args, **kwargs)
 
@@ -95,6 +126,7 @@ class TokenRefreshApiView(TokenRefreshView):
 
 class OTPViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
+    USER_NOT_FOUND = {"error": "User not found!"}
 
     def verify_otp(self, request, *args, **kwargs):
         user = get_object_or_404(BaseUser, email=request.data.get("email", None))
@@ -139,7 +171,7 @@ class FromSaLoginToQBApiView(TokenObtainPairView):
             refresh = RefreshToken.for_user(user)
             auth_data = {
                 "refresh": str(refresh),
-                "access": str(refresh.access_token),
+                "access": str(refresh.access_token),  # type: ignore
             }
 
             return Response(auth_data, status=status.HTTP_200_OK)

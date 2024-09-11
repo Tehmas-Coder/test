@@ -30,9 +30,9 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         if request and hasattr(request, "user") and not isinstance(request.user, AnonymousUser):
             if not self.instance:
-                data["created_by"] = request.user.id
+                data["created_by"] = request.user
 
-            data["updated_by"] = request.user.id
+            data["updated_by"] = request.user
 
         else:
             if not self.instance:

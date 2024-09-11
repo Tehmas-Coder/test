@@ -1,6 +1,6 @@
 [
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 1,
         "fields": {
             "name": "Intelligence",
@@ -11,7 +11,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 2,
         "fields": {
             "name": "Critical Thinking",
@@ -22,7 +22,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 3,
         "fields": {
             "name": "General Knowledge",
@@ -33,7 +33,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 4,
         "fields": {
             "name": "Mathematics",
@@ -44,7 +44,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 5,
         "fields": {
             "name": "Science",
@@ -55,7 +55,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 6,
         "fields": {
             "name": "History",
@@ -66,7 +66,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 7,
         "fields": {
             "name": "Geography",
@@ -77,7 +77,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 8,
         "fields": {
             "name": "Literature",
@@ -88,7 +88,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 9,
         "fields": {
             "name": "Art",
@@ -99,7 +99,7 @@
         }
     },
     {
-        "model": "lookups.tag",
+        "model": "questionbank.Tag",
         "pk": 10,
         "fields": {
             "name": "Physical Education",

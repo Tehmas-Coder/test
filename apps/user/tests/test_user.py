@@ -17,6 +17,7 @@ from utils.rna_utils import (
 
 class UserUnitTest(TestSetUp):
     fixtures = [
+        "resource_seed",
         "country_test_seed",
         "role_seed",
         "test_user_seed",

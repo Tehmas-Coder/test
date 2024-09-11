@@ -3,20 +3,12 @@ from django.db import models
 from apps.organization.models.organization_models import Organization
 from core.models import BaseModel
 
-MEDIA_MODEL = "lookups.Media"
+MEDIA_MODEL = "user.Media"
 
 
 class Candidate(BaseModel):
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        related_candidate_exams = CandidateExam.objects.filter(candidate_email=self.user.email)
-
-        for exam in related_candidate_exams:
-            exam.candidate = self  # type: ignore
-            exam.save()
 
     class Meta:
         app_label = "exam_public"

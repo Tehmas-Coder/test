@@ -1,18 +1,18 @@
-from django.urls import path
+from django.urls import include, path
 from rest_framework import routers
-from django.urls import include
+
 from apps.lookups.views import (
     CountryViewset,
     CurrencyViewset,
     LanguageViewset,
     MeasuringUnitViewset,
     MediaTypeViewset,
+    PackageViewset,
     RegionViewset,
     StateViewset,
     TagViewset,
     TimezoneViewset,
 )
-
 
 router = routers.DefaultRouter()
 
@@ -26,6 +26,7 @@ router.register(r"currencies", CurrencyViewset)
 router.register(r"measuring-units", MeasuringUnitViewset)
 router.register(r"media-types", MediaTypeViewset)
 router.register(r"tags", TagViewset)
+router.register(r"packages", PackageViewset)
 
 urlpatterns = [
     path("", include(router.urls)),

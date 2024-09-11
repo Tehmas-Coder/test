@@ -7,7 +7,11 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
-from apps.organization.models.organization_models import Organization, OrganizationUser
+from apps.organization.models.organization_models import (
+    Organization,
+    OrganizationPackage,
+    OrganizationUser,
+)
 from apps.organization.serializers import (
     OrganizationSerializer,
     OrganizationUserSerializer,
@@ -30,6 +34,16 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     serializer_class = OrganizationSerializer
     pagination_class = None
     http_method_names = ["get", "post", "patch", "delete"]
+
+    def create(self, request, *args, **kwargs):
+        res = super().create(request, *args, **kwargs)
+        if res.data:
+            id = res.data["id"]
+            OrganizationPackage.objects.create(organization_id=id, package_id=1)
+            instance = Organization.objects.get(id=id)
+            serializer = OrganizationSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return res
 
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
     def assign_organization_user(self, request):

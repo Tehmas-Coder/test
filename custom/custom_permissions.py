@@ -76,6 +76,9 @@ def validate_resources(request_method, request_path, role_id):
 
 
 def string_url_to_regex(string_url):
+    exam_url = "/candidate-exam/token="
+    if string_url.startswith(exam_url):
+        return "^/candidate-exam/[0-9]+/$"
 
     # Escape special characters in the input string
     escaped_string = re.escape(string_url)

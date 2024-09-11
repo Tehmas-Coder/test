@@ -2,10 +2,10 @@ from datetime import datetime
 
 from django.db import models
 
-from core.models import BaseModel
+from core.models import BaseUserModel
 
 
-class Timezone(BaseModel):
+class Timezone(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -14,7 +14,7 @@ class Timezone(BaseModel):
         app_label = "lookups"
 
 
-class Region(BaseModel):
+class Region(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -42,7 +42,7 @@ class Region(BaseModel):
         return self.countries.filter(id=country.id).exists()
 
 
-class Country(BaseModel):
+class Country(BaseUserModel):
     name = models.CharField(max_length=255)
     iso2_code = models.CharField(max_length=2)
     iso3_code = models.CharField(max_length=3)
@@ -101,7 +101,7 @@ class Country(BaseModel):
         self.timezones.add(timezone)
 
 
-class State(BaseModel):
+class State(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -118,7 +118,7 @@ class State(BaseModel):
         return self.name
 
 
-class City(BaseModel):
+class City(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -137,7 +137,7 @@ class City(BaseModel):
         return self.name
 
 
-class Language(BaseModel):
+class Language(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255, unique=True)
     abbreviation = models.CharField(max_length=10)
@@ -149,7 +149,7 @@ class Language(BaseModel):
         return self.name
 
 
-class Currency(BaseModel):
+class Currency(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -159,7 +159,7 @@ class Currency(BaseModel):
         app_label = "lookups"
 
 
-class MeasuringUnit(BaseModel):
+class MeasuringUnit(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -168,7 +168,7 @@ class MeasuringUnit(BaseModel):
         app_label = "lookups"
 
 
-class MediaType(BaseModel):
+class MediaType(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -177,27 +177,14 @@ class MediaType(BaseModel):
         app_label = "lookups"
 
 
-class Tag(BaseModel):
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=255)
-    abbreviation = models.CharField(max_length=255)
-
-    class Meta:
-        app_label = "lookups"
-
-
-def upload_to(instance, filename):
-    folder_name = instance.__class__.__name__.lower()
-    timestamp = int(datetime.now().timestamp())
-    return f"{folder_name}/{timestamp}_{filename}"
-
-
-class Media(BaseModel):
+class Package(BaseUserModel):
     name = models.CharField(max_length=100)
-    file = models.FileField(upload_to=upload_to)
-    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
-    extension = models.CharField(max_length=10, blank=True)
-    size = models.IntegerField(default=0)
+    abbreviation = models.CharField(max_length=255, null=True, blank=True)
+    users = models.PositiveIntegerField()
+    questions = models.PositiveIntegerField()
+    exams = models.PositiveIntegerField()
+    prep_exams = models.PositiveIntegerField()
+    exam_attempts = models.PositiveIntegerField()
 
     class Meta:
         app_label = "lookups"

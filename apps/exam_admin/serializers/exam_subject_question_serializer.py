@@ -69,7 +69,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
                 question_more_data["is_optional"] = one_dict.pop("is_optional")
                 question_more_data["is_global"] = one_dict.pop("is_global")
                 break
-        question_data.update(question_more_data)
+        question_data.update(question_more_data)  # type:ignore
         return question_data
 
 
