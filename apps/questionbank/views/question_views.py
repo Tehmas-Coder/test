@@ -331,6 +331,8 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
 
 
 # ---------------------------------- CHOICES --------------------------------- #
+
+
 class QuestionChoiceViewSet(viewsets.ModelViewSet):
     queryset = QuestionChoice.objects.all().prefetch_related("medias")
     serializer_class = QuestionChoiceSerializer

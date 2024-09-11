@@ -45,6 +45,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
+from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
@@ -53,7 +54,6 @@ from utils.rna_utils import (
     make_error_response,
     remove_extra_underscore_from_key_names,
 )
-from apps.organization.models.organization_models import OrganizationUser
 
 # --------------------------------- CANDIDATE -------------------------------- #
 
