@@ -8,15 +8,15 @@ python manage.py loaddata resource_seed.json
 python manage.py loaddata role_resource_seed.json
 python manage.py loaddata permission_seed.json
 python manage.py loaddata role_permission_seed.json
-REM --------------------------------- ORGANIZATION -------------------------------------
-python manage.py loaddata organization_seed.json
-python manage.py loaddata organization_package_seed.json
-python manage.py loaddata organization_user_seed.json
 REM -------------------------------- LOOKUPS -----------------------------------
 python manage.py loaddata media_type_seed.json
 python manage.py loaddata measuring_unit_seed.json
 python manage.py loaddata tag_seed.json
 python manage.py loaddata package_seed.json
+REM --------------------------------- ORGANIZATION -------------------------------------
+python manage.py loaddata organization_seed.json
+python manage.py loaddata organization_package_seed.json
+python manage.py loaddata organization_user_seed.json
 REM ----------------------------- QUESTION BANK --------------------------------
 python manage.py loaddata question_type_seed.json
 python manage.py loaddata education_level_seed.json
