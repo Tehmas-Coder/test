@@ -268,5 +268,15 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.Permission",
+        "pk": 28,
+        "fields": {
+            "name": "Schedule an Exam",
+            "description": "Schedule and Exam",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]

@@ -1186,5 +1186,49 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 109,
+        "fields": {
+            "role": 1,
+            "permission": 28,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 110,
+        "fields": {
+            "role": 2,
+            "permission": 28,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 111,
+        "fields": {
+            "role": 3,
+            "permission": 28,
+            "is_active": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "user.RolePermission",
+        "pk": 112,
+        "fields": {
+            "role": 4,
+            "permission": 28,
+            "is_active": 0,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
     }
 ]
