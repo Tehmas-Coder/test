@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class QuestionUnitTest(TestSetUp):
@@ -40,21 +42,21 @@ class QuestionUnitTest(TestSetUp):
             format="multipart",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_question_list(self):
         print_test_header("get_question_list")
         url = "/api/questions/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data["results"]  # type: ignore
 
     def do_get_one_question(self, question_id):
         print_test_header("get_one_question")
         url = f"/api/questions/{question_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_question(self, question_id, request_body):
         print_test_header("update_question")
@@ -66,7 +68,7 @@ class QuestionUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_question(self, question_id):
         print_test_header("delete_question")
@@ -175,9 +177,7 @@ class QuestionTest(QuestionUnitTest):
         self,
     ):
         print_test_header("create_question_with_only_subject_and_question_data")
-        json_data = self.do_create_question(
-            {"data": json.dumps(self.reuseable_request_body)}
-        )
+        json_data = self.do_create_question({"data": json.dumps(self.reuseable_request_body)})
         for key in self.list_of_fields_of_question_model:
             self.assertIn(key, json_data)
 
@@ -187,9 +187,7 @@ class QuestionTest(QuestionUnitTest):
     ):
         print_test_header("create_question_with_question_tag_data")
         self.reuseable_request_body["tags"] = [1, 2]
-        json_data = self.do_create_question(
-            {"data": json.dumps(self.reuseable_request_body)}
-        )
+        json_data = self.do_create_question({"data": json.dumps(self.reuseable_request_body)})
         for key in self.list_of_fields_of_question_model:
             self.assertIn(key, json_data)
 
@@ -208,9 +206,7 @@ class QuestionTest(QuestionUnitTest):
                 "type": "wrong",
             },
         ]
-        json_data = self.do_create_question(
-            {"data": json.dumps(self.reuseable_request_body)}
-        )
+        json_data = self.do_create_question({"data": json.dumps(self.reuseable_request_body)})
         for key in self.list_of_fields_of_question_model:
             self.assertIn(key, json_data)
 
@@ -340,9 +336,7 @@ class QuestionTest(QuestionUnitTest):
         json_data = self.do_get_question_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_question_model
-            ) in self.list_of_fields_of_question_model:
+            for one_value_from_list_of_fields_of_question_model in self.list_of_fields_of_question_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_question_model,
                     test_dict,
@@ -363,9 +357,7 @@ class QuestionTest(QuestionUnitTest):
     def successfull_updation_of_record_test(self, test_record_id):
         updated_request_body = {}
         updated_request_body["title"] = "Are you not crazy?"
-        updated_request_body["text"] = (
-            "Please don't give reasons you are crazy for sure"
-        )
+        updated_request_body["text"] = "Please don't give reasons you are crazy for sure"
         updated_request_body["type"] = 2
         updated_request_body["max_retries"] = 0
         updated_request_body["subjects"] = [
@@ -383,9 +375,7 @@ class QuestionTest(QuestionUnitTest):
             }
         ]
         updated_request_body["tags"] = [1]
-        updated_response_json_data = self.do_update_one_question(
-            test_record_id, json.dumps(updated_request_body)
-        )
+        updated_response_json_data = self.do_update_one_question(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in self.list_of_fields_of_question_model:
             self.assertIn(key, updated_response_json_data)

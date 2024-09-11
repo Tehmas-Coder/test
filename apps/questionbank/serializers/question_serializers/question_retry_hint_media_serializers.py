@@ -79,6 +79,6 @@ class QuestionRetryHintMediaBulkCreateSerializer(BaseModelSerializer):
         QuestionRetryHintMedia.objects.bulk_create(question_retry_hint_media_instances)
 
         created_question_retry_hint_media_instances = QuestionRetryHintMedia.objects.all().order_by("-id")[: len(question_retry_hint_media_instances)]
-        created_question_retry_hint_media_instances = sorted(created_question_retry_hint_media_instances, key=lambda instance: instance.id)
+        created_question_retry_hint_media_instances = sorted(created_question_retry_hint_media_instances, key=lambda instance: instance.id)  # type: ignore
 
         return created_question_retry_hint_media_instances

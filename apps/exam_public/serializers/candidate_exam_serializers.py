@@ -28,7 +28,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         # * Fetching candidates instances for candidates_ids in request data
         candidates = validated_data.pop("candidates")
         candidates_instances = list(Candidate.objects.filter(user__email__in=candidates).select_related("user").annotate(email=F("user__email")))
-        email_in_candidate_instances = [one_candidate.email for one_candidate in candidates_instances]
+        email_in_candidate_instances = [one_candidate.email for one_candidate in candidates_instances]  # type: ignore
 
         # * Setting up data to be fetched from schedule model
         schedule = validated_data.get("schedule")
@@ -44,7 +44,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         # * CandidateExam bulk create
         bulk_create_instances_list = []
         for one_instance in candidates_instances:
-            bulk_create_instances_list.append(CandidateExam(candidate=one_instance, candidate_email=one_instance.email, **validated_data))
+            bulk_create_instances_list.append(CandidateExam(candidate=one_instance, candidate_email=one_instance.email, **validated_data))  # type: ignore
 
         for one_candidate_email in candidates:
             if one_candidate_email not in email_in_candidate_instances:

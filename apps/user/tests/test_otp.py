@@ -52,7 +52,7 @@ class OTPTest(OTPUnitTest):
             "date_of_birth": "1995-07-27",
             "phone": "+9323346489529",
         }
-        user_id = RegisterUnitTest.do_register(self, json.dumps(test_user)).data["id"]
+        user_id = RegisterUnitTest.do_register(self, json.dumps(test_user)).data["id"]  # type: ignore
 
         # * Test functions are being called here
         self.failed_test_verification_otp_not_valid()
@@ -79,7 +79,7 @@ class OTPTest(OTPUnitTest):
         validate_success_200_test_response(self, response)
 
     def successfull_test_verification_otp(self, user_id):
-        otp = UserUnitTest.do_get_one_user(self, user_id)["otp"]
+        otp = UserUnitTest.do_get_one_user(self, user_id)["otp"]  # type: ignore
         request_data = {
             "email": "register_test@gmail.com",
             "otp": otp,

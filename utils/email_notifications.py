@@ -92,4 +92,4 @@ class EmailNotification:
         self.from_email = config("SYSTEM_EMAIL")
         email_body = ""
 
-        return send_email_notification_to_list(subject, email_body, html_content, self.to_email_list, self.from_email, True)
+        return send_email_notification_to_list(subject, email_body, html_content, self.to_email_list, self.from_email, True)  # type: ignore

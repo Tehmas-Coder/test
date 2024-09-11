@@ -1,11 +1,12 @@
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class LanguageUnitTest(TestSetUp):
@@ -19,14 +20,14 @@ class LanguageUnitTest(TestSetUp):
         url = "/api/languages/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_language(self, language_id):
         print_test_header("get_one_language")
         url = f"/api/languages/{language_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
 
 class LanguageTest(LanguageUnitTest):

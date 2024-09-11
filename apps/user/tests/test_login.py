@@ -46,7 +46,7 @@ class LoginTest(LoginUnitTest):
 
     def test_cases_login(self):
         # * User is registered here for all login test functions
-        RegisterUnitTest.do_register(self, json.dumps(self.test_user))
+        RegisterUnitTest.do_register(self, json.dumps(self.test_user))  # type: ignore
 
         # * Test functions are being called here
         self.failed_login_user_doesnot_exists()

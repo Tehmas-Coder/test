@@ -28,21 +28,21 @@ class ScheduleUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_schedule_list(self):
         print_test_header("get_schedule_list")
         url = "/api/schedules/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_schedule(self, schedule_id):
         print_test_header("get_one_schedule")
         url = f"/api/schedules/{schedule_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_schedule(self, schedule_id, request_body):
         print_test_header("update_schedule")
@@ -54,7 +54,7 @@ class ScheduleUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_schedule(self, schedule_id):
         print_test_header("delete_schedule")

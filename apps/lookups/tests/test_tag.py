@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class TagUnitTest(TestSetUp):
@@ -26,21 +28,21 @@ class TagUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_tag_list(self):
         print_test_header("get_tag_list")
         url = "/api/tags/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_tag(self, tag_id):
         print_test_header("get_one_tag")
         url = f"/api/tags/{tag_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_tag(self, tag_id, request_body):
         print_test_header("update_tag")
@@ -52,7 +54,7 @@ class TagUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_tag(self, tag_id):
         print_test_header("delete_tag")
@@ -97,9 +99,7 @@ class TagTest(TagUnitTest):
         json_data = self.do_get_tag_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_tag_model
-            ) in self.list_of_fields_of_tag_model:
+            for one_value_from_list_of_fields_of_tag_model in self.list_of_fields_of_tag_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_tag_model,
                     test_dict,
@@ -122,9 +122,7 @@ class TagTest(TagUnitTest):
         updated_request_body["name"] = "Logical modified"
         updated_request_body["code"] = "LGCM"
         updated_request_body["abbreviation"] = "LGCM"
-        updated_response_json_data = self.do_update_one_tag(
-            test_record_id, json.dumps(updated_request_body)
-        )
+        updated_response_json_data = self.do_update_one_tag(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             self.assertEqual(updated_response_json_data[key], updated_request_body[key])

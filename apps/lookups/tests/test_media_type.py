@@ -1,11 +1,12 @@
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class MediaTypeUnitTest(TestSetUp):
@@ -19,14 +20,14 @@ class MediaTypeUnitTest(TestSetUp):
         url = "/api/media-types/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_media_type(self, media_type_id):
         print_test_header("get_one_media_type")
         url = f"/api/media-types/{media_type_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
 
 class MediaTypeTest(MediaTypeUnitTest):

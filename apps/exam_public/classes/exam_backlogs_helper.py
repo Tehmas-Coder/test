@@ -58,10 +58,17 @@ class ExamBacklogs:
             # * Creating Sections Backlogs
             section_id = section_dict.pop("id")
             measuring_unit_id = section_dict.pop("measuring_unit")
-            created_by = section_dict.pop('created_by')
-            updated_by = section_dict.pop('updated_by')
+            created_by = section_dict.pop("created_by")
+            updated_by = section_dict.pop("updated_by")
             bulk_create_section_backlog_instances_list.append(
-                SectionBacklog(section_id=section_id, measuring_unit_id=measuring_unit_id, exam_backlog_id=self.exam_backlog_id, **section_dict, created_by_id=created_by, updated_by_id=updated_by )
+                SectionBacklog(
+                    section_id=section_id,
+                    measuring_unit_id=measuring_unit_id,
+                    exam_backlog_id=self.exam_backlog_id,
+                    **section_dict,
+                    created_by_id=created_by,
+                    updated_by_id=updated_by,
+                )
             )
 
         # * Bulk creating the sections Backlog
@@ -85,15 +92,17 @@ class ExamBacklogs:
             subsection_id = subsection_dict.pop("id")
             section_id = self.section_backlog_ids_hashmap[subsection_dict.pop("section")]
             measuring_unit_id = subsection_dict.pop("measuring_unit")
-            created_by = subsection_dict.pop('created_by')
-            updated_by = subsection_dict.pop('updated_by')
+            created_by = subsection_dict.pop("created_by")
+            updated_by = subsection_dict.pop("updated_by")
             bulk_create_subsection_backlog_instances_list.append(
                 SubSectionBacklog(
                     section_id=section_id,
                     subsection_id=subsection_id,
                     measuring_unit_id=measuring_unit_id,
                     exam_backlog_id=self.exam_backlog_id,
-                    **subsection_dict, created_by_id=created_by, updated_by_id=updated_by
+                    **subsection_dict,
+                    created_by_id=created_by,
+                    updated_by_id=updated_by,
                 )
             )
 
@@ -145,8 +154,8 @@ class ExamBacklogs:
                     subsection_backlog_id=(
                         int(self.subsection_backlog_ids_hashmap[one_exam_question["subsection"]]) if one_exam_question["subsection"] else None
                     ),
-                    created_by_id=question_data['created_by'],
-                    updated_by_id=question_data['updated_by']
+                    created_by_id=question_data["created_by"],
+                    updated_by_id=question_data["updated_by"],
                 )
             )
         # * Bulk Create Questions
