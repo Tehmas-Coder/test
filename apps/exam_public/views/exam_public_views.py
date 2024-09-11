@@ -53,6 +53,7 @@ from utils.rna_utils import (
     make_error_response,
     remove_extra_underscore_from_key_names,
 )
+from apps.organization.models.organization_models import OrganizationUser
 
 # --------------------------------- CANDIDATE -------------------------------- #
 
@@ -392,7 +393,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
             token_data = encrypted_data.decode("utf-8")
             token_data = f"{token_data}"
-            url = config("PUBLIC_FE_URL")
+            url = config("QB_PUBLIC_FE_URL")
             final_url = f"{url}exam/get?token={token_data}"
             send_email_data_dict = send_email_data_dict = {
                 "first_name": one_candidate_detail["first_name"] or "",
