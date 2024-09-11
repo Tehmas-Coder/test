@@ -90,7 +90,7 @@ class UserTest(UserUnitTest):
     def successfull_creation_of_a_record_test(self):
         response = self.do_create_user(json.dumps(self.reuseable_request_body))
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def failed_creation_of_a_duplicate_record_test(self):
         response = self.do_create_user(self.reuseable_request_body)

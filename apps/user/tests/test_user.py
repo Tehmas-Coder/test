@@ -46,14 +46,14 @@ class UserUnitTest(TestSetUp):
         url = "/api/users/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_user(self, id):
         print_test_header("get_one_user")
         url = f"/api/users/{id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_user(self, id, request_body):
         print_test_header("update_user")
@@ -64,7 +64,7 @@ class UserUnitTest(TestSetUp):
             data=request_body,
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
 
 class UserTest(UserUnitTest):
@@ -119,7 +119,7 @@ class UserTest(UserUnitTest):
         # ------------------------ User Creation By SuperUser ------------------------ #
         response = self.do_create_user(json.dumps(self.reuseable_request_body))
         color_print("## => Testing User Creation by SuperUser")
-        json_data = response.data["data"]
+        json_data = response.data["data"]  # type: ignore
         for one_field in self.list_of_fields_of_user_model:
             self.assertIn(one_field, json_data)
         for key in self.reuseable_request_body:
@@ -141,7 +141,7 @@ class UserTest(UserUnitTest):
         request_body_for_organization_candidate["email"] = "sheryarbaloch57@gmail.com"
         response = self.do_create_user(json.dumps(request_body_for_organization_candidate))
         color_print("## => Testing Candidate User Creation by OrganizationUser")
-        json_data = response.data["data"]
+        json_data = response.data["data"]  # type: ignore
         for one_field in self.list_of_fields_of_user_model:
             self.assertIn(one_field, json_data)
         for key in request_body_for_organization_candidate:
@@ -153,8 +153,8 @@ class UserTest(UserUnitTest):
             self.assertEqual(json_data[key], request_body_for_organization_candidate[key])
         validate_success_201_test_response(self, response)
         if json_data["roles"][0]["name"].lower() == "candidate":
-            user_organization = OrganizationUser.objects.filter(user_id=self.user.id).values("organization").first()
-            candidate_instance = Candidate.objects.filter(user_id=json_data["id"], organization_id=user_organization["organization"]).first()
+            user_organization = OrganizationUser.objects.filter(user_id=self.user.id).values("organization").first()  # type: ignore
+            candidate_instance = Candidate.objects.filter(user_id=json_data["id"], organization_id=user_organization["organization"]).first()  # type: ignore
             if not candidate_instance:
                 color_print("Failed: User created but Candidate not created", "red")
 
@@ -164,7 +164,7 @@ class UserTest(UserUnitTest):
         request_body_for_organization_user["role"] = 2
         response = self.do_create_user(json.dumps(request_body_for_organization_user))
         color_print("## => Testing Organization Worker Creation by OrganizationUser")
-        json_data = response.data["data"]
+        json_data = response.data["data"]  # type: ignore
         for one_field in self.list_of_fields_of_user_model:
             self.assertIn(one_field, json_data)
         for key in request_body_for_organization_user:
@@ -176,9 +176,9 @@ class UserTest(UserUnitTest):
             self.assertEqual(json_data[key], request_body_for_organization_user[key])
         validate_success_201_test_response(self, response)
         if json_data["roles"][0]["name"].lower() != "candidate":
-            user_organization = OrganizationUser.objects.filter(user_id=self.user.id).values("organization").first()
+            user_organization = OrganizationUser.objects.filter(user_id=self.user.id).values("organization").first()  # type: ignore
             orgainzation_user_instance = OrganizationUser.objects.filter(
-                user_id=json_data["id"], organization_id=user_organization["organization"]
+                user_id=json_data["id"], organization_id=user_organization["organization"]  # type: ignore
             ).first()
             if not orgainzation_user_instance:
                 color_print("Failed: User created but OrganizationUser not created", "red")

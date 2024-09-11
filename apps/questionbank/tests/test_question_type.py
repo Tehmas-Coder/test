@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class QuestionTypeUnitTest(TestSetUp):
@@ -22,14 +24,14 @@ class QuestionTypeUnitTest(TestSetUp):
         url = "/api/question-types/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_question_type(self, question_type_id):
         print_test_header("get_one_question_type")
         url = f"/api/question-types/{question_type_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
 
 class QuestionTypeTest(QuestionTypeUnitTest):
@@ -51,9 +53,7 @@ class QuestionTypeTest(QuestionTypeUnitTest):
         json_data = self.do_get_question_type_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_question_type_model
-            ) in self.list_of_fields_of_question_type_model:
+            for one_value_from_list_of_fields_of_question_type_model in self.list_of_fields_of_question_type_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_question_type_model,
                     test_dict,
@@ -69,9 +69,7 @@ class QuestionTypeTest(QuestionTypeUnitTest):
             test_question_type_id,
             f"The field id ({json_data['id']} is not equal to id ({test_question_type_id}) )",
         )
-        for (
-            one_value_from_list_of_fields_of_question_type_model
-        ) in self.list_of_fields_of_question_type_model:
+        for one_value_from_list_of_fields_of_question_type_model in self.list_of_fields_of_question_type_model:
             self.assertIn(
                 one_value_from_list_of_fields_of_question_type_model,
                 json_data,

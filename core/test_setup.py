@@ -51,5 +51,5 @@ class TestSetUp(APITestCase):
         response = self.client.post(url, data=json.dumps(login_request_data), content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.headers["Authorization"] = f"Bearer {response.data['access']}"
-        self.tokens = response.data["refresh"]
+        self.headers["Authorization"] = f"Bearer {response.data['access']}"  # type: ignore
+        self.tokens = response.data["refresh"]  # type: ignore

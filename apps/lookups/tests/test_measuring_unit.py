@@ -1,11 +1,12 @@
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class MeasuringUnitUnitTest(TestSetUp):
@@ -19,14 +20,14 @@ class MeasuringUnitUnitTest(TestSetUp):
         url = "/api/measuring-units/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_measuring_unit(self, measuring_unit_id):
         print_test_header("get_one_measuring_unit")
         url = f"/api/measuring-units/{measuring_unit_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
 
 class MeasuringUnitTest(MeasuringUnitUnitTest):
@@ -35,9 +36,7 @@ class MeasuringUnitTest(MeasuringUnitUnitTest):
     # ?###################################################
     def test_cases_measuring_unit(self):
         measuring_units_list = self.successfull_measuring_units_list_get_test()
-        self.successfull_get_one_measuring_unit_from_measuring_unit_list(
-            measuring_units_list
-        )
+        self.successfull_get_one_measuring_unit_from_measuring_unit_list(measuring_units_list)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS
@@ -52,9 +51,7 @@ class MeasuringUnitTest(MeasuringUnitUnitTest):
             self.assertIn("abbreviation", one_dict)
         return json_data
 
-    def successfull_get_one_measuring_unit_from_measuring_unit_list(
-        self, measuring_units_list
-    ):
+    def successfull_get_one_measuring_unit_from_measuring_unit_list(self, measuring_units_list):
         json_data = measuring_units_list
         test_measuring_unit_id = json_data[len(json_data) - 1]["id"]
         json_data = self.do_get_one_measuring_unit(test_measuring_unit_id)

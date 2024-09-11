@@ -28,21 +28,21 @@ class ExamUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_exam_list(self):
         print_test_header("get_exam_list")
         url = "/api/exams/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data["results"]  # type: ignore
 
     def do_get_one_exam(self, exam_id):
         print_test_header("get_one_exam")
         url = f"/api/exams/{exam_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_exam(self, exam_id, request_body):
         print_test_header("update_exam")
@@ -54,7 +54,7 @@ class ExamUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_exam(self, exam_id):
         print_test_header("delete_exam")

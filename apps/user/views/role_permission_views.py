@@ -36,7 +36,7 @@ class RoleViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         new_role_data = super().create(request, *args, **kwargs)
 
-        new_role_id = new_role_data.data["id"]
+        new_role_id = new_role_data.data["id"]  # type: ignore
         permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
 
         new_role_instance = Role.objects.prefetch_related("permissions").get(pk=new_role_id)
@@ -113,7 +113,7 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request_data = request.data
         role = Role.objects.filter(id=request_data["role"]).first()
-        role.permissions.set(request_data["permissions"])
+        role.permissions.set(request_data["permissions"])  # type: ignore
 
         return Response({"message": "Permissions set successfully"}, status=status.HTTP_201_CREATED)
 
@@ -151,8 +151,8 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def delete_role_with_permissions(self, request, *args, **kwargs):
-        if (not request.user.is_superuser) and len(self.request.user.roles.all()):
-            request_user_role = self.request.user.roles.first()
+        if (not request.user.is_superuser) and len(self.request.user.roles.all()):  # type: ignore
+            request_user_role = self.request.user.roles.first()  # type: ignore
             if request_user_role.name.lower() == "system":  # make it system
                 role_slug = request.data.get("role")
                 role_instance = Role.objects.filter(slug=role_slug).first()

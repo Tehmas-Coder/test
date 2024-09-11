@@ -69,6 +69,6 @@ class QuestionMediaBulkCreateSerializer(BaseModelSerializer):
 
         created_question_media_instances = QuestionMedia.objects.all().order_by("-id")[: len(question_media_instances)]
 
-        created_question_media_instances = sorted(created_question_media_instances, key=lambda instance: instance.id)
+        created_question_media_instances = sorted(created_question_media_instances, key=lambda instance: instance.id)  # type: ignore
 
         return created_question_media_instances

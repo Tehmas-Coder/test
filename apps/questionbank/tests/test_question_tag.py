@@ -1,11 +1,12 @@
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class QuestionTagUnitTest(TestSetUp):
@@ -27,7 +28,7 @@ class QuestionTagUnitTest(TestSetUp):
             data=request_body,
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_question_tag(self, question_tag_id):
         print_test_header("delete_question_tag")

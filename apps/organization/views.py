@@ -99,7 +99,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
         organization_queryset = Organization.objects.filter(id=organization_id)
 
         filtered_organization_queryset = []
-        if logged_in_user.is_superuser:
+        if logged_in_user.is_superuser:  # type: ignore
             filtered_organization_queryset = organization_queryset
         else:
             filtered_organization_queryset = organization_queryset.filter(id=organization_id)
@@ -120,7 +120,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             many=True,
         ).data
 
-        if logged_in_user.is_superuser == None:
+        if logged_in_user.is_superuser == None:  # type: ignore
             if not len(organization_with_candidates_list):
                 return Response([], status=status.HTTP_200_OK)
             return Response(organization_with_candidates_list[0], status=status.HTTP_200_OK)
@@ -130,7 +130,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
     def get_candidate_organizations_list(self, request, *args, **kwargs):
 
         filtered_candidate_queryset = CandidateWithOrganizationsSerializer(
-            BaseUser.objects.filter(id=self.request.user.id).prefetch_related("user_candidates"), many=True
+            BaseUser.objects.filter(id=self.request.user.id).prefetch_related("user_candidates"), many=True  # type: ignore
         ).data
         filtered_candidate_queryset_response = {}
         if len(filtered_candidate_queryset):
@@ -142,7 +142,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
 
         user_organization_detail = list(
             (
-                OrganizationUser.objects.filter(user_id=self.request.user.id)
+                OrganizationUser.objects.filter(user_id=request.user.id)
                 .select_related(
                     "organization",
                     "organization__country",

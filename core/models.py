@@ -71,9 +71,9 @@ class BaseModel(models.Model):
 
         super().save(*args, **kwargs)
 
-    @property
-    def is_active(self) -> bool:
-        return self.meta_status == "active"
+    # @property
+    # def is_active(self) -> bool:
+    #     return self.meta_status == "active"
 
     @property
     def is_inactive(self) -> bool:

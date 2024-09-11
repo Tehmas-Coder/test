@@ -93,7 +93,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 else:
                     OrganizationUser.objects.create(
                         user_id=user_instance.id,
-                        organization_id=user_organization_id["organization"],
+                        organization_id=user_organization_id["organization"],  # type: ignore
                     )
 
         key = get_encryption_key()
@@ -146,7 +146,7 @@ class UserViewSet(viewsets.ModelViewSet):
             media_serializer = MediaSerializer(data={"file": profile_picture})
             media_serializer.is_valid()
             media_serializer.save()
-            media_id = media_serializer.data["id"]
+            media_id = media_serializer.data["id"]  # type: ignore
             request.data["profile_picture"] = media_id
 
         res = super().partial_update(request, *args, **kwargs)
@@ -158,7 +158,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="restore")
     def restore(self, request, *args, **kwargs):
-        instance = self.get_object(id=kwargs.get("pk"))
+        instance = self.get_object(id=kwargs.get("pk"))  # type: ignore
         if not instance:
             return Response(self.USER_NOT_FOUND, status=404)
         instance.activate()
@@ -295,9 +295,9 @@ class ForSytemUserAPI(viewsets.ViewSet):
     @transaction.atomic
     def system_user_create(self, request, *args, **kwargs):
         logged_in_user = self.request.user
-        logged_in_user_id = logged_in_user.id
+        logged_in_user_id = logged_in_user.id  # type: ignore
 
-        logged_in_user_role_data = logged_in_user.roles.values("id", "name").first()
+        logged_in_user_role_data = logged_in_user.roles.values("id", "name").first()  # type: ignore
         logged_in_user_role_id = logged_in_user_role_data["id"]
         logged_in_user_role_name = logged_in_user_role_data["name"]
 
@@ -316,9 +316,9 @@ class ForSytemUserAPI(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        logged_in_user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user_id).values("organization").first()["organization"]
+        logged_in_user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user_id).values("organization").first()["organization"]  # type: ignore
 
-        created_user_role_id = Role.objects.filter(slug=request_data[0]["Slug"], name=request_data[0]["RoleName"]).values("id").first()["id"]
+        created_user_role_id = Role.objects.filter(slug=request_data[0]["Slug"], name=request_data[0]["RoleName"]).values("id").first()["id"]  # type: ignore
         for one_user in request_data:
             email = one_user["Email"]
             if not BaseUser.objects.filter(email=email).exists():
