@@ -48,6 +48,7 @@ class ExamBacklogQuestion(BaseModel):
 
     can_shuffle = models.BooleanField(default=False)
     is_optional = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False)
     is_global = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
 

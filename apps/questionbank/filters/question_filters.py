@@ -57,5 +57,5 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
             is_optional = int(is_optional)
             q_filter &= Q(subjects__is_optional=is_optional)
 
-        # ? Here i have removed .distinct() from the below queryset as it gets unique questions but we want if a question exist multiple times it must be in different subjects or in same subject but from different education level so we have removed distinct
+        # ? Here i have removed .distinct() from the below queryset as it gets unique questions but we want if a question exist multiple times it must be in different subjects or in same subject but from different education level
         return queryset.filter(q_filter).distinct()

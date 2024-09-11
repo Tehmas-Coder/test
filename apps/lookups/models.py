@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db import models
+
 from core.models import BaseUserModel
 
 
@@ -171,6 +172,19 @@ class MediaType(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
+
+    class Meta:
+        app_label = "lookups"
+
+
+class Package(BaseUserModel):
+    name = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=255, null=True, blank=True)
+    users = models.PositiveIntegerField()
+    questions = models.PositiveIntegerField()
+    exams = models.PositiveIntegerField()
+    prep_exams = models.PositiveIntegerField()
+    exam_attempts = models.PositiveIntegerField()
 
     class Meta:
         app_label = "lookups"

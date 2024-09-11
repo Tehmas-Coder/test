@@ -136,7 +136,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         # * Creating Backlogs for Exam
         exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
-        exam_backlogs = ExamBacklogs(exam_data=exam_data)
+        exam_backlogs = ExamBacklogs(exam_data=exam_data)  # type:ignore
         exambacklog_id = exam_backlogs.create_backlogs()
 
         # * Assigning Exam to Candidates
@@ -161,25 +161,27 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
         logged_in_user = self.request.user
-        logged_in_user_id = logged_in_user.id
+        logged_in_user_id = logged_in_user.id  # type:ignore
+
+        candidate_exam_id = self.kwargs["pk"]
+        try:
+            candidate_exam_id = int(candidate_exam_id)
+        except:
+            token = candidate_exam_id[len("token=") :]
+            key = get_encryption_key()
+            cipher = Fernet(key)
+            decrypted_data = json.loads(cipher.decrypt(token).decode())
+            candidate_exam_id = decrypted_data["candidate_exam_id"]
 
         # * IF ROLES ARE ( Organization Roles and Candidate )
-        logged_in_user_roles = logged_in_user.roles.all()
+        logged_in_user_roles = logged_in_user.roles.all()  # type:ignore
         if len(logged_in_user_roles):
             logged_in_user_role_name = logged_in_user_roles.values("name").first()["name"]
             if logged_in_user_role_name.lower() == "candidate":
                 candidate_exam_filter_data = {
-                    "id": self.kwargs["pk"],
+                    "id": candidate_exam_id,
                     "candidate__user__id": logged_in_user_id,
                 }
-
-                token = request.query_params.get("token")
-                if token != None:
-                    key = get_encryption_key()
-                    cipher = Fernet(key)
-                    decrypt_data = cipher.decrypt(token).decode()
-                    user_email = json.loads(decrypt_data)
-                    candidate_exam_filter_data["candidate__user__email"] = user_email["email"]
 
                 if not CandidateExam.objects.filter(**candidate_exam_filter_data).exists():
                     return Response(
@@ -191,7 +193,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                     )
 
         candidate_exam_data = (
-            CandidateExam.objects.filter(id=self.kwargs["pk"])
+            CandidateExam.objects.filter(id=candidate_exam_id)
             .annotate(country_id=F("candidate__user__country_id"))
             .values(
                 "country_id",
@@ -357,6 +359,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     def send_exam_link_to_users(self, request, *args, **kwargs):
+        logged_in_user = request.user
         candidate_exam_ids = request.data["candidate_exam_ids"]
         if not len(candidate_exam_ids):
             return Response({"message": "Candidate Exam ID's required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -372,17 +375,24 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 .values()
             )
         )
+        organization_id = None
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()["organization"]  # type:ignore
         for one_candidate_detail in candidate_exam_detail_queryset:
             key = get_encryption_key()
             cipher = Fernet(key)
-            candidate_Exam_id = one_candidate_detail["id"]
+            candidate_exam_id = one_candidate_detail["id"]
 
-            encryption_data = {"email": one_candidate_detail["candidate_email"]}
-            encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
+            data_to_encrypt = {
+                "email": one_candidate_detail["candidate_email"],
+                "candidate_exam_id": candidate_exam_id,
+                "organization_id": organization_id,
+            }
+            encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
 
-            token_data = encrypted_email.decode("utf-8")
-            token_data = f"{candidate_Exam_id}_{token_data}"
-            url = config("QB_PUBLIC_FE_URL")
+            token_data = encrypted_data.decode("utf-8")
+            token_data = f"{token_data}"
+            url = config("PUBLIC_FE_URL")
             final_url = f"{url}exam/get?token={token_data}"
             send_email_data_dict = send_email_data_dict = {
                 "first_name": one_candidate_detail["first_name"] or "",
@@ -448,7 +458,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         CandidateExamAnswer.objects.bulk_update(
             [
                 CandidateExamAnswer(
-                    id=one_candidate_exam_answer.id,
+                    id=one_candidate_exam_answer.id,  # type:ignore
                     is_correct=one_candidate_exam_answer.exam_backlog_question_choice.is_correct,
                     score=(
                         float(
@@ -553,7 +563,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         request_data = request.data["data"]
         request_data = json.loads(request_data)
 
-        # Extract media for answers
+        # * Extract media for answers
         answer_media_hashmap = {}
         for answer in request_data:
             exam_backlog_question_id = answer["exam_backlog_question"]
@@ -604,7 +614,6 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             exam_backlog_question_id = one_dict[1]
             if exam_backlog_question_id in answer_media_hashmap:
                 answer_media_hashmap[exam_backlog_question_id]["candidate_exam_answer"] = candidate_exam_answer_id
-                answer_media_hashmap
 
         for key, value in answer_media_hashmap.items():
             media_data = {"files": value["files"]}
@@ -652,7 +661,7 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
                 "question_backlog_title": question.title,
                 "correct_choices": ExamBacklogQuestionChoiceForKeySerializer(question.backlog_choices.all(), many=True).data,
             }
-            for question in exam_backlog.backlog_questions.all()
+            for question in exam_backlog.backlog_questions.all()  # type:ignore
             if question.backlog_choices.exists()
         ]
 

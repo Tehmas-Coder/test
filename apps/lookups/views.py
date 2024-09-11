@@ -6,6 +6,7 @@ from apps.lookups.models import (
     Language,
     MeasuringUnit,
     MediaType,
+    Package,
     Region,
     State,
     Timezone,
@@ -18,6 +19,7 @@ from apps.lookups.serializers.currency_serializers import CurrencySerializer
 from apps.lookups.serializers.language_serializers import LanguageSerializer
 from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
 from apps.lookups.serializers.media_type_serializers import MediaTypeSerializer
+from apps.lookups.serializers.package_serializers import PackageSerializer
 from apps.lookups.serializers.region_serializers import RegionDetailSerializer
 from apps.lookups.serializers.state_serializers import StateSerializer
 from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
@@ -94,3 +96,10 @@ class TagViewset(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
     queryset = Tag.objects.all()
+
+
+class PackageViewset(viewsets.ModelViewSet):
+    http_method_names = ["get", "post", "patch", "delete"]
+    serializer_class = PackageSerializer
+    pagination_class = None
+    queryset = Package.objects.all()

@@ -35,7 +35,14 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionSerializer,
 )
 from apps.exam_admin.utils.exam_utils import create_random_exam
+from apps.organization.models.organization_models import (
+    Organization,
+    OrganizationExam,
+    OrganizationPackage,
+    OrganizationUser,
+)
 from utils.rna_utils import (
+    make_error_response,
     make_success_response,
     remove_extra_underscore_from_key_names,
 )
@@ -123,12 +130,50 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = ExamEditSerializer(data=request.data)
+        # * Checking Package limit to create Exam for an Organization if the requested user is not superuser
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            if not organization_id:
+                return make_error_response(message=f"Failed: User doesn't belong to any organization")
+            organization = Organization.objects.get(id=organization_id)
+            # * Checking the usage of exams of Organization package
+            organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
+            if not (organization_package.exams <= organization_package.total_exams):  # type:ignore
+                return make_error_response(message=f"Failed: Your limit to create exams is reached")
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
+        # * Assigning Exam to Organization if the requested user is not superuser
+        if not request.user.is_superuser:
+            organization_package.exams = organization_package.exams + 1  # type:ignore
+            organization_package.save()  # type:ignore
+            organization.exams.add(exam.id)  # type:ignore
         response = ExamDetailSerializer(exam).data
         return Response(response, status=status.HTTP_201_CREATED)
 
+    def list(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_exam_ids = list(OrganizationExam.objects.filter(organization_id=organization_id).values_list("exam", flat=True))
+            self.queryset = self.queryset.filter(id__in=organization_exam_ids)
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        res = super().retrieve(request, *args, **kwargs)
+        if not request.user.is_superuser:
+            exam_id = res.data["id"]  # type:ignore
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_exam = OrganizationExam.objects.filter(organization_id=organization_id, exam_id=exam_id)
+            if not len(organization_exam):
+                return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
+        return res
+
     def partial_update(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            exam_id = self.kwargs["pk"]
+            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            organization_exam = OrganizationExam.objects.filter(organization_id=organization_id, exam_id=exam_id)
+            if not len(organization_exam):
+                return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
         instance = self.get_object()
         serializer = ExamEditSerializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -150,7 +195,7 @@ class ExamViewSet(viewsets.ModelViewSet):
             subject_count=subject_count,
             education_level_id=education_level_id,
         )
-        return make_success_response(exam, status=status.HTTP_201_CREATED)
+        return make_success_response(exam)
 
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
@@ -222,6 +267,6 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         request_data = {"update_list": request.data}
         serializer = ExamSubjectQuestionBulkUpdateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
-        exam_subject_questions = serializer.bulk_update_sequence(serializer.validated_data)  # type: ignore
+        exam_subject_questions = serializer.bulk_update_sequence(serializer.validated_data)  # type:ignore
         serializer = ExamSubjectQuestionSerializer(exam_subject_questions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
