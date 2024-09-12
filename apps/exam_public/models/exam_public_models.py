@@ -46,6 +46,15 @@ class CandidateExam(BaseModel):
         app_label = "exam_public"
 
 
+class CandidateExamStatusLog(BaseModel):
+    candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="status_logs")
+    exam_status = models.CharField(max_length=100)
+
+    class Meta:
+        app_label = "exam_public"
+        db_table = "exam_public_candidateexam_statuslog"
+
+
 class CandidateExamAnswer(BaseModel):
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="exam_answers")
     exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE, related_name="question_answers")
