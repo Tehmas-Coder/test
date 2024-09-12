@@ -47,19 +47,25 @@ class RoleViewSet(viewsets.ModelViewSet):
         return Response(new_role_permssion_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        self.queryset = Role.objects.all().prefetch_related(
-            Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
+        self.queryset = (
+            Role.objects.all()
+            .exclude(slug="system")
+            .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
         )
         request_user_role = request.user.roles.first()
 
         if request_user_role:
             if request_user_role.name.lower() == "system":
-                self.queryset = Role.objects.filter(is_system_role=True).prefetch_related(
-                    Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
+                self.queryset = (
+                    Role.objects.filter(is_system_role=True)
+                    .exclude(slug="system")
+                    .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
                 )
             else:
-                self.queryset = Role.objects.filter(is_system_role=False).prefetch_related(
-                    Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission"))
+                self.queryset = (
+                    Role.objects.filter(is_system_role=False)
+                    .exclude(slug="system")
+                    .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
                 )
 
         return super().list(request, *args, **kwargs)
