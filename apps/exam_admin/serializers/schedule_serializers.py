@@ -7,10 +7,9 @@ class ScheduleSerializer(BaseModelSerializer):
         model = Schedule
         fields = [
             "id",
-            "date",
             "title",
-            "start_time",
-            "end_time",
+            "start_datetime",
+            "end_datetime",
             "waiting_duration",
             "extra_duration",
         ] + get_base_model_fields()
