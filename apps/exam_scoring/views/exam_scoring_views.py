@@ -1,4 +1,4 @@
-from django.db.models import Q, Sum
+from django.db.models import F, Q, Sum
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
@@ -19,7 +19,11 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         if candidate_exam_id is None:
             return make_error_response(message="Candidate Exam id is required")
 
-        candidate_exam_retry_hints_queryset = list(CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id).values())
+        candidate_exam_retry_hints_queryset = list(
+            CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id)
+            .annotate(question_total_marks=F("exam_backlog_question__total_marks"))
+            .values()
+        )
         request_data = request.data.get("questions_scores", None)
         if request_data is None:
             return make_error_response(message="Questions scores are required")
@@ -42,12 +46,14 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             question_answer_ids_hashmap[exam_backlog_question_id] = answer_id
 
         # * Loop through all instances of candidate exam retry hints, checks if the question id there matches with the question id of hashmap, then loop through request and matches the answer id, if it is present then it increments the penalty score by the penalty score set by question
-        for one_dict in candidate_exam_retry_hints_queryset:
-            question_id = one_dict["exam_backlog_question_id"]
+        for one_candidate_exam_retry_hint in candidate_exam_retry_hints_queryset:
+            question_id = one_candidate_exam_retry_hint["exam_backlog_question_id"]
             if question_id in question_answer_ids_hashmap:
                 for one_request_dict in request_data:
                     if one_request_dict["candidate_exam_answer"] == question_answer_ids_hashmap[question_id]:
-                        one_request_dict["penalty_score"] = one_request_dict["penalty_score"] + one_dict["penalty_score"]
+                        one_request_dict["penalty_score"] = one_request_dict["penalty_score"] + (
+                            (one_candidate_exam_retry_hint["penalty_score"] / 100) * one_candidate_exam_retry_hint["question_total_marks"]
+                        )
 
         # * Bulk Update the scores in Answer Table records
         CandidateExamAnswer.objects.bulk_update(
