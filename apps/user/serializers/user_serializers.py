@@ -10,6 +10,7 @@ from apps.user.serializers.role_permission_serializers import (
     RoleSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -114,8 +115,11 @@ class UserEditSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         validated_data.pop("email", None)
         password = validated_data.pop("password", None)
+        role = self.initial_data.get("role", None)  # type: ignore
         if password:
             instance.set_password(password)
+        if role:
+            instance.roles.set(role)
         instance.save()
         return super().update(instance, validated_data)
 
