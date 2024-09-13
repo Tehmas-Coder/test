@@ -67,11 +67,26 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             ],
             fields=["score", "is_correct"],
         )
-        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="marked")
-        return Response({"message": "Exam questions marked successfully"}, status=status.HTTP_200_OK)
 
-    # -------------------------- Candidate Exam Scoring -------------------------- #
+        # ---------------------------------- SCORING --------------------------------- #
 
+        # * Sum up all the scores
+        all_scores_sum = (
+            CandidateExamAnswer.objects.filter(
+                candidate_exam_id=candidate_exam_id,
+            )
+            .filter(Q(score__isnull=False))
+            .aggregate(total_score=Sum("score"))["total_score"]
+        )
+
+        # * Update obtained marks with the sum of scores and exam_status
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id)
+        candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
+        return Response({"message": "Exam questions marked and scored successfully"}, status=status.HTTP_200_OK)
+
+    # * -------------------------- Candidate Exam Scoring -------------------------- #
+
+    # ! This API code is moved to the end of Exam marking API, so this API will be modified to show the scoresheet
     def candidate_exam_scoring(self, request, *args, **kwargs):
         candidate_exam_id = request.data.get("candidate_exam_id", None)
         if candidate_exam_id is None:
@@ -85,6 +100,5 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             .filter(Q(score__isnull=False))
             .aggregate(total_score=Sum("score"))["total_score"]
         )
-        # * Update obtained marks with the sum of scores
         CandidateExam.objects.filter(id=candidate_exam_id).update(obtained_marks=all_scores_sum, exam_status="scored")
         return Response({"message": "Exam scored successfully"}, status=status.HTTP_200_OK)

@@ -67,6 +67,7 @@ class CandidateExamAnswer(BaseModel):
     score = models.FloatField(blank=True, null=True)
     seconds_taken = models.IntegerField(default=0)
 
+    is_attempted = models.BooleanField(default=True)
     is_correct = models.BooleanField(default=False)
 
     class Meta:
