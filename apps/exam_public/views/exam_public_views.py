@@ -488,6 +488,51 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             fields=["is_correct", "score"],
         )
 
+        # * Creating Candidate Exam Answer transactions with score set to 0 for questions which are not even attempted.
+
+        candidate_exam_data = (
+            CandidateExam.objects.filter(id=candidate_exam_id)
+            .annotate(country_id=F("candidate__user__country_id"))
+            .values(
+                "country_id",
+                "exam_backlog",
+            )
+            .first()
+        )
+
+        exam_question_backlog = list(
+            ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")  # type:ignore
+        )
+        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
+
+        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
+        is_not_global_exam_question_backlog_ids_list: list = list(
+            ExamBacklogQuestionCountry.objects.filter(
+                exam_backlog_question_id__in=exam_question_backlog_ids,
+                country_id=candidate_exam_data["country_id"],  # type:ignore
+            ).values_list("exam_backlog_question", flat=True)
+        )
+        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
+
+        candidate_exam_answers_question_ids_list = list(
+            CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id).values_list("exam_backlog_question", flat=True)
+        )
+
+        unattempted_question_ids_list = list(set(set(final_user_backlog_question_ids_list) - set(candidate_exam_answers_question_ids_list)))
+
+        CandidateExamAnswer.objects.bulk_create(
+            [
+                CandidateExamAnswer(
+                    candidate_exam_id=candidate_exam_id,
+                    exam_backlog_question_id=one_question_id,
+                    is_attempted=False,
+                    score=0,
+                )
+                for one_question_id in unattempted_question_ids_list
+            ]
+        )
+
+        # * Updating the exam status to submitted
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="submitted")
 
         return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
@@ -553,6 +598,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
                         else None
                     ),
                     answer_text=one_dict.get("answer_text", None),
+                    is_attempted=True,
                 )
                 for one_dict in request_data
             ]
