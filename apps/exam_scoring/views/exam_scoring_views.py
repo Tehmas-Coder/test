@@ -71,17 +71,16 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         # ---------------------------------- SCORING --------------------------------- #
 
         # * Sum up all the scores
-        all_scores_sum = (
-            CandidateExamAnswer.objects.filter(
-                candidate_exam_id=candidate_exam_id,
-            )
-            .filter(Q(score__isnull=False))
-            .aggregate(total_score=Sum("score"))["total_score"]
-        )
+        candidate_exam_answer_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id)
+        scored_candidate_exam_answer_queryset = candidate_exam_answer_queryset.filter(Q(score__isnull=False)).aggregate(total_score=Sum("score"))
+        all_scores_sum = scored_candidate_exam_answer_queryset["total_score"]
 
-        # * Update obtained marks with the sum of scores and exam_status
+        # * Update obtained marks with the sum of scores and exam_status = scored if none of the questions left to mark otherwise set the status to marked
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id)
-        candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
+        if len(candidate_exam_answer_queryset) == len(scored_candidate_exam_answer_queryset):
+            candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="scored")
+        else:
+            candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
         return Response({"message": "Exam questions marked and scored successfully"}, status=status.HTTP_200_OK)
 
     # * -------------------------- Candidate Exam Scoring -------------------------- #
