@@ -80,7 +80,14 @@ class UserViewSet(viewsets.ModelViewSet):
         # * USER CREATED BY SUPER USER
         if logged_in_user.is_superuser == True:
             if request_user_role_name.lower() == "candidate":
-                Candidate.objects.create(user_id=user_instance.id)
+                organization = request.data.get("organization", None)
+                Candidate.objects.create(user_id=user_instance.id, organization_id=organization)
+            else:
+                organization = request.data.get("organization", None)
+                if organization is None:
+                    transaction.set_rollback(True)
+                    return make_error_response(message="Organization must be provided in order to create a user")
+                OrganizationUser.objects.create(user=user_instance, organization_id=organization)
 
         # * USER CREATED BY ORGANIZATION USER
         else:

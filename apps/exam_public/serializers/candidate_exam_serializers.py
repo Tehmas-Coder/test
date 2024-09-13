@@ -20,6 +20,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             "id",
             "candidates",
             "exam_backlog",
+            "exam_duration",
             "schedule",
             "is_preparatory",
         ] + get_base_model_fields()
@@ -33,9 +34,8 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         # * Setting up data to be fetched from schedule model
         schedule = validated_data.get("schedule")
         related_data_for_creation = {
-            "date": schedule.date,
-            "start_time": schedule.start_time,
-            "end_time": schedule.end_time,
+            "start_datetime": schedule.start_datetime,
+            "end_datetime": schedule.end_datetime,
             "waiting_duration": schedule.waiting_duration,
             "extra_duration": schedule.extra_duration,
         }
@@ -68,10 +68,10 @@ class CandidateExamListSerializer(BaseModelSerializer):
             "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
+            "exam_duration",
             "schedule",
-            "date",
-            "start_time",
-            "end_time",
+            "start_datetime",
+            "end_datetime",
             "waiting_duration",
             "extra_duration",
         ] + get_base_model_fields()
@@ -90,10 +90,10 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
+            "exam_duration",
             "schedule",
-            "date",
-            "start_time",
-            "end_time",
+            "start_datetime",
+            "end_datetime",
             "waiting_duration",
             "extra_duration",
         ] + get_base_model_fields()
@@ -143,10 +143,10 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
             "is_preparatory",
             "total_obtainable_marks",
             "obtained_marks",
+            "exam_duration",
             "schedule",
-            "date",
-            "start_time",
-            "end_time",
+            "start_datetime",
+            "end_datetime",
             "waiting_duration",
             "extra_duration",
         ] + get_base_model_fields()

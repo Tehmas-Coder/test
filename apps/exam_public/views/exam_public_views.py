@@ -45,6 +45,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
+from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
@@ -53,7 +54,6 @@ from utils.rna_utils import (
     make_error_response,
     remove_extra_underscore_from_key_names,
 )
-from apps.organization.models.organization_models import OrganizationUser
 
 # --------------------------------- CANDIDATE -------------------------------- #
 
@@ -400,9 +400,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 "last_name": one_candidate_detail["last_name"] or "",
                 "email": one_candidate_detail["candidate_email"],
                 "exam": one_candidate_detail["exam"],
-                "date": one_candidate_detail["date"].strftime("%Y-%m-%d"),
-                "start_time": one_candidate_detail["start_time"].strftime("%H:%M:%S"),
-                "end_time": one_candidate_detail["end_time"].strftime("%H:%M:%S"),
+                "exam_duration": one_candidate_detail.get("exam_duration", ""),
+                "start_datetime": one_candidate_detail.get("start_datetime", "").strftime("%Y-%m-%d %H:%M:%S"),
+                "end_datetime": one_candidate_detail.get("end_datetime", "").strftime("%Y-%m-%d %H:%M:%S"),
                 "url": final_url,
             }
             email_notification_ninja = EmailNotification(send_email_data_dict)

@@ -22,11 +22,11 @@ class CandidateExam(BaseModel):
     schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE)
     total_obtainable_marks = models.FloatField(null=True, blank=True)
     obtained_marks = models.FloatField(null=True, blank=True)
+    exam_duration = models.PositiveIntegerField(null=True)
 
     # ? To be filled from schedule
-    date = models.DateField(auto_now=False, auto_now_add=False)
-    start_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
+    start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
+    end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
     waiting_duration = models.PositiveIntegerField(null=True)
     extra_duration = models.PositiveIntegerField(null=True)
 
