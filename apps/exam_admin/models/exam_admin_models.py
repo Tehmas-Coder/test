@@ -77,6 +77,7 @@ class Exam(BaseModel):
 
     subjects = models.ManyToManyField("questionbank.SubjectEducationLevel", through="ExamSubject")
 
+    is_public = models.BooleanField(default=False)
     is_global = models.BooleanField(default=True)
 
     class Meta:
