@@ -490,6 +490,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         # * Creating Candidate Exam Answer transactions with score set to 0 for questions which are not even attempted.
 
+        # Fetching the total questions assigned to the candidate according to his country and global questions
         candidate_exam_data = (
             CandidateExam.objects.filter(id=candidate_exam_id)
             .annotate(country_id=F("candidate__user__country_id"))
@@ -520,6 +521,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         unattempted_question_ids_list = list(set(set(final_user_backlog_question_ids_list) - set(candidate_exam_answers_question_ids_list)))
 
+        # Creating instnaces for unattempted questions
         CandidateExamAnswer.objects.bulk_create(
             [
                 CandidateExamAnswer(
