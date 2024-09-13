@@ -508,8 +508,13 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
 
     def create(self, request, *args, **kwargs):
-        request_data = request.data["data"]
-        request_data = json.loads(request_data)
+        request_data = json.loads(request.data["data"])
+        candidate_exam_id = request_data.pop("candidate_exam")
+        request_data = request_data.pop("answers")
+
+        # * This is for the use case in which if the user haven't even attempted a single question and submitted that exam in that case the fron't end will request for the creation of candidate exama nswers but there will be none to store it will just pass the api.
+        if not len(request_data):
+            return Response(status=status.HTTP_201_CREATED)
 
         # * Extract media for answers
         answer_media_hashmap = {}
@@ -539,7 +544,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         CandidateExamAnswer.objects.bulk_create(
             [
                 CandidateExamAnswer(
-                    candidate_exam_id=one_dict["candidate_exam"],
+                    candidate_exam_id=candidate_exam_id,
                     exam_backlog_question_id=one_dict["exam_backlog_question"],
                     exam_backlog_question_choice_id=one_dict["exam_backlog_question_choice"],
                     exam_backlog_question_choice_title=(
@@ -557,7 +562,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
         )
 
-        CandidateExam.objects.filter(id=request_data[0]["candidate_exam"]).update(exam_status="attempted")
+        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
 
         for one_dict in newly_created_queryset:
             candidate_exam_answer_id = one_dict[0]
@@ -615,4 +620,5 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
             if question.backlog_choices.exists()
         ]
 
+        return Response(data=response_list, status=status.HTTP_200_OK)
         return Response(data=response_list, status=status.HTTP_200_OK)
