@@ -22,6 +22,7 @@ class CandidateExam(BaseModel):
     schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE)
     total_obtainable_marks = models.FloatField(null=True, blank=True)
     obtained_marks = models.FloatField(null=True, blank=True)
+    exam_duration = models.PositiveIntegerField(null=True)
 
     EXAM_STATUS_CHOICES = (
         ("assigned", "Assigned"),
@@ -34,9 +35,8 @@ class CandidateExam(BaseModel):
     exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
 
     # ? To be filled from schedule
-    date = models.DateField(auto_now=False, auto_now_add=False)
-    start_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
+    start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
+    end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
     waiting_duration = models.PositiveIntegerField(null=True)
     extra_duration = models.PositiveIntegerField(null=True)
 

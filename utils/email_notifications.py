@@ -76,9 +76,9 @@ class EmailNotification:
                 .replace("{last_name}", self.last_name)
                 .replace("{email}", self.user_email)
                 .replace("{exam}", self.send_email_data_dict["exam"])
-                .replace("{date}", self.send_email_data_dict["date"])
-                .replace("{start_time}", self.send_email_data_dict["start_time"])
-                .replace("{end_time}", self.send_email_data_dict["end_time"])
+                .replace("{exam_duration}", str(self.send_email_data_dict["exam_duration"]))
+                .replace("{start_datetime}", self.send_email_data_dict["start_datetime"])
+                .replace("{end_datetime}", self.send_email_data_dict["end_datetime"])
                 .replace("{URL}", self.send_email_data_dict["url"])
             )
         return html_content

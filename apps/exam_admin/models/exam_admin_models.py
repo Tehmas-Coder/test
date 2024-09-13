@@ -9,10 +9,9 @@ from core.models import BaseModel
 #                                  EXAM BASIC                                  #
 # ---------------------------------------------------------------------------- #
 class Schedule(BaseModel):
-    date = models.DateField(auto_now=False, auto_now_add=False)
     title = models.CharField(max_length=255, blank=True)
-    start_time = models.TimeField(auto_now=False, auto_now_add=False)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False)
+    start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
+    end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
     waiting_duration = models.PositiveIntegerField(null=True)
     extra_duration = models.PositiveIntegerField(null=True)
 
