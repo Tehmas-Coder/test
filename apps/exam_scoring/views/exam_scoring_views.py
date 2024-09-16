@@ -77,18 +77,6 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 
         # * Evaluating the score for sections and subsections
         # TODO: Not yet completed
-        # sections_candidate_exam_answers = candidate_exam_answer_queryset.filter(
-        #     Q(exam_backlog_question__section_backlog__isnull=False) & Q(exam_backlog_question__subsection_backlog__isnull=True)
-        # ).annotate(
-        #     section_backlog_id=F("exam_backlog_question__section_backlog"),
-        #     question_marks=F("exam_backlog_question__total_marks"),
-        # )
-        # subsections_candidate_exam_answers = candidate_exam_answer_queryset.filter(
-        #     Q(exam_backlog_question__subsection_backlog__isnull=False)
-        # ).annotate(
-        #     subsection_backlog_id=F("exam_backlog_question__subsection_backlog"),
-        #     question_marks=F("exam_backlog_question__total_marks"),
-        # )
         sections_and_subsections_candidate_exam_answers = candidate_exam_answer_queryset.filter(
             Q(exam_backlog_question__section_backlog__isnull=False)
         ).annotate(
@@ -96,6 +84,11 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             subsection_backlog_id=F("exam_backlog_question__subsection_backlog"),
             question_marks=F("exam_backlog_question__total_marks"),
         )
+
+        subsections_candidate_exam_answers = sections_and_subsections_candidate_exam_answers.filter(Q(subsection_backlog_id__isnull=False))
+
+        debug_print(sections_and_subsections_candidate_exam_answers)  # type: ignore
+        debug_print(subsections_candidate_exam_answers)  # type: ignore
 
         # * Update obtained marks with the sum of scores and exam_status = scored if none of the questions left to mark otherwise set the status to marked
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id)
