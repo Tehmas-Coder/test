@@ -669,4 +669,3 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
         ]
 
         return Response(data=response_list, status=status.HTTP_200_OK)
-        return Response(data=response_list, status=status.HTTP_200_OK)
