@@ -7,7 +7,11 @@ from apps.exam_public.models.exam_public_models import (
     CandidateExamAnswer,
     CandidateExamRetryhint,
 )
-from utils.rna_utils import debug_print, make_error_response
+from apps.exam_scoring.models.exam_score_models import (
+    CandidateExamSectionScore,
+    CandidateExamSubSectionScore,
+)
+from utils.rna_utils import color_print, debug_print, make_error_response
 
 
 class CandidateExamScoringViewset(viewsets.ViewSet):
@@ -70,33 +74,89 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 
         # ---------------------------------- SCORING --------------------------------- #
 
-        # * Sum up all the scores
+        # * Sum up scores of questions without sections and subsections in exam
         candidate_exam_answer_queryset = CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id)
-        scored_candidate_exam_answer_queryset = candidate_exam_answer_queryset.filter(Q(score__isnull=False)).aggregate(total_score=Sum("score"))
-        all_scores_sum = scored_candidate_exam_answer_queryset["total_score"]
+        # * Length of all the scored candidate exam answers
+        length_of_scored_candidate_exam_answers = len(candidate_exam_answer_queryset.filter(score__isnull=False))
+        # * Answer Queryset of only question directly present in exam
+        scored_candidate_exam_answer_queryset = candidate_exam_answer_queryset.filter(
+            score__isnull=False, exam_backlog_question__section_backlog__isnull=True
+        ).aggregate(total_score=Sum("score"))
+        exam_questions_scores_sum = scored_candidate_exam_answer_queryset["total_score"]
 
         # * Evaluating the score for sections and subsections
-        # TODO: Not yet completed
         sections_and_subsections_candidate_exam_answers = candidate_exam_answer_queryset.filter(
-            Q(exam_backlog_question__section_backlog__isnull=False)
+            exam_backlog_question__section_backlog__isnull=False, score__isnull=False
         ).annotate(
             section_backlog_id=F("exam_backlog_question__section_backlog"),
             subsection_backlog_id=F("exam_backlog_question__subsection_backlog"),
-            question_marks=F("exam_backlog_question__total_marks"),
         )
 
-        subsections_candidate_exam_answers = sections_and_subsections_candidate_exam_answers.filter(Q(subsection_backlog_id__isnull=False))
+        sections_candidate_exam_answers = sections_and_subsections_candidate_exam_answers.filter(subsection_backlog_id__isnull=True)
+        subsections_candidate_exam_answers = sections_and_subsections_candidate_exam_answers.filter(subsection_backlog_id__isnull=False)
 
-        debug_print(sections_and_subsections_candidate_exam_answers)  # type: ignore
-        debug_print(subsections_candidate_exam_answers)  # type: ignore
+        section_scores_hashmap = {}
+        for one_answer in sections_candidate_exam_answers:
+            section_backlog_id = one_answer.section_backlog_id  # type:ignore
+            if section_backlog_id not in section_scores_hashmap:
+                section_scores_hashmap[section_backlog_id] = 0
+            section_scores_hashmap[section_backlog_id] = section_scores_hashmap[section_backlog_id] + one_answer.score
+
+        subsection_scores_hashmap = {}
+        for one_answer in subsections_candidate_exam_answers:
+            section_backlog_id = one_answer.section_backlog_id  # type:ignore
+            subsection_backlog_id = one_answer.subsection_backlog_id  # type:ignore
+            if subsection_backlog_id not in subsection_scores_hashmap:
+                subsection_scores_hashmap[subsection_backlog_id] = 0
+            subsection_scores_hashmap[subsection_backlog_id] = subsection_scores_hashmap[subsection_backlog_id] + one_answer.score
+            section_scores_hashmap[section_backlog_id] = section_scores_hashmap[section_backlog_id] + one_answer.score
+
+        candidate_exam_section_score_queryset = CandidateExamSectionScore.objects.filter(candidate_exam_id=candidate_exam_id)
+        candidate_exam_subsection_score_queryset = CandidateExamSubSectionScore.objects.filter(candidate_exam_id=candidate_exam_id)
+
+        # * Updating the section scores
+        CandidateExamSectionScore.objects.bulk_update(
+            [
+                CandidateExamSectionScore(
+                    id=candidate_exam_section_score_queryset.filter(section_backlog_id=one_section).first().id,  # type: ignore
+                    score=score,
+                )
+                for one_section, score in section_scores_hashmap.items()
+            ],
+            fields=["score"],
+        )
+
+        # * Updating the subsection scores
+        CandidateExamSubSectionScore.objects.bulk_update(
+            [
+                CandidateExamSubSectionScore(
+                    id=candidate_exam_subsection_score_queryset.filter(subsection_backlog_id=one_subsection).first().id,  # type: ignore
+                    score=score,
+                )
+                for one_subsection, score in subsection_scores_hashmap.items()
+            ],
+            fields=["score"],
+        )
+
+        # * Sum up all the scores for overall exam obtained marks
+        all_scores_sum = (
+            exam_questions_scores_sum
+            + candidate_exam_section_score_queryset.aggregate(total_score=Sum("score"))["total_score"]
+            + candidate_exam_subsection_score_queryset.aggregate(total_score=Sum("score"))["total_score"]
+        )
+
+        color_print(length_of_scored_candidate_exam_answers)
+        color_print(len(candidate_exam_answer_queryset))
 
         # * Update obtained marks with the sum of scores and exam_status = scored if none of the questions left to mark otherwise set the status to marked
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id)
-        if len(candidate_exam_answer_queryset) == len(scored_candidate_exam_answer_queryset):
+        if len(candidate_exam_answer_queryset) == length_of_scored_candidate_exam_answers:
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="scored")
+            message = "All exam questions marked and scored successfully"
         else:
+            message = "Exam questions marked and scored successfully"
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
-        return Response({"message": "Exam questions marked and scored successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": message}, status=status.HTTP_200_OK)
 
     # * -------------------------- Candidate Exam Scoring -------------------------- #
 
