@@ -198,14 +198,10 @@ class SectionBacklog(BaseModel):
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
-
     time_limit = models.PositiveIntegerField(null=True)
-    total_marks = models.PositiveIntegerField(default=0)
-    passing_marks = models.PositiveIntegerField(null=True)
 
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
-    is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_public"
@@ -224,14 +220,10 @@ class SubSectionBacklog(BaseModel):
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
-
     time_limit = models.PositiveIntegerField(null=True)
-    total_marks = models.PositiveIntegerField(default=0)
-    passing_marks = models.PositiveIntegerField(null=True)
 
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
-    is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_public"
