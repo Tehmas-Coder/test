@@ -8,6 +8,7 @@ class CandidateExamSectionScore(BaseModel):
     section_backlog = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING)
     question_count = models.PositiveIntegerField(default=0)
     total_obtainable_marks = models.IntegerField(default=0)
+    subsection_count = models.PositiveIntegerField(default=0)
     score = models.FloatField(default=0)
 
     class Meta:

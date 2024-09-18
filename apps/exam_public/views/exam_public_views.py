@@ -45,8 +45,13 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
+from apps.exam_scoring.models.exam_score_models import (
+    CandidateExamSectionScore,
+    CandidateExamSubSectionScore,
+)
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
+from my_lab import candidate_exam_id
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,
@@ -534,9 +539,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             ]
         )
 
-        # TODO: Not Completed Yet
-
-        # * Creating Section and Subsection score models instances to store the sections and seubsections scores of this Candidate Exam
+        # * Creating Section and Subsection score models instances to store the sections and subsections scores of this Candidate Exam
         candidate_exam_questions_with_sections_and_subsections = ExamBacklogQuestion.objects.filter(
             id__in=final_user_backlog_question_ids_list, section_backlog__isnull=False
         )
@@ -550,6 +553,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 section_backlog_questions_details_hashmap[section_id] = {}
                 section_backlog_questions_details_hashmap[section_id]["question_count"] = 0
                 section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = 0
+                section_backlog_questions_details_hashmap[section_id]["subsection_count"] = 0
             section_backlog_questions_details_hashmap[section_id]["question_count"] = (
                 section_backlog_questions_details_hashmap[section_id]["question_count"] + 1
             )
@@ -558,15 +562,15 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 + one_candidate_exam_questions_with_section.total_marks
             )
 
-        debug_print(section_backlog_questions_details_hashmap)
-
         subsection_backlog_questions_details_hashmap = {}
         for one_candidate_exam_questions_with_subsection in candidate_exam_questions_with_subsections:
+            section_id = one_candidate_exam_questions_with_subsection.section_backlog_id  # type: ignore
             subsection_id = one_candidate_exam_questions_with_subsection.subsection_backlog_id  # type: ignore
             if subsection_id not in subsection_backlog_questions_details_hashmap:
                 subsection_backlog_questions_details_hashmap[subsection_id] = {}
                 subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] = 0
                 subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"] = 0
+
             subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] = (
                 subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] + 1
             )
@@ -574,8 +578,40 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"]
                 + one_candidate_exam_questions_with_subsection.total_marks
             )
+            section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = (
+                section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"]
+                + subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"]
+            )
+            section_backlog_questions_details_hashmap[section_id]["subsection_count"] = (
+                section_backlog_questions_details_hashmap[section_id]["subsection_count"] + 1
+            )
 
-        debug_print(subsection_backlog_questions_details_hashmap)
+        # * Now Creating the section_score instances
+        CandidateExamSectionScore.objects.bulk_create(
+            [
+                CandidateExamSectionScore(
+                    candidate_exam_id=candidate_exam_id,
+                    section_backlog_id=one_section_backlog_id,
+                    question_count=question_data_dict["question_count"],
+                    total_obtainable_marks=question_data_dict["total_obtainable_marks"],
+                    subsection_count=question_data_dict["subsection_count"],
+                )
+                for one_section_backlog_id, question_data_dict in section_backlog_questions_details_hashmap.items()  # type:ignore
+            ]
+        )
+
+        # * Now Creating the subsection_score instances
+        CandidateExamSubSectionScore.objects.bulk_create(
+            [
+                CandidateExamSubSectionScore(
+                    candidate_exam_id=candidate_exam_id,
+                    subsection_backlog_id=one_subsection_backlog_id,
+                    question_count=question_data_dict["question_count"],
+                    total_obtainable_marks=question_data_dict["total_obtainable_marks"],
+                )
+                for one_subsection_backlog_id, question_data_dict in subsection_backlog_questions_details_hashmap.items()  # type:ignore
+            ]
+        )
 
         # * Updating the exam status to submitted
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="submitted")
@@ -711,4 +747,5 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
             if question.backlog_choices.exists()
         ]
 
+        return Response(data=response_list, status=status.HTTP_200_OK)
         return Response(data=response_list, status=status.HTTP_200_OK)
