@@ -70,7 +70,7 @@ class OrganizationUserSerializer(BaseModelSerializer):
 
 
 class OrganizationUserDetailSerializer(BaseModelSerializer):
-    user = UserEditSerializer()
+    user = UserDetailSerializer()
 
     class Meta:
         model = OrganizationUser

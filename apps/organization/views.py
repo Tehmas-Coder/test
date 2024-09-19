@@ -79,7 +79,11 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                         "user__country",
                         "user__profile_picture",
                     )
-                    .prefetch_related("user__roles"),
+                    .prefetch_related(
+                        "user__roles",
+                        "user__roles__role_permissions",
+                        "user__roles__role_permissions__permission",
+                    ),
                 )
             ),
             many=True,
@@ -114,7 +118,11 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                         "user__country",
                         "user__profile_picture",
                     )
-                    .prefetch_related("user__roles"),
+                    .prefetch_related(
+                        "user__roles",
+                        "user__roles__role_permissions",
+                        "user__roles__role_permissions__permission",
+                    ),
                 )
             ),
             many=True,
