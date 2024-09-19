@@ -6,11 +6,11 @@
       "title": "What is the value of the gravitational constant G?",
       "text": "The gravitational constant G is a fundamental physical constant used to describe the strength of the gravitational force between two masses. It is a key parameter in Newton's law of universal gravitation, which states that every point mass attracts every other point mass by a force acting along the line intersecting both points. The force is proportional to the product of their masses and inversely proportional to the square of the distance between them.",
       "max_retries": 2,
-      "type": 1,
+      "type": 2,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -20,13 +20,13 @@
     "pk": 2,
     "fields": {
       "title": "What is the value of the speed of light in a vacuum?",
-      "text": "The speed of light in a vacuum is a fundamental physical constant that is denoted by the symbol c. It is approximately equal to 299,792,458 meters per second (m/s) or about 186,282 miles per second (mi/s). The speed of light is a key parameter in the theory of special relativity, which states that the laws of physics are the same for all observers, regardless of their relative motion.",
+      "text": "The speed of light in a vacuum is a fundamental physical constant that is denoted by the symbol c. The speed of light is a key parameter in the theory of special relativity, which states that the laws of physics are the same for all observers, regardless of their relative motion.",
       "max_retries": 3,
-      "type": 1,
+      "type": 2,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -36,13 +36,13 @@
     "pk": 3,
     "fields": {
       "title": "What is the value of Planck's constant h?",
-      "text": "Planck's constant h is a fundamental physical constant that is used to describe the quantization of energy in quantum mechanics. It is denoted by the symbol h and has a value of approximately 6.62607015 x 10^-34 joule seconds (J·s). Planck's constant is a key parameter in the theory of quantum mechanics, which describes the behavior of particles at the atomic and subatomic levels.",
+      "text": "Planck's constant h is a fundamental physical constant that is used to describe the quantization of energy in quantum mechanics. It is denoted by the symbol h. Planck's constant is a key parameter in the theory of quantum mechanics, which describes the behavior of particles at the atomic and subatomic levels.",
       "max_retries": 2,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
-      "can_shuffle": true,
-      "has_media": true,
+      "can_shuffle": false,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -52,13 +52,13 @@
     "pk": 4,
     "fields": {
       "title": "What is the value of the elementary charge e?",
-      "text": "The elementary charge e is a fundamental physical constant that is used to describe the charge of a single electron or proton. It is denoted by the symbol e and has a value of approximately 1.602176634 x 10^-19 coulombs (C). The elementary charge is a key parameter in the theory of electromagnetism, which describes the behavior of charged particles and their interactions with electric and magnetic fields.",
+      "text": "The elementary charge e is a fundamental physical constant that is used to describe the charge of a single electron or proton. It is denoted by the symbol e. The elementary charge is a key parameter in the theory of electromagnetism, which describes the behavior of charged particles and their interactions with electric and magnetic fields.",
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
-      "can_shuffle": true,
-      "has_media": true,
+      "can_shuffle": false,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -70,11 +70,11 @@
       "title": "What is the capital city of Australia?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 2,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -86,11 +86,11 @@
       "title": "Who was the first President of the United States?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -102,11 +102,11 @@
       "title": "What is the largest planet in our solar system?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -118,11 +118,11 @@
       "title": "What is the chemical symbol for gold?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 2,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -134,11 +134,11 @@
       "title": "What is the largest ocean on Earth?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -150,11 +150,11 @@
       "title": "What is the chemical symbol for water?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -166,11 +166,11 @@
       "title": "What is the chemical symbol for oxygen?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -182,11 +182,11 @@
       "title": "What is the chemical symbol for carbon?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -198,11 +198,11 @@
       "title": "What is the chemical symbol for nitrogen?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -214,11 +214,11 @@
       "title": "What is the chemical symbol for hydrogen?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -230,11 +230,11 @@
       "title": "What is the chemical symbol for helium?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -246,11 +246,11 @@
       "title": "What is the chemical symbol for silver?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -262,11 +262,11 @@
       "title": "Who wrote the play 'Romeo and Juliet'?",
       "text": null,
       "max_retries": 3,
-      "type": 1,
+      "type": 3,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
-      "has_media": true,
+      "has_media": false,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
