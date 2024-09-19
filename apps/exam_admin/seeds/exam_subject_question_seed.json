@@ -3,7 +3,7 @@
         "model": "exam_admin.ExamSubjectQuestion",
         "pk": 1,
         "fields": {
-            "exam_subject": 1,
+            "exam_subject": 5,
             "question": 1,
             "section": null,
             "subsection": null,
@@ -19,9 +19,9 @@
         "model": "exam_admin.ExamSubjectQuestion",
         "pk": 2,
         "fields": {
-            "exam_subject": 1,
+            "exam_subject": 6,
             "question": 2,
-            "section": 1,
+            "section": null,
             "subsection": null,
             "description": "",
             "created_at": "2024-07-05T07:17:54.260105Z",
@@ -35,10 +35,10 @@
         "model": "exam_admin.ExamSubjectQuestion",
         "pk": 3,
         "fields": {
-            "exam_subject": 2,
+            "exam_subject": 6,
             "question": 3,
-            "section": 1,
-            "subsection": 1,
+            "section": null,
+            "subsection": null,
             "description": "",
             "created_at": "2024-07-05T07:17:54.260105Z",
             "created_by": null,
@@ -51,10 +51,218 @@
         "model": "exam_admin.ExamSubjectQuestion",
         "pk": 4,
         "fields": {
-            "exam_subject": 2,
+            "exam_subject": 5,
             "question": 4,
+            "section": null,
+            "subsection": null,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 5,
+        "fields": {
+            "exam_subject": 13,
+            "question": 5,
+            "section": 1,
+            "subsection": null,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 6,
+        "fields": {
+            "exam_subject": 14,
+            "question": 6,
+            "section": 1,
+            "subsection": null,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 7,
+        "fields": {
+            "exam_subject": 14,
+            "question": 7,
+            "section": 1,
+            "subsection": 1,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 8,
+        "fields": {
+            "exam_subject": 18,
+            "question": 8,
+            "section": 1,
+            "subsection": 1,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 9,
+        "fields": {
+            "exam_subject": 17,
+            "question": 1,
+            "section": 1,
+            "subsection": 1,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 10,
+        "fields": {
+            "exam_subject": 17,
+            "question": 2,
             "section": 1,
             "subsection": 2,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 11,
+        "fields": {
+            "exam_subject": 18,
+            "question": 11,
+            "section": null,
+            "subsection": null,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 12,
+        "fields": {
+            "exam_subject": 18,
+            "question": 12,
+            "section": null,
+            "subsection": null,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 13,
+        "fields": {
+            "exam_subject": 17,
+            "question": 13,
+            "section": 1,
+            "subsection": 2,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 14,
+        "fields": {
+            "exam_subject": 17,
+            "question": 14,
+            "section": 1,
+            "subsection": 2,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 15,
+        "fields": {
+            "exam_subject": 17,
+            "question": 15,
+            "section": 2,
+            "subsection": null,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 16,
+        "fields": {
+            "exam_subject": 18,
+            "question": 16,
+            "section": 2,
+            "subsection": null,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubjectQuestion",
+        "pk": 17,
+        "fields": {
+            "exam_subject": 13,
+            "question": 17,
+            "section": 2,
+            "subsection": null,
             "description": "",
             "created_at": "2024-07-05T07:17:54.260105Z",
             "created_by": null,
