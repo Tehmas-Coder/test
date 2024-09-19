@@ -164,9 +164,4 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             )
         )
 
-        if len(user_organization_detail):
-            response_data = user_organization_detail[0]
-        else:
-            response_data = user_organization_detail
-
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response(user_organization_detail, status=status.HTTP_200_OK)
