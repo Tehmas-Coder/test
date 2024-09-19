@@ -132,7 +132,7 @@
         "pk": 9,
         "fields": {
             "exam_subject": 17,
-            "question": 1,
+            "question": 9,
             "section": 1,
             "subsection": 1,
             "description": "",
@@ -148,7 +148,7 @@
         "pk": 10,
         "fields": {
             "exam_subject": 17,
-            "question": 2,
+            "question": 10,
             "section": 1,
             "subsection": 2,
             "description": "",
