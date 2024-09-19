@@ -198,5 +198,25 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "questionbank.SubjectEducationLevel",
+    "pk": 21,
+    "fields": {
+      "subject_id": "6",
+      "education_level_id": "3",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "questionbank.SubjectEducationLevel",
+    "pk": 22,
+    "fields": {
+      "subject_id": "6",
+      "education_level_id": "4",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

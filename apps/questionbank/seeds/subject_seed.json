@@ -58,5 +58,17 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "questionbank.Subject",
+    "pk": 6,
+    "fields": {
+      "name": "Computer Science",
+      "code": "COMP",
+      "abbreviation": "COMP.Sc",
+      "slug": "computer-science",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
