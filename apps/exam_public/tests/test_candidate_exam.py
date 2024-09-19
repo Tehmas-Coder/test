@@ -89,6 +89,7 @@ class CandidateExamTest(CandidateExamUnitTest):
         ],
         "exam": 2,
         "schedule": 2,
+        "exam_duration": 120,
     }
     list_of_fields_of_candidate_exam_model = [
         "id",
@@ -96,9 +97,9 @@ class CandidateExamTest(CandidateExamUnitTest):
         "exam_backlog",
         "schedule",
         "is_preparatory",
-        "date",
-        "start_time",
-        "end_time",
+        "start_datetime",
+        "end_datetime",
+        "exam_duration",
         "waiting_duration",
         "extra_duration",
     ]
