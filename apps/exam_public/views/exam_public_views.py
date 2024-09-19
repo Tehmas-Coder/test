@@ -51,7 +51,6 @@ from apps.exam_scoring.models.exam_score_models import (
 )
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from my_lab import candidate_exam_id
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,
