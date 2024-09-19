@@ -5,7 +5,7 @@ from core.models import BaseModel
 
 class Organization(BaseModel):
     name = models.CharField(max_length=255)
-    country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE)
+    country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE, null=True, blank=True)
     users = models.ManyToManyField("user.BaseUser", through="OrganizationUser", through_fields=("organization", "user"))
     packages = models.ManyToManyField("lookups.Package", through="OrganizationPackage")
     questions = models.ManyToManyField("questionbank.Question", through="OrganizationQuestion")

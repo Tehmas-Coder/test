@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "name": "Student-Apply Organization",
-            "country": 8,
+            "country": null,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }

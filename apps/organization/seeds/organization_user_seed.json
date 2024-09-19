@@ -14,7 +14,7 @@
         "pk": 2,
         "fields": {
             "user": 3,
-            "organization": 2,
+            "organization": 3,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -24,7 +24,7 @@
         "pk": 3,
         "fields": {
             "user": 4,
-            "organization": 3,
+            "organization": 2,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -33,7 +33,7 @@
         "model": "organization.OrganizationUser",
         "pk": 4,
         "fields": {
-            "user": 6,
+            "user": 5,
             "organization": 3,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
