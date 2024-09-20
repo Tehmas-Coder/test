@@ -11,6 +11,7 @@ from apps.exam_public.serializers.backlog_serializers.subsection_backlog_seriali
     SubSectionBacklogSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print
 
 
 class ExamBacklogEditSerializer(BaseModelSerializer):
@@ -96,14 +97,19 @@ class ExamBacklogDetailSerializer(BaseModelSerializer):
                         )
 
         for section_data in section_questions.values():
+            section_questions_total_marks = sum(one_question["total_marks"] for one_question in section_data["questions"])
             subsections_list = []
             for subsection_id in section_data["subsections"]:
-                subsections_list.append(
-                    {
-                        "subsection": subsection_objects[subsection_id],
-                        "questions": subsection_questions[subsection_id],
-                    }
+                one_subsection_dict = {
+                    "subsection": subsection_objects[subsection_id],
+                    "questions": subsection_questions[subsection_id],
+                }
+                one_subsection_dict["subsection"]["total_marks"] = sum(
+                    one_question["total_marks"] for one_question in one_subsection_dict["questions"]
                 )
+                subsections_list.append(one_subsection_dict)
+            section_subsections_total_marks = sum(one_subsection["subsection"]["total_marks"] for one_subsection in subsections_list)
+            section_data["section"]["total_marks"] = section_questions_total_marks + section_subsections_total_marks
             section_data["subsections"] = subsections_list
             exam_sections.append(section_data)
 
