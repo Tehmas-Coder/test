@@ -1,0 +1,98 @@
+[
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 1,
+        "fields": {
+            "id": 1,
+            "description": "",
+            "question_subject": 35,
+            "country": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 2,
+        "fields": {
+            "id": 2,
+            "description": "",
+            "question_subject": 35,
+            "country": 75,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 3,
+        "fields": {
+            "id": 3,
+            "description": "",
+            "question_subject": 35,
+            "country": 45,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 4,
+        "fields": {
+            "id": 4,
+            "description": "",
+            "question_subject": 35,
+            "country": 86,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 6,
+        "fields": {
+            "id": 6,
+            "description": "",
+            "question_subject": 40,
+            "country": 75,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 7,
+        "fields": {
+            "id": 7,
+            "description": "",
+            "question_subject": 42,
+            "country": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 8,
+        "fields": {
+            "id": 8,
+            "description": "",
+            "question_subject": 43,
+            "country": 75,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionSubjectCountry",
+        "pk": 9,
+        "fields": {
+            "id": 9,
+            "description": "",
+            "question_subject": 45,
+            "country": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

@@ -65,7 +65,7 @@
       "is_verified": true,
       "is_superuser": false,
       "last_login": "2024-07-19T09:14:48.431449Z",
-      "country": 2,
+      "country": 75,
       "date_joined": "2022-03-03T00:00:00Z",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -89,7 +89,7 @@
       "is_verified": true,
       "is_superuser": false,
       "last_login": "2024-07-19T10:14:48.431449Z",
-      "country": 3,
+      "country": 5,
       "date_joined": "2023-04-04T00:00:00Z",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -113,7 +113,7 @@
       "is_verified": true,
       "is_superuser": false,
       "last_login": "2024-07-19T11:14:48.431449Z",
-      "country": 4,
+      "country": 75,
       "date_joined": "2024-05-05T00:00:00Z",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
