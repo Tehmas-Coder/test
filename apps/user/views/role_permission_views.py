@@ -12,6 +12,7 @@ from apps.user.serializers.role_permission_serializers import (
     RolePermissionSerializer,
     RoleSerializer,
 )
+from utils.rna_utils import debug_print
 
 # ---------------------------------------------------------------------------- #
 #                                     ROLES                                    #
@@ -130,14 +131,19 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
         request_role_name_slug = slugify(request_role_name)
         role_instance = Role.objects.filter(slug=request_role_name_slug, name=request_role_name)
 
-        if not len(role_instance) and len(request_data["default_qb_permissions"]):
-            new_role_instance = Role.objects.create(name=request_role_name, is_system_role=True)
-            permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
+        if len(request_data.get("default_qb_permissions", [])):
+            if len(role_instance):
+                role_instance = role_instance.first()
+                role_instance.is_system_role = True  # type: ignore
+                role_instance.save()  # type: ignore
+                RolePermission.objects.filter(role=role_instance).update(is_active=False)
+            else:
+                role_instance = Role.objects.create(name=request_role_name, is_system_role=True)
+                permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
+                role_instance.permissions.set(permission_ids_list)
 
-            if len(permission_ids_list):
-                new_role_instance.permissions.set(permission_ids_list)
-                request_permission_ids_list = [one_dict["id"] for one_dict in request_data["default_qb_permissions"]]
-                RolePermission.objects.filter(role=new_role_instance, permission_id__in=request_permission_ids_list).update(is_active=True)
+            request_permission_ids_list = [one_dict["id"] for one_dict in request_data["default_qb_permissions"]]
+            RolePermission.objects.filter(role=role_instance, permission_id__in=request_permission_ids_list).update(is_active=True)
 
         else:
             role_instance = role_instance.first()
