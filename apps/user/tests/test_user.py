@@ -246,7 +246,7 @@ class UserTest(UserUnitTest):
         return json_data["results"]
 
     def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_user_id = list_of_records[len(list_of_records) - 3]["id"]
+        test_user_id = list_of_records[len(list_of_records) - 5]["id"]
         json_data = self.do_get_one_user(test_user_id)
         self.assertEqual(
             json_data["id"],

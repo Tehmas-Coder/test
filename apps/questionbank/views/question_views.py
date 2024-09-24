@@ -208,16 +208,18 @@ class QuestionViewSet(viewsets.ModelViewSet):
             request_data["is_public"] = 1
         else:
             request_data["is_public"] = 0
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            if not organization_id:
-                return make_error_response(message=f"Failed: User doesn't belong to any organization")
-            organization = Organization.objects.get(id=organization_id)
-            # * Checking the usage of questions of Organization package
-            organization_package = (
-                OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
-            )
-            if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
-                return make_error_response(message=f"Failed: Your limit to create questions is reached")
+            pass
+            # * This Check is by passed for the time being because the organization packages features are not fully rolled ot yet
+            # organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+            # if not organization_id:
+            #     return make_error_response(message=f"Failed: User doesn't belong to any organization")
+            # organization = Organization.objects.get(id=organization_id)
+            # # * Checking the usage of questions of Organization package
+            # organization_package = (
+            #     OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
+            # )
+            # if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
+            #     return make_error_response(message=f"Failed: Your limit to create questions is reached")
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
