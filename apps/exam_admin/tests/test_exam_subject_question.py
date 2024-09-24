@@ -74,7 +74,7 @@ class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
     reuseable_request_body = {
         "exam_subject": {
             "subject_education_level": 5,
-            "exam": 2,
+            "exam": 1,
         },
         "question": 1,
         "section": None,

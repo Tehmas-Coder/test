@@ -85,9 +85,9 @@ class CandidateExamTest(CandidateExamUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "candidates": [
-            1,
+            "cyberaxescandidate@gmail.com",
         ],
-        "exam": 2,
+        "exam": 1,
         "schedule": 2,
         "exam_duration": 120,
     }

@@ -46,7 +46,7 @@ class ExamSubjectUnitTest(TestSetUp):
 class ExamSubjectTest(ExamSubjectUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
-        "exam": 2,
+        "exam": 1,
         "subject_education_level": 2,
     }
     list_of_fields_of_exam_subject_model = [

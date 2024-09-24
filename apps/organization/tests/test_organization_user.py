@@ -40,7 +40,7 @@ class OrganizationUserUnitTest(TestSetUp):
         url = "/api/get-user-organizations-list/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
+        return response.data[0]  # type: ignore
 
     def do_remove_one_organization_user(self, organization_user_id):
         print_test_header("remove_organization_user")
@@ -87,7 +87,13 @@ class OrganizationUserTest(OrganizationUserUnitTest):
 
     def successsfull_fetching_of_list_of_organization_users_test(self):
         json_data = self.do_get_one_organization_users_list(organization_id=1)
-        list_of_fields_of_organization_users = ["id", "name", "country", "organization_users_count", "organization_users"]
+        list_of_fields_of_organization_users = [
+            "id",
+            "name",
+            "country",
+            "organization_users_count",
+            "organization_users",
+        ]
         for one_field in list_of_fields_of_organization_users:
             self.assertIn(one_field, json_data)
 
