@@ -3,7 +3,6 @@
     "model": "user.BaseUser",
     "pk": 1,
     "fields": {
-      "id": 1,
       "is_active": true,
       "description": "",
       "username": "superuser",
@@ -27,7 +26,6 @@
     "model": "user.BaseUser",
     "pk": 2,
     "fields": {
-      "id": 2,
       "is_active": true,
       "description": "",
       "username": "systemuser",
@@ -51,7 +49,6 @@
     "model": "user.BaseUser",
     "pk": 3,
     "fields": {
-      "id": 3,
       "is_active": true,
       "description": "Cyber Axes Admin",
       "username": "haiderjutt",
@@ -75,7 +72,6 @@
     "model": "user.BaseUser",
     "pk": 4,
     "fields": {
-      "id": 4,
       "is_active": true,
       "description": "AK Consultants Administrator",
       "username": "asgharkhan",
@@ -99,7 +95,6 @@
     "model": "user.BaseUser",
     "pk": 5,
     "fields": {
-      "id": 5,
       "is_active": true,
       "description": "Cyber Axes Candidate",
       "username": "charliebrown",
@@ -123,7 +118,6 @@
     "model": "user.BaseUser",
     "pk": 6,
     "fields": {
-      "id": 6,
       "is_active": true,
       "description": "General Candidate",
       "username": "davidwatson",
@@ -138,6 +132,29 @@
       "is_superuser": false,
       "last_login": "2024-07-19T12:14:48.431449Z",
       "country": 5,
+      "date_joined": "2025-06-06T00:00:00Z",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.BaseUser",
+    "pk": 7,
+    "fields": {
+      "is_active": true,
+      "description": "A Super user whose role is system and is a student apply super admin so that's why he is super user here as well with role of system",
+      "username": "studentapplyuser",
+      "email": "test@gmail.com",
+      "first_name": "Student Apply",
+      "last_name": "Super User",
+      "password": "pbkdf2_sha256$720000$jd0jJUeZEDXUUhL7JtaNgZ$4DNsnpwWbSYlrMFKi1LRqyf20IvYfZxtG2jSznryjHY=",
+      "phone": "+12345678906",
+      "date_of_birth": "1990-06-06",
+      "otp": "777777",
+      "is_verified": true,
+      "is_superuser": true,
+      "last_login": "2024-07-19T12:14:48.431449Z",
+      "country": null,
       "date_joined": "2025-06-06T00:00:00Z",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
