@@ -20,7 +20,7 @@ class UserUnitTest(TestSetUp):
         "resource_seed",
         "country_test_seed",
         "role_seed",
-        "test_user_seed",
+        "user_seed",
         "user_role_seed",
         "organization_seed",
         "organization_user_seed",
@@ -116,9 +116,9 @@ class UserTest(UserUnitTest):
     # ?###################################################
 
     def successfull_creation_of_a_record_test(self):
-        # ------------------------ User Creation By SuperUser ------------------------ #
+        # ------------------------ Candidate User Creation By SuperUser ------------------------ #
         response = self.do_create_user(json.dumps(self.reuseable_request_body))
-        color_print("## => Testing User Creation by SuperUser")
+        color_print("## => Testing Candidate User Creation by SuperUser")
         json_data = response.data["data"]  # type: ignore
         for one_field in self.list_of_fields_of_user_model:
             self.assertIn(one_field, json_data)
@@ -135,8 +135,54 @@ class UserTest(UserUnitTest):
             if not candidate_instance:
                 color_print("Failed: User created but Candidate not created", "red")
 
+        # ------------------------ Organization Candidate Creation By SuperUser ------------------------ #
+        candidate_user_request_body = copy.deepcopy(self.reuseable_request_body)
+        candidate_user_request_body["email"] = "sheryarbaloch87@gmail.com"
+        candidate_user_request_body["organization"] = 2
+        response = self.do_create_user(json.dumps(candidate_user_request_body))
+        color_print("## => Testing Organization Candidate Creation by SuperUser")
+        json_data = response.data["data"]  # type: ignore
+        for one_field in self.list_of_fields_of_user_model:
+            self.assertIn(one_field, json_data)
+        for key in candidate_user_request_body:
+            if key == "password" or key == "organization":
+                continue
+            if key == "role":
+                self.assertEqual(json_data["roles"][0]["id"], candidate_user_request_body[key])
+                continue
+            self.assertEqual(json_data[key], candidate_user_request_body[key])
+        validate_success_201_test_response(self, response)
+        if json_data["roles"][0]["name"].lower() == "candidate":
+            candidate_instance = Candidate.objects.filter(user_id=json_data["id"]).first()
+            if not (candidate_instance.organization_id == candidate_user_request_body["organization"]):  # type: ignore
+                color_print("Failed: User created but Candidate not created with this organization", "red")
+
+        # ------------------------ Organization User Creation By SuperUser ------------------------ #
+        request_body = copy.deepcopy(self.reuseable_request_body)
+        request_body["email"] = "sheryarbaloch97@gmail.com"
+        request_body["role"] = 2
+        request_body["organization"] = 2
+        response = self.do_create_user(json.dumps(request_body))
+        color_print("## => Testing Organization User Creation by SuperUser")
+        json_data = response.data["data"]  # type: ignore
+        for one_field in self.list_of_fields_of_user_model:
+            self.assertIn(one_field, json_data)
+        for key in request_body:
+            if key == "password" or key == "organization":
+                continue
+            if key == "role":
+                self.assertEqual(json_data["roles"][0]["id"], request_body[key])
+                continue
+            self.assertEqual(json_data[key], request_body[key])
+        validate_success_201_test_response(self, response)
+        if json_data["roles"][0]["name"].lower() != "candidate":
+            organization_user_instance = OrganizationUser.objects.filter(user_id=json_data["id"]).first()
+            if not organization_user_instance:
+                color_print("Failed: User created but Organziation user not created", "red")
+                self.assertEqual(organization_user_instance.organization_id, request_body["organization"])  # type: ignore
+
         # -------------------- Candidate User Creation By Organization User -------------------- #
-        self.custom_login(email="user3@example.com", password=12345678)
+        self.custom_login(email="asgharkhan@gmail.com", password=12345678)
         request_body_for_organization_candidate = copy.deepcopy(self.reuseable_request_body)
         request_body_for_organization_candidate["email"] = "sheryarbaloch57@gmail.com"
         response = self.do_create_user(json.dumps(request_body_for_organization_candidate))
