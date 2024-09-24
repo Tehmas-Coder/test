@@ -12,7 +12,15 @@ from utils.rna_utils import (
 
 
 class OrganizationUserUnitTest(TestSetUp):
-    fixtures = ["country_test_seed", "organization_seed", "role_seed", "test_user_seed", "organization_user_seed"]
+    fixtures = [
+        "country_test_seed",
+        "organization_seed",
+        "role_seed",
+        "user_seed",
+        "user_role_seed",
+        "organization_user_seed",
+        "resource_seed",
+    ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -53,7 +61,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "organization": 1,
-        "user": 11,
+        "user": 6,
     }
     list_of_fields_of_organization_user_model = [
         "id",
@@ -98,6 +106,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
             self.assertIn(one_field, json_data)
 
     def successsfull_fetching_of_list_of_user_organizations_test(self):
+        self.custom_login(email="generalcandidate@gmail.com", password="12345678")
         json_data = self.do_get_one_user_organizations_list()
         list_of_fields_of_user_organizations = [
             "id",
@@ -111,6 +120,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
             self.assertIn(one_field, json_data)
 
     def successfull_removal_of_one_organization_user_test(self, test_record_id):
+        self.custom_login(email="test@gmail.com", password="12345678")
         self.do_remove_one_organization_user(test_record_id)
 
 

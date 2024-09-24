@@ -40,9 +40,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         if res.data:
             id = res.data["id"]
             OrganizationPackage.objects.create(organization_id=id, package_id=1)
-            instance = Organization.objects.get(id=id)
-            serializer = OrganizationSerializer(instance)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(res.data, status=status.HTTP_201_CREATED)
         return res
 
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
