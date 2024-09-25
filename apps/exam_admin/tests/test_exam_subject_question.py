@@ -25,7 +25,6 @@ class ExamSubjectQuestionUnitTest(TestSetUp):
         "currency_test_seed",
         "language_test_seed",
         "country_test_seed",
-        "measuring_unit_seed",
         "media_type_seed",
         "tag_seed",
         "difficulty_level_seed",

@@ -271,6 +271,36 @@
   },
   {
     "model": "lookups.country",
+    "pk": 45,
+    "fields": {
+      "name": "Afghanistan",
+      "iso2_code": "AF",
+      "iso3_code": "AF",
+      "abbreviation": "AF",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Kabul",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
     "pk": 75,
     "fields": {
       "name": "Pakistan",
@@ -281,6 +311,36 @@
       "lon": -20.0,
       "dial_code": "+200",
       "capital": "Islamabad",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 86,
+    "fields": {
+      "name": "India",
+      "iso2_code": "IN",
+      "iso3_code": "IN",
+      "abbreviation": "IN",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Delhi",
       "flag": null,
       "is_un_member": false,
       "timezones": [
