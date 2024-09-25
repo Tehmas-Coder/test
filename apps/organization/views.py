@@ -7,12 +7,9 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
-from apps.organization.models.organization_models import (
-    Organization,
-    OrganizationPackage,
-    OrganizationUser,
-)
+from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.organization.serializers import (
+    OrganizationEditSerializer,
     OrganizationSerializer,
     OrganizationUserSerializer,
     OrganizationWithCandidateListSerializer,
@@ -29,19 +26,25 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         .prefetch_related(
             "organization_users",
             "organization_candidates",
+            "organization_packages",
+            "organization_packages__package",
         )
     )
     serializer_class = OrganizationSerializer
     pagination_class = None
     http_method_names = ["get", "post", "patch", "delete"]
 
+    def get_serializer_class(self):
+        if self.action in ["create", "partial_update"]:
+            return OrganizationEditSerializer
+        return super().get_serializer_class()
+
     def create(self, request, *args, **kwargs):
-        res = super().create(request, *args, **kwargs)
-        if res.data:
-            id = res.data["id"]
-            OrganizationPackage.objects.create(organization_id=id, package_id=1)
-            return Response(res.data, status=status.HTTP_201_CREATED)
-        return res
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        organization = serializer.save()
+        response = OrganizationSerializer(organization).data
+        return Response(response, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
     def assign_organization_user(self, request):
