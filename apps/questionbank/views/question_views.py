@@ -216,9 +216,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
             organization_package = (
                 OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
             )
-            # * This Check is by passed for the time being because the organization packages features are not fully rolled ot yet
-            # if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
-            #     return make_error_response(message=f"Failed: Your limit to create questions is reached")
+            if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
+                return make_error_response(message=f"Failed: Your limit to create questions is reached")
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)

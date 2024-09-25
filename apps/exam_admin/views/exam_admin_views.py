@@ -138,9 +138,8 @@ class ExamViewSet(viewsets.ModelViewSet):
             organization = Organization.objects.get(id=organization_id)
             # * Checking the usage of exams of Organization package
             organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
-            # * This Check is by passed for the time being because the organization packages features are not fully rolled ot yet
-            # if not (organization_package.exams <= organization_package.total_exams):  # type:ignore
-            #     return make_error_response(message=f"Failed: Your limit to create exams is reached")
+            if not (organization_package.exams <= organization_package.total_exams):  # type:ignore
+                return make_error_response(message=f"Failed: Your limit to create exams is reached")
         else:
             request.data["is_public"] = 1
 
