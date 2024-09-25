@@ -13,7 +13,20 @@ from utils.rna_utils import (
 
 
 class ExamUnitTest(TestSetUp):
-    fixtures = ["subject_seed", "education_level_seed", "subject_education_level_seed", "exam_seed"]
+    fixtures = [
+        "timezone_test_seed",
+        "currency_test_seed",
+        "language_test_seed",
+        "country_test_seed",
+        "subject_seed",
+        "education_level_seed",
+        "subject_education_level_seed",
+        "exam_seed",
+        "user_seed",
+        "role_seed",
+        "user_role_seed",
+        "resource_seed",
+    ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -53,8 +66,7 @@ class ExamUnitTest(TestSetUp):
             data=request_body,
             content_type="application/json",
         )
-        validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
+        return response
 
     def do_delete_one_exam(self, exam_id):
         print_test_header("delete_exam")
@@ -99,15 +111,21 @@ class ExamTest(ExamUnitTest):
         self.successfull_creation_of_a_record_test()
         list_of_records = self.successsfull_fetching_of_list_of_records_test()
         test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
+        self.failed_updation_of_any_other_organization_exam_record_test(test_record_id)
         self.successfull_updation_of_record_test(test_record_id)
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
         json_data = self.do_create_exam(json.dumps(self.reuseable_request_body))
-        # for key in self.reuseable_request_body:
-        #     self.assertEqual(json_data[key], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_exam_model:
             self.assertIn(one_field, json_data)
+        for key in self.reuseable_request_body:
+            if key == "subjects":
+                continue
+            if key == "education_level":
+                self.assertEqual(json_data[key]["id"], self.reuseable_request_body[key])
+                continue
+            self.assertEqual(json_data[key], self.reuseable_request_body[key])
 
     def successsfull_fetching_of_list_of_records_test(self):
         json_data = self.do_get_exam_list()
@@ -131,11 +149,23 @@ class ExamTest(ExamUnitTest):
         )
         return test_exam_id
 
-    def successfull_updation_of_record_test(self, test_record_id):
+    # * Failed test case to check a user from any organization can not modify some other organization's exam
+    def failed_updation_of_any_other_organization_exam_record_test(self, test_record_id):
+        self.custom_login(email="generalcandidate@gmail.com", password="12345678")
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["name"] = "Exam 3 modified"
         updated_request_body["pass_marks"] = 70
-        updated_response_json_data = self.do_update_one_exam(test_record_id, json.dumps(updated_request_body))
+        updated_response = self.do_update_one_exam(test_record_id, json.dumps(updated_request_body))
+        validate_failed_400_test_response(self, updated_response)
+
+    def successfull_updation_of_record_test(self, test_record_id):
+        self.custom_login(email="test@gmail.com", password="12345678")
+        updated_request_body = copy.deepcopy(self.reuseable_request_body)
+        updated_request_body["name"] = "Exam 3 modified"
+        updated_request_body["pass_marks"] = 70
+        updated_response = self.do_update_one_exam(test_record_id, json.dumps(updated_request_body))
+        validate_success_200_test_response(self, updated_response)
+        updated_response_json_data = updated_response.data  # type: ignore
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             if key in ["name", "pass_marks"]:
@@ -203,4 +233,18 @@ def validate_failed_404_test_response(self, response):
         response_status_code,
         status.HTTP_404_NOT_FOUND,
         f" 'status_code' 404 was expected, but received 'status_code' ({response_status_code})",
+    )
+
+
+def validate_failed_400_test_response(self, response):
+    response_status_code = response.status_code
+    if response_status_code == status.HTTP_400_BAD_REQUEST:
+        print_test_passed()
+    else:
+        print_test_failed()
+        print(response.content)
+    self.assertEqual(
+        response_status_code,
+        status.HTTP_400_BAD_REQUEST,
+        f" 'status_code' 400 was expected, but received 'status_code' ({response_status_code})",
     )
