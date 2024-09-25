@@ -73,6 +73,7 @@ class OrganizationTest(OrganizationUnitTest):
     reuseable_request_body = {
         "name": "Test Org",
         "country": 2,
+        "package": 1,
     }
     list_of_fields_of_organization_model = [
         "id",
