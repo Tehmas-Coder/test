@@ -61,7 +61,7 @@ class OrganizationSerializer(BaseModelSerializer):
 
 
 class OrganizationEditSerializer(BaseModelSerializer):
-    package = serializers.IntegerField()
+    package = serializers.IntegerField(required=False)
 
     class Meta:
         model = Organization
