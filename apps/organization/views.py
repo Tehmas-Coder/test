@@ -46,6 +46,15 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         response = OrganizationSerializer(organization).data
         return Response(response, status=status.HTTP_201_CREATED)
 
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        organization = serializer.save()
+        organization.refresh_from_db()
+        response = OrganizationSerializer(organization).data
+        return Response(response, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
     def assign_organization_user(self, request):
         if OrganizationUser.objects.filter(

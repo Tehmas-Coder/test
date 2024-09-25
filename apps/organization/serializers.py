@@ -78,6 +78,13 @@ class OrganizationEditSerializer(BaseModelSerializer):
         OrganizationPackage.objects.create(organization=organization, package_id=package)
         return organization
 
+    def update(self, instance, validated_data):
+        package = validated_data.pop("package", None)
+        if package is not None:
+            OrganizationPackage.objects.get(organization=instance).delete()
+            OrganizationPackage.objects.create(organization=instance, package_id=package)
+        return super().update(instance, validated_data)
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         country = instance.country
