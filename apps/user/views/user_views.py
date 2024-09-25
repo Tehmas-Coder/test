@@ -92,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
         # * USER CREATED BY ORGANIZATION USER
         else:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
+            if logged_in_user_role_detail["role_name"].lower() != "candidate":
                 user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
                 if request_user_role_name.lower() == "candidate":
                     if user_organization_id:
