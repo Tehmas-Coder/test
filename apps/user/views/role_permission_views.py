@@ -1,5 +1,7 @@
+from itertools import count
+
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Count, F, Prefetch
 from django.utils.text import slugify
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -51,23 +53,14 @@ class RoleViewSet(viewsets.ModelViewSet):
         self.queryset = (
             Role.objects.all()
             .exclude(slug="system")
-            .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+            .prefetch_related("userrole_set", Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+            .annotate(user_count=Count("users"))
         )
         request_user_role = request.user.roles.first()
 
         if request_user_role:
             if request_user_role.name.lower() == "system":
-                self.queryset = (
-                    Role.objects.filter(is_system_role=True)
-                    .exclude(slug="system")
-                    .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
-                )
-            else:
-                self.queryset = (
-                    Role.objects.filter(is_system_role=False)
-                    .exclude(slug="system")
-                    .prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
-                )
+                self.queryset = self.queryset.filter(is_system_role=True)
 
         return super().list(request, *args, **kwargs)
 
