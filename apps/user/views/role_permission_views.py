@@ -1,7 +1,5 @@
-from itertools import count
-
 from django.db import transaction
-from django.db.models import Count, F, Prefetch
+from django.db.models import Count, Prefetch
 from django.utils.text import slugify
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
