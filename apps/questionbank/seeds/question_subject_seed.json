@@ -58,7 +58,7 @@
       "time_limit": 1,
       "total_marks": 50,
       "is_optional": 0,
-      "is_global": 1,
+      "is_global": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -138,7 +138,7 @@
       "time_limit": 1,
       "total_marks": 50,
       "is_optional": 0,
-      "is_global": 1,
+      "is_global": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -202,7 +202,7 @@
       "time_limit": 1,
       "total_marks": 50,
       "is_optional": 0,
-      "is_global": 1,
+      "is_global": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -298,7 +298,7 @@
       "time_limit": 1,
       "total_marks": 50,
       "is_optional": 0,
-      "is_global": 1,
+      "is_global": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -378,7 +378,7 @@
       "time_limit": 1,
       "total_marks": 50,
       "is_optional": 0,
-      "is_global": 1,
+      "is_global": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }

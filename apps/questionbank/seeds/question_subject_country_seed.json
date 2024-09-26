@@ -5,7 +5,7 @@
         "fields": {
             "id": 1,
             "description": "",
-            "question_subject": 35,
+            "question_subject": 4,
             "country": 5,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -17,7 +17,7 @@
         "fields": {
             "id": 2,
             "description": "",
-            "question_subject": 35,
+            "question_subject": 4,
             "country": 75,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -29,7 +29,7 @@
         "fields": {
             "id": 3,
             "description": "",
-            "question_subject": 35,
+            "question_subject": 4,
             "country": 45,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -41,7 +41,7 @@
         "fields": {
             "id": 4,
             "description": "",
-            "question_subject": 35,
+            "question_subject": 4,
             "country": 86,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -53,7 +53,7 @@
         "fields": {
             "id": 6,
             "description": "",
-            "question_subject": 40,
+            "question_subject": 9,
             "country": 75,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -65,7 +65,7 @@
         "fields": {
             "id": 7,
             "description": "",
-            "question_subject": 42,
+            "question_subject": 13,
             "country": 5,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -77,7 +77,7 @@
         "fields": {
             "id": 8,
             "description": "",
-            "question_subject": 43,
+            "question_subject": 19,
             "country": 75,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
@@ -89,7 +89,7 @@
         "fields": {
             "id": 9,
             "description": "",
-            "question_subject": 45,
+            "question_subject": 24,
             "country": 5,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
