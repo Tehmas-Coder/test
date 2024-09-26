@@ -377,11 +377,12 @@ class QuestionTest(QuestionUnitTest):
                     "subject": 3,
                     "education_level": 1,
                 },
-                "countries": [5],
                 "measuring_unit": 2,
                 "time_limit": 10,
                 "total_marks": 5,
                 "is_optional": 0,
+                "is_global": 0,
+                "countries": [5],
             }
         ]
         updated_request_body["tags"] = [1]
@@ -402,11 +403,12 @@ class QuestionTest(QuestionUnitTest):
                     "subject": 3,
                     "education_level": 1,
                 },
-                "countries": [5],
                 "measuring_unit": 2,
                 "time_limit": 10,
                 "total_marks": 5,
                 "is_optional": 0,
+                "is_global": 0,
+                "countries": [5],
             }
         ]
         updated_request_body["tags"] = [1]
