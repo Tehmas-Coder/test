@@ -260,8 +260,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
-        question = serializer.save()
-        serializer = QuestionDetailSerializer(question)
+        serializer.save()
+        serializer = QuestionDetailSerializer(self.get_object())
         return Response(serializer.data)
 
     @action(detail=False, methods=["delete"], url_path="delete-all")
