@@ -214,7 +214,7 @@
     "fields": {
       "role": 1,
       "permission": 20,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -478,12 +478,11 @@
     "fields": {
       "role": 2,
       "permission": 20,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
   },
-
   {
     "model": "user.RolePermission",
     "pk": 51,
@@ -743,12 +742,11 @@
     "fields": {
       "role": 3,
       "permission": 20,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
   },
-
   {
     "model": "user.RolePermission",
     "pk": 78,
@@ -1013,7 +1011,6 @@
       "updated_at": "1995-07-27T00:00:00Z"
     }
   },
-
   {
     "model": "user.RolePermission",
     "pk": 105,

@@ -201,7 +201,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 21,
+    "pk": 24,
     "fields": {
       "name": "Assign Organization Users",
       "description": "Assign Users to an Organization",
@@ -211,7 +211,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 22,
+    "pk": 25,
     "fields": {
       "name": "Remove Organization Users",
       "description": "Remove Users from an Organization",
@@ -221,7 +221,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 23,
+    "pk": 26,
     "fields": {
       "name": "View Organization Users",
       "description": "View an Organization Users",
@@ -231,7 +231,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 24,
+    "pk": 27,
     "fields": {
       "name": "View Organization Candidates",
       "description": "View an Organization Candidates",
@@ -241,7 +241,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 25,
+    "pk": 28,
     "fields": {
       "name": "Schedule an Exam",
       "description": "Schedule an Exam",
@@ -251,7 +251,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 26,
+    "pk": 29,
     "fields": {
       "name": "Mark an Exam",
       "description": "Mark an Exam",
@@ -261,7 +261,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 27,
+    "pk": 30,
     "fields": {
       "name": "Score an Exam",
       "description": "Score an Exam",
@@ -271,7 +271,7 @@
   },
   {
     "model": "user.Permission",
-    "pk": 28,
+    "pk": 31,
     "fields": {
       "name": "View Scheduled Exams",
       "description": "View all exams that have been scheduled",
