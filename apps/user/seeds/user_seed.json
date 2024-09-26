@@ -14,7 +14,7 @@
       "date_of_birth": "2000-10-10",
       "otp": "",
       "is_verified": true,
-      "is_superuser": false,
+      "is_superuser": true,
       "last_login": "2024-07-19T07:14:48.431449Z",
       "country": null,
       "date_joined": "1995-07-27T00:00:00Z",
