@@ -210,7 +210,6 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         instance.has_media = validated_data.get("has_media", instance.has_media)
         instance.save()
 
-        #! Clear existing question subjects
         if subjects_data:
             exisiting_question_subject_ids: list = list(QuestionSubject.objects.filter(question=instance).values_list("id", flat=True))
 

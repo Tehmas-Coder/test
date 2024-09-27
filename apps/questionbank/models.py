@@ -159,16 +159,21 @@ class Question(BaseModel):
 
         return cls.objects.get_queryset().prefetch_related(
             "tags",
-            "choices",
-            "choices__questionchoicemedia_set",
-            "choices__questionchoicemedia_set__media",
             "attempt_responses",
-            "retry_hints",
-            "retry_hints__questionretryhintmedia_set",
-            "retry_hints__questionretryhintmedia_set__media",
-            "questionmedia_set",
-            "questionmedia_set__media",
             "type",
+            Prefetch("questionmedia_set", QuestionMedia.objects.all().select_related("media")),
+            Prefetch(
+                "choices",
+                queryset=QuestionChoice.objects.all().prefetch_related(
+                    Prefetch("questionchoicemedia_set", QuestionChoiceMedia.objects.all().select_related("media"))
+                ),
+            ),
+            Prefetch(
+                "retry_hints",
+                queryset=QuestionRetryHint.objects.all().prefetch_related(
+                    Prefetch("questionretryhintmedia_set", QuestionRetryHintMedia.objects.all().select_related("media"))
+                ),
+            ),
             Prefetch(
                 "subjects",
                 queryset=QuestionSubject.objects.select_related(

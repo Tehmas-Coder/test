@@ -16,8 +16,11 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
     ExamBacklogQuestionChoice,
+    ExamBacklogQuestionChoiceMedia,
     ExamBacklogQuestionCountry,
+    ExamBacklogQuestionMedia,
     ExamBacklogQuestionRetryHint,
+    ExamBacklogQuestionRetryHintMedia,
 )
 from apps.exam_public.models.exam_public_models import (
     Candidate,
@@ -52,6 +55,7 @@ from apps.exam_scoring.models.exam_score_models import (
 )
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
+from apps.user.models import Role, RolePermission
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,
@@ -74,9 +78,12 @@ class CandidateViewSet(viewsets.ModelViewSet):
             "organization__country",
         )
         .prefetch_related(
-            "user__roles",
-            "user__roles__role_permissions",
-            "user__roles__role_permissions__permission",
+            Prefetch(
+                "user__roles",
+                queryset=Role.objects.all().prefetch_related(
+                    Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+                ),
+            ),
         )
     )
     serializer_class = CandidateSerializer
@@ -120,9 +127,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             "candidate__organization__country",
         )
         .prefetch_related(
-            "candidate__user__roles",
-            "candidate__user__roles__role_permissions",
-            "candidate__user__roles__role_permissions__permission",
+            Prefetch(
+                "candidate__user__roles",
+                queryset=Role.objects.all().prefetch_related(
+                    Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+                ),
+            ),
         )
     )
 
@@ -236,20 +246,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             Prefetch(
                 "exam_backlog__backlog_questions",
                 queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
-                .prefetch_related(
-                    "backlog_tags",
-                    "backlog_choices",
-                    "backlog_choices__exambacklogquestionchoicemedia_set",
-                    "backlog_choices__exambacklogquestionchoicemedia_set__media",
-                    "backlog_attempt_responses",
-                    "backlog_retry_hints",
-                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set",
-                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set__media",
-                    "exambacklogquestionmedia_set",
-                    "exambacklogquestionmedia_set__media",
-                    "exambacklogquestioncountry_set",
-                    "exambacklogquestioncountry_set__country",
-                )
                 .select_related(
                     "type",
                     "measuring_unit",
@@ -258,6 +254,35 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                     "section_backlog__measuring_unit",
                     "subsection_backlog",
                     "subsection_backlog__measuring_unit",
+                )
+                .prefetch_related(
+                    "backlog_tags",
+                    "backlog_attempt_responses",
+                    Prefetch(
+                        "exambacklogquestioncountry_set",
+                        queryset=ExamBacklogQuestionCountry.objects.all().select_related("country"),
+                    ),
+                    Prefetch(
+                        "exambacklogquestionmedia_set",
+                        queryset=ExamBacklogQuestionMedia.objects.all().select_related("media"),
+                    ),
+                    Prefetch(
+                        "backlog_choices",
+                        queryset=ExamBacklogQuestionChoice.objects.all().prefetch_related(
+                            Prefetch(
+                                "exambacklogquestionchoicemedia_set", queryset=ExamBacklogQuestionChoiceMedia.objects.all().select_related("media")
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "backlog_retry_hints",
+                        queryset=ExamBacklogQuestionRetryHint.objects.all().prefetch_related(
+                            Prefetch(
+                                "exambacklogquestionretryhintmedia_set",
+                                queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"),
+                            )
+                        ),
+                    ),
                 ),
             )
         )[0]
@@ -285,9 +310,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                         "candidate__organization__country",
                     )
                     .prefetch_related(
-                        "candidate__user__roles",
-                        "candidate__user__roles__role_permissions",
-                        "candidate__user__roles__role_permissions__permission",
+                        Prefetch(
+                            "candidate__user__roles",
+                            queryset=Role.objects.all().prefetch_related(
+                                Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+                            ),
+                        ),
                     ),
                 )
             ),
@@ -329,32 +357,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             Prefetch(
                 "exam_backlog__backlog_questions",
                 queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
-                .prefetch_related(
-                    "backlog_tags",
-                    "backlog_choices",
-                    "backlog_choices__exambacklogquestionchoicemedia_set",
-                    "backlog_choices__exambacklogquestionchoicemedia_set__media",
-                    "backlog_attempt_responses",
-                    "backlog_retry_hints",
-                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set",
-                    "backlog_retry_hints__exambacklogquestionretryhintmedia_set__media",
-                    "exambacklogquestionmedia_set",
-                    "exambacklogquestionmedia_set__media",
-                    "exambacklogquestioncountry_set",
-                    "exambacklogquestioncountry_set__country",
-                    Prefetch(
-                        "question_answers",
-                        CandidateExamAnswer.objects.all()
-                        .select_related(
-                            "exam_backlog_question_choice",
-                        )
-                        .prefetch_related(
-                            "answer_files",
-                            "exam_backlog_question_choice__exambacklogquestionchoicemedia_set",
-                            "exam_backlog_question_choice__exambacklogquestionchoicemedia_set__media",
-                        ),
-                    ),
-                )
                 .select_related(
                     "type",
                     "measuring_unit",
@@ -363,6 +365,49 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                     "section_backlog__measuring_unit",
                     "subsection_backlog",
                     "subsection_backlog__measuring_unit",
+                )
+                .prefetch_related(
+                    "backlog_tags",
+                    "backlog_attempt_responses",
+                    Prefetch(
+                        "exambacklogquestioncountry_set",
+                        queryset=ExamBacklogQuestionCountry.objects.all().select_related("country"),
+                    ),
+                    Prefetch(
+                        "exambacklogquestionmedia_set",
+                        queryset=ExamBacklogQuestionMedia.objects.all().select_related("media"),
+                    ),
+                    Prefetch(
+                        "backlog_choices",
+                        queryset=ExamBacklogQuestionChoice.objects.all().prefetch_related(
+                            Prefetch(
+                                "exambacklogquestionchoicemedia_set", queryset=ExamBacklogQuestionChoiceMedia.objects.all().select_related("media")
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "backlog_retry_hints",
+                        queryset=ExamBacklogQuestionRetryHint.objects.all().prefetch_related(
+                            Prefetch(
+                                "exambacklogquestionretryhintmedia_set",
+                                queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"),
+                            )
+                        ),
+                    ),
+                    Prefetch(
+                        "question_answers",
+                        CandidateExamAnswer.objects.all()
+                        .select_related(
+                            "exam_backlog_question_choice",
+                        )
+                        .prefetch_related(
+                            "answer_files",
+                            Prefetch(
+                                "exam_backlog_question_choice__exambacklogquestionchoicemedia_set",
+                                queryset=ExamBacklogQuestionChoiceMedia.objects.all().select_related("media"),
+                            ),
+                        ),
+                    ),
                 ),
             )
         )[0]
@@ -446,7 +491,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         else:
             exam_backlog_question_retryhints_instances = list(
                 ExamBacklogQuestionRetryHint.objects.filter(exam_backlog_question=exam_backlog_question)
-                .prefetch_related("exambacklogquestionretryhintmedia_set", "exambacklogquestionretryhintmedia_set__media")
+                .prefetch_related(
+                    "exambacklogquestionretryhintmedia_set",
+                    "exambacklogquestionretryhintmedia_set__media",
+                )
                 .exclude(id__in=candidate_exam_retryhints_ids)
             )
             if not len(exam_backlog_question_retryhints_instances):
