@@ -99,10 +99,10 @@
     "model": "questionbank.Question",
     "pk": 7,
     "fields": {
-      "title": "What is the largest planet in our solar system?",
+      "title": "What are some of the largest planet in our solar system?",
       "text": null,
       "max_retries": 3,
-      "type": 3,
+      "type": 1,
       "retry_penalty": 1,
       "is_public": true,
       "can_shuffle": true,
