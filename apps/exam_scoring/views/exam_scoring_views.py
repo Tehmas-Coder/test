@@ -23,11 +23,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         if candidate_exam_id is None:
             return make_error_response(message="Candidate Exam id is required")
 
-        candidate_exam_retry_hints_queryset = list(
-            CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id)
-            .annotate(question_total_marks=F("exam_backlog_question__total_marks"))
-            .values()
-        )
+        candidate_exam_retry_hints_queryset = list(CandidateExamRetryhint.objects.filter(candidate_exam_id=candidate_exam_id).values())
         request_data = request.data.get("questions_scores", None)
         if request_data is None:
             return make_error_response(message="Questions scores are required")
@@ -55,9 +51,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             if question_id in question_answer_ids_hashmap:
                 for one_request_dict in request_data:
                     if one_request_dict["candidate_exam_answer"] == question_answer_ids_hashmap[question_id]:
-                        one_request_dict["penalty_score"] = one_request_dict["penalty_score"] + (
-                            (one_candidate_exam_retry_hint["penalty_score"] / 100) * one_candidate_exam_retry_hint["question_total_marks"]
-                        )
+                        one_request_dict["penalty_score"] = one_request_dict["penalty_score"] + one_candidate_exam_retry_hint["penalty_score"]
 
         # * Bulk Update the scores in Answer Table records
         CandidateExamAnswer.objects.bulk_update(

@@ -93,10 +93,10 @@ class CandidateExamRetryhint(BaseModel):
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="candidate_exam_retry_hints")
     exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE)
     exam_backlog_question_retry_hint = models.ForeignKey("exam_public.ExamBacklogQuestionRetryHint", on_delete=models.CASCADE)
-    penalty_score = models.IntegerField(default=0)
+    penalty_score = models.DecimalField(max_digits=10, decimal_places=1)
 
     def save(self, *args, **kwargs):
-        self.penalty_score = self.exam_backlog_question.retry_penalty
+        self.penalty_score = (self.exam_backlog_question.retry_penalty / 100) * self.exam_backlog_question.total_marks
         return super().save(*args, **kwargs)
 
     class Meta:
