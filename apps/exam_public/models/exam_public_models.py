@@ -91,7 +91,9 @@ class CandidateExamAnswerMedia(BaseModel):
 
 class CandidateExamRetryhint(BaseModel):
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="candidate_exam_retry_hints")
-    exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE)
+    exam_backlog_question = models.ForeignKey(
+        "exam_public.ExamBacklogQuestion", on_delete=models.CASCADE, related_name="question_fetched_retry_hints"
+    )
     exam_backlog_question_retry_hint = models.ForeignKey("exam_public.ExamBacklogQuestionRetryHint", on_delete=models.CASCADE)
     penalty_score = models.DecimalField(max_digits=10, decimal_places=1)
 
