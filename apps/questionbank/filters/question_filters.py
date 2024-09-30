@@ -15,6 +15,7 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
         countries = request.query_params.get("countries")
         is_optional = request.query_params.get("is_optional")
         subject_education_levels = request.query_params.get("subject_education_levels")
+        title = request.query_params.get("title")
 
         q_filter = Q()
 
@@ -56,6 +57,10 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
         if is_optional:
             is_optional = int(is_optional)
             q_filter &= Q(subjects__is_optional=is_optional)
+
+        if title:
+            title = str(title)
+            q_filter &= Q(title__icontains=title)
 
         # ? Here i have removed .distinct() from the below queryset as it gets unique questions but we want if a question exist multiple times it must be in different subjects or in same subject but from different education level
         return queryset.filter(q_filter).distinct()
