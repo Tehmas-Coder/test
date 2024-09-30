@@ -14,17 +14,6 @@
     "model": "lookups.mediatype",
     "pk": 2,
     "fields": {
-      "name": "Video",
-      "code": "VID",
-      "abbreviation": "VID",
-      "created_at": "2024-07-05T07:17:54.260105Z",
-      "updated_at": "2024-07-05T07:17:54.260105Z"
-    }
-  },
-  {
-    "model": "lookups.mediatype",
-    "pk": 2,
-    "fields": {
       "name": "Audio",
       "code": "AUD",
       "abbreviation": "AUD",
@@ -34,7 +23,18 @@
   },
   {
     "model": "lookups.mediatype",
-    "pk": 2,
+    "pk": 3,
+    "fields": {
+      "name": "Video",
+      "code": "VID",
+      "abbreviation": "VID",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z"
+    }
+  },
+  {
+    "model": "lookups.mediatype",
+    "pk": 4,
     "fields": {
       "name": "Document",
       "code": "DOC",
