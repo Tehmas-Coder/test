@@ -35,7 +35,6 @@ class Section(BaseModel):
 
 
 class SubSection(BaseModel):
-
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="subsections")
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="subsections_measuring_unit")
 
@@ -56,10 +55,14 @@ class SubSection(BaseModel):
 
 
 class Exam(BaseModel):
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10, blank=True)
     abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField(blank=True, null=True)
+    total_marks = models.PositiveIntegerField(default=0)
+    pass_marks = models.PositiveIntegerField(default=0)
 
     TYPE_CHOICES = (
         ("draft", "Draft"),
@@ -67,15 +70,11 @@ class Exam(BaseModel):
     )
 
     exam_status = models.CharField(max_length=100, choices=TYPE_CHOICES, default="draft")
-    total_marks = models.PositiveIntegerField(default=0)
-    pass_marks = models.PositiveIntegerField(default=0)
-
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
-
-    subjects = models.ManyToManyField("questionbank.SubjectEducationLevel", through="ExamSubject")
 
     is_public = models.BooleanField(default=False)
     is_global = models.BooleanField(default=True)
+
+    subjects = models.ManyToManyField("questionbank.SubjectEducationLevel", through="ExamSubject")
 
     class Meta:
         app_label = "exam_admin"
@@ -127,10 +126,7 @@ class Exam(BaseModel):
 
 
 class ExamSubject(BaseModel):
-    exam = models.ForeignKey(
-        Exam,
-        on_delete=models.CASCADE,
-    )
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     subject_education_level = models.ForeignKey("questionbank.SubjectEducationLevel", on_delete=models.CASCADE)
 
     questions = models.ManyToManyField("questionbank.Question", through="ExamSubjectQuestion")

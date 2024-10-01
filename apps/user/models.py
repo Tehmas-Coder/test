@@ -48,6 +48,9 @@ class BaseUser(BaseUserModel, AbstractUser):
     Custom user model where email is the unique identifier, inhertied from abstract user provided by auth
     """
 
+    country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
+    profile_picture = models.ForeignKey("user.Media", on_delete=models.SET_NULL, null=True, blank=True)
+
     username = models.CharField(_("username"), max_length=150, blank=True)
     email = models.EmailField(_("email address"), unique=True)
     first_name = models.CharField(_("first name"), max_length=30, blank=True)
@@ -56,18 +59,13 @@ class BaseUser(BaseUserModel, AbstractUser):
     phone = models.CharField(_("phone"), max_length=15, blank=True)
     date_of_birth = models.DateField(_("date of birth"), blank=True, null=True)
     otp = models.CharField(_("otp"), max_length=6, blank=True)
+    date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
+    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
     is_verified = models.BooleanField(_("verified"), default=False)
     is_superuser = models.BooleanField(_("superuser"), default=False)
 
-    date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
-    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
-
-    country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
-
     roles = models.ManyToManyField("Role", related_name="users", blank=True, through="UserRole", through_fields=("user", "role"))
-
-    profile_picture = models.ForeignKey("user.Media", on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = CustomUserManager()
 
@@ -145,9 +143,11 @@ class BaseUser(BaseUserModel, AbstractUser):
 # ---------------------------------------------------------------------------- #
 class Role(BaseModel):
     name = models.CharField(max_length=255)
-    permissions = models.ManyToManyField("Permission", blank=True, through="RolePermission")
     slug = models.SlugField(max_length=100, null=True, unique=True)
+
     is_system_role = models.BooleanField(default=False)
+
+    permissions = models.ManyToManyField("Permission", blank=True, through="RolePermission")
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -199,7 +199,6 @@ class Resource(BaseModel):
 
 
 class RoleResource(BaseModel):
-
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
     resource = models.ForeignKey(Resource, on_delete=models.PROTECT)
 
