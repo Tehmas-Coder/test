@@ -10,6 +10,7 @@
             "education_level": 2,
             "total_marks": 100,
             "pass_marks": 50,
+            "exam_status": "active",
             "is_public": 1,
             "is_global": 1,
             "description": "This Exam is created with seeds",

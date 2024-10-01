@@ -206,7 +206,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
         exam_list_with_detail = remove_extra_underscore_from_key_names(
-            list(Exam.objects.all().annotate(education_level_name=F("education_level__name")).values())
+            list(Exam.objects.filter(exam_status="active").annotate(education_level_name=F("education_level__name")).values())
         )
         return make_success_response(data=exam_list_with_detail)
 

@@ -85,6 +85,7 @@ class ExamTest(ExamUnitTest):
         "education_level": 1,
         "total_marks": 100,
         "pass_marks": 63,
+        "exam_status": "active",
         "is_global": 0,
         "subjects": [2, 5],
     }
@@ -97,6 +98,7 @@ class ExamTest(ExamUnitTest):
         "education_level",
         "total_marks",
         "pass_marks",
+        "exam_status",
         "is_global",
         "exam_subjects",
         "questions",
