@@ -2,6 +2,7 @@ import json
 
 from rest_framework import status
 
+from apps.exam_public.tests.test_candidate_exam import CandidateExamUnitTest
 from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
@@ -11,7 +12,7 @@ from utils.rna_utils import (
 )
 
 
-class CandidateExamUnitTest(TestSetUp):
+class AttemptCandidateExamUnitTest(TestSetUp):
     fixtures = [
         "question_type_seed",
         "measuring_unit_seed",
@@ -46,8 +47,8 @@ class CandidateExamUnitTest(TestSetUp):
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_create_candidate_exam(self, request_body):
-        print_test_header("create_candidate_exam")
+    def do_attempt_one_candidate_exam(self, request_body):
+        print_test_header("Attempt_candidate_exam")
         url = "/api/candidate-exam/"
         response = self.client.post(
             url,
@@ -58,34 +59,8 @@ class CandidateExamUnitTest(TestSetUp):
         validate_success_201_test_response(self, response)
         return response.data[0]  # type: ignore
 
-    def do_get_candidate_exam_list(self):
-        print_test_header("get_candidate_exam_list")
-        url = "/api/candidate-exam/"
-        response = self.client.get(url, headers=self.headers)
-        validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
 
-    def do_get_one_candidate_exam(self, candidate_exam_id):
-        print_test_header("get_one_candidate_exam")
-        url = f"/api/candidate-exam/{candidate_exam_id}/"
-        response = self.client.get(url, headers=self.headers)
-        validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
-
-    def do_update_one_candidate_exam(self, candidate_exam_id, request_body):
-        print_test_header("update_candidate_exam")
-        url = f"/api/candidate-exam/{candidate_exam_id}/"
-        response = self.client.patch(
-            url,
-            headers=self.headers,
-            data=request_body,
-            content_type="application/json",
-        )
-        validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
-
-
-class CandidateExamTest(CandidateExamUnitTest):
+class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "candidates": [
@@ -112,43 +87,14 @@ class CandidateExamTest(CandidateExamUnitTest):
     # ?              TESTS - CASES
     # ?###################################################
     def test_cases_candidate_exam(self):
-        self.successfull_creation_of_a_record_test()
-        list_of_records = self.successsfull_fetching_of_list_of_records_test()
-        test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
-        # self.successfull_updation_of_record_test(test_record_id)
+        self.successfull_attemptation_of_an_exam_test()
 
-    def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_candidate_exam(json.dumps(self.reuseable_request_body))
-        for one_field in self.list_of_fields_of_candidate_exam_model:
-            self.assertIn(one_field, json_data)
-
-    def successsfull_fetching_of_list_of_records_test(self):
-        json_data = self.do_get_candidate_exam_list()
-        self.assertGreater(len(json_data), 0)
-        for test_dict in json_data:
-            for one_value_from_list_of_fields_of_candidate_exam_model in self.list_of_fields_of_candidate_exam_model:
-                self.assertIn(
-                    one_value_from_list_of_fields_of_candidate_exam_model,
-                    test_dict,
-                    f"The key {one_value_from_list_of_fields_of_candidate_exam_model} is not present in {test_dict}",
-                )
-        return json_data
-
-    def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_candidate_exam_id = list_of_records[len(list_of_records) - 1]["id"]
-        json_data = self.do_get_one_candidate_exam(test_candidate_exam_id)
-        self.assertEqual(
-            json_data["id"],
-            test_candidate_exam_id,
-            f"The field id ({json_data['id']} is not equal to id ({test_candidate_exam_id}) )",
-        )
-        return test_candidate_exam_id
-
-    # def successfull_updation_of_record_test(self, test_record_id):
-    #     updated_request_body = copy.deepcopy(self.reuseable_request_body)
-    #     updated_request_body["organization"] = 3
-    #     updated_response_json_data = self.do_update_one_candidate_exam(test_record_id, json.dumps(updated_request_body))
-    #     self.assertEqual(updated_response_json_data["id"], test_record_id)
+    def successfull_attemptation_of_an_exam_test(self):
+        candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(self.reuseable_request_body))  # type: ignore
+        debug_print(candidate_exam)
+        # json_data = self.do_attempt_one_candidate_exam(json.dumps(self.reuseable_request_body))
+        # for one_field in self.list_of_fields_of_candidate_exam_model:
+        #     self.assertIn(one_field, json_data)
 
 
 # ?###################################################

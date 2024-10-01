@@ -50,14 +50,11 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         ]
 
     def get_question(self, obj):
-        # QuestionDetailSerializer(obj.question)
         question_data = QuestionDetailSerializer(obj.question).data
         question_subject_data = question_data.pop("subjects")  # type: ignore
-        # debug_print(obj.exam_subject.subject.id)
         exam_subject_id = obj.exam_subject.subject_education_level.subject.id
         exam_subject_education_level_id = obj.exam_subject.subject_education_level.education_level.id
 
-        # TODO : here i didn't applied education level filter yet because that is yet to be decided
         question_more_data: dict = {}
         for one_dict in question_subject_data:
             if (one_dict["subject"]["id"] == exam_subject_id) and (one_dict["education_level"]["id"] == exam_subject_education_level_id):

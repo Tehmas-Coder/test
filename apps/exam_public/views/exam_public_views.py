@@ -1,11 +1,9 @@
 import json
 import random
-import re
 
 from cryptography.fernet import Fernet
 from decouple import config
 from django.db.models import F, Prefetch, Sum
-from django.forms import model_to_dict
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
