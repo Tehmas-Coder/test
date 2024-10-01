@@ -3,8 +3,9 @@
     "model": "user.Permission",
     "pk": 1,
     "fields": {
-      "name": "View Exams",
-      "description": "View all Exams",
+      "name": "View Users",
+      "context_value": "users",
+      "description": "View all Users",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -13,8 +14,9 @@
     "model": "user.Permission",
     "pk": 2,
     "fields": {
-      "name": "Add Exam",
-      "description": "Add an Exam",
+      "name": "Add User",
+      "context_value": "users",
+      "description": "Add a User",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -23,8 +25,9 @@
     "model": "user.Permission",
     "pk": 3,
     "fields": {
-      "name": "Edit Exam",
-      "description": "Edit an Exam",
+      "name": "Edit User",
+      "context_value": "users",
+      "description": "Edit a User",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -33,8 +36,9 @@
     "model": "user.Permission",
     "pk": 4,
     "fields": {
-      "name": "Delete Exam",
-      "description": "Delete an Exam",
+      "name": "Delete User",
+      "context_value": "users",
+      "description": "Delete a User",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -43,8 +47,9 @@
     "model": "user.Permission",
     "pk": 5,
     "fields": {
-      "name": "View Questions",
-      "description": "View all Questions",
+      "name": "View Own Organization",
+      "context_value": "organizations",
+      "description": "Allow a User to view their own Organization",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -53,8 +58,9 @@
     "model": "user.Permission",
     "pk": 6,
     "fields": {
-      "name": "Add Question",
-      "description": "Add a Question",
+      "name": "Assign Organization Users",
+      "context_value": "organizations",
+      "description": "Assign Users to an Organization",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -63,8 +69,9 @@
     "model": "user.Permission",
     "pk": 7,
     "fields": {
-      "name": "Edit Question",
-      "description": "Edit a Question",
+      "name": "Remove Organization Users",
+      "context_value": "organizations",
+      "description": "Remove Users from an Organization",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -73,8 +80,9 @@
     "model": "user.Permission",
     "pk": 8,
     "fields": {
-      "name": "Delete Question",
-      "description": "Delete a Question",
+      "name": "View Organization Users",
+      "context_value": "organizations",
+      "description": "View an Organization Users",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -83,8 +91,9 @@
     "model": "user.Permission",
     "pk": 9,
     "fields": {
-      "name": "Attempt Exam",
-      "description": "Attempt an Exam",
+      "name": "View Organization Candidates",
+      "context_value": "organizations",
+      "description": "View an Organization Candidates",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -93,8 +102,9 @@
     "model": "user.Permission",
     "pk": 10,
     "fields": {
-      "name": "View Exam Attempted Answers",
-      "description": "View an Exam Answers attempted by user",
+      "name": "View Questions",
+      "context_value": "questions",
+      "description": "View all Questions",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -103,8 +113,9 @@
     "model": "user.Permission",
     "pk": 11,
     "fields": {
-      "name": "View Exam Answers Key",
-      "description": "View an Exam Answers Key of correct options",
+      "name": "Add Question",
+      "context_value": "questions",
+      "description": "Add a Question",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -113,8 +124,9 @@
     "model": "user.Permission",
     "pk": 12,
     "fields": {
-      "name": "View Schedules",
-      "description": "View all Schedules",
+      "name": "Edit Question",
+      "context_value": "questions",
+      "description": "Edit a Question",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -123,8 +135,9 @@
     "model": "user.Permission",
     "pk": 13,
     "fields": {
-      "name": "Add Schedule",
-      "description": "Add a Schedule",
+      "name": "Delete Question",
+      "context_value": "questions",
+      "description": "Delete a Question",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -133,8 +146,9 @@
     "model": "user.Permission",
     "pk": 14,
     "fields": {
-      "name": "Edit Schedule",
-      "description": "Edit a Schedule",
+      "name": "View Schedules",
+      "context_value": "schedules",
+      "description": "View all Schedules",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -143,8 +157,9 @@
     "model": "user.Permission",
     "pk": 15,
     "fields": {
-      "name": "Delete Schedule",
-      "description": "Delete a Schedule",
+      "name": "Add Schedule",
+      "context_value": "schedules",
+      "description": "Add a Schedule",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -153,8 +168,9 @@
     "model": "user.Permission",
     "pk": 16,
     "fields": {
-      "name": "View Users",
-      "description": "View all Users",
+      "name": "Edit Schedule",
+      "context_value": "schedules",
+      "description": "Edit a Schedule",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -163,8 +179,9 @@
     "model": "user.Permission",
     "pk": 17,
     "fields": {
-      "name": "Add User",
-      "description": "Add a User",
+      "name": "Delete Schedule",
+      "context_value": "schedules",
+      "description": "Delete a Schedule",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -173,8 +190,9 @@
     "model": "user.Permission",
     "pk": 18,
     "fields": {
-      "name": "Edit User",
-      "description": "Edit a User",
+      "name": "View Exams",
+      "context_value": "exams",
+      "description": "View all Exams",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -183,8 +201,9 @@
     "model": "user.Permission",
     "pk": 19,
     "fields": {
-      "name": "Delete User",
-      "description": "Delete a User",
+      "name": "Add Exam",
+      "context_value": "exams",
+      "description": "Add an Exam",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -193,8 +212,42 @@
     "model": "user.Permission",
     "pk": 20,
     "fields": {
-      "name": "View Own Organization",
-      "description": "Allow a User to view their own Organization",
+      "name": "Edit Exam",
+      "context_value": "exams",
+      "description": "Edit an Exam",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 21,
+    "fields": {
+      "name": "Delete Exam",
+      "context_value": "exams",
+      "description": "Delete an Exam",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 22,
+    "fields": {
+      "name": "View Exam Attempt",
+      "context_value": "exams",
+      "description": "View an Exam attempted by user",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 23,
+    "fields": {
+      "name": "View Exam Answers Key",
+      "context_value": "exams",
+      "description": "View an Exam Answers Key of correct options",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -203,8 +256,9 @@
     "model": "user.Permission",
     "pk": 24,
     "fields": {
-      "name": "Assign Organization Users",
-      "description": "Assign Users to an Organization",
+      "name": "Schedule an Exam",
+      "context_value": "exams",
+      "description": "Schedule an Exam",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -213,8 +267,9 @@
     "model": "user.Permission",
     "pk": 25,
     "fields": {
-      "name": "Remove Organization Users",
-      "description": "Remove Users from an Organization",
+      "name": "Mark an Exam Attempt",
+      "context_value": "exams",
+      "description": "Mark an Exam attempted by candidate",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -223,8 +278,9 @@
     "model": "user.Permission",
     "pk": 26,
     "fields": {
-      "name": "View Organization Users",
-      "description": "View an Organization Users",
+      "name": "View Scheduled Exams",
+      "context_value": "exams",
+      "description": "View all exams that have been scheduled",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -233,48 +289,9 @@
     "model": "user.Permission",
     "pk": 27,
     "fields": {
-      "name": "View Organization Candidates",
-      "description": "View an Organization Candidates",
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.Permission",
-    "pk": 28,
-    "fields": {
-      "name": "Schedule an Exam",
-      "description": "Schedule an Exam",
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.Permission",
-    "pk": 29,
-    "fields": {
-      "name": "Mark an Exam",
-      "description": "Mark an Exam",
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.Permission",
-    "pk": 30,
-    "fields": {
-      "name": "Score an Exam",
-      "description": "Score an Exam",
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.Permission",
-    "pk": 31,
-    "fields": {
-      "name": "View Scheduled Exams",
-      "description": "View all exams that have been scheduled",
+      "name": "View Candidate Exams",
+      "context_value": "exams",
+      "description": "View exams grouped by candidates",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }

@@ -168,6 +168,7 @@ class UserRole(BaseModel):
 
 class Permission(BaseModel):
     name = models.CharField(max_length=255)
+    context_value = models.CharField(max_length=255)
 
     class Meta:
         app_label = "user"
