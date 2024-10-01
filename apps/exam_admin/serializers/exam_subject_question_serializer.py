@@ -20,6 +20,7 @@ class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
             "id",
             "section",
             "subsection",
+            "total_marks",
             "sequence",
         ] + get_base_model_fields()
 
@@ -42,6 +43,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
             "question",
             "section",
             "subsection",
+            "total_marks",
             "sequence",
         ] + get_base_model_fields()
 
@@ -81,6 +83,7 @@ class ExamSubjectQuestionSerializer(BaseModelSerializer):
             "question",
             "section",
             "subsection",
+            "total_marks",
             "sequence",
         ] + get_base_model_fields()
 

@@ -142,8 +142,8 @@ class ExamSubjectQuestion(BaseModel):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, related_name="questions")
     subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True, related_name="questions")
 
-    sequence = models.PositiveIntegerField(default=1)
     total_marks = models.PositiveIntegerField(default=0)
+    sequence = models.PositiveIntegerField(default=1)
 
     class Meta:
         app_label = "exam_admin"

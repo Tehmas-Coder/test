@@ -79,6 +79,7 @@ class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
         "section": None,
         "subsection": None,
         "sequence": 5,
+        "total_marks": 20,
     }
     list_of_fields_of_exam_subject_question_model = [
         "id",
@@ -87,6 +88,7 @@ class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
         "section",
         "subsection",
         "sequence",
+        "total_marks",
         "description",
     ]
 
@@ -109,6 +111,7 @@ class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
         updated_request_body["section"] = 1
         updated_request_body["subsection"] = 2
         updated_request_body["sequence"] = 1
+        updated_request_body["total_marks"] = 10
         updated_response_json_data = self.do_update_one_exam_subject_question(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
