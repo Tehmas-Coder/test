@@ -3,6 +3,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.exam_admin.filters.exam_filters import ExamFilterBackend
 from apps.exam_admin.models.exam_admin_models import (
     Exam,
     ExamSubject,
@@ -122,6 +123,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.get_detail_queryset()
     serializer_class = ExamEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = [ExamFilterBackend]
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
