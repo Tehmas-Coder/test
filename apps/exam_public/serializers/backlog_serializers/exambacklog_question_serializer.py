@@ -103,7 +103,7 @@ class ExamBacklogQuestionSerializer(BaseModelSerializer):
     def get_obtained_marks(self, obj):
         if self.context.get("get_answers", False):
             exam_answers = CandidateExamQuestionAnswerSerializer(obj.question_answers.all(), many=True).data
-            obtained_marks = 0
+            obtained_marks = 0 if len(exam_answers) else None
             for one_answer in exam_answers:
                 if one_answer["score"] is not None:
                     obtained_marks = obtained_marks + one_answer["score"]

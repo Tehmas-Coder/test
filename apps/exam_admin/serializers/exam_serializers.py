@@ -34,8 +34,10 @@ class ExamEditSerializer(BaseModelSerializer):
             "education_level",
             "total_marks",
             "pass_marks",
-            "subjects",
+            "exam_status",
+            "is_public",
             "is_global",
+            "subjects",
         ] + get_base_model_fields()
 
 
@@ -56,6 +58,8 @@ class ExamDetailSerializer(BaseModelSerializer):
             "education_level",
             "total_marks",
             "pass_marks",
+            "exam_status",
+            "is_public",
             "is_global",
             "exam_subjects",
             "questions",
@@ -205,6 +209,8 @@ class ExamDetailSerializerForBacklogs(BaseModelSerializer):
             "education_level",
             "total_marks",
             "pass_marks",
+            "exam_status",
+            "is_public",
             "is_global",
             "exam_subjects",
             "questions",

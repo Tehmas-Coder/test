@@ -24,6 +24,7 @@ class IsAuthenticated(BasePermission):
         if is_url_public(request_method, request_path):
             return True
 
+        # TODO: Here only the resources assigned to the system role will be allowed, later when role_resource seeds will be added
         if user_role["name"].lower() == "system":
             return True
 

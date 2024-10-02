@@ -7,12 +7,9 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
-from apps.organization.models.organization_models import (
-    Organization,
-    OrganizationPackage,
-    OrganizationUser,
-)
+from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.organization.serializers import (
+    OrganizationEditSerializer,
     OrganizationSerializer,
     OrganizationUserSerializer,
     OrganizationWithCandidateListSerializer,
@@ -29,21 +26,34 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         .prefetch_related(
             "organization_users",
             "organization_candidates",
+            "organization_packages",
+            "organization_packages__package",
         )
     )
     serializer_class = OrganizationSerializer
     pagination_class = None
     http_method_names = ["get", "post", "patch", "delete"]
 
+    def get_serializer_class(self):
+        if self.action in ["create", "partial_update"]:
+            return OrganizationEditSerializer
+        return super().get_serializer_class()
+
     def create(self, request, *args, **kwargs):
-        res = super().create(request, *args, **kwargs)
-        if res.data:
-            id = res.data["id"]
-            OrganizationPackage.objects.create(organization_id=id, package_id=1)
-            instance = Organization.objects.get(id=id)
-            serializer = OrganizationSerializer(instance)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return res
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        organization = serializer.save()
+        response = OrganizationSerializer(organization).data
+        return Response(response, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        organization = serializer.save()
+        organization.refresh_from_db()
+        response = OrganizationSerializer(organization).data
+        return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
     def assign_organization_user(self, request):
@@ -65,7 +75,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 class OrganizationRelatedViewset(viewsets.ViewSet):
 
     def get_organization_users_list(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
+        logged_in_user = request.user
         organization_id = kwargs.get("id", None)
 
         filtered_organization_queryset = Organization.objects.filter(id=organization_id)
@@ -79,7 +89,11 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                         "user__country",
                         "user__profile_picture",
                     )
-                    .prefetch_related("user__roles"),
+                    .prefetch_related(
+                        "user__roles",
+                        "user__roles__role_permissions",
+                        "user__roles__role_permissions__permission",
+                    ),
                 )
             ),
             many=True,
@@ -93,7 +107,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
         return Response(response_data, status=status.HTTP_200_OK)
 
     def get_organization_candidates_list(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
+        logged_in_user = request.user
         organization_id = kwargs.get("id", None)
 
         organization_queryset = Organization.objects.filter(id=organization_id)
@@ -114,7 +128,11 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
                         "user__country",
                         "user__profile_picture",
                     )
-                    .prefetch_related("user__roles"),
+                    .prefetch_related(
+                        "user__roles",
+                        "user__roles__role_permissions",
+                        "user__roles__role_permissions__permission",
+                    ),
                 )
             ),
             many=True,
@@ -130,7 +148,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
     def get_candidate_organizations_list(self, request, *args, **kwargs):
 
         filtered_candidate_queryset = CandidateWithOrganizationsSerializer(
-            BaseUser.objects.filter(id=self.request.user.id).prefetch_related("user_candidates"), many=True  # type: ignore
+            BaseUser.objects.filter(id=request.user.id).prefetch_related("user_candidates"), many=True
         ).data
         filtered_candidate_queryset_response = {}
         if len(filtered_candidate_queryset):
@@ -156,9 +174,4 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
             )
         )
 
-        if len(user_organization_detail):
-            response_data = user_organization_detail[0]
-        else:
-            response_data = user_organization_detail
-
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response(user_organization_detail, status=status.HTTP_200_OK)

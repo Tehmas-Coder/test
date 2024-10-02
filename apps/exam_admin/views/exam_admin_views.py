@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import F, Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -129,9 +129,9 @@ class ExamViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
-        serializer = ExamEditSerializer(data=request.data)
         # * Checking Package limit to create Exam for an Organization if the requested user is not superuser
         if not request.user.is_superuser:
+            request.data["is_public"] = 0
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             if not organization_id:
                 return make_error_response(message=f"Failed: User doesn't belong to any organization")
@@ -140,13 +140,19 @@ class ExamViewSet(viewsets.ModelViewSet):
             organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
             if not (organization_package.exams <= organization_package.total_exams):  # type:ignore
                 return make_error_response(message=f"Failed: Your limit to create exams is reached")
+        else:
+            request.data["is_public"] = 1
+
+        serializer = ExamEditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         exam = serializer.save()
+
         # * Assigning Exam to Organization if the requested user is not superuser
         if not request.user.is_superuser:
             organization_package.exams = organization_package.exams + 1  # type:ignore
             organization_package.save()  # type:ignore
             organization.exams.add(exam.id)  # type:ignore
+
         response = ExamDetailSerializer(exam).data
         return Response(response, status=status.HTTP_201_CREATED)
 
@@ -154,7 +160,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         if not request.user.is_superuser:
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             organization_exam_ids = list(OrganizationExam.objects.filter(organization_id=organization_id).values_list("exam", flat=True))
-            self.queryset = self.queryset.filter(id__in=organization_exam_ids)
+            self.queryset = self.queryset.filter(Q(id__in=organization_exam_ids) | Q(is_public=True))
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
@@ -163,7 +169,7 @@ class ExamViewSet(viewsets.ModelViewSet):
             exam_id = res.data["id"]  # type:ignore
             organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
             organization_exam = OrganizationExam.objects.filter(organization_id=organization_id, exam_id=exam_id)
-            if not len(organization_exam):
+            if not ((res.data["is_public"]) or len(organization_exam)):  # type:ignore
                 return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
         return res
 
@@ -200,7 +206,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
         exam_list_with_detail = remove_extra_underscore_from_key_names(
-            list(Exam.objects.all().annotate(education_level_name=F("education_level__name")).values())
+            list(Exam.objects.filter(exam_status="active").annotate(education_level_name=F("education_level__name")).values())
         )
         return make_success_response(data=exam_list_with_detail)
 

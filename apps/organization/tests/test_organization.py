@@ -13,7 +13,12 @@ from utils.rna_utils import (
 
 
 class OrganizationUnitTest(TestSetUp):
-    fixtures = ["country_test_seed", "organization_seed"]
+    fixtures = [
+        "country_test_seed",
+        "organization_seed",
+        "package_seed",
+        "organization_package_seed",
+    ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -68,6 +73,7 @@ class OrganizationTest(OrganizationUnitTest):
     reuseable_request_body = {
         "name": "Test Org",
         "country": 2,
+        "package": 1,
     }
     list_of_fields_of_organization_model = [
         "id",
@@ -89,8 +95,11 @@ class OrganizationTest(OrganizationUnitTest):
 
     def successfull_creation_of_a_record_test(self):
         json_data = self.do_create_organization(json.dumps(self.reuseable_request_body))
-        # for key in self.reuseable_request_body:
-        #     self.assertEqual(json_data[key], self.reuseable_request_body[key])
+        for key in self.reuseable_request_body:
+            if key == "name":
+                self.assertEqual(json_data[key], self.reuseable_request_body[key])
+            if key == "country":
+                self.assertEqual(json_data[key]["id"], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_organization_model:
             self.assertIn(one_field, json_data)
 
@@ -122,8 +131,11 @@ class OrganizationTest(OrganizationUnitTest):
         updated_request_body["country"] = 9
         updated_response_json_data = self.do_update_one_organization(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
-        # for key in updated_request_body:
-        #     self.assertEqual(updated_response_json_data[key], updated_request_body[key])
+        for key in updated_request_body:
+            if key == "name":
+                self.assertEqual(updated_response_json_data[key], updated_request_body[key])
+            if key == "country":
+                self.assertEqual(updated_response_json_data[key]["id"], updated_request_body[key])
 
     # * Test to check the deletion of a record
     def successfull_deletion_of_a_record_test(self, test_record_id):

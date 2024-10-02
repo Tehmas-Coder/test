@@ -125,19 +125,10 @@ class DifficultyLevel(BaseModel):
 
 
 class Question(BaseModel):
-    title = models.CharField(max_length=255)
-    text = models.TextField(null=True, blank=True)
-
-    subject_education_levels = models.ManyToManyField(
-        "SubjectEducationLevel",
-        through="QuestionSubject",
-        related_name="questions",
-    )
-
     type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
 
-    tags = models.ManyToManyField("questionbank.Tag", related_name="questions", through="QuestionTag")
-
+    title = models.CharField(max_length=255)
+    text = models.TextField(null=True, blank=True)
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
 
@@ -145,7 +136,9 @@ class Question(BaseModel):
     has_media = models.BooleanField(default=False)
     is_public = models.BooleanField(default=False)
 
+    tags = models.ManyToManyField("questionbank.Tag", related_name="questions", through="QuestionTag")
     medias = models.ManyToManyField(MEDIA_MODEL, related_name="questions", through="QuestionMedia")
+    subject_education_levels = models.ManyToManyField("SubjectEducationLevel", through="QuestionSubject", related_name="questions")
 
     class Meta:
         app_label = "questionbank"
@@ -159,16 +152,21 @@ class Question(BaseModel):
 
         return cls.objects.get_queryset().prefetch_related(
             "tags",
-            "choices",
-            "choices__questionchoicemedia_set",
-            "choices__questionchoicemedia_set__media",
             "attempt_responses",
-            "retry_hints",
-            "retry_hints__questionretryhintmedia_set",
-            "retry_hints__questionretryhintmedia_set__media",
-            "questionmedia_set",
-            "questionmedia_set__media",
             "type",
+            Prefetch("questionmedia_set", QuestionMedia.objects.all().select_related("media")),
+            Prefetch(
+                "choices",
+                queryset=QuestionChoice.objects.all().prefetch_related(
+                    Prefetch("questionchoicemedia_set", QuestionChoiceMedia.objects.all().select_related("media"))
+                ),
+            ),
+            Prefetch(
+                "retry_hints",
+                queryset=QuestionRetryHint.objects.all().prefetch_related(
+                    Prefetch("questionretryhintmedia_set", QuestionRetryHintMedia.objects.all().select_related("media"))
+                ),
+            ),
             Prefetch(
                 "subjects",
                 queryset=QuestionSubject.objects.select_related(
@@ -244,13 +242,13 @@ class Question(BaseModel):
 
 class QuestionChoice(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
+
     title = models.CharField(max_length=255)
     text = models.TextField(blank=True, null=True)
     weight = models.IntegerField(default=0)
 
     is_negative_weight = models.BooleanField(default=False)
     is_correct = models.BooleanField(default=False)
-
     has_media = models.BooleanField(default=False)
 
     medias = models.ManyToManyField(MEDIA_MODEL, related_name="choices", through="QuestionChoiceMedia")
@@ -287,9 +285,11 @@ class QuestionAttemptResponse(BaseModel):
 
 class QuestionRetryHint(BaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="retry_hints")
+
     text = models.TextField(null=True, blank=True)
-    has_media = models.BooleanField(default=False)
     sequence = models.IntegerField(default=1)
+
+    has_media = models.BooleanField(default=False)
 
     medias = models.ManyToManyField(
         MEDIA_MODEL,
@@ -315,10 +315,7 @@ class QuestionRetryHint(BaseModel):
 
 
 class SubjectEducationLevel(BaseModel):
-    subject = models.ForeignKey(
-        Subject,
-        on_delete=models.CASCADE,
-    )
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     education_level = models.ForeignKey(EducationLevel, on_delete=models.CASCADE)
 
     class Meta:
@@ -331,12 +328,14 @@ class QuestionSubject(BaseModel):
     subject_education_level = models.ForeignKey(SubjectEducationLevel, on_delete=models.CASCADE, related_name="question_subjects")
     difficulty_level = models.ForeignKey(DifficultyLevel, on_delete=models.CASCADE)
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE)
-    countries = models.ManyToManyField("lookups.Country", through="QuestionSubjectCountry")
 
     time_limit = models.IntegerField(default=0)
     total_marks = models.IntegerField(default=0)
+
     is_optional = models.BooleanField(default=False)
     is_global = models.BooleanField(default=False)
+
+    countries = models.ManyToManyField("lookups.Country", through="QuestionSubjectCountry")
 
     class Meta:
         app_label = "questionbank"
@@ -353,10 +352,7 @@ class QuestionSubjectCountry(BaseModel):
 
 
 class QuestionMedia(BaseModel):
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
 
     class Meta:
@@ -365,10 +361,7 @@ class QuestionMedia(BaseModel):
 
 
 class QuestionTag(BaseModel):
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     tag = models.ForeignKey("questionbank.Tag", on_delete=models.CASCADE)
 
     class Meta:
@@ -377,10 +370,7 @@ class QuestionTag(BaseModel):
 
 
 class QuestionChoiceMedia(BaseModel):
-    question_choice = models.ForeignKey(
-        QuestionChoice,
-        on_delete=models.CASCADE,
-    )
+    question_choice = models.ForeignKey(QuestionChoice, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
 
     class Meta:
@@ -389,10 +379,7 @@ class QuestionChoiceMedia(BaseModel):
 
 
 class QuestionRetryHintMedia(BaseModel):
-    question_retry_hint = models.ForeignKey(
-        QuestionRetryHint,
-        on_delete=models.CASCADE,
-    )
+    question_retry_hint = models.ForeignKey(QuestionRetryHint, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
 
     class Meta:

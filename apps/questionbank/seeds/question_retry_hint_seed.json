@@ -4,9 +4,585 @@
         "pk": 1,
         "fields": {
             "question": 1,
-            "text": "This is hint number 1",
+            "text": "Think about the fundamental forces of nature.",
             "sequence": 1,
-            "has_media": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 2,
+        "fields": {
+            "question": 1,
+            "text": "Check the units of measurement for gravitational constant.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 3,
+        "fields": {
+            "question": 2,
+            "text": "Recall the theory of special relativity.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 4,
+        "fields": {
+            "question": 2,
+            "text": "Consider the speed of light in different mediums.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 5,
+        "fields": {
+            "question": 2,
+            "text": "Verify the units of measurement for speed.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 6,
+        "fields": {
+            "question": 3,
+            "text": "Think about the quantization of energy.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 7,
+        "fields": {
+            "question": 3,
+            "text": "Check the units of measurement for Planck's constant.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 8,
+        "fields": {
+            "question": 4,
+            "text": "Recall the basic properties of electrons and protons.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 9,
+        "fields": {
+            "question": 4,
+            "text": "Consider the charge of a single electron or proton.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 10,
+        "fields": {
+            "question": 4,
+            "text": "Verify the units of measurement for charge.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 11,
+        "fields": {
+            "question": 5,
+            "text": "Think about the countries in the Southern Hemisphere.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 12,
+        "fields": {
+            "question": 5,
+            "text": "Check the continent where kangaroos are native.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 13,
+        "fields": {
+            "question": 5,
+            "text": "Verify the capital city of Australia.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 14,
+        "fields": {
+            "question": 6,
+            "text": "Recall the early American presidents.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 15,
+        "fields": {
+            "question": 6,
+            "text": "Think about the founding fathers of the United States.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 16,
+        "fields": {
+            "question": 6,
+            "text": "Verify the first president listed in U.S. history books.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 17,
+        "fields": {
+            "question": 7,
+            "text": "Consider the planets in our solar system by size.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 18,
+        "fields": {
+            "question": 7,
+            "text": "Think about the gas giants in our solar system.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 19,
+        "fields": {
+            "question": 7,
+            "text": "Verify the largest planet in terms of diameter.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 20,
+        "fields": {
+            "question": 8,
+            "text": "Recall the symbols of precious metals.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 21,
+        "fields": {
+            "question": 8,
+            "text": "Think about the chemical symbols for metals used in jewelry.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 22,
+        "fields": {
+            "question": 8,
+            "text": "Verify the symbol for gold on the periodic table.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 23,
+        "fields": {
+            "question": 9,
+            "text": "Consider the world's five oceans.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 24,
+        "fields": {
+            "question": 9,
+            "text": "Think about the ocean surrounding the North American continent.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 25,
+        "fields": {
+            "question": 9,
+            "text": "Verify the largest ocean by surface area.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 26,
+        "fields": {
+            "question": 10,
+            "text": "Recall the chemical composition of water.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 27,
+        "fields": {
+            "question": 10,
+            "text": "Think about the chemical symbols for hydrogen and oxygen.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 28,
+        "fields": {
+            "question": 10,
+            "text": "Verify the chemical formula for water.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 29,
+        "fields": {
+            "question": 11,
+            "text": "Recall the chemical symbol for a highly reactive gas.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 30,
+        "fields": {
+            "question": 11,
+            "text": "Think about the chemical symbols for elements essential for life.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 31,
+        "fields": {
+            "question": 11,
+            "text": "Verify the chemical symbol for oxygen.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 32,
+        "fields": {
+            "question": 12,
+            "text": "Consider the process of photosynthesis.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 33,
+        "fields": {
+            "question": 12,
+            "text": "Think about the byproducts of photosynthesis.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 34,
+        "fields": {
+            "question": 12,
+            "text": "Verify the role of chlorophyll in photosynthesis.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 35,
+        "fields": {
+            "question": 13,
+            "text": "Recall the scientific classification of humans.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 36,
+        "fields": {
+            "question": 13,
+            "text": "Think about the kingdom and phylum of humans.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 37,
+        "fields": {
+            "question": 13,
+            "text": "Verify the species name for modern humans.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 38,
+        "fields": {
+            "question": 14,
+            "text": "Consider the water cycle process.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 39,
+        "fields": {
+            "question": 14,
+            "text": "Think about the stages of the water cycle.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 40,
+        "fields": {
+            "question": 14,
+            "text": "Verify the role of evaporation in the water cycle.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 41,
+        "fields": {
+            "question": 15,
+            "text": "Recall the definition of a renewable resource.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 42,
+        "fields": {
+            "question": 15,
+            "text": "Think about examples of renewable energy sources.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 43,
+        "fields": {
+            "question": 15,
+            "text": "Verify the role of solar energy as a renewable resource.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 44,
+        "fields": {
+            "question": 16,
+            "text": "Consider the layers of the Earth's atmosphere.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 45,
+        "fields": {
+            "question": 16,
+            "text": "Think about the composition of the troposphere.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 46,
+        "fields": {
+            "question": 16,
+            "text": "Verify the layer where weather occurs.",
+            "sequence": 3,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 47,
+        "fields": {
+            "question": 17,
+            "text": "Recall the definition of a fossil fuel.",
+            "sequence": 1,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 48,
+        "fields": {
+            "question": 17,
+            "text": "Think about the formation of coal and oil.",
+            "sequence": 2,
+            "has_media": false,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionRetryHint",
+        "pk": 49,
+        "fields": {
+            "question": 17,
+            "text": "Verify the environmental impact of burning fossil fuels.",
+            "sequence": 3,
+            "has_media": false,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }

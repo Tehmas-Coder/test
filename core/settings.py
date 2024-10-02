@@ -134,11 +134,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-    "django_filters",
     # * System
     "apps.lookups",
     "apps.user",
@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     "apps.questionbank",
     "apps.exam_admin",
     "apps.exam_public",
+    "apps.exam_scoring",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -264,4 +265,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "exam_admin" / "seeds",
     BASE_DIR / "apps" / "exam_public" / "seeds",
     BASE_DIR / "apps" / "organization" / "seeds",
+    BASE_DIR / "apps" / "exam_scoring" / "seeds",
 ]

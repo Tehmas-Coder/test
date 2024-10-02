@@ -44,6 +44,7 @@ class RolePermissionSerializerForRole(BaseModelSerializer):
 
 class RoleDetailSerializer(BaseModelSerializer):
     role_permissions = RolePermissionSerializerForRole(many=True)
+    user_count = serializers.IntegerField(required=False)
 
     class Meta:
         model = Role
@@ -53,6 +54,7 @@ class RoleDetailSerializer(BaseModelSerializer):
             "is_system_role",
             "slug",
             "role_permissions",
+            "user_count",
         ] + get_base_model_fields()
 
     # def get_role_permissions(self, obj):

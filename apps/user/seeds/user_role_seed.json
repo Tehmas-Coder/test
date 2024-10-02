@@ -18,5 +18,35 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.UserRole",
+    "pk": 3,
+    "fields": {
+      "user": 4,
+      "role": 2,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.UserRole",
+    "pk": 4,
+    "fields": {
+      "user": 5,
+      "role": 4,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.UserRole",
+    "pk": 5,
+    "fields": {
+      "user": 6,
+      "role": 4,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

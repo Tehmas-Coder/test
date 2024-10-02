@@ -67,19 +67,17 @@ class ScheduleTest(ScheduleUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "title": "Schedule 3",
-        "date": "2095-07-27",
-        "start_time": "08:00:00",
-        "end_time": "12:00:00",
+        "start_datetime": "2015-07-27T07:17:54.260105Z",
+        "end_datetime": "2095-07-27T12:17:54.260105Z",
         "waiting_duration": 1,
         "extra_duration": 1,
         "description": "Schedule 3 description",
     }
     list_of_fields_of_schedule_model = [
         "id",
-        "date",
         "title",
-        "start_time",
-        "end_time",
+        "start_datetime",
+        "end_datetime",
         "waiting_duration",
         "extra_duration",
         "description",

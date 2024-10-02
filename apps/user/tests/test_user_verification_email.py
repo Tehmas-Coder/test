@@ -15,7 +15,7 @@ from utils.rna_utils import (
 
 
 class UserUnitTest(TestSetUp):
-    fixtures = ["country_test_seed", "role_seed", "test_user_seed"]
+    fixtures = ["country_test_seed", "role_seed", "user_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -44,7 +44,7 @@ class UserUnitTest(TestSetUp):
 
     def do_verify_link(self, request_body):
         print_test_header("verification_link")
-        url = f"/api/users/verify/account?token={request_body}"
+        url = f"/api/verification?token={request_body}"
         response = self.client.get(
             url,
             headers=self.headers,
@@ -81,7 +81,7 @@ class UserTest(UserUnitTest):
         created_user_dict = self.successfull_creation_of_a_record_test()
         self.failed_creation_of_a_duplicate_record_test()
         self.successfull_resending_of_verification_email_test(created_user_dict)
-        # self.successfull_verification_of_email(created_user_dict)
+        self.successfull_verification_of_email(created_user_dict)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS

@@ -30,9 +30,7 @@ class QuestionSubjectListSerializer(BaseModelSerializer):
 
 
 class QuestionSubjectDetailSerializer(BaseModelSerializer):
-    education_level = EducationLevelSerializer(
-        source="subject_education_level.education_level"
-    )
+    education_level = EducationLevelSerializer(source="subject_education_level.education_level")
     subject = SubjectListSerializer(source="subject_education_level.subject")
     countries = CountrySerializer(many=True)
     difficulty_level = DifficultyLevelSerializer()
@@ -56,16 +54,11 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
 
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):
+    id = serializers.IntegerField(required=False)  # Make id optional
     subject_education_level = SubjectEducationLevelEditSerializer()
-    difficulty_level = serializers.PrimaryKeyRelatedField(
-        queryset=DifficultyLevel.objects.all()
-    )
-    measuring_unit = serializers.PrimaryKeyRelatedField(
-        queryset=MeasuringUnit.objects.all()
-    )
-    countries = serializers.PrimaryKeyRelatedField(
-        queryset=Country.objects.all(), many=True, required=False
-    )
+    difficulty_level = serializers.PrimaryKeyRelatedField(queryset=DifficultyLevel.objects.all())
+    measuring_unit = serializers.PrimaryKeyRelatedField(queryset=MeasuringUnit.objects.all())
+    countries = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), many=True, required=False)
 
     class Meta:
         model = QuestionSubject

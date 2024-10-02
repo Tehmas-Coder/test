@@ -14,8 +14,6 @@ class SubSectionBacklogSerializer(BaseModelSerializer):
             "title",
             "sequence",
             "time_limit",
-            "total_marks",
-            "passing_marks",
             "is_global",
             "is_shuffle",
         ] + get_base_model_fields()

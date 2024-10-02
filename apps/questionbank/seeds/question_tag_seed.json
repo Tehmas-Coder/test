@@ -1,0 +1,362 @@
+[
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 1,
+        "fields": {
+            "question_id": 1,
+            "tag_id": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 2,
+        "fields": {
+            "question_id": 1,
+            "tag_id": 2,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 3,
+        "fields": {
+            "question_id": 2,
+            "tag_id": 3,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 4,
+        "fields": {
+            "question_id": 3,
+            "tag_id": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 5,
+        "fields": {
+            "question_id": 4,
+            "tag_id": 4,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 6,
+        "fields": {
+            "question_id": 5,
+            "tag_id": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 7,
+        "fields": {
+            "question_id": 6,
+            "tag_id": 2,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 8,
+        "fields": {
+            "question_id": 7,
+            "tag_id": 6,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 9,
+        "fields": {
+            "question_id": 8,
+            "tag_id": 3,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 10,
+        "fields": {
+            "question_id": 9,
+            "tag_id": 7,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 11,
+        "fields": {
+            "question_id": 10,
+            "tag_id": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 12,
+        "fields": {
+            "question_id": 11,
+            "tag_id": 9,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 13,
+        "fields": {
+            "question_id": 12,
+            "tag_id": 10,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 14,
+        "fields": {
+            "question_id": 13,
+            "tag_id": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 15,
+        "fields": {
+            "question_id": 14,
+            "tag_id": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 16,
+        "fields": {
+            "question_id": 15,
+            "tag_id": 9,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 17,
+        "fields": {
+            "question_id": 16,
+            "tag_id": 6,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 18,
+        "fields": {
+            "question_id": 17,
+            "tag_id": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 19,
+        "fields": {
+            "question_id": 1,
+            "tag_id": 10,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 20,
+        "fields": {
+            "question_id": 2,
+            "tag_id": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 21,
+        "fields": {
+            "question_id": 3,
+            "tag_id": 9,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 22,
+        "fields": {
+            "question_id": 4,
+            "tag_id": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 23,
+        "fields": {
+            "question_id": 5,
+            "tag_id": 6,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 24,
+        "fields": {
+            "question_id": 6,
+            "tag_id": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 25,
+        "fields": {
+            "question_id": 7,
+            "tag_id": 4,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 26,
+        "fields": {
+            "question_id": 8,
+            "tag_id": 3,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 27,
+        "fields": {
+            "question_id": 9,
+            "tag_id": 2,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 28,
+        "fields": {
+            "question_id": 10,
+            "tag_id": 1,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 29,
+        "fields": {
+            "question_id": 11,
+            "tag_id": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 30,
+        "fields": {
+            "question_id": 12,
+            "tag_id": 9,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 31,
+        "fields": {
+            "question_id": 13,
+            "tag_id": 7,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 32,
+        "fields": {
+            "question_id": 14,
+            "tag_id": 6,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 33,
+        "fields": {
+            "question_id": 15,
+            "tag_id": 8,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 34,
+        "fields": {
+            "question_id": 16,
+            "tag_id": 4,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 35,
+        "fields": {
+            "question_id": 17,
+            "tag_id": 3,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionTag",
+        "pk": 36,
+        "fields": {
+            "question_id": 1,
+            "tag_id": 6,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

@@ -92,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
         # * USER CREATED BY ORGANIZATION USER
         else:
             logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() in ["admin", "administrator", "examiner"]:
+            if logged_in_user_role_detail["role_name"].lower() != "candidate":
                 user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
                 if request_user_role_name.lower() == "candidate":
                     if user_organization_id:
@@ -148,20 +148,32 @@ class UserViewSet(viewsets.ModelViewSet):
     # -------------------------------- UPDATE USER ------------------------------- #
 
     def partial_update(self, request, *args, **kwargs):
-        profile_picture = request.data.get("profile_picture", None)
+        instance = self.get_object()
+        request_data: dict = request.data.dict()  # type: ignore
+        # * Handling password updation
+        old_password = request_data.get("old_password")
+        new_password = request_data.get("new_password")
+
+        if old_password:
+            if instance.check_password(old_password):
+                request_data["password"] = new_password
+            else:
+                return make_error_response(message="Old password is incorrect")
+
+        # * Creating the media transaction for profile picture then setting the media id in the profile_picture value
+        profile_picture = request_data.get("profile_picture", None)
         if profile_picture:
             media_serializer = MediaSerializer(data={"file": profile_picture})
             media_serializer.is_valid()
             media_serializer.save()
             media_id = media_serializer.data["id"]  # type: ignore
-            request.data["profile_picture"] = media_id
+            request_data["profile_picture"] = media_id
 
-        res = super().partial_update(request, *args, **kwargs)
-        if res.data:
-            instance = self.queryset.get(id=res.data["id"])
-            serializer = UserDetailSerializer(instance)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return res
+        serializer = self.get_serializer(instance, data=request_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        response = UserDetailSerializer(user).data
+        return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="restore")
     def restore(self, request, *args, **kwargs):
@@ -301,8 +313,8 @@ class ForSytemUserAPI(viewsets.ViewSet):
 
     @transaction.atomic
     def system_user_create(self, request, *args, **kwargs):
-        logged_in_user = self.request.user
-        logged_in_user_id = logged_in_user.id  # type: ignore
+        logged_in_user = request.user
+        logged_in_user_id = logged_in_user.id
 
         logged_in_user_role_data = logged_in_user.roles.values("id", "name").first()  # type: ignore
         logged_in_user_role_id = logged_in_user_role_data["id"]

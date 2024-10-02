@@ -1,4 +1,3 @@
-import copy
 import json
 
 from rest_framework import status
@@ -27,6 +26,15 @@ class QuestionUnitTest(TestSetUp):
         "subject_education_level_seed",
         "question_type_seed",
         "question_seed",
+        "question_subject_seed",
+        "question_subject_country_seed",
+        "question_retry_hint_seed",
+        "question_choice_seed",
+        "question_tag_seed",
+        "user_seed",
+        "role_seed",
+        "user_role_seed",
+        "resource_seed",
     ]
 
     # ?###################################################
@@ -67,8 +75,7 @@ class QuestionUnitTest(TestSetUp):
             data=request_body,
             content_type="application/json",
         )
-        validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
+        return response  # type: ignore
 
     def do_delete_one_question(self, question_id):
         print_test_header("delete_question")
@@ -118,8 +125,8 @@ class QuestionTest(QuestionUnitTest):
                     "education_level": 1,
                 },
                 "countries": [
-                    1,
-                    2,
+                    5,
+                    75,
                 ],
                 "measuring_unit": 1,
                 "time_limit": 10,
@@ -170,6 +177,7 @@ class QuestionTest(QuestionUnitTest):
         self.successfull_creation_of_a_question_with_question_retry_hint_media_test()
         list_of_records = self.successsfull_fetching_of_list_of_records_test()
         test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
+        self.failed_updation_of_any_other_organization_question_record_test(test_record_id)
         self.successfull_updation_of_record_test(test_record_id)
         self.successfull_deletion_of_a_record_test(test_record_id)
 
@@ -354,7 +362,9 @@ class QuestionTest(QuestionUnitTest):
         )
         return test_question_id
 
-    def successfull_updation_of_record_test(self, test_record_id):
+    # * Failed test case to check a user from any organization can not modify some other organization's question
+    def failed_updation_of_any_other_organization_question_record_test(self, test_record_id):
+        self.custom_login(email="generalcandidate@gmail.com", password="12345678")
         updated_request_body = {}
         updated_request_body["title"] = "Are you not crazy?"
         updated_request_body["text"] = "Please don't give reasons you are crazy for sure"
@@ -367,15 +377,44 @@ class QuestionTest(QuestionUnitTest):
                     "subject": 3,
                     "education_level": 1,
                 },
-                "countries": [1],
                 "measuring_unit": 2,
                 "time_limit": 10,
                 "total_marks": 5,
                 "is_optional": 0,
+                "is_global": 0,
+                "countries": [5],
             }
         ]
         updated_request_body["tags"] = [1]
-        updated_response_json_data = self.do_update_one_question(test_record_id, json.dumps(updated_request_body))
+        updated_response = self.do_update_one_question(test_record_id, json.dumps(updated_request_body))
+        validate_failed_400_test_response(self, updated_response)
+
+    def successfull_updation_of_record_test(self, test_record_id):
+        self.custom_login(email="test@gmail.com", password="12345678")
+        updated_request_body = {}
+        updated_request_body["title"] = "Are you not crazy?"
+        updated_request_body["text"] = "Please don't give reasons you are crazy for sure"
+        updated_request_body["type"] = 2
+        updated_request_body["max_retries"] = 0
+        updated_request_body["subjects"] = [
+            {
+                "difficulty_level": 3,
+                "subject_education_level": {
+                    "subject": 3,
+                    "education_level": 1,
+                },
+                "measuring_unit": 2,
+                "time_limit": 10,
+                "total_marks": 5,
+                "is_optional": 0,
+                "is_global": 0,
+                "countries": [5],
+            }
+        ]
+        updated_request_body["tags"] = [1]
+        updated_response = self.do_update_one_question(test_record_id, json.dumps(updated_request_body))
+        validate_success_200_test_response(self, updated_response)
+        updated_response_json_data = updated_response.data  # type: ignore
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in self.list_of_fields_of_question_model:
             self.assertIn(key, updated_response_json_data)
@@ -442,4 +481,18 @@ def validate_failed_404_test_response(self, response):
         response_status_code,
         status.HTTP_404_NOT_FOUND,
         f" 'status_code' 404 was expected, but received 'status_code' ({response_status_code})",
+    )
+
+
+def validate_failed_400_test_response(self, response):
+    response_status_code = response.status_code
+    if response_status_code == status.HTTP_400_BAD_REQUEST:
+        print_test_passed()
+    else:
+        print_test_failed()
+        print(response.content)
+    self.assertEqual(
+        response_status_code,
+        status.HTTP_400_BAD_REQUEST,
+        f" 'status_code' 400 was expected, but received 'status_code' ({response_status_code})",
     )

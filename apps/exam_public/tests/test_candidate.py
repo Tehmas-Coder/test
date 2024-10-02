@@ -27,8 +27,7 @@ class CandidateUnitTest(TestSetUp):
             data=request_body,
             content_type="application/json",
         )
-        validate_success_201_test_response(self, response)
-        return response.data  # type: ignore
+        return response  # type: ignore
 
     def do_get_candidate_list(self):
         print_test_header("get_candidate_list")
@@ -75,14 +74,22 @@ class CandidateTest(CandidateUnitTest):
     # ?###################################################
     def test_cases_candidate(self):
         self.successfull_creation_of_a_record_test()
+        self.failed_creation_of_a_duplicate_record_test()
         list_of_records = self.successsfull_fetching_of_list_of_records_test()
         test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
         self.successfull_updation_of_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_candidate(json.dumps(self.reuseable_request_body))
+        json_response = self.do_create_candidate(json.dumps(self.reuseable_request_body))
+        validate_success_201_test_response(self, json_response)
+        json_data = json_response.data  # type: ignore
         for one_field in self.list_of_fields_of_candidate_model:
             self.assertIn(one_field, json_data)
+
+    # * Fail case to check a user who already exists in an organization should not be mapped again
+    def failed_creation_of_a_duplicate_record_test(self):
+        json_response = self.do_create_candidate(json.dumps(self.reuseable_request_body))
+        validate_failed_400_test_response(self, json_response)
 
     def successsfull_fetching_of_list_of_records_test(self):
         json_data = self.do_get_candidate_list()
@@ -170,4 +177,18 @@ def validate_failed_404_test_response(self, response):
         response_status_code,
         status.HTTP_404_NOT_FOUND,
         f" 'status_code' 404 was expected, but received 'status_code' ({response_status_code})",
+    )
+
+
+def validate_failed_400_test_response(self, response):
+    response_status_code = response.status_code
+    if response_status_code == status.HTTP_400_BAD_REQUEST:
+        print_test_passed()
+    else:
+        print_test_failed()
+        print(response.content)
+    self.assertEqual(
+        response_status_code,
+        status.HTTP_400_BAD_REQUEST,
+        f" 'status_code' 400 was expected, but received 'status_code' ({response_status_code})",
     )

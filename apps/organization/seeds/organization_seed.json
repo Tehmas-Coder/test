@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "name": "Student-Apply Organization",
-            "country": 8,
+            "country": null,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -14,7 +14,7 @@
         "pk": 2,
         "fields": {
             "name": "AK Consultants",
-            "country": 3,
+            "country": 5,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
@@ -24,7 +24,7 @@
         "pk": 3,
         "fields": {
             "name": "Cyber Axes",
-            "country": 5,
+            "country": 75,
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
