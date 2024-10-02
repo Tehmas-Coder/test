@@ -7,6 +7,7 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.exam_public.serializers.candiate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
+from apps.organization.filters.organization_filters import OrganizationFilterBackend
 from apps.organization.models.organization_models import Organization, OrganizationUser
 from apps.organization.serializers import (
     OrganizationEditSerializer,
@@ -31,8 +32,8 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = OrganizationSerializer
-    pagination_class = None
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = [OrganizationFilterBackend]
 
     def get_serializer_class(self):
         if self.action in ["create", "partial_update"]:
