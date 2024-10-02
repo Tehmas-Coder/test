@@ -18,7 +18,7 @@ from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
 )
-from apps.utils import get_role_name, get_user_role_detail
+from apps.user.utils.utils import get_role_name, get_user_role_detail
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,

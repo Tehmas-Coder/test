@@ -5,6 +5,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.user.filters.role_filters import RoleFilterBackend
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
@@ -30,8 +31,26 @@ class RoleViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        if self.action in ["retrieve"]:
-            return Role.objects.all().prefetch_related(Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+        if self.action == "retrieve":
+            return Role.objects.all().prefetch_related(
+                Prefetch(
+                    "role_permissions",
+                    queryset=RolePermission.objects.select_related("permission"),
+                )
+            )
+        if self.action == "list":
+            return (
+                Role.objects.all()
+                .exclude(slug="system")
+                .prefetch_related(
+                    "userrole_set",
+                    Prefetch(
+                        "role_permissions",
+                        queryset=RolePermission.objects.select_related("permission"),
+                    ),
+                )
+                .annotate(user_count=Count("users"))
+            )
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
