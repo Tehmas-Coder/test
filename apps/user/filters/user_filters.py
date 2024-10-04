@@ -38,7 +38,7 @@ class UserFilterBackend(filters.BaseFilterBackend):
 
         if countries:
             countries = json.loads(countries)
-            countries = [str(name) for name in countries]
-            q_filter &= Q(country__name__in=countries)
+            countries = [int(id) for id in countries]
+            q_filter &= Q(country_id__in=countries)
 
         return queryset.filter(q_filter).distinct()
