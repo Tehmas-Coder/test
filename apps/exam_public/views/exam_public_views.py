@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
@@ -139,6 +140,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     serializer_class = CandidateExamEditSerializer
     pagination_class = None
     http_method_names = ["get", "post", "patch"]
+    filter_backends = [CandidateExamFilterBackend]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -167,12 +169,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
 
         return Response(response_data, status=status.HTTP_201_CREATED)
-
-    def list(self, request, *args, **kwargs):
-        user_id = request.query_params.get("user")
-        if user_id:
-            self.queryset = self.queryset.filter(candidate__user_id=user_id)
-        return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
