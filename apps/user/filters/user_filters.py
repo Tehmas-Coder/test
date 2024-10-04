@@ -7,8 +7,7 @@ from rest_framework import filters
 class UserFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
 
-        name = request.query_params.get("name")
-        email = request.query_params.get("email")
+        search = request.query_params.get("search")
         min_age = request.query_params.get("min_age")
         max_age = request.query_params.get("max_age")
         roles = request.query_params.get("roles")
@@ -16,14 +15,9 @@ class UserFilterBackend(filters.BaseFilterBackend):
 
         q_filter = Q()
 
-        if name:
-            name = str(name)
-            name = name.split(" ")
-            q_filter &= Q(first_name__icontains=name[0]) | Q(last_name__icontains=name[1])
-
-        if email:
-            email = str(email)
-            q_filter &= Q(email__icontains=email)
+        if search:
+            search = str(search)
+            q_filter &= Q(Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(email__icontains=search))
 
         if min_age:
             from datetime import date, timedelta
