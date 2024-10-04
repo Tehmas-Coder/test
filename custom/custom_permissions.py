@@ -12,6 +12,9 @@ class IsAuthenticated(BasePermission):
         request_method = request.method.lower()
         request_path = request.path.replace("/api", "")
 
+        if is_url_public(request_method, request_path):
+            return True
+
         if not request_user.is_authenticated:
             return False
 
@@ -20,9 +23,6 @@ class IsAuthenticated(BasePermission):
 
         user_role = request_user.roles.all().values().first()
         role_id = user_role["id"]
-
-        if is_url_public(request_method, request_path):
-            return True
 
         # TODO: Here only the resources assigned to the system role will be allowed, later when role_resource seeds will be added
         if user_role["name"].lower() == "system":

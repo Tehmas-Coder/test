@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaSerializer
-from apps.user.filters.user_filter import UserFilter
+from apps.user.filters.user_filters import UserFilterBackend
 from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
@@ -48,7 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = UserDetailSerializer
-    filterset_class = UserFilter
+    filter_backends = [UserFilterBackend]
     http_method_names = ["get", "post", "patch", "delete"]
     USER_NOT_FOUND = {"error": "User not found"}
     USER_STATUSES = ["active", "inactive", "deleted"]
