@@ -3,7 +3,7 @@ import random
 
 from cryptography.fernet import Fernet
 from decouple import config
-from django.db.models import F, Prefetch, Sum
+from django.db.models import F, Prefetch, Q, Sum
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -290,8 +290,32 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
+        name = request.query_params.get("name")
+        education_level = request.query_params.get("education_level")
+        start_datetime = request.query_params.get("start_datetime")
+        end_datetime = request.query_params.get("end_datetime")
+
+        q_filter = Q()
+
+        if name:
+            name = str(name)
+            q_filter &= Q(name__icontains=name)
+
+        if education_level:
+            education_level = int(education_level)
+            q_filter &= Q(education_level_id=education_level)
+
+        if start_datetime:
+            start_datetime = str(start_datetime)
+            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__gte=start_datetime)
+
+        if end_datetime:
+            end_datetime = str(end_datetime)
+            q_filter &= Q(candiate_exam_examsbacklog__end_datetime__lte=end_datetime)
+
         exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
-            ExamBacklog.objects.all().prefetch_related(
+            ExamBacklog.objects.filter(q_filter)
+            .prefetch_related(
                 Prefetch(
                     "candiate_exam_examsbacklog",
                     queryset=CandidateExam.objects.all()
@@ -314,7 +338,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                         ),
                     ),
                 )
-            ),
+            )
+            .distinct(),
             many=True,
         ).data
 
