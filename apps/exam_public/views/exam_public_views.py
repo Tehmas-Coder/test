@@ -138,7 +138,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     )
 
     serializer_class = CandidateExamEditSerializer
-    pagination_class = None
     http_method_names = ["get", "post", "patch"]
     filter_backends = [CandidateExamFilterBackend]
 
@@ -292,8 +291,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     def get_exam_backlogs_with_candidate_detail(self, request):
         name = request.query_params.get("name")
         education_level = request.query_params.get("education_level")
-        start_datetime = request.query_params.get("start_datetime")
-        end_datetime = request.query_params.get("end_datetime")
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
 
         q_filter = Q()
 
@@ -305,13 +304,18 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             education_level = int(education_level)
             q_filter &= Q(education_level_id=education_level)
 
-        if start_datetime:
-            start_datetime = str(start_datetime)
-            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__gte=start_datetime)
+        if start_date and not end_date:
+            start_date = str(start_date)
+            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__date=start_date)
 
-        if end_datetime:
-            end_datetime = str(end_datetime)
-            q_filter &= Q(candiate_exam_examsbacklog__end_datetime__lte=end_datetime)
+        if end_date and not start_date:
+            end_date = str(end_date)
+            q_filter &= Q(candiate_exam_examsbacklog__end_datetime__date=end_date)
+
+        if start_date and end_date:
+            start_date = str(start_date)
+            end_date = str(end_date)
+            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__date__range=[start_date, end_date])
 
         exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
             ExamBacklog.objects.filter(q_filter)
