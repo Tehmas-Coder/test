@@ -1,4 +1,4 @@
-from django.db.models import F, Prefetch
+from django.db.models import Count, F, Prefetch
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -25,11 +25,10 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         Organization.objects.all()
         .select_related("country")
         .prefetch_related(
-            "organization_users",
-            "organization_candidates",
             "organization_packages",
             "organization_packages__package",
         )
+        .annotate(users_count=Count("organization_users"), candidates_count=Count("organization_candidates"))
     )
     serializer_class = OrganizationSerializer
     http_method_names = ["get", "post", "patch", "delete"]

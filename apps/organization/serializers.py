@@ -30,8 +30,8 @@ class OrganizationPackageSerializer(BaseModelSerializer):
 
 
 class OrganizationSerializer(BaseModelSerializer):
-    users_count = serializers.SerializerMethodField()
-    candidates_count = serializers.SerializerMethodField()
+    users_count = serializers.IntegerField()
+    candidates_count = serializers.IntegerField()
     organization_packages = OrganizationPackageSerializer(many=True)
 
     class Meta:
@@ -52,12 +52,6 @@ class OrganizationSerializer(BaseModelSerializer):
             representation["country"] = CountrySerializer(country).data
 
         return representation
-
-    def get_users_count(self, obj):
-        return obj.organization_users.count()
-
-    def get_candidates_count(self, obj):
-        return obj.organization_candidates.count()
 
 
 class OrganizationEditSerializer(BaseModelSerializer):
