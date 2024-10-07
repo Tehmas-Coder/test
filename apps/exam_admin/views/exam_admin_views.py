@@ -145,17 +145,15 @@ class ExamViewSet(viewsets.ModelViewSet):
         else:
             request.data["is_public"] = 1
 
-        serializer = ExamEditSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        exam = serializer.save()
+        exam = super().create(request, *args, **kwargs).data
 
         # * Assigning Exam to Organization if the requested user is not superuser
         if not request.user.is_superuser:
             organization_package.exams = organization_package.exams + 1  # type:ignore
             organization_package.save()  # type:ignore
-            organization.exams.add(exam.id)  # type:ignore
+            organization.exams.add(exam["id"])  # type:ignore
 
-        response = ExamDetailSerializer(exam).data
+        response = ExamDetailSerializer(self.queryset.filter(pk=exam["id"]).first()).data  # type:ignore
         return Response(response, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
@@ -183,11 +181,10 @@ class ExamViewSet(viewsets.ModelViewSet):
             if not len(organization_exam):
                 return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
         instance = self.get_object()
-        serializer = ExamEditSerializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        exam = serializer.save()
-        exam.refresh_from_db()  # type:ignore
-        response = ExamDetailSerializer(exam).data
+        serializer.save()
+        response = ExamDetailSerializer(self.get_object()).data
         return Response(response)
 
     @action(detail=False, methods=["post"], url_path="create-random")

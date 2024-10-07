@@ -87,34 +87,29 @@ class Exam(BaseModel):
             .prefetch_related(
                 Prefetch(
                     "examsubject_set",
-                    queryset=ExamSubject.objects.all().select_related(
-                        "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level"
+                    queryset=ExamSubject.objects.all()
+                    .select_related(
+                        "subject_education_level",
+                        "subject_education_level__subject",
+                        "subject_education_level__education_level",
+                    )
+                    .prefetch_related(
+                        Prefetch(
+                            "examsubjectquestion_set",
+                            queryset=ExamSubjectQuestion.objects.all()
+                            .select_related(
+                                "section",
+                                "subsection",
+                            )
+                            .prefetch_related(
+                                Prefetch("question", queryset=Question.get_detail_queryset()),
+                            ),
+                        ),
                     ),
                 ),
                 Prefetch(
-                    "examsubject_set__examsubjectquestion_set",
-                    queryset=ExamSubjectQuestion.objects.filter(
-                        Q(
-                            Q(section__isnull=True)
-                            | Q(subsection__isnull=True)
-                            | Q(
-                                section__isnull=False,
-                                section__meta_status="active",
-                            )
-                            | Q(
-                                subsection__isnull=False,
-                                subsection__meta_status="active",
-                            )
-                        )
-                    ).select_related("section", "subsection"),
-                ),
-                Prefetch(
                     "sections",
-                    Section.objects.filter(meta_status="active").prefetch_related("subsections"),
-                ),
-                Prefetch(
-                    "examsubject_set__examsubjectquestion_set__question",
-                    queryset=Question.get_detail_queryset(),
+                    Section.objects.all().prefetch_related("subsections"),
                 ),
             )
         )

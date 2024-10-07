@@ -1,7 +1,7 @@
 from django.forms import model_to_dict
 from rest_framework import serializers
 
-from apps.exam_admin.models.exam_admin_models import Exam
+from apps.exam_admin.models.exam_admin_models import Exam, ExamSubject
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
@@ -13,7 +13,6 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionEditSerializer,
     SubSectionSerializer,
 )
-from apps.questionbank.models import SubjectEducationLevel
 from apps.questionbank.serializers.question_serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
@@ -21,7 +20,7 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class ExamEditSerializer(BaseModelSerializer):
-    subjects = serializers.PrimaryKeyRelatedField(queryset=SubjectEducationLevel.objects.all(), many=True, required=True)
+    subjects = serializers.ListField(child=serializers.IntegerField())
 
     class Meta:
         model = Exam
@@ -39,6 +38,13 @@ class ExamEditSerializer(BaseModelSerializer):
             "is_global",
             "subjects",
         ] + get_base_model_fields()
+
+    def create(self, validated_data):
+        self.fields.pop("subjects")
+        subjects = validated_data.pop("subjects")
+        exam = super().create(validated_data)
+        exam.subjects.set(subjects)
+        return exam
 
 
 class ExamDetailSerializer(BaseModelSerializer):
