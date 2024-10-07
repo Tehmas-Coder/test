@@ -13,7 +13,8 @@ hashids = Hashids(min_length=8, salt="your_salt_here")
 class BaseManager(models.Manager):
 
     def get_queryset(self):
-        qs = super().get_queryset().filter(meta_status="active").select_related("created_by", "updated_by")
+        # qs = super().get_queryset().filter(meta_status="active").select_related("created_by", "updated_by")
+        qs = super().get_queryset().filter(meta_status="active")
         return qs
 
 
