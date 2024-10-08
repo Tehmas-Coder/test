@@ -662,7 +662,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             )
             section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = (
                 section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"]
-                + subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"]
+                + one_candidate_exam_questions_with_subsection.total_marks
             )
             section_backlog_questions_details_hashmap[section_id]["subsection_count"] = (
                 section_backlog_questions_details_hashmap[section_id]["subsection_count"] + 1
