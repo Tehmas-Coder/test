@@ -3,7 +3,7 @@ import random
 
 from cryptography.fernet import Fernet
 from decouple import config
-from django.db.models import F, Prefetch, Sum
+from django.db.models import F, Prefetch, Q, Sum
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
@@ -137,8 +138,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     )
 
     serializer_class = CandidateExamEditSerializer
-    pagination_class = None
     http_method_names = ["get", "post", "patch"]
+    filter_backends = [CandidateExamFilterBackend]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -167,12 +168,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
 
         return Response(response_data, status=status.HTTP_201_CREATED)
-
-    def list(self, request, *args, **kwargs):
-        user_id = request.query_params.get("user")
-        if user_id:
-            self.queryset = self.queryset.filter(candidate__user_id=user_id)
-        return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
@@ -294,8 +289,37 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
+        name = request.query_params.get("name")
+        education_level = request.query_params.get("education_level")
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+
+        q_filter = Q()
+
+        if name:
+            name = str(name)
+            q_filter &= Q(name__icontains=name)
+
+        if education_level:
+            education_level = int(education_level)
+            q_filter &= Q(education_level_id=education_level)
+
+        if start_date and not end_date:
+            start_date = str(start_date)
+            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__date=start_date)
+
+        if end_date and not start_date:
+            end_date = str(end_date)
+            q_filter &= Q(candiate_exam_examsbacklog__end_datetime__date=end_date)
+
+        if start_date and end_date:
+            start_date = str(start_date)
+            end_date = str(end_date)
+            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__date__range=[start_date, end_date])
+
         exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
-            ExamBacklog.objects.all().prefetch_related(
+            ExamBacklog.objects.filter(q_filter)
+            .prefetch_related(
                 Prefetch(
                     "candiate_exam_examsbacklog",
                     queryset=CandidateExam.objects.all()
@@ -318,7 +342,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                         ),
                     ),
                 )
-            ),
+            )
+            .distinct(),
             many=True,
         ).data
 
@@ -804,5 +829,4 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
             if question.backlog_choices.exists()
         ]
 
-        return Response(data=response_list, status=status.HTTP_200_OK)
         return Response(data=response_list, status=status.HTTP_200_OK)

@@ -101,7 +101,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
-    queryset = SubjectEducationLevel.objects.all()
+    queryset = SubjectEducationLevel.objects.all().select_related("subject", "education_level")
     serializer_class = SubjectEducationLevelDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
