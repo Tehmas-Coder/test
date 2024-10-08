@@ -163,12 +163,16 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             .values(
                 "country_id",
                 "exam_backlog",
+                "exam_status",
             )
             .first()
         )
 
         if not candidate_exam_data:
             return make_error_response(message="The requested candidate exam is not present")
+
+        if candidate_exam_data["exam_status"] != "scored":
+            return make_error_response(message="The requested candidate exam is not scored yet")
 
         exam_question_backlog = list(
             ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
@@ -197,10 +201,19 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
                     )
                     .prefetch_related(
                         Prefetch(
-                            "exam_backlog__backlog_questions__section_backlog__section_scores",
+                            "section_backlog__section_scores",
                             queryset=CandidateExamSectionScore.objects.filter(candidate_exam_id=candidate_exam_id),
                         ),
-                    ),
+                        Prefetch(
+                            "subsection_backlog__subsection_scores",
+                            queryset=CandidateExamSubSectionScore.objects.filter(candidate_exam_id=candidate_exam_id),
+                        ),
+                        Prefetch(
+                            "question_answers",
+                            queryset=CandidateExamAnswer.objects.all(),
+                        ),
+                    )
+                    .annotate(obtained_score=Sum("question_answers__score")),
                 ),
             )
             .first()
