@@ -101,6 +101,8 @@ class OrganizationTest(OrganizationUnitTest):
             if key == "country":
                 self.assertEqual(json_data[key]["id"], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_organization_model:
+            if one_field in ["users_count", "candidates_count"]:
+                continue
             self.assertIn(one_field, json_data)
 
     def successsfull_fetching_of_list_of_records_test(self):

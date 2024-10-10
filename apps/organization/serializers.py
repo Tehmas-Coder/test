@@ -30,8 +30,8 @@ class OrganizationPackageSerializer(BaseModelSerializer):
 
 
 class OrganizationSerializer(BaseModelSerializer):
-    users_count = serializers.IntegerField()
-    candidates_count = serializers.IntegerField()
+    users_count = serializers.IntegerField(read_only=True)
+    candidates_count = serializers.IntegerField(read_only=True)
     organization_packages = OrganizationPackageSerializer(many=True)
 
     class Meta:
