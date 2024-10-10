@@ -1,3 +1,6 @@
+import json
+
+from cryptography.fernet import Fernet
 from django.db.models import F, Prefetch, Sum
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -18,7 +21,12 @@ from apps.exam_scoring.models.exam_score_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
-from utils.rna_utils import color_print, debug_print, make_error_response
+from utils.rna_utils import (
+    color_print,
+    debug_print,
+    get_encryption_key,
+    make_error_response,
+)
 
 
 class CandidateExamScoringViewset(viewsets.ViewSet):
@@ -156,8 +164,14 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 
     def candidate_exam_scoresheet(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs.get("id", None)
-        if not candidate_exam_id:
-            return make_error_response(message="Candidate Exam id is required")
+
+        try:
+            candidate_exam_id = int(candidate_exam_id)
+        except:
+            token = candidate_exam_id[len("token=") :]
+            key = get_encryption_key()
+            cipher = Fernet(key)
+            candidate_exam_id = cipher.decrypt(token).decode()
 
         candidate_exam_data = (
             CandidateExam.objects.filter(id=candidate_exam_id)
