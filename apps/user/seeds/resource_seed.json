@@ -2019,10 +2019,10 @@
     "model": "user.Resource",
     "pk": 169,
     "fields": {
-      "name": "Score One Candidate Exam",
-      "description": "Score One Candidate Exam",
-      "regex": "^/score-candidate-exam/$",
-      "method": "post",
+      "name": "One Candidate Exam Scoresheet",
+      "description": "View One Candidate Exam Scoresheet",
+      "regex": "^/candidate-exam-scoresheet/[0-9]+/$",
+      "method": "get",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }

@@ -16,7 +16,7 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
         education_levels = request.query_params.get("education_levels")
-        exams = request.query_params.get("exams")
+        exam = request.query_params.get("exam")
 
         q_filter = Q()
 
@@ -30,6 +30,7 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
                 Q(candidate__user__first_name__icontains=search)
                 | Q(candidate__user__last_name__icontains=search)
                 | Q(candidate__user__email__icontains=search)
+                | Q(candidate_email__icontains=search)
             )
 
         if countries:
@@ -65,9 +66,8 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
             education_levels = [int(level) for level in education_levels]
             q_filter &= Q(exam_backlog__education_level__in=education_levels)
 
-        if exams:
-            exams = json.loads(exams)
-            exams = [int(exam) for exam in exams]
-            q_filter &= Q(exam_backlog_id__in=exams)
+        if exam:
+            exam = str(exam)
+            q_filter &= Q(exam_backlog__name__icontains=exam)
 
         return queryset.filter(q_filter).distinct()

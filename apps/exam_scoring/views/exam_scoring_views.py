@@ -1,16 +1,32 @@
-from django.db.models import F, Sum
+import json
+
+from cryptography.fernet import Fernet
+from django.db.models import F, Prefetch, Sum
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
+from apps.exam_public.models.exam_public_backlog_models import (
+    ExamBacklogQuestion,
+    ExamBacklogQuestionCountry,
+)
 from apps.exam_public.models.exam_public_models import (
     CandidateExam,
     CandidateExamAnswer,
 )
+from apps.exam_public.serializers.candidate_exam_serializers import (
+    CandidateExamScoresheetSerializer,
+)
+from apps.exam_scoring.classes.exam_scoring_helper import ExamScoringNinja
 from apps.exam_scoring.models.exam_score_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
-from utils.rna_utils import color_print, debug_print, make_error_response
+from utils.rna_utils import (
+    color_print,
+    debug_print,
+    get_encryption_key,
+    make_error_response,
+)
 
 
 class CandidateExamScoringViewset(viewsets.ViewSet):
@@ -42,9 +58,13 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
                     score=one_dict["score"]
                     - float(
                         next(
-                            one_candidate_exam_answer.penalty_score  # type: ignore
-                            for one_candidate_exam_answer in candidate_exam_answer_queryset
-                            if one_candidate_exam_answer.id == one_dict["candidate_exam_answer"]  # type: ignore
+                            (
+                                one_candidate_exam_answer.penalty_score  # type: ignore
+                                for one_candidate_exam_answer in candidate_exam_answer_queryset
+                                if one_candidate_exam_answer.id == one_dict["candidate_exam_answer"]  # type: ignore
+                                and one_candidate_exam_answer.penalty_score is not None  # type: ignore
+                            ),
+                            0,
                         )
                     ),
                     is_correct=one_dict["score"] > 0,
@@ -120,27 +140,103 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         )
 
         all_sections_score = candidate_exam_section_score_queryset.aggregate(total_score=Sum("score"))["total_score"]
-        all_subsection_score = candidate_exam_subsection_score_queryset.aggregate(total_score=Sum("score"))["total_score"]
 
         if all_sections_score is None:
             all_sections_score = 0
-        if all_subsection_score is None:
-            all_subsection_score = 0
         # * Sum up all the scores for overall exam obtained marks
-        all_scores_sum = exam_questions_scores_sum + all_sections_score + all_subsection_score
+        all_scores_sum = exam_questions_scores_sum + all_sections_score
 
         # * Update obtained marks with the sum of scores and exam_status = scored if none of the questions left to mark otherwise set the status to marked
-        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id)
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).select_related("exam_backlog", "candidate", "candidate__user")
         if len(candidate_exam_answer_queryset) == length_of_scored_candidate_exam_answers:
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="scored")
             message = "All exam questions marked and scored successfully"
+            # * Sending Email notification to the candidate to view exam result
+            exam_scoring = ExamScoringNinja(candidate_exam_instance=candidate_exam_instance.first())
+            if not exam_scoring.send_result_email_to_candidate():
+                message = "Exam questions marked and scored successfully but failed to send email notification"
         else:
             message = "Exam questions marked and scored successfully"
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
         return Response({"message": message}, status=status.HTTP_200_OK)
 
-    # * -------------------------- Candidate Exam Scoring -------------------------- #
+    # * -------------------------- Candidate Exam Scoresheet -------------------------- #
 
-    # ! This API code is moved to the end of Exam marking API, so this API will be modified to show the scoresheet
-    def candidate_exam_scoring(self, request, *args, **kwargs):
-        return Response({"message": "Exam scored successfully"}, status=status.HTTP_200_OK)
+    def candidate_exam_scoresheet(self, request, *args, **kwargs):
+        candidate_exam_id = self.kwargs.get("id", None)
+
+        try:
+            candidate_exam_id = int(candidate_exam_id)
+        except:
+            try:
+                token = candidate_exam_id[len("token=") :]
+                key = get_encryption_key()
+                cipher = Fernet(key)
+                candidate_exam_id = cipher.decrypt(token).decode()
+            except:
+                return make_error_response(message="Invalid token")
+
+        candidate_exam_data = (
+            CandidateExam.objects.filter(id=candidate_exam_id)
+            .annotate(country_id=F("candidate__user__country_id"))
+            .values(
+                "country_id",
+                "exam_backlog",
+                "exam_status",
+            )
+            .first()
+        )
+
+        if not candidate_exam_data:
+            return make_error_response(message="The requested candidate exam is not present")
+
+        if candidate_exam_data["exam_status"] != "scored":
+            return make_error_response(message="The requested candidate exam is not scored yet")
+
+        exam_question_backlog = list(
+            ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
+        )
+        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
+
+        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
+        is_not_global_exam_question_backlog_ids_list: list = list(
+            ExamBacklogQuestionCountry.objects.filter(
+                exam_backlog_question_id__in=exam_question_backlog_ids,
+                country_id=candidate_exam_data["country_id"],
+            ).values_list("exam_backlog_question", flat=True)
+        )
+        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
+
+        candidate_exam_backlog_question_instance = (
+            CandidateExam.objects.filter(id=candidate_exam_id)
+            .select_related("exam_backlog")
+            .prefetch_related(
+                Prefetch(
+                    "exam_backlog__backlog_questions",
+                    queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
+                    .select_related(
+                        "section_backlog",
+                        "subsection_backlog",
+                    )
+                    .prefetch_related(
+                        Prefetch(
+                            "section_backlog__section_scores",
+                            queryset=CandidateExamSectionScore.objects.filter(candidate_exam_id=candidate_exam_id),
+                        ),
+                        Prefetch(
+                            "subsection_backlog__subsection_scores",
+                            queryset=CandidateExamSubSectionScore.objects.filter(candidate_exam_id=candidate_exam_id),
+                        ),
+                        Prefetch(
+                            "question_answers",
+                            queryset=CandidateExamAnswer.objects.all(),
+                        ),
+                    )
+                    .annotate(obtained_score=Sum("question_answers__score")),
+                ),
+            )
+            .first()
+        )
+
+        data = CandidateExamScoresheetSerializer(candidate_exam_backlog_question_instance).data
+        return Response(data, status=status.HTTP_200_OK)
