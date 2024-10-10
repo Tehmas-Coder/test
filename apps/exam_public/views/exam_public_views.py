@@ -293,7 +293,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def get_exam_backlogs_with_candidate_detail(self, request):
         name = request.query_params.get("name")
-        education_level = request.query_params.get("education_level")
+        education_levels = request.query_params.get("education_levels")
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
 
@@ -303,9 +303,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             name = str(name)
             q_filter &= Q(name__icontains=name)
 
-        if education_level:
-            education_level = int(education_level)
-            q_filter &= Q(education_level_id=education_level)
+        if education_levels:
+            education_levels = json.loads(education_levels)
+            education_levels = [int(id) for id in education_levels]
+            q_filter &= Q(education_level_id__in=education_levels)
 
         if start_date and not end_date:
             start_date = str(start_date)
