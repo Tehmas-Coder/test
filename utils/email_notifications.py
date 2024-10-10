@@ -38,7 +38,12 @@ class EmailNotification:
 
     def send_exam_link(self):
         self.html_content = self.__generate_html_content_for_exam_link()
-        self.subject = "Question-Bank : Exam Link"
+        self.subject = "Question-Bank : Exam Invitation Link"
+        return self.__send_email(self.subject, self.html_content, self.user_email)
+
+    def send_exam_result(self):
+        self.html_content = self.__generate_html_content_for_exam_result()
+        self.subject = "Question-Bank : Exam Result Link"
         return self.__send_email(self.subject, self.html_content, self.user_email)
 
     # ! ------------------------------------------------------------
@@ -79,6 +84,18 @@ class EmailNotification:
                 .replace("{exam_duration}", str(self.send_email_data_dict["exam_duration"]))
                 .replace("{start_datetime}", self.send_email_data_dict["start_datetime"])
                 .replace("{end_datetime}", self.send_email_data_dict["end_datetime"])
+                .replace("{URL}", self.send_email_data_dict["url"])
+            )
+        return html_content
+
+    def __generate_html_content_for_exam_result(self):
+        with open("./email_templates/exam_result.html", "r", encoding="utf-8") as file:
+            html_content = (
+                file.read()
+                .replace("{first_name}", self.first_name)
+                .replace("{last_name}", self.last_name)
+                .replace("{email}", self.user_email)
+                .replace("{exam}", self.send_email_data_dict["exam"])
                 .replace("{URL}", self.send_email_data_dict["url"])
             )
         return html_content
