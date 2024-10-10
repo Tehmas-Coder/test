@@ -142,7 +142,6 @@ class ExamBacklogQuestionScoresheetSerializer(BaseModelSerializer):
 
         for exam_question in exam_questions:
             if not exam_question.section_backlog:
-                print(exam_question.obtained_score)
                 response_exam_questions.append(
                     {
                         "id": exam_question.id,

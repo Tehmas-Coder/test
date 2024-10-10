@@ -150,7 +150,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
         return Response({"message": message}, status=status.HTTP_200_OK)
 
-    # * -------------------------- Candidate Exam Scorehseet -------------------------- #
+    # * -------------------------- Candidate Exam Scoresheet -------------------------- #
 
     def candidate_exam_scoresheet(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs.get("id", None)

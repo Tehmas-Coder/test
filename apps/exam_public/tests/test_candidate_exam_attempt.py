@@ -91,7 +91,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
 
     def successfull_attemptation_of_an_exam_test(self):
         candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(self.reuseable_request_body))  # type: ignore
-        debug_print(candidate_exam)
+        # debug_print(candidate_exam)
         # json_data = self.do_attempt_one_candidate_exam(json.dumps(self.reuseable_request_body))
         # for one_field in self.list_of_fields_of_candidate_exam_model:
         #     self.assertIn(one_field, json_data)
