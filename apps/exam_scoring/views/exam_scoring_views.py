@@ -13,6 +13,7 @@ from apps.exam_public.models.exam_public_models import (
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamScoresheetSerializer,
 )
+from apps.exam_scoring.classes.exam_scoring_helper import ExamScoringNinja
 from apps.exam_scoring.models.exam_score_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
@@ -131,20 +132,21 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         )
 
         all_sections_score = candidate_exam_section_score_queryset.aggregate(total_score=Sum("score"))["total_score"]
-        all_subsection_score = candidate_exam_subsection_score_queryset.aggregate(total_score=Sum("score"))["total_score"]
 
         if all_sections_score is None:
             all_sections_score = 0
-        if all_subsection_score is None:
-            all_subsection_score = 0
         # * Sum up all the scores for overall exam obtained marks
-        all_scores_sum = exam_questions_scores_sum + all_sections_score + all_subsection_score
+        all_scores_sum = exam_questions_scores_sum + all_sections_score
 
         # * Update obtained marks with the sum of scores and exam_status = scored if none of the questions left to mark otherwise set the status to marked
-        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id)
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).select_related("exam_backlog", "candidate", "candidate__user")
         if len(candidate_exam_answer_queryset) == length_of_scored_candidate_exam_answers:
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="scored")
             message = "All exam questions marked and scored successfully"
+            # * Sending Email notification to the candidate to view exam result
+            exam_scoring = ExamScoringNinja(candidate_exam_instance=candidate_exam_instance.first())
+            if not exam_scoring.send_result_email_to_candidate():
+                message = "Exam questions marked and scored successfully but failed to send email notification"
         else:
             message = "Exam questions marked and scored successfully"
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")

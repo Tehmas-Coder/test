@@ -1,6 +1,7 @@
 from cryptography.fernet import Fernet
 from decouple import config
 
+from utils.email_notifications import EmailNotification
 from utils.rna_utils import get_encryption_key
 
 
@@ -9,7 +10,7 @@ class ExamScoringNinja:
         self.candidate_exam_id = candidate_exam_id
         self.candidate_exam_instance = candidate_exam_instance
 
-    def send_scoring_email_to_candidate(self):
+    def send_result_email_to_candidate(self):
         candidate_first_name = self.candidate_exam_instance.candidate.user.first_name  # type: ignore
         candidate_last_name = self.candidate_exam_instance.candidate.user.last_name  # type: ignore
         candidate_email = self.candidate_exam_instance.candidate_email  # type: ignore
@@ -31,3 +32,10 @@ class ExamScoringNinja:
             "exam": exam,
             "url": final_url,
         }
+
+        email_notification_ninja = EmailNotification(send_email_data_dict)
+        if not email_notification_ninja.send_exam_result():
+            del email_notification_ninja
+            return False
+        del email_notification_ninja
+        return True
