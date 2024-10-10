@@ -18,8 +18,8 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
 )
 
 
-class ExamBacklogs:
-    def __init__(self, exam_data: dict) -> int:  # type: ignore
+class ExamBacklogsNinja:
+    def __init__(self, exam_data: dict) -> None:
         self.exam_data = exam_data
         self.section_backlog_ids_hashmap = {}
         self.subsection_backlog_ids_hashmap = {}
