@@ -168,10 +168,13 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         try:
             candidate_exam_id = int(candidate_exam_id)
         except:
-            token = candidate_exam_id[len("token=") :]
-            key = get_encryption_key()
-            cipher = Fernet(key)
-            candidate_exam_id = cipher.decrypt(token).decode()
+            try:
+                token = candidate_exam_id[len("token=") :]
+                key = get_encryption_key()
+                cipher = Fernet(key)
+                candidate_exam_id = cipher.decrypt(token).decode()
+            except:
+                return make_error_response(message="Invalid token")
 
         candidate_exam_data = (
             CandidateExam.objects.filter(id=candidate_exam_id)
