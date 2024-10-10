@@ -178,11 +178,14 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         try:
             candidate_exam_id = int(candidate_exam_id)
         except:
-            token = candidate_exam_id[len("token=") :]
-            key = get_encryption_key()
-            cipher = Fernet(key)
-            decrypted_data = json.loads(cipher.decrypt(token).decode())
-            candidate_exam_id = decrypted_data["candidate_exam_id"]
+            try:
+                token = candidate_exam_id[len("token=") :]
+                key = get_encryption_key()
+                cipher = Fernet(key)
+                decrypted_data = json.loads(cipher.decrypt(token).decode())
+                candidate_exam_id = decrypted_data["candidate_exam_id"]
+            except:
+                return make_error_response(message="Invalid token")
 
         # * IF ROLES ARE ( Organization Roles and Candidate )
         logged_in_user_roles = logged_in_user.roles.all()  # type:ignore
