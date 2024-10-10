@@ -145,6 +145,7 @@ class ExamBacklogQuestionScoresheetSerializer(BaseModelSerializer):
                 response_exam_questions.append(
                     {
                         "id": exam_question.id,
+                        "title": exam_question.title,
                         "total_marks": exam_question.total_marks,
                         "obtained_marks": exam_question.obtained_score,
                     },
@@ -181,6 +182,7 @@ class ExamBacklogQuestionScoresheetSerializer(BaseModelSerializer):
                     section_questions[exam_question.section_backlog.id]["questions"].append(
                         {
                             "id": exam_question.id,
+                            "title": exam_question.title,
                             "total_marks": exam_question.total_marks,
                             "obtained_marks": exam_question.obtained_score,
                         }
@@ -203,6 +205,7 @@ class ExamBacklogQuestionScoresheetSerializer(BaseModelSerializer):
                         subsection_questions[exam_question.subsection_backlog.id].append(
                             {
                                 "id": exam_question.id,
+                                "title": exam_question.title,
                                 "total_marks": exam_question.total_marks,
                                 "obtained_marks": exam_question.obtained_score,
                             }
