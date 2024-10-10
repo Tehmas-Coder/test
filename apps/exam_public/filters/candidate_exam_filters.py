@@ -30,6 +30,7 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
                 Q(candidate__user__first_name__icontains=search)
                 | Q(candidate__user__last_name__icontains=search)
                 | Q(candidate__user__email__icontains=search)
+                | Q(candidate_email__icontains=search)
             )
 
         if countries:
