@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
-from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogs
+from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.models.exam_public_backlog_models import (
@@ -153,7 +153,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         # * Creating Backlogs for Exam
         exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
-        exam_backlogs = ExamBacklogs(exam_data=exam_data)  # type:ignore
+        exam_backlogs = ExamBacklogsNinja(exam_data=exam_data)  # type:ignore
         exambacklog_id = exam_backlogs.create_backlogs()
 
         # * Assigning Exam to Candidates
@@ -491,13 +491,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 return Response(
                     data={
                         "Status": "failed",
-                        "message": f"Exam link not sent to user: {one_candidate_detail['candidate_email']}",
+                        "message": f"Unable to send exam link to user: {one_candidate_detail['candidate_email']}",
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             del email_notification_ninja
 
-        return Response({"message": "Invitation emails sent successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Exam invitation emails sent successfully"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get"], url_path="retry-hint")
     def candidate_exam_retry_hint(self, request, *args, **kwargs):
