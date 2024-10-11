@@ -1,9 +1,11 @@
 import json
+import re
 
 from cryptography.fernet import Fernet
 from decouple import config
 from django.db import transaction
 from django.forms import model_to_dict
+from django.template import context
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -47,6 +49,11 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserEditSerializer
 
         return super().get_serializer_class()
+
+    def get_serializer_context(self):
+        if self.action == "partial_update":
+            return {"update_request": True}
+        return super().get_serializer_context()
 
     # ------------------------------------ API ----------------------------------- #
 
@@ -160,8 +167,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        response = UserDetailSerializer(user).data
+        serializer.save()
+        response = UserDetailSerializer(instance).data
         return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="restore")
@@ -182,15 +189,15 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def set_user_role(self, request, *args, **kwargs):
         user = BaseUser.objects.filter(id=request.data["user"]).first()
-        role = [request.data["role"]]
+        roles = request.data["roles"]
         if not user:
             return Response(self.USER_NOT_FOUND, status=404)
         try:
-            user.roles.set(role)
+            user.roles.set(roles)
         except Exception as e:
             return make_error_response(message=f"Invalid Role")
 
-        return Response({"message": "Role set successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Roles set successfully"}, status=status.HTTP_200_OK)
 
 
 class UserInvitaionLinkAPI(viewsets.ViewSet):

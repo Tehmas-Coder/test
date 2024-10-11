@@ -79,7 +79,7 @@ class UserTest(UserUnitTest):
         "date_of_birth": "1995-07-27",
         "country": 1,
         "phone": "+9323346489529",
-        "role": 4,
+        "roles": [4],
         "description": "This is a test user",
     }
 
