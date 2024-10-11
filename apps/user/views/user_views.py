@@ -168,7 +168,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        response = UserDetailSerializer(instance).data
+        response = UserDetailSerializer(self.get_object()).data
         return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="restore")
