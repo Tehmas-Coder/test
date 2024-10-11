@@ -51,14 +51,14 @@ class RoleViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         self.queryset = (
             Role.get_detail_queryset(role_permissions=True, role_permissions_permission=True)
-            .exclude(slug="system")
+            .exclude(slug__in=["system", "candidate"])
             .annotate(user_count=Count("users"))
         )
         request_user_role = request.user.roles.first()
 
         if request_user_role:
             if request_user_role.name.lower() == "system":
-                self.queryset = self.queryset.filter(is_system_role=True)
+                self.queryset = self.queryset.filter(is_system_role=True).exclude(slug="candidate")
 
         return super().list(request, *args, **kwargs)
 
