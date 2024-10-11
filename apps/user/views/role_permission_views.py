@@ -152,6 +152,7 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_200_OK)
 
+    # This api is used by student apply backend to delete a role with all its permissions
     @transaction.atomic
     def delete_role_with_permissions(self, request, *args, **kwargs):
         if (not request.user.is_superuser) and len(request.user.roles.all()):

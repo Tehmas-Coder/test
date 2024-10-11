@@ -1,11 +1,9 @@
 import json
-import re
 
 from cryptography.fernet import Fernet
 from decouple import config
 from django.db import transaction
 from django.forms import model_to_dict
-from django.template import context
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -60,8 +58,8 @@ class UserViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         logged_in_user = request.user
-        request_user_role_id = request.data.pop("role", None)
-        request_user_role_name = get_role_name(request_user_role_id)
+        request_user_role_ids = request.data.pop("roles", None)
+        request_user_role_name = get_role_name(request_user_role_ids[0])
 
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
@@ -70,7 +68,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         user_instance = serializer.save()
-        user_instance.roles.add(request_user_role_id)
+        user_instance.roles.set(request_user_role_ids)
         data = serializer.data
 
         # * USER CREATED BY SUPER USER
