@@ -1,5 +1,3 @@
-import json
-
 from cryptography.fernet import Fernet
 from django.db.models import F, Prefetch, Sum
 from rest_framework import status, viewsets

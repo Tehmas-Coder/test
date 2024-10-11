@@ -35,18 +35,7 @@ from ..models import BaseUser, Role
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = (
-        BaseUser.objects.all()
-        .select_related(
-            "country",
-            "profile_picture",
-        )
-        .prefetch_related(
-            "roles",
-            "roles__role_permissions",
-            "roles__role_permissions__permission",
-        )
-    )
+    queryset = BaseUser.get_detail_queryset(country=True, roles=True, role_permissions=True, role_permissions_permission=True)
     serializer_class = UserDetailSerializer
     filter_backends = [UserFilterBackend]
     http_method_names = ["get", "post", "patch", "delete"]

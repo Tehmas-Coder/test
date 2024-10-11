@@ -5,7 +5,6 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.user.filters.role_filters import RoleFilterBackend
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
