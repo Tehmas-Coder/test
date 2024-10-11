@@ -6,7 +6,10 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-from apps.user.helpers.user_app_queryset_functions import get_user_detailed_queryset
+from apps.user.helpers.user_app_queryset_functions import (
+    get_role_detailed_queryset,
+    get_user_detailed_queryset,
+)
 from core.models import BaseModel, BaseUserModel
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp
@@ -155,6 +158,10 @@ class Role(BaseModel):
 
     class Meta:
         app_label = "user"
+
+    @classmethod
+    def get_detail_queryset(cls, permissions=False, role_permissions=False, role_permissions_permission=False):
+        return get_role_detailed_queryset(cls, permissions, role_permissions, role_permissions_permission)
 
 
 class UserRole(BaseModel):
