@@ -20,7 +20,7 @@ urlpatterns = [
     path("delete-role-with-permissions-from-sa-be/", RolePermissionViewSet.as_view({"delete": "delete_role_with_permissions"})),
     path("system-to-qb-login/", FromSaLoginToQBApiView.as_view()),
     path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
-    path("system-user-create/", ForSytemUserAPI.as_view({"post": "system_user_create"})),
+    path("system-user-create/", CreateSystemUserAPI.as_view({"post": "user_creation_by_system_user"})),
 ]
 
 # ----------------------------------- USERS ---------------------------------- #
