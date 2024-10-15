@@ -56,7 +56,7 @@ class RegisterApiView(views.APIView):
                     transaction.set_rollback(True)
                     raise serializers.ValidationError({"error": "Failed to send email, please try again"})
 
-                # * This if block code is for user registration on exam attempt
+                # * This if block code is for user registration on exam attempt and this token is generated from exam API
                 if token_data is not None:
                     key = get_encryption_key()
                     cipher = Fernet(key)
@@ -90,6 +90,7 @@ class LoginApiView(TokenObtainPairView):
         if not user:
             return make_error_response(message="User not found!")
 
+        # * This token data is for candidate user creation on exam attempt and is generated from exam API
         if token_data is not None:
             key = get_encryption_key()
             cipher = Fernet(key)
