@@ -8,5 +8,5 @@ def get_user_role_detail(user_id: int):
     return remove_extra_underscore_from_key_names(list(UserRole.objects.filter(user_id=user_id).annotate(role_name=F("role__name")).values()))[0]
 
 
-def get_role_name(role_id: int):
-    return Role.objects.get(id=role_id).name
+def get_role_names(role_ids: list[int]) -> list[str]:
+    return list(Role.objects.filter(id__in=role_ids).values_list("slug", flat=True))
