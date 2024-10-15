@@ -18,7 +18,7 @@ from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
 )
-from apps.user.utils.utils import get_role_name, get_user_role_detail
+from apps.user.utils.utils import get_role_names
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,
@@ -58,8 +58,10 @@ class UserViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         logged_in_user = request.user
-        request_user_role_ids = request.data.pop("roles", None)
-        request_user_role_name = get_role_name(request_user_role_ids[0])
+        logged_in_user_roles = logged_in_user.get_user_role_slugs
+        request_user_role_ids = request.data.pop("roles", [])
+        request_user_role_names = get_role_names(request_user_role_ids)
+        is_requested_role_candidate = "candidate" in request_user_role_names
 
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
@@ -73,7 +75,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         # * USER CREATED BY SUPER USER
         if logged_in_user.is_superuser == True:
-            if request_user_role_name.lower() == "candidate":
+            if is_requested_role_candidate:
                 organization = request.data.get("organization", None)
                 Candidate.objects.create(user_id=user_instance.id, organization_id=organization)
             else:
@@ -85,10 +87,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
         # * USER CREATED BY ORGANIZATION USER
         else:
-            logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() != "candidate":
+            if "candidate" not in logged_in_user_roles:
                 user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
-                if request_user_role_name.lower() == "candidate":
+                if is_requested_role_candidate:
                     if user_organization_id:
                         Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
                 else:
@@ -96,6 +97,9 @@ class UserViewSet(viewsets.ModelViewSet):
                         user_id=user_instance.id,
                         organization_id=user_organization_id["organization"],  # type: ignore
                     )
+            else:
+                transaction.set_rollback(True)
+                return make_error_response(message="Candidate is not allowed to create a user")
 
         key = get_encryption_key()
         cipher = Fernet(key)
@@ -107,7 +111,7 @@ class UserViewSet(viewsets.ModelViewSet):
         qb_public_url = config("QB_PUBLIC_FE_URL", cast=str)
         qb_admin_url = config("QB_ADMIN_FE_URL", cast=str)
 
-        if request_user_role_name.lower() == "candidate":
+        if is_requested_role_candidate:
             final_url = f"{qb_public_url}verification?token={token_data}"
         else:
             final_url = f"{qb_admin_url}verification?token={token_data}"
@@ -309,14 +313,11 @@ class CreateSystemUserAPI(viewsets.ViewSet):
     def user_creation_by_system_user(self, request, *args, **kwargs):
         logged_in_user = request.user
         logged_in_user_id = logged_in_user.id
+        logged_in_user_roles = logged_in_user.get_user_role_slugs
 
-        logged_in_user_role_data = logged_in_user.roles.values("id", "name").first()  # type: ignore
-        logged_in_user_role_id = logged_in_user_role_data["id"]
-        logged_in_user_role_name = logged_in_user_role_data["name"]
-
-        if logged_in_user_role_name.lower() != "system":
+        if "system" not in logged_in_user_roles:
             return Response(
-                {"status": "failed", "message": "User is invalid"},
+                {"status": "failed", "message": "User must be a system user to perform this action."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
