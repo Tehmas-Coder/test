@@ -21,15 +21,16 @@ class IsAuthenticated(BasePermission):
         if request_user.is_superuser:
             return True
 
-        user_role = request_user.roles.all().values().first()
-        role_id = user_role["id"]
+        user_roles = request_user.roles.all()
+        user_role_ids = [one_role.id for one_role in user_roles]
+        user_roles_names = [one_role.slug for one_role in user_roles]
 
         # TODO: Here only the resources assigned to the system role will be allowed, later when role_resource seeds will be added
-        if user_role["name"].lower() == "system":
+        if "system" in user_roles_names:
             return True
 
         # return True
-        return validate_resources(request_method, request_path, role_id)
+        return validate_resources(request_method, request_path, user_role_ids)
 
 
 def is_url_public(request_method, request_path):
@@ -56,7 +57,7 @@ def is_url_public(request_method, request_path):
     return False
 
 
-def validate_resources(request_method, request_path, role_id):
+def validate_resources(request_method, request_path, role_ids):
     regex_pattern = string_url_to_regex(request_path)
     resource_id = 0
 
@@ -68,9 +69,9 @@ def validate_resources(request_method, request_path, role_id):
         return False
 
     # try:
-    #     RoleResource.objects.get(role_id=role_id, resource_id=resource_id)
+    #     RoleResource.objects.get(role_id__in=role_ids, resource_id=resource_id)
     # except:
-    #     print(f"RoleID ({role_id}) id un-authorized for ({request_method} => {request_path}) request.")
+    #     print(f"RoleIDs ({role_ids}) id un-authorized for ({request_method} => {request_path}) request.")
     #     return False
 
     return True
