@@ -56,7 +56,7 @@ from apps.exam_scoring.models.exam_score_models import (
 )
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.user.models import Role, RolePermission
+from apps.user.models import BaseUser, Role, RolePermission
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,
@@ -171,7 +171,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
-        logged_in_user = self.request.user
+        logged_in_user: BaseUser = self.request.user  # type:ignore
         logged_in_user_id = logged_in_user.id  # type:ignore
 
         candidate_exam_id = self.kwargs["pk"]
@@ -188,10 +188,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 return make_error_response(message="Invalid token")
 
         # * IF ROLES ARE ( Organization Roles and Candidate )
-        logged_in_user_roles = logged_in_user.roles.all()  # type:ignore
+        logged_in_user_roles = logged_in_user.get_user_role_slugs  # type:ignore
         if len(logged_in_user_roles):
-            logged_in_user_role_name = logged_in_user_roles.values("name").first()["name"]
-            if logged_in_user_role_name.lower() == "candidate":
+            if "candidate" in logged_in_user_roles:
                 candidate_exam_filter_data = {
                     "id": candidate_exam_id,
                     "candidate__user__id": logged_in_user_id,
