@@ -107,7 +107,9 @@ class UserEditSerializer(serializers.ModelSerializer):
         context = kwargs.get("context", {})
         if context.get("is_update", False):
             self.Meta.fields.remove("roles")
-        super().__init__(instance, data, **kwargs)  # type: ignore
+        if data is not ...:
+            super().__init__(instance, data, **kwargs)
+        super().__init__(instance, **kwargs)
 
     @transaction.atomic
     def create(self, validated_data):
