@@ -97,6 +97,10 @@ class BaseUser(BaseUserModel, AbstractUser):
             return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
         return None
 
+    @property
+    def get_user_role_slugs(self):
+        return list(self.roles.values_list("slug", flat=True))
+
     @classmethod
     def get_user_by_email(cls, email: str):
         return cls.objects.filter(email=email).first()
