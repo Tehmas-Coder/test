@@ -54,10 +54,10 @@ class RoleViewSet(viewsets.ModelViewSet):
             .exclude(slug__in=["system"])
             .annotate(user_count=Count("users"))
         )
-        request_user_role = request.user.roles.first()
+        request_user_roles = request.user.get_user_role_slugs
 
-        if request_user_role:
-            if request_user_role.name.lower() == "system":
+        if len(request_user_roles):
+            if "system" in request_user_roles:
                 self.queryset = self.queryset.filter(is_system_role=True)
 
         return super().list(request, *args, **kwargs)
@@ -155,9 +155,9 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
     # This api is used by student apply backend to delete a role with all its permissions
     @transaction.atomic
     def delete_role_with_permissions(self, request, *args, **kwargs):
-        if (not request.user.is_superuser) and len(request.user.roles.all()):
-            request_user_role = request.user.roles.first()
-            if request_user_role.name.lower() == "system":  # make it system
+        request_user_roles = request.user.get_user_role_slugs
+        if (not request.user.is_superuser) and len(request_user_roles):
+            if "system" in request_user_roles:  # make it system
                 role_slug = request.data.get("role")
                 role_instance = Role.objects.filter(slug=role_slug).first()
 
