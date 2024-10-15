@@ -136,5 +136,28 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.BaseUser",
+    "pk": 7,
+    "fields": {
+      "is_active": true,
+      "description": "",
+      "username": "naeem_afzal",
+      "email": "test@gmail.com",
+      "first_name": "Naeem",
+      "last_name": "Afzal",
+      "password": "pbkdf2_sha256$600000$rUT7ii2ca7mQQn9W1E1l7b$WpQnD7uQ0gBMnTY4x60aJTYp5P6huppMMvJp3nzA8QU=",
+      "phone": "",
+      "date_of_birth": "2000-10-10",
+      "otp": "",
+      "is_verified": true,
+      "is_superuser": false,
+      "last_login": "2024-07-19T07:14:48.431449Z",
+      "country": null,
+      "date_joined": "1995-07-27T00:00:00Z",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
