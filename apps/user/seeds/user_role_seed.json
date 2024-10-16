@@ -61,7 +61,7 @@
   },
   {
     "model": "user.UserRole",
-    "pk": 8,
+    "pk": 7,
     "fields": {
       "user": 7,
       "role": 5,
