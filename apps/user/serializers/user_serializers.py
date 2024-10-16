@@ -103,6 +103,14 @@ class UserEditSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
+    def __init__(self, instance=None, data=..., **kwargs):
+        context = kwargs.get("context", {})
+        if context.get("is_update", False):
+            self.Meta.fields.remove("roles")
+        if data is not ...:
+            super().__init__(instance, data, **kwargs)
+        super().__init__(instance, **kwargs)
+
     @transaction.atomic
     def create(self, validated_data):
         user = BaseUser.objects.create(**validated_data)
@@ -113,11 +121,12 @@ class UserEditSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         validated_data.pop("email", None)
         password = validated_data.pop("password", None)
-        role = self.initial_data.get("role", None)  # type: ignore
+        roles = self.initial_data.get("roles", None)  # type: ignore
         if password:
             instance.set_password(password)
-        if role:
-            instance.roles.set(role)
+        if roles:
+            roles = list(eval(roles))
+            instance.roles.set(roles)
         instance.save()
         return super().update(instance, validated_data)
 

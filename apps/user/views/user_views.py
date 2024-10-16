@@ -18,7 +18,7 @@ from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
 )
-from apps.user.utils.utils import get_role_name, get_user_role_detail
+from apps.user.utils.utils import get_role_names
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     debug_print,
@@ -35,18 +35,7 @@ from ..models import BaseUser, Role
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = (
-        BaseUser.objects.all()
-        .select_related(
-            "country",
-            "profile_picture",
-        )
-        .prefetch_related(
-            "roles",
-            "roles__role_permissions",
-            "roles__role_permissions__permission",
-        )
-    )
+    queryset = BaseUser.get_detail_queryset(country=True, roles=True, role_permissions=True, role_permissions_permission=True)
     serializer_class = UserDetailSerializer
     filter_backends = [UserFilterBackend]
     http_method_names = ["get", "post", "patch", "delete"]
@@ -59,13 +48,20 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return super().get_serializer_class()
 
+    def get_serializer_context(self):
+        if self.action == "partial_update":
+            return {"update_request": True}
+        return super().get_serializer_context()
+
     # ------------------------------------ API ----------------------------------- #
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         logged_in_user = request.user
-        request_user_role_id = request.data.pop("role", None)
-        request_user_role_name = get_role_name(request_user_role_id)
+        logged_in_user_roles = logged_in_user.get_user_role_slugs
+        request_user_role_ids = request.data.pop("roles", [])
+        request_user_role_names = get_role_names(request_user_role_ids)
+        is_requested_role_candidate = "candidate" in request_user_role_names
 
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
@@ -74,12 +70,12 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         user_instance = serializer.save()
-        user_instance.roles.add(request_user_role_id)
+        user_instance.roles.set(request_user_role_ids)
         data = serializer.data
 
         # * USER CREATED BY SUPER USER
         if logged_in_user.is_superuser == True:
-            if request_user_role_name.lower() == "candidate":
+            if is_requested_role_candidate:
                 organization = request.data.get("organization", None)
                 Candidate.objects.create(user_id=user_instance.id, organization_id=organization)
             else:
@@ -91,10 +87,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
         # * USER CREATED BY ORGANIZATION USER
         else:
-            logged_in_user_role_detail = get_user_role_detail(logged_in_user.id)
-            if logged_in_user_role_detail["role_name"].lower() != "candidate":
+            if "candidate" not in logged_in_user_roles:
                 user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()
-                if request_user_role_name.lower() == "candidate":
+                if is_requested_role_candidate:
                     if user_organization_id:
                         Candidate.objects.create(user_id=user_instance.id, organization_id=user_organization_id["organization"])
                 else:
@@ -102,6 +97,9 @@ class UserViewSet(viewsets.ModelViewSet):
                         user_id=user_instance.id,
                         organization_id=user_organization_id["organization"],  # type: ignore
                     )
+            else:
+                transaction.set_rollback(True)
+                return make_error_response(message="Candidate is not allowed to create a user")
 
         key = get_encryption_key()
         cipher = Fernet(key)
@@ -113,7 +111,7 @@ class UserViewSet(viewsets.ModelViewSet):
         qb_public_url = config("QB_PUBLIC_FE_URL", cast=str)
         qb_admin_url = config("QB_ADMIN_FE_URL", cast=str)
 
-        if request_user_role_name.lower() == "candidate":
+        if is_requested_role_candidate:
             final_url = f"{qb_public_url}verification?token={token_data}"
         else:
             final_url = f"{qb_admin_url}verification?token={token_data}"
@@ -171,8 +169,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        response = UserDetailSerializer(user).data
+        serializer.save()
+        response = UserDetailSerializer(self.get_object()).data
         return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="restore")
@@ -193,15 +191,15 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def set_user_role(self, request, *args, **kwargs):
         user = BaseUser.objects.filter(id=request.data["user"]).first()
-        role = [request.data["role"]]
+        roles = request.data["roles"]
         if not user:
             return Response(self.USER_NOT_FOUND, status=404)
         try:
-            user.roles.set(role)
+            user.roles.set(roles)
         except Exception as e:
             return make_error_response(message=f"Invalid Role")
 
-        return Response({"message": "Role set successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Roles set successfully"}, status=status.HTTP_200_OK)
 
 
 class UserInvitaionLinkAPI(viewsets.ViewSet):
@@ -309,65 +307,78 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
         )
 
 
-class ForSytemUserAPI(viewsets.ViewSet):
+class CreateSystemUserAPI(viewsets.ViewSet):
 
     @transaction.atomic
-    def system_user_create(self, request, *args, **kwargs):
+    def user_creation_by_system_user(self, request, *args, **kwargs):
         logged_in_user = request.user
         logged_in_user_id = logged_in_user.id
+        logged_in_user_roles = logged_in_user.get_user_role_slugs
 
-        logged_in_user_role_data = logged_in_user.roles.values("id", "name").first()  # type: ignore
-        logged_in_user_role_id = logged_in_user_role_data["id"]
-        logged_in_user_role_name = logged_in_user_role_data["name"]
-
-        if logged_in_user_role_name.lower() != "system":
+        if "system" not in logged_in_user_roles:
             return Response(
-                {"status": "failed", "message": "User in invalid"},
+                {"status": "failed", "message": "User must be a system user to perform this action."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         request_data = request.data
 
-        # Check if sytem role is already created
-        if not Role.objects.filter(slug=request_data[0]["Slug"], is_system_role=True).exists():
-            return Response(
-                {"status": "failed", "message": f"This role '{request_data[0]['RoleName']}' is not created in QB yet."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # Check if system roles are already created
+        for one_dict in request_data:
+            if not Role.objects.filter(slug=one_dict["Slug"], is_system_role=True).exists():
+                return Response(
+                    {"status": "failed", "message": f"This role '{one_dict['RoleName']}' is not created in QB yet."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         logged_in_user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user_id).values("organization").first()["organization"]  # type: ignore
+        # Make hashmap of role_slug and role_id
+        role_slug_id_hashmap = {}
+        for one_dict in request_data:
+            role_slug_id_hashmap[one_dict["Slug"]] = Role.objects.filter(slug=one_dict["Slug"]).values("id").first()["id"]  # type: ignore
 
-        created_user_role_id = Role.objects.filter(slug=request_data[0]["Slug"], name=request_data[0]["RoleName"]).values("id").first()["id"]  # type: ignore
+        unentertained_emails = []
         for one_user in request_data:
+            role_id = role_slug_id_hashmap[one_user["Slug"]]
             email = one_user["Email"]
+            to_delete = one_user.get("ToDelete", False)
+
+            # Checking if the user here already exist with any organization or not
+            create_organization_user = False
+            organization_user = OrganizationUser.objects.filter(user__email=email)
+            if not organization_user.exists():
+                create_organization_user = True
+            elif not (organization_user.first().organization_id == logged_in_user_organization_id):  # type: ignore
+                unentertained_emails.append(email)
+                continue
+
             if not BaseUser.objects.filter(email=email).exists():
-                if not UserRole.objects.filter(user__email=email).exists():
-                    user_instance = BaseUser.objects.create(
-                        email=one_user["Email"],
-                        first_name=one_user["FirstName"],
-                        last_name=one_user["LastName"],
-                        phone=one_user["PhoneNumber"],
-                        date_of_birth=one_user["DateOfBirth"],
-                    )
-                    UserRole.objects.create(
-                        user=user_instance,
-                        role_id=created_user_role_id,
-                    )
+                user_instance = BaseUser.objects.create(
+                    email=one_user["Email"],
+                    first_name=one_user["FirstName"],
+                    last_name=one_user["LastName"],
+                    phone=one_user["PhoneNumber"],
+                    date_of_birth=one_user["DateOfBirth"],
+                )
+                UserRole.objects.create(
+                    user=user_instance,
+                    role_id=role_id,
+                )
 
             else:
-                if not UserRole.objects.filter(user__email=email).exists():
-                    UserRole.objects.create(
+                user_instance = BaseUser.get_user_by_email(email)
+                if to_delete:
+                    UserRole.objects.filter(user__email=email, role_id=role_id).update(meta_status="deleted")
+                else:
+                    UserRole.objects.get_or_create(
                         user=user_instance,
-                        role_id=created_user_role_id,
+                        role_id=role_id,
+                        defaults={"user": user_instance, "role_id": role_id},
                     )
-
-            if not OrganizationUser.objects.filter(
-                user__email=email,
-                organization_id=logged_in_user_organization_id,
-            ).exists():
+            if create_organization_user:
                 OrganizationUser.objects.create(
                     user=user_instance,
                     organization_id=logged_in_user_organization_id,
                 )
 
-        return Response(status=status.HTTP_200_OK)
+        return Response({"data": unentertained_emails}, status=status.HTTP_200_OK)

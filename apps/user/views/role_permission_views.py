@@ -1,11 +1,10 @@
 from django.db import transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Count
 from django.utils.text import slugify
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.user.filters.role_filters import RoleFilterBackend
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
@@ -22,7 +21,7 @@ from utils.rna_utils import debug_print
 
 class RoleViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
-    queryset = Role.objects.all().prefetch_related("permissions")
+    queryset = Role.get_detail_queryset(permissions=True)
     serializer_class = RoleSerializer
 
     def get_serializer_class(self):
@@ -32,25 +31,8 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == "retrieve":
-            return Role.objects.all().prefetch_related(
-                Prefetch(
-                    "role_permissions",
-                    queryset=RolePermission.objects.select_related("permission"),
-                )
-            )
-        if self.action == "list":
-            return (
-                Role.objects.all()
-                .exclude(slug="system")
-                .prefetch_related(
-                    "userrole_set",
-                    Prefetch(
-                        "role_permissions",
-                        queryset=RolePermission.objects.select_related("permission"),
-                    ),
-                )
-                .annotate(user_count=Count("users"))
-            )
+            return Role.get_detail_queryset(role_permissions=True, role_permissions_permission=True)
+
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
@@ -68,15 +50,14 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         self.queryset = (
-            Role.objects.all()
-            .exclude(slug="system")
-            .prefetch_related("userrole_set", Prefetch("role_permissions", queryset=RolePermission.objects.select_related("permission")))
+            Role.get_detail_queryset(role_permissions=True, role_permissions_permission=True)
+            .exclude(slug__in=["system"])
             .annotate(user_count=Count("users"))
         )
-        request_user_role = request.user.roles.first()
+        request_user_roles = request.user.get_user_role_slugs
 
-        if request_user_role:
-            if request_user_role.name.lower() == "system":
+        if len(request_user_roles):
+            if "system" in request_user_roles:
                 self.queryset = self.queryset.filter(is_system_role=True)
 
         return super().list(request, *args, **kwargs)
@@ -171,11 +152,12 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_200_OK)
 
+    # This api is used by student apply backend to delete a role with all its permissions
     @transaction.atomic
     def delete_role_with_permissions(self, request, *args, **kwargs):
-        if (not request.user.is_superuser) and len(request.user.roles.all()):
-            request_user_role = request.user.roles.first()
-            if request_user_role.name.lower() == "system":  # make it system
+        request_user_roles = request.user.get_user_role_slugs
+        if (not request.user.is_superuser) and len(request_user_roles):
+            if "system" in request_user_roles:  # make it system
                 role_slug = request.data.get("role")
                 role_instance = Role.objects.filter(slug=role_slug).first()
 

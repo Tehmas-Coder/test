@@ -1,5 +1,6 @@
 import json
 import random
+from re import sub
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -56,9 +57,10 @@ from apps.exam_scoring.models.exam_score_models import (
 )
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.user.models import Role, RolePermission
+from apps.user.models import BaseUser, Role, RolePermission
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
+    color_print,
     debug_print,
     get_encryption_key,
     make_error_response,
@@ -171,7 +173,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
-        logged_in_user = self.request.user
+        logged_in_user: BaseUser = self.request.user  # type:ignore
         logged_in_user_id = logged_in_user.id  # type:ignore
 
         candidate_exam_id = self.kwargs["pk"]
@@ -188,10 +190,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 return make_error_response(message="Invalid token")
 
         # * IF ROLES ARE ( Organization Roles and Candidate )
-        logged_in_user_roles = logged_in_user.roles.all()  # type:ignore
+        logged_in_user_roles = logged_in_user.get_user_role_slugs  # type:ignore
         if len(logged_in_user_roles):
-            logged_in_user_role_name = logged_in_user_roles.values("name").first()["name"]
-            if logged_in_user_role_name.lower() == "candidate":
+            if "candidate" in logged_in_user_roles:
                 candidate_exam_filter_data = {
                     "id": candidate_exam_id,
                     "candidate__user__id": logged_in_user_id,
@@ -629,24 +630,24 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         candidate_exam_questions_with_sections_and_subsections = ExamBacklogQuestion.objects.filter(
             id__in=final_user_backlog_question_ids_list, section_backlog__isnull=False
         )
-        candidate_exam_questions_with_sections = candidate_exam_questions_with_sections_and_subsections.filter(subsection_backlog__isnull=True)
         candidate_exam_questions_with_subsections = candidate_exam_questions_with_sections_and_subsections.filter(subsection_backlog__isnull=False)
 
         section_backlog_questions_details_hashmap = {}
-        for one_candidate_exam_questions_with_section in candidate_exam_questions_with_sections:
+        for one_candidate_exam_questions_with_section in candidate_exam_questions_with_sections_and_subsections:
             section_id = one_candidate_exam_questions_with_section.section_backlog_id  # type: ignore
             if section_id not in section_backlog_questions_details_hashmap:
                 section_backlog_questions_details_hashmap[section_id] = {}
                 section_backlog_questions_details_hashmap[section_id]["question_count"] = 0
                 section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = 0
                 section_backlog_questions_details_hashmap[section_id]["subsection_count"] = 0
-            section_backlog_questions_details_hashmap[section_id]["question_count"] = (
-                section_backlog_questions_details_hashmap[section_id]["question_count"] + 1
-            )
-            section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = (
-                section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"]
-                + one_candidate_exam_questions_with_section.total_marks
-            )
+            if one_candidate_exam_questions_with_section.subsection_backlog_id == None:  # type: ignore
+                section_backlog_questions_details_hashmap[section_id]["question_count"] = (
+                    section_backlog_questions_details_hashmap[section_id]["question_count"] + 1
+                )
+                section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = (
+                    section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"]
+                    + one_candidate_exam_questions_with_section.total_marks
+                )
 
         subsection_backlog_questions_details_hashmap = {}
         for one_candidate_exam_questions_with_subsection in candidate_exam_questions_with_subsections:
@@ -656,6 +657,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 subsection_backlog_questions_details_hashmap[subsection_id] = {}
                 subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] = 0
                 subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"] = 0
+                section_backlog_questions_details_hashmap[section_id]["subsection_count"] = (
+                    section_backlog_questions_details_hashmap[section_id]["subsection_count"] + 1
+                )
 
             subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] = (
                 subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] + 1
@@ -667,9 +671,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = (
                 section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"]
                 + one_candidate_exam_questions_with_subsection.total_marks
-            )
-            section_backlog_questions_details_hashmap[section_id]["subsection_count"] = (
-                section_backlog_questions_details_hashmap[section_id]["subsection_count"] + 1
             )
 
         # * Now Creating the section_score instances

@@ -1,4 +1,3 @@
-import copy
 import json
 
 from cryptography.fernet import Fernet
@@ -61,7 +60,7 @@ class UserTest(UserUnitTest):
         "password": "123456789",
         "date_of_birth": "1995-07-27",
         "phone": "+9323346489529",
-        "role": 4,
+        "roles": [4],
     }
     list_of_fields_of_user_model = [
         "id",

@@ -57,9 +57,6 @@ class RoleDetailSerializer(BaseModelSerializer):
             "user_count",
         ] + get_base_model_fields()
 
-    # def get_role_permissions(self, obj):
-    #     return RolePermissionSerializerForRole(obj.role_permissions.all(), many=True).data
-
 
 # ------------------------------ ROLE PERMISSION ----------------------------- #
 class RolePermissionSerializer(BaseModelSerializer):

@@ -6,6 +6,10 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
+from apps.user.helpers.user_app_queryset_functions import (
+    get_role_detailed_queryset,
+    get_user_detailed_queryset,
+)
 from core.models import BaseModel, BaseUserModel
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp
@@ -41,6 +45,10 @@ class CustomUserManager(UserManager):
     ) -> Any:
         username = email
         return super().create_superuser(username, email, password, **extra_fields)
+
+    def get_queryset(self):
+        qs = super().get_queryset().filter(meta_status="active")
+        return qs
 
 
 class BaseUser(BaseUserModel, AbstractUser):
@@ -89,18 +97,17 @@ class BaseUser(BaseUserModel, AbstractUser):
             return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
         return None
 
+    @property
+    def get_user_role_slugs(self):
+        return list(self.roles.values_list("slug", flat=True))
+
     @classmethod
     def get_user_by_email(cls, email: str):
         return cls.objects.filter(email=email).first()
 
-    def activate(self, *args, **kwargs):
-        return super().activate(*args, **kwargs)
-
-    def deactivate(self, *args, **kwargs):
-        return super().deactivate(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        return super().delete(*args, **kwargs)
+    @classmethod
+    def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False):
+        return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission)
 
     def verify_otp(self, otp: str) -> bool:
         if self.otp != otp:
@@ -155,6 +162,10 @@ class Role(BaseModel):
 
     class Meta:
         app_label = "user"
+
+    @classmethod
+    def get_detail_queryset(cls, permissions=False, role_permissions=False, role_permissions_permission=False):
+        return get_role_detailed_queryset(cls, permissions, role_permissions, role_permissions_permission)
 
 
 class UserRole(BaseModel):

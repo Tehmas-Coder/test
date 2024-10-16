@@ -18,13 +18,6 @@ class BaseManager(models.Manager):
         return qs
 
 
-class BaseUserManager(models.Manager):
-
-    def get_queryset(self):
-        qs = super().get_queryset().filter(meta_status="active")
-        return qs
-
-
 class BaseModel(models.Model):
 
     description = models.TextField(blank=True)
