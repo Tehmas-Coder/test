@@ -295,5 +295,181 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 28,
+    "fields": {
+      "name": "View Subjects",
+      "context_value": "subjects",
+      "description": "View all Subjects",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 29,
+    "fields": {
+      "name": "Add Subject",
+      "context_value": "subjects",
+      "description": "Add an Subject",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 30,
+    "fields": {
+      "name": "Edit Subject",
+      "context_value": "subjects",
+      "description": "Edit an Subject",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 31,
+    "fields": {
+      "name": "Delete Subject",
+      "context_value": "subjects",
+      "description": "Delete an Subject",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 32,
+    "fields": {
+      "name": "View Education Levels",
+      "context_value": "education_levels",
+      "description": "View all Education Levels",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 33,
+    "fields": {
+      "name": "Add Education Level",
+      "context_value": "education_levels",
+      "description": "Add an Education Level",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 34,
+    "fields": {
+      "name": "Edit Education Level",
+      "context_value": "education_levels",
+      "description": "Edit an Education Level",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 35,
+    "fields": {
+      "name": "Delete Education Level",
+      "context_value": "education_levels",
+      "description": "Delete an Education Level",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 36,
+    "fields": {
+      "name": "View Tags",
+      "context_value": "tags",
+      "description": "View all Tags",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 37,
+    "fields": {
+      "name": "Add Tag",
+      "context_value": "tags",
+      "description": "Add a Tag",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 38,
+    "fields": {
+      "name": "Edit Tag",
+      "context_value": "tags",
+      "description": "Edit a Tag",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 39,
+    "fields": {
+      "name": "Delete Tag",
+      "context_value": "tags",
+      "description": "Delete a Tag",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 40,
+    "fields": {
+      "name": "View Subject Education Levels",
+      "context_value": "subject_education_levels",
+      "description": "View all Subject Education Levels",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 41,
+    "fields": {
+      "name": "Add Subject Education Level",
+      "context_value": "subject_education_levels",
+      "description": "Add a Subject Education Level",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 42,
+    "fields": {
+      "name": "Edit Subject Education Level",
+      "context_value": "subject_education_levels",
+      "description": "Edit a Subject Education Level",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 43,
+    "fields": {
+      "name": "Delete Subject Education Level",
+      "context_value": "subject_education_levels",
+      "description": "Delete a Subject Education Level",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
