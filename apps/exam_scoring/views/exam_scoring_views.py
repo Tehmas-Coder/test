@@ -82,6 +82,8 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             score__isnull=False, exam_backlog_question__section_backlog__isnull=True
         ).aggregate(total_score=Sum("score"))
         exam_questions_scores_sum = scored_candidate_exam_answer_queryset["total_score"]
+        if exam_questions_scores_sum is None:
+            exam_questions_scores_sum = 0
 
         # * Evaluating the score for sections and subsections
         sections_and_subsections_candidate_exam_answers = candidate_exam_answer_queryset.filter(
@@ -90,16 +92,15 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             section_backlog_id=F("exam_backlog_question__section_backlog"),
             subsection_backlog_id=F("exam_backlog_question__subsection_backlog"),
         )
-
-        sections_candidate_exam_answers = sections_and_subsections_candidate_exam_answers.filter(subsection_backlog_id__isnull=True)
         subsections_candidate_exam_answers = sections_and_subsections_candidate_exam_answers.filter(subsection_backlog_id__isnull=False)
 
         section_scores_hashmap = {}
-        for one_answer in sections_candidate_exam_answers:
+        for one_answer in sections_and_subsections_candidate_exam_answers:
             section_backlog_id = one_answer.section_backlog_id  # type:ignore
             if section_backlog_id not in section_scores_hashmap:
                 section_scores_hashmap[section_backlog_id] = 0
-            section_scores_hashmap[section_backlog_id] = section_scores_hashmap[section_backlog_id] + one_answer.score
+            if one_answer.subsection_backlog_id is None:  # type:ignore
+                section_scores_hashmap[section_backlog_id] = section_scores_hashmap[section_backlog_id] + one_answer.score
 
         subsection_scores_hashmap = {}
         for one_answer in subsections_candidate_exam_answers:
@@ -148,11 +149,11 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).select_related("exam_backlog", "candidate", "candidate__user")
         if len(candidate_exam_answer_queryset) == length_of_scored_candidate_exam_answers:
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="scored")
-            message = "All exam questions marked and scored successfully"
+            message = "Exam's all questions are marked and scored successfully"
             # * Sending Email notification to the candidate to view exam result
             exam_scoring = ExamScoringNinja(candidate_exam_instance=candidate_exam_instance.first())
             if not exam_scoring.send_result_email_to_candidate():
-                message = "Exam questions marked and scored successfully but failed to send email notification"
+                message = "Exam's all questions are marked and scored successfully but failed to send email notification"
         else:
             message = "Exam questions marked and scored successfully"
             candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
