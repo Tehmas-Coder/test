@@ -289,8 +289,8 @@
     "model": "user.RolePermission",
     "pk": 27,
     "fields": {
-      "role": 1,
-      "permission": 27,
+      "role": 2,
+      "permission": 1,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -301,7 +301,7 @@
     "pk": 28,
     "fields": {
       "role": 2,
-      "permission": 1,
+      "permission": 2,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -312,7 +312,7 @@
     "pk": 29,
     "fields": {
       "role": 2,
-      "permission": 2,
+      "permission": 3,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -323,7 +323,7 @@
     "pk": 30,
     "fields": {
       "role": 2,
-      "permission": 3,
+      "permission": 4,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -334,7 +334,7 @@
     "pk": 31,
     "fields": {
       "role": 2,
-      "permission": 4,
+      "permission": 5,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -345,7 +345,7 @@
     "pk": 32,
     "fields": {
       "role": 2,
-      "permission": 5,
+      "permission": 6,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -356,7 +356,7 @@
     "pk": 33,
     "fields": {
       "role": 2,
-      "permission": 6,
+      "permission": 7,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -367,7 +367,7 @@
     "pk": 34,
     "fields": {
       "role": 2,
-      "permission": 7,
+      "permission": 8,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -378,7 +378,7 @@
     "pk": 35,
     "fields": {
       "role": 2,
-      "permission": 8,
+      "permission": 9,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -389,7 +389,7 @@
     "pk": 36,
     "fields": {
       "role": 2,
-      "permission": 9,
+      "permission": 10,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -400,7 +400,7 @@
     "pk": 37,
     "fields": {
       "role": 2,
-      "permission": 10,
+      "permission": 11,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -411,7 +411,7 @@
     "pk": 38,
     "fields": {
       "role": 2,
-      "permission": 11,
+      "permission": 12,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -422,7 +422,7 @@
     "pk": 39,
     "fields": {
       "role": 2,
-      "permission": 12,
+      "permission": 13,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -433,7 +433,7 @@
     "pk": 40,
     "fields": {
       "role": 2,
-      "permission": 13,
+      "permission": 14,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -444,7 +444,7 @@
     "pk": 41,
     "fields": {
       "role": 2,
-      "permission": 14,
+      "permission": 15,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -455,7 +455,7 @@
     "pk": 42,
     "fields": {
       "role": 2,
-      "permission": 15,
+      "permission": 16,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -477,7 +477,7 @@
     "pk": 44,
     "fields": {
       "role": 2,
-      "permission": 17,
+      "permission": 18,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -488,7 +488,7 @@
     "pk": 45,
     "fields": {
       "role": 2,
-      "permission": 18,
+      "permission": 19,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -499,7 +499,7 @@
     "pk": 46,
     "fields": {
       "role": 2,
-      "permission": 19,
+      "permission": 20,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -510,7 +510,7 @@
     "pk": 47,
     "fields": {
       "role": 2,
-      "permission": 20,
+      "permission": 21,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -521,7 +521,7 @@
     "pk": 48,
     "fields": {
       "role": 2,
-      "permission": 21,
+      "permission": 22,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -532,7 +532,7 @@
     "pk": 49,
     "fields": {
       "role": 2,
-      "permission": 22,
+      "permission": 23,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -543,7 +543,7 @@
     "pk": 50,
     "fields": {
       "role": 2,
-      "permission": 23,
+      "permission": 24,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -554,7 +554,7 @@
     "pk": 51,
     "fields": {
       "role": 2,
-      "permission": 24,
+      "permission": 25,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -565,7 +565,7 @@
     "pk": 52,
     "fields": {
       "role": 2,
-      "permission": 25,
+      "permission": 26,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -575,9 +575,9 @@
     "model": "user.RolePermission",
     "pk": 53,
     "fields": {
-      "role": 2,
-      "permission": 26,
-      "is_active": 1,
+      "role": 3,
+      "permission": 1,
+      "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -585,28 +585,6 @@
   {
     "model": "user.RolePermission",
     "pk": 54,
-    "fields": {
-      "role": 2,
-      "permission": 27,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 55,
-    "fields": {
-      "role": 3,
-      "permission": 1,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 56,
     "fields": {
       "role": 3,
       "permission": 2,
@@ -617,10 +595,32 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 57,
+    "pk": 55,
     "fields": {
       "role": 3,
       "permission": 3,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 56,
+    "fields": {
+      "role": 3,
+      "permission": 4,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 57,
+    "fields": {
+      "role": 3,
+      "permission": 5,
       "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -631,7 +631,7 @@
     "pk": 58,
     "fields": {
       "role": 3,
-      "permission": 4,
+      "permission": 6,
       "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -642,7 +642,7 @@
     "pk": 59,
     "fields": {
       "role": 3,
-      "permission": 5,
+      "permission": 7,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -653,8 +653,8 @@
     "pk": 60,
     "fields": {
       "role": 3,
-      "permission": 6,
-      "is_active": 0,
+      "permission": 8,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -664,8 +664,8 @@
     "pk": 61,
     "fields": {
       "role": 3,
-      "permission": 7,
-      "is_active": 0,
+      "permission": 9,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -675,7 +675,7 @@
     "pk": 62,
     "fields": {
       "role": 3,
-      "permission": 8,
+      "permission": 10,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -686,7 +686,7 @@
     "pk": 63,
     "fields": {
       "role": 3,
-      "permission": 9,
+      "permission": 11,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -697,7 +697,7 @@
     "pk": 64,
     "fields": {
       "role": 3,
-      "permission": 10,
+      "permission": 12,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -708,7 +708,7 @@
     "pk": 65,
     "fields": {
       "role": 3,
-      "permission": 11,
+      "permission": 13,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -719,7 +719,7 @@
     "pk": 66,
     "fields": {
       "role": 3,
-      "permission": 12,
+      "permission": 14,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -730,7 +730,7 @@
     "pk": 67,
     "fields": {
       "role": 3,
-      "permission": 13,
+      "permission": 15,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -741,7 +741,7 @@
     "pk": 68,
     "fields": {
       "role": 3,
-      "permission": 14,
+      "permission": 16,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -752,7 +752,7 @@
     "pk": 69,
     "fields": {
       "role": 3,
-      "permission": 15,
+      "permission": 17,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -763,7 +763,7 @@
     "pk": 70,
     "fields": {
       "role": 3,
-      "permission": 16,
+      "permission": 18,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -774,7 +774,7 @@
     "pk": 71,
     "fields": {
       "role": 3,
-      "permission": 17,
+      "permission": 19,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -785,7 +785,7 @@
     "pk": 72,
     "fields": {
       "role": 3,
-      "permission": 18,
+      "permission": 20,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -796,7 +796,7 @@
     "pk": 73,
     "fields": {
       "role": 3,
-      "permission": 19,
+      "permission": 21,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -807,7 +807,7 @@
     "pk": 74,
     "fields": {
       "role": 3,
-      "permission": 20,
+      "permission": 22,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -818,7 +818,7 @@
     "pk": 75,
     "fields": {
       "role": 3,
-      "permission": 21,
+      "permission": 23,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -829,7 +829,7 @@
     "pk": 76,
     "fields": {
       "role": 3,
-      "permission": 22,
+      "permission": 24,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -840,7 +840,7 @@
     "pk": 77,
     "fields": {
       "role": 3,
-      "permission": 23,
+      "permission": 25,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -851,28 +851,6 @@
     "pk": 78,
     "fields": {
       "role": 3,
-      "permission": 24,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 79,
-    "fields": {
-      "role": 3,
-      "permission": 25,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 80,
-    "fields": {
-      "role": 3,
       "permission": 26,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
@@ -881,18 +859,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 81,
-    "fields": {
-      "role": 3,
-      "permission": 27,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 82,
+    "pk": 79,
     "fields": {
       "role": 4,
       "permission": 1,
@@ -903,7 +870,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 83,
+    "pk": 80,
     "fields": {
       "role": 4,
       "permission": 2,
@@ -914,7 +881,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 84,
+    "pk": 81,
     "fields": {
       "role": 4,
       "permission": 3,
@@ -925,7 +892,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 85,
+    "pk": 82,
     "fields": {
       "role": 4,
       "permission": 4,
@@ -936,7 +903,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 86,
+    "pk": 83,
     "fields": {
       "role": 4,
       "permission": 5,
@@ -947,7 +914,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 87,
+    "pk": 84,
     "fields": {
       "role": 4,
       "permission": 6,
@@ -958,7 +925,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 88,
+    "pk": 85,
     "fields": {
       "role": 4,
       "permission": 7,
@@ -969,7 +936,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 89,
+    "pk": 86,
     "fields": {
       "role": 4,
       "permission": 8,
@@ -980,7 +947,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 90,
+    "pk": 87,
     "fields": {
       "role": 4,
       "permission": 9,
@@ -991,7 +958,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 91,
+    "pk": 88,
     "fields": {
       "role": 4,
       "permission": 10,
@@ -1002,7 +969,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 92,
+    "pk": 89,
     "fields": {
       "role": 4,
       "permission": 11,
@@ -1013,7 +980,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 93,
+    "pk": 90,
     "fields": {
       "role": 4,
       "permission": 12,
@@ -1024,7 +991,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 94,
+    "pk": 91,
     "fields": {
       "role": 4,
       "permission": 13,
@@ -1035,7 +1002,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 95,
+    "pk": 92,
     "fields": {
       "role": 4,
       "permission": 14,
@@ -1046,7 +1013,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 96,
+    "pk": 93,
     "fields": {
       "role": 4,
       "permission": 15,
@@ -1057,7 +1024,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 97,
+    "pk": 94,
     "fields": {
       "role": 4,
       "permission": 16,
@@ -1068,7 +1035,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 98,
+    "pk": 95,
     "fields": {
       "role": 4,
       "permission": 17,
@@ -1079,7 +1046,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 99,
+    "pk": 96,
     "fields": {
       "role": 4,
       "permission": 18,
@@ -1090,7 +1057,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 100,
+    "pk": 97,
     "fields": {
       "role": 4,
       "permission": 19,
@@ -1101,7 +1068,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 101,
+    "pk": 98,
     "fields": {
       "role": 4,
       "permission": 20,
@@ -1112,7 +1079,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 102,
+    "pk": 99,
     "fields": {
       "role": 4,
       "permission": 21,
@@ -1123,7 +1090,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 103,
+    "pk": 100,
     "fields": {
       "role": 4,
       "permission": 22,
@@ -1134,7 +1101,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 104,
+    "pk": 101,
     "fields": {
       "role": 4,
       "permission": 23,
@@ -1145,7 +1112,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 105,
+    "pk": 102,
     "fields": {
       "role": 4,
       "permission": 24,
@@ -1156,7 +1123,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 106,
+    "pk": 103,
     "fields": {
       "role": 4,
       "permission": 25,
@@ -1167,7 +1134,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 107,
+    "pk": 104,
     "fields": {
       "role": 4,
       "permission": 26,
@@ -1178,11 +1145,44 @@
   },
   {
     "model": "user.RolePermission",
+    "pk": 105,
+    "fields": {
+      "role": 1,
+      "permission": 27,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 106,
+    "fields": {
+      "role": 1,
+      "permission": 28,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 107,
+    "fields": {
+      "role": 1,
+      "permission": 29,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
     "pk": 108,
     "fields": {
-      "role": 4,
-      "permission": 27,
-      "is_active": 0,
+      "role": 1,
+      "permission": 30,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1192,7 +1192,7 @@
     "pk": 109,
     "fields": {
       "role": 1,
-      "permission": 28,
+      "permission": 31,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1203,7 +1203,7 @@
     "pk": 110,
     "fields": {
       "role": 1,
-      "permission": 29,
+      "permission": 32,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1214,7 +1214,7 @@
     "pk": 111,
     "fields": {
       "role": 1,
-      "permission": 30,
+      "permission": 33,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1225,7 +1225,7 @@
     "pk": 112,
     "fields": {
       "role": 1,
-      "permission": 31,
+      "permission": 34,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1236,7 +1236,7 @@
     "pk": 113,
     "fields": {
       "role": 1,
-      "permission": 32,
+      "permission": 35,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1247,7 +1247,7 @@
     "pk": 114,
     "fields": {
       "role": 1,
-      "permission": 33,
+      "permission": 36,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1258,7 +1258,7 @@
     "pk": 115,
     "fields": {
       "role": 1,
-      "permission": 34,
+      "permission": 37,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1269,7 +1269,7 @@
     "pk": 116,
     "fields": {
       "role": 1,
-      "permission": 35,
+      "permission": 38,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1280,7 +1280,7 @@
     "pk": 117,
     "fields": {
       "role": 1,
-      "permission": 36,
+      "permission": 39,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1291,7 +1291,7 @@
     "pk": 118,
     "fields": {
       "role": 1,
-      "permission": 37,
+      "permission": 40,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1302,7 +1302,7 @@
     "pk": 119,
     "fields": {
       "role": 1,
-      "permission": 38,
+      "permission": 41,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1313,7 +1313,7 @@
     "pk": 120,
     "fields": {
       "role": 1,
-      "permission": 39,
+      "permission": 42,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1323,8 +1323,8 @@
     "model": "user.RolePermission",
     "pk": 121,
     "fields": {
-      "role": 1,
-      "permission": 40,
+      "role": 2,
+      "permission": 27,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1334,8 +1334,8 @@
     "model": "user.RolePermission",
     "pk": 122,
     "fields": {
-      "role": 1,
-      "permission": 41,
+      "role": 2,
+      "permission": 28,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1345,8 +1345,8 @@
     "model": "user.RolePermission",
     "pk": 123,
     "fields": {
-      "role": 1,
-      "permission": 42,
+      "role": 2,
+      "permission": 29,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1356,8 +1356,8 @@
     "model": "user.RolePermission",
     "pk": 124,
     "fields": {
-      "role": 1,
-      "permission": 43,
+      "role": 2,
+      "permission": 30,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1368,7 +1368,7 @@
     "pk": 125,
     "fields": {
       "role": 2,
-      "permission": 28,
+      "permission": 31,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1379,7 +1379,7 @@
     "pk": 126,
     "fields": {
       "role": 2,
-      "permission": 29,
+      "permission": 32,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1390,7 +1390,7 @@
     "pk": 127,
     "fields": {
       "role": 2,
-      "permission": 30,
+      "permission": 33,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1401,7 +1401,7 @@
     "pk": 128,
     "fields": {
       "role": 2,
-      "permission": 31,
+      "permission": 34,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1412,7 +1412,7 @@
     "pk": 129,
     "fields": {
       "role": 2,
-      "permission": 32,
+      "permission": 35,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1423,7 +1423,7 @@
     "pk": 130,
     "fields": {
       "role": 2,
-      "permission": 33,
+      "permission": 36,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1434,7 +1434,7 @@
     "pk": 131,
     "fields": {
       "role": 2,
-      "permission": 34,
+      "permission": 37,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1445,7 +1445,7 @@
     "pk": 132,
     "fields": {
       "role": 2,
-      "permission": 35,
+      "permission": 38,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1456,7 +1456,7 @@
     "pk": 133,
     "fields": {
       "role": 2,
-      "permission": 36,
+      "permission": 39,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1467,7 +1467,7 @@
     "pk": 134,
     "fields": {
       "role": 2,
-      "permission": 37,
+      "permission": 40,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1478,7 +1478,7 @@
     "pk": 135,
     "fields": {
       "role": 2,
-      "permission": 38,
+      "permission": 41,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1489,7 +1489,7 @@
     "pk": 136,
     "fields": {
       "role": 2,
-      "permission": 39,
+      "permission": 42,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1499,8 +1499,8 @@
     "model": "user.RolePermission",
     "pk": 137,
     "fields": {
-      "role": 2,
-      "permission": 40,
+      "role": 3,
+      "permission": 27,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1510,8 +1510,8 @@
     "model": "user.RolePermission",
     "pk": 138,
     "fields": {
-      "role": 2,
-      "permission": 41,
+      "role": 3,
+      "permission": 28,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1521,8 +1521,8 @@
     "model": "user.RolePermission",
     "pk": 139,
     "fields": {
-      "role": 2,
-      "permission": 42,
+      "role": 3,
+      "permission": 29,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1532,8 +1532,8 @@
     "model": "user.RolePermission",
     "pk": 140,
     "fields": {
-      "role": 2,
-      "permission": 43,
+      "role": 3,
+      "permission": 30,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1544,7 +1544,7 @@
     "pk": 141,
     "fields": {
       "role": 3,
-      "permission": 28,
+      "permission": 31,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1555,7 +1555,7 @@
     "pk": 142,
     "fields": {
       "role": 3,
-      "permission": 29,
+      "permission": 32,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1566,7 +1566,7 @@
     "pk": 143,
     "fields": {
       "role": 3,
-      "permission": 30,
+      "permission": 33,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1577,7 +1577,7 @@
     "pk": 144,
     "fields": {
       "role": 3,
-      "permission": 31,
+      "permission": 34,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1588,7 +1588,7 @@
     "pk": 145,
     "fields": {
       "role": 3,
-      "permission": 32,
+      "permission": 35,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1599,7 +1599,7 @@
     "pk": 146,
     "fields": {
       "role": 3,
-      "permission": 33,
+      "permission": 36,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1610,7 +1610,7 @@
     "pk": 147,
     "fields": {
       "role": 3,
-      "permission": 34,
+      "permission": 37,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1621,7 +1621,7 @@
     "pk": 148,
     "fields": {
       "role": 3,
-      "permission": 35,
+      "permission": 38,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1632,7 +1632,7 @@
     "pk": 149,
     "fields": {
       "role": 3,
-      "permission": 36,
+      "permission": 39,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1643,7 +1643,7 @@
     "pk": 150,
     "fields": {
       "role": 3,
-      "permission": 37,
+      "permission": 40,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1654,7 +1654,7 @@
     "pk": 151,
     "fields": {
       "role": 3,
-      "permission": 38,
+      "permission": 41,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1665,7 +1665,7 @@
     "pk": 152,
     "fields": {
       "role": 3,
-      "permission": 39,
+      "permission": 42,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1675,9 +1675,9 @@
     "model": "user.RolePermission",
     "pk": 153,
     "fields": {
-      "role": 3,
-      "permission": 40,
-      "is_active": 1,
+      "role": 4,
+      "permission": 27,
+      "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1685,39 +1685,6 @@
   {
     "model": "user.RolePermission",
     "pk": 154,
-    "fields": {
-      "role": 3,
-      "permission": 41,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 155,
-    "fields": {
-      "role": 3,
-      "permission": 42,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 156,
-    "fields": {
-      "role": 3,
-      "permission": 43,
-      "is_active": 1,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 157,
     "fields": {
       "role": 4,
       "permission": 28,
@@ -1728,7 +1695,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 158,
+    "pk": 155,
     "fields": {
       "role": 4,
       "permission": 29,
@@ -1739,7 +1706,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 159,
+    "pk": 156,
     "fields": {
       "role": 4,
       "permission": 30,
@@ -1750,7 +1717,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 160,
+    "pk": 157,
     "fields": {
       "role": 4,
       "permission": 31,
@@ -1761,7 +1728,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 161,
+    "pk": 158,
     "fields": {
       "role": 4,
       "permission": 32,
@@ -1772,7 +1739,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 162,
+    "pk": 159,
     "fields": {
       "role": 4,
       "permission": 33,
@@ -1783,7 +1750,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 163,
+    "pk": 160,
     "fields": {
       "role": 4,
       "permission": 34,
@@ -1794,7 +1761,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 164,
+    "pk": 161,
     "fields": {
       "role": 4,
       "permission": 35,
@@ -1805,7 +1772,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 165,
+    "pk": 162,
     "fields": {
       "role": 4,
       "permission": 36,
@@ -1816,7 +1783,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 166,
+    "pk": 163,
     "fields": {
       "role": 4,
       "permission": 37,
@@ -1827,7 +1794,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 167,
+    "pk": 164,
     "fields": {
       "role": 4,
       "permission": 38,
@@ -1838,7 +1805,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 168,
+    "pk": 165,
     "fields": {
       "role": 4,
       "permission": 39,
@@ -1849,7 +1816,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 169,
+    "pk": 166,
     "fields": {
       "role": 4,
       "permission": 40,
@@ -1860,7 +1827,7 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 170,
+    "pk": 167,
     "fields": {
       "role": 4,
       "permission": 41,
@@ -1871,21 +1838,10 @@
   },
   {
     "model": "user.RolePermission",
-    "pk": 171,
+    "pk": 168,
     "fields": {
       "role": 4,
       "permission": 42,
-      "is_active": 0,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.RolePermission",
-    "pk": 172,
-    "fields": {
-      "role": 4,
-      "permission": 43,
       "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
