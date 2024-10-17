@@ -32,21 +32,19 @@ class RoleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action == "retrieve":
             return Role.get_detail_queryset(role_permissions=True, role_permissions_permission=True)
-
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
         new_role_data = super().create(request, *args, **kwargs)
-
         new_role_id = new_role_data.data["id"]  # type: ignore
         permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
-
         new_role_instance = Role.objects.prefetch_related("permissions").get(pk=new_role_id)
+
         if len(permission_ids_list):
             new_role_instance.permissions.set(permission_ids_list)
 
-        new_role_permssion_data = RoleSerializer(new_role_instance).data
-        return Response(new_role_permssion_data, status=status.HTTP_201_CREATED)
+        new_role_permission_data = RoleSerializer(new_role_instance).data
+        return Response(new_role_permission_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         self.queryset = (
