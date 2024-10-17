@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Prefetch, Q, QuerySet
 
+from apps.exam_admin.helpers.queryset_functions import get_exam_detailed_queryset
 from apps.questionbank.models import Question
 from core.models import BaseModel
 
@@ -80,44 +81,10 @@ class Exam(BaseModel):
         app_label = "exam_admin"
 
     @classmethod
-    def get_detail_queryset(cls) -> QuerySet:
-        return (
-            cls.objects.all()
-            .select_related("education_level")
-            .prefetch_related(
-                Prefetch(
-                    "examsubject_set",
-                    queryset=ExamSubject.objects.all().select_related(
-                        "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level"
-                    ),
-                ),
-                Prefetch(
-                    "examsubject_set__examsubjectquestion_set",
-                    queryset=ExamSubjectQuestion.objects.filter(
-                        Q(
-                            Q(section__isnull=True)
-                            | Q(subsection__isnull=True)
-                            | Q(
-                                section__isnull=False,
-                                section__meta_status="active",
-                            )
-                            | Q(
-                                subsection__isnull=False,
-                                subsection__meta_status="active",
-                            )
-                        )
-                    ).select_related("section", "subsection"),
-                ),
-                Prefetch(
-                    "sections",
-                    Section.objects.filter(meta_status="active").prefetch_related("subsections"),
-                ),
-                Prefetch(
-                    "examsubject_set__examsubjectquestion_set__question",
-                    queryset=Question.get_detail_queryset(all=True),
-                ),
-            )
-        )
+    def get_detail_queryset(
+        cls, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False
+    ) -> QuerySet:
+        return get_exam_detailed_queryset(cls, sections, exam_subject, exam_subject_questions, exam_subject_questions_question, all)
 
 
 # ---------------------------------------------------------------------------- #
