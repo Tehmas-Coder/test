@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db import models
 from django.db.models import Count, F, Prefetch, Q, QuerySet
 
+from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
 from core.models import BaseModel
 
 # ---------------------------------------------------------------------------- #
@@ -148,36 +149,8 @@ class Question(BaseModel):
         return self.type.name
 
     @classmethod
-    def get_detail_queryset(cls) -> QuerySet:
-
-        return cls.objects.get_queryset().prefetch_related(
-            "tags",
-            "attempt_responses",
-            "type",
-            Prefetch("questionmedia_set", QuestionMedia.objects.all().select_related("media")),
-            Prefetch(
-                "choices",
-                queryset=QuestionChoice.objects.all().prefetch_related(
-                    Prefetch("questionchoicemedia_set", QuestionChoiceMedia.objects.all().select_related("media"))
-                ),
-            ),
-            Prefetch(
-                "retry_hints",
-                queryset=QuestionRetryHint.objects.all().prefetch_related(
-                    Prefetch("questionretryhintmedia_set", QuestionRetryHintMedia.objects.all().select_related("media"))
-                ),
-            ),
-            Prefetch(
-                "subjects",
-                queryset=QuestionSubject.objects.select_related(
-                    "subject_education_level",
-                    "difficulty_level",
-                    "measuring_unit",
-                    "subject_education_level__subject",
-                    "subject_education_level__education_level",
-                ).prefetch_related("countries"),
-            ),
-        )
+    def get_detail_queryset(cls, tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False) -> QuerySet:
+        return get_question_detailed_queryset(cls, tags, attempt_responses, choices, retry_hints, subjects, all)
 
     @classmethod
     def get_questions_for_countries(cls, country_ids: list):
@@ -193,9 +166,13 @@ class Question(BaseModel):
     @classmethod
     def get_questions_for_subjects(cls, subject_ids: list):
 
-        return cls.get_detail_queryset.filter(
-            subjects__subject_education_level__subject_id__in=subject_ids,
-        ).distinct()
+        return (
+            cls.get_detail_queryset()
+            .filter(
+                subjects__subject_education_level__subject_id__in=subject_ids,
+            )
+            .distinct()
+        )
 
     @classmethod
     def get_questions_for_subjects_and_education_levels(cls, subject_ids: list, education_level_ids: list):
@@ -321,6 +298,13 @@ class SubjectEducationLevel(BaseModel):
     class Meta:
         app_label = "questionbank"
         db_table = "questionbank_subject_educationlevel"
+
+    @classmethod
+    def get_detail_queryset(cls):
+        return cls.objects.get_queryset().select_related(
+            "subject",
+            "education_level",
+        )
 
 
 class QuestionSubject(BaseModel):

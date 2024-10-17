@@ -114,7 +114,7 @@ class Exam(BaseModel):
                 ),
                 Prefetch(
                     "examsubject_set__examsubjectquestion_set__question",
-                    queryset=Question.get_detail_queryset(),
+                    queryset=Question.get_detail_queryset(all=True),
                 ),
             )
         )
