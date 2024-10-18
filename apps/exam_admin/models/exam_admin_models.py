@@ -1,8 +1,7 @@
 from django.db import models
-from django.db.models import Prefetch, Q, QuerySet
+from django.db.models import QuerySet
 
 from apps.exam_admin.helpers.queryset_functions import get_exam_detailed_queryset
-from apps.questionbank.models import Question
 from core.models import BaseModel
 
 
