@@ -1,6 +1,5 @@
 import json
 import random
-from re import sub
 
 from cryptography.fernet import Fernet
 from decouple import config
