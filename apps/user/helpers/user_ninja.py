@@ -33,6 +33,15 @@ class UserNinja:
         self.__send_email_verification_link()
         return self.created_user_data
 
+    @staticmethod
+    def set_role(user, roles):
+        if not user:
+            return ResponseMiddleware.return_now(make_error_response(message="User not found"))
+        try:
+            user.roles.set(roles)
+        except Exception as e:
+            return ResponseMiddleware.return_now(make_error_response(message=f"Invalid Role"))
+
     # ---------------------------------------------------------------------------- #
     #                                Private methods                               #
     # ---------------------------------------------------------------------------- #

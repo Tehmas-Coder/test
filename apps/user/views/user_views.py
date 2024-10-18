@@ -8,7 +8,6 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from apps.exam_public.models.exam_public_models import Candidate
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.filters.user_filters import UserFilterBackend
@@ -59,8 +58,6 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    # -------------------------------- UPDATE USER ------------------------------- #
-
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         request_data: dict = request.data.dict()  # type: ignore
@@ -92,13 +89,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def set_user_role(self, request, *args, **kwargs):
         user = BaseUser.objects.filter(id=request.data["user"]).first()
         roles = request.data["roles"]
-        if not user:
-            return Response({"error": "User not found"}, status=404)
-        try:
-            user.roles.set(roles)
-        except Exception as e:
-            return make_error_response(message=f"Invalid Role")
-
+        UserNinja.set_role(user, roles)
         return Response({"message": "Roles set successfully"}, status=status.HTTP_200_OK)
 
 
