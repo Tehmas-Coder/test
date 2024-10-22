@@ -27,11 +27,11 @@ class UserNinja:
     # ---------------------------------------------------------------------------- #
     #                                Public methods                                #
     # ---------------------------------------------------------------------------- #
-    def create_user(self) -> dict:
+    def create_user(self):
         self.request_data_role_ids: list = self.data_dict.pop("roles", [])
         self.is_requested_role_candidate: bool = "candidate" in get_roles_names(self.request_data_role_ids)
 
-        self.created_user_data = self.__validate_and_create_user(self.serializer_class(data=self.data_dict))
+        self.created_user_data = self.__validate_and_save_user(self.serializer_class(data=self.data_dict))
         self.__create_candidate_or_organization_user()
         self.__send_email_verification_link()
         return self.created_user_data
@@ -41,7 +41,7 @@ class UserNinja:
 
         self.__validate_password()
         self.__create_profile_picture_media()  # Creating the media transaction for profile picture then setting the media id in the profile_picture value in request data
-        self.__validate_and_update_user(self.serializer_class(requested_user_instance, data=self.data_dict, partial=True))
+        self.__validate_and_save_user(self.serializer_class(requested_user_instance, data=self.data_dict, partial=True), is_update=True)
 
     @staticmethod
     def set_role(user, roles):
@@ -56,15 +56,16 @@ class UserNinja:
     #                                Private methods                               #
     # ---------------------------------------------------------------------------- #
 
-    def __validate_and_create_user(self, serializer_instance):
+    def __validate_and_save_user(self, serializer_instance, is_update: bool = False):
         if not serializer_instance.is_valid():
             errors = serializer_instance.errors
             if "email" in serializer_instance.errors:
                 errors = {"error": "User with this email already exists"}
             ResponseMiddleware.return_now(Response(errors, status=status.HTTP_400_BAD_REQUEST))
         user_instance = serializer_instance.save()
-        user_instance.roles.set(self.request_data_role_ids)
-        return serializer_instance.data
+        if not is_update:
+            user_instance.roles.set(self.request_data_role_ids)
+            return serializer_instance.data
 
     def __create_candidate_or_organization_user(self):
         organization = self.data_dict.get("organization", None)
@@ -130,8 +131,3 @@ class UserNinja:
             media_serializer.save()
             media_id = media_serializer.data["id"]  # type: ignore
             self.data_dict["profile_picture"] = media_id
-
-    def __validate_and_update_user(self, serializer_instance):
-        if not serializer_instance.is_valid():
-            ResponseMiddleware.return_now(Response(serializer_instance.errors, status=status.HTTP_400_BAD_REQUEST))
-        serializer_instance.save()
