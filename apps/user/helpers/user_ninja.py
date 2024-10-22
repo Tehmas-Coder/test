@@ -36,6 +36,13 @@ class UserNinja:
         self.__send_email_verification_link()
         return self.created_user_data
 
+    def update_user(self, requested_user_instance: BaseUser):
+        self.requested_user_instance = requested_user_instance
+
+        self.__validate_password()
+        self.__create_profile_picture_media()  # Creating the media transaction for profile picture then setting the media id in the profile_picture value in request data
+        self.__validate_and_update_user(self.serializer_class(requested_user_instance, data=self.data_dict, partial=True))
+
     @staticmethod
     def set_role(user, roles):
         if not user:
@@ -44,13 +51,6 @@ class UserNinja:
             user.roles.set(roles)
         except Exception as e:
             ResponseMiddleware.return_now(make_error_response(message=f"Invalid Role"))
-
-    def update_user(self, requested_user_instance: BaseUser):
-        self.requested_user_instance = requested_user_instance
-
-        self.__validate_password()
-        self.__create_profile_picture_media()  # Creating the media transaction for profile picture then setting the media id in the profile_picture value in request data
-        self.__validate_and_update_user(self.serializer_class(requested_user_instance, data=self.data_dict, partial=True))
 
     # ---------------------------------------------------------------------------- #
     #                                Private methods                               #
