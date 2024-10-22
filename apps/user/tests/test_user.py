@@ -264,7 +264,7 @@ class UserTest(UserUnitTest):
         updated_request_body["last_name"] = "last name edited"
         updated_request_body["profile_picture"] = self.file_1
         updated_response_json_data = self.do_update_one_user(test_record_id, updated_request_body)
-        json_data = updated_response_json_data
+        json_data = updated_response_json_data["data"]
         for one_field in self.list_of_fields_of_user_model:
             self.assertIn(one_field, json_data)
         for key in updated_request_body:
@@ -280,7 +280,7 @@ class UserTest(UserUnitTest):
                 self.assertEqual(json_data[key]["id"], self.reuseable_request_body[key])
                 continue
             self.assertEqual(json_data[key], updated_request_body[key])
-        self.assertEqual(updated_response_json_data["id"], test_record_id)
+        self.assertEqual(json_data["id"], test_record_id)
 
 
 # ?###################################################
