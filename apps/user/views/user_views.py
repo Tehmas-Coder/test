@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from apps.organization.models.organization_models import OrganizationUser
 from apps.user.filters.user_filters import UserFilterBackend
 from apps.user.helpers.user_ninja import UserNinja
+from apps.user.helpers.verification_email import VerificationEmailNinja
 from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
@@ -74,45 +75,9 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
 
     def invitaion_link(self, request):
         encrypted_email_token = request.query_params["token"]
-
-        # * Decrypt the email
-        key = get_encryption_key()
-        cipher = Fernet(key)
-        decrypt_user_data = cipher.decrypt(encrypted_email_token).decode()
-        user_data = json.loads(decrypt_user_data)
-
-        try:
-            user_instance = BaseUser.objects.get(email=user_data["email"])
-
-        except BaseUser.DoesNotExist:
-            return Response(
-                data={"Status": "failed", "message": "User does not exist"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user_data_dict = model_to_dict(user_instance)
-        if user_data_dict["is_verified"] == True:
-            return Response(
-                data={"Status": "failed", "message": "User Already Verified"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if user_data["email"] != user_data_dict["email"]:
-            return Response(
-                data={"Status": "failed", "message": "Invalid Link"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user_instance.is_verified = True
-        user_instance.save()
-
-        return Response(
-            data={
-                "Status": "success",
-                "message": "User is now verified.",
-            },
-            status=status.HTTP_200_OK,
-        )
+        verification_ninja_instance = VerificationEmailNinja()
+        verification_ninja_instance.send_verification_email(encrypted_email_token)
+        return make_success_response(message="User verified successfully.")
 
     def resend_verification_link(self, request):
         user_email = request.data["email"]
