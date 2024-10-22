@@ -161,7 +161,7 @@ class ExamTest(ExamUnitTest):
         validate_failed_400_test_response(self, updated_response)
 
     def successfull_updation_of_record_test(self, test_record_id):
-        self.custom_login(email="test@gmail.com", password="12345678")
+        self.custom_login(email="test_user@gmail.com", password="12345678")
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["name"] = "Exam 3 modified"
         updated_request_body["pass_marks"] = 70

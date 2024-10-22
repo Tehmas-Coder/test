@@ -120,7 +120,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
             self.assertIn(one_field, json_data)
 
     def successfull_removal_of_one_organization_user_test(self, test_record_id):
-        self.custom_login(email="test@gmail.com", password="12345678")
+        self.custom_login(email="test_user@gmail.com", password="12345678")
         self.do_remove_one_organization_user(test_record_id)
 
 
