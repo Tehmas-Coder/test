@@ -18,6 +18,7 @@ from utils.rna_utils import get_encryption_key, make_error_response
 class UserNinja:
     def __init__(self, user, request_data: dict, serializer_class) -> None:
         self.logged_in_user: BaseUser = user
+        self.is_super_user = self.logged_in_user.is_superuser
         self.data_dict = request_data
         self.logged_in_user_roles: list = self.logged_in_user.get_user_role_slugs
         self.request_data_role_ids: list = self.data_dict.pop("roles", [])
@@ -29,7 +30,7 @@ class UserNinja:
     # ---------------------------------------------------------------------------- #
     def create_user(self):
         self.created_user_data = self.__validate_and_save_user(self.serializer_instance)
-        self.__create_candidate_or_organization_user(self.logged_in_user.is_superuser)
+        self.__create_candidate_or_organization_user()
         self.__send_email_verification_link()
         return self.created_user_data
 
@@ -56,9 +57,9 @@ class UserNinja:
         user_instance.roles.set(self.request_data_role_ids)
         return serializer_instance.data
 
-    def __create_candidate_or_organization_user(self, is_super_user):
+    def __create_candidate_or_organization_user(self):
         organization = self.data_dict.get("organization", None)
-        if not is_super_user:
+        if not self.is_super_user:
             organization = OrganizationUser.objects.filter(user_id=self.logged_in_user.id).values("organization_id").first()["organization_id"]  # type: ignore
             if "candidate" in self.logged_in_user_roles:
                 transaction.set_rollback(True)
