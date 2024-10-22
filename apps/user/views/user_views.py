@@ -1,9 +1,4 @@
-import json
-
-from cryptography.fernet import Fernet
-from decouple import config
 from django.db import transaction
-from django.forms import model_to_dict
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -17,13 +12,7 @@ from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
 )
-from utils.email_notifications import EmailNotification
-from utils.rna_utils import (
-    debug_print,
-    generate_random_password,
-    get_encryption_key,
-    make_success_response,
-)
+from utils.rna_utils import debug_print, make_success_response
 
 from ..models import BaseUser, Role
 
@@ -81,62 +70,9 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
 
     def resend_verification_link(self, request):
         user_email = request.data["email"]
-        try:
-            user_instance = BaseUser.objects.get(email=user_email)
-
-        except BaseUser.DoesNotExist:
-            return Response(
-                data={"Status": "failed", "message": "User does not exist"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user_data_dict = model_to_dict(user_instance)
-        if user_data_dict["is_verified"] == True:
-            return Response(
-                data={"Status": "failed", "message": "User Already Verified"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        new_password = generate_random_password()
-        user_instance.set_password(new_password)
-        user_instance.save()
-
-        key = get_encryption_key()
-        cipher = Fernet(key)
-
-        encryption_data = {"email": user_data_dict["email"]}
-        encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
-        token_data = encrypted_email.decode("utf-8")
-
-        url = config("QB_PUBLIC_FE_URL")
-        final_url = f"{url}verification?token={token_data}"
-
-        send_email_data_dict = {
-            "first_name": user_data_dict["first_name"],
-            "last_name": user_data_dict["last_name"],
-            "email": user_data_dict["email"],
-            "password": new_password,
-            "URL": final_url,
-        }
-
-        email_notification_ninja = EmailNotification(send_email_data_dict)
-        if not email_notification_ninja.send_url():
-            return Response(
-                data={
-                    "Status": "failed",
-                    "message": "Failed to send verification link.",
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        del email_notification_ninja
-
-        return Response(
-            data={
-                "Status": "success",
-                "message": "Verification Link Resent Successfully.",
-            },
-            status=status.HTTP_200_OK,
-        )
+        verification_ninja_instance = VerificationEmailNinja()
+        verification_ninja_instance.resend_verification_link(user_email)
+        return make_success_response(message="Verification link sent successfully.")
 
 
 class CreateSystemUserAPI(viewsets.ViewSet):
