@@ -9,7 +9,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.organization.models.organization_models import OrganizationUser
-from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.filters.user_filters import UserFilterBackend
 from apps.user.helpers.user_ninja import UserNinja
 from apps.user.models import UserRole
@@ -22,7 +21,7 @@ from utils.rna_utils import (
     debug_print,
     generate_random_password,
     get_encryption_key,
-    make_error_response,
+    make_success_response,
 )
 
 from ..models import BaseUser, Role
@@ -50,8 +49,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        serializer_class = self.get_serializer_class()
-        user_ninja_instance = UserNinja(request.user, request.data, serializer_class)
+        user_ninja_instance = UserNinja(logged_in_user=request.user, request_data=request.data, serializer_class=self.get_serializer_class())
         response_data = user_ninja_instance.create_user()
         return Response(
             {"status": "success", "message": "User created successfully.", "data": response_data},
@@ -59,32 +57,10 @@ class UserViewSet(viewsets.ModelViewSet):
         )
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        request_data: dict = request.data.dict()  # type: ignore
-        # * Handling password updation
-        old_password = request_data.get("old_password")
-        new_password = request_data.get("new_password")
-
-        if old_password:
-            if instance.check_password(old_password):
-                request_data["password"] = new_password
-            else:
-                return make_error_response(message="Old password is incorrect")
-
-        # * Creating the media transaction for profile picture then setting the media id in the profile_picture value
-        profile_picture = request_data.get("profile_picture", None)
-        if profile_picture:
-            media_serializer = MediaSerializer(data={"file": profile_picture})
-            media_serializer.is_valid()
-            media_serializer.save()
-            media_id = media_serializer.data["id"]  # type: ignore
-            request_data["profile_picture"] = media_id
-
-        serializer = self.get_serializer(instance, data=request_data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        response = UserDetailSerializer(self.get_object()).data
-        return Response(response, status=status.HTTP_200_OK)
+        user_ninja_instance = UserNinja(logged_in_user=request.user, request_data=request.data.dict(), serializer_class=self.get_serializer_class())
+        user_ninja_instance.update_user(self.get_object())
+        response_data = UserDetailSerializer(self.get_object()).data
+        return make_success_response(data=response_data, message="User updated successfully")
 
     def set_user_role(self, request, *args, **kwargs):
         user = BaseUser.objects.filter(id=request.data["user"]).first()
