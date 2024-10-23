@@ -39,16 +39,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        user_ninja_instance = UserNinja(logged_in_user=request.user, request_data=request.data, serializer_class=self.get_serializer_class())
-        response_data = user_ninja_instance.create_user()
+        user_ninja_instance = UserNinja(request.user, request.data, self.get_serializer_class())
+        response_data = user_ninja_instance.create()
         return Response(
             {"status": "success", "message": "User created successfully.", "data": response_data},
             status=status.HTTP_201_CREATED,
         )
 
     def partial_update(self, request, *args, **kwargs):
-        user_ninja_instance = UserNinja(logged_in_user=request.user, request_data=request.data.dict(), serializer_class=self.get_serializer_class())
-        user_ninja_instance.update_user(self.get_object())
+        request_data = request.data.dict()
+        request_data["requested_instance"] = self.get_object()
+        user_ninja_instance = UserNinja(request.user, request_data, self.get_serializer_class())
+        user_ninja_instance.update()
         response_data = UserDetailSerializer(self.get_object()).data
         return make_success_response(data=response_data, message="User updated successfully")
 
@@ -65,13 +67,13 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
     def invitaion_link(self, request):
         encrypted_email_token = request.query_params["token"]
         verification_ninja_instance = VerificationEmailNinja()
-        verification_ninja_instance.send_verification_email(encrypted_email_token)
+        verification_ninja_instance.send(encrypted_email_token)
         return make_success_response(message="User verified successfully.")
 
     def resend_verification_link(self, request):
         user_email = request.data["email"]
         verification_ninja_instance = VerificationEmailNinja()
-        verification_ninja_instance.resend_verification_link(user_email)
+        verification_ninja_instance.resend(user_email)
         return make_success_response(message="Verification link sent successfully.")
 
 

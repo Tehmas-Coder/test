@@ -21,7 +21,7 @@ class VerificationEmailNinja:
     #                                Public methods                                #
     # ---------------------------------------------------------------------------- #
 
-    def send_verification_email(self, token):
+    def send(self, token):
         user_data = self.__decrypt_token_data(token)
         token_email = user_data["email"]
         self.user_instance: BaseUser = self.__get_user_instance(token_email)  # type: ignore
@@ -30,7 +30,7 @@ class VerificationEmailNinja:
         self.user_instance.is_verified = True
         self.user_instance.save()
 
-    def resend_verification_link(self, email):
+    def resend(self, email):
         self.user_instance: BaseUser = self.__get_user_instance(email)  # type: ignore
         self.__check_user_verified_status()
         self.__send_verification_email()

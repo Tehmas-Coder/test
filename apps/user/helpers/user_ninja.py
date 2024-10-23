@@ -27,21 +27,27 @@ class UserNinja:
     # ---------------------------------------------------------------------------- #
     #                                Public methods                                #
     # ---------------------------------------------------------------------------- #
-    def create_user(self):
+    def create(self):
         self.request_data_role_ids: list = self.data_dict.pop("roles", [])
         self.is_requested_role_candidate: bool = "candidate" in get_roles_names(self.request_data_role_ids)
+        self.organization = self.data_dict.get("organization", None)
 
-        self.created_user_data = self.__validate_and_save_user(self.serializer_class(data=self.data_dict))
+        self.created_user_data = self.__validate_and_save_user()
         self.__create_candidate_or_organization_user()
         self.__send_email_verification_link()
         return self.created_user_data
 
-    def update_user(self, requested_user_instance: BaseUser):
-        self.requested_user_instance = requested_user_instance
+    def update(self):
+        self.requested_user_instance: BaseUser = self.data_dict.pop("requested_instance")
+        self.old_password = self.data_dict.get("old_password")
+        self.new_password = self.data_dict.get("new_password")
+        self.profile_picture = self.data_dict.get("profile_picture")
 
-        self.__validate_password()
-        self.__create_profile_picture_media()  # Creating the media transaction for profile picture then setting the media id in the profile_picture value in request data
-        self.__validate_and_save_user(self.serializer_class(requested_user_instance, data=self.data_dict, partial=True), is_update=True)
+        if self.old_password:
+            self.__validate_password()
+        if self.profile_picture:
+            self.__create_profile_picture_media()  # Creating the media transaction for profile picture then setting the media id in the profile_picture value in request data
+        self.__validate_and_save_user(is_update=True)
 
     @staticmethod
     def set_role(user, roles):
@@ -56,7 +62,12 @@ class UserNinja:
     #                                Private methods                               #
     # ---------------------------------------------------------------------------- #
 
-    def __validate_and_save_user(self, serializer_instance, is_update: bool = False):
+    def __validate_and_save_user(self, is_update: bool = False):
+        if is_update:
+            serializer_instance = self.serializer_class(self.requested_user_instance, data=self.data_dict, partial=True)
+        else:
+            serializer_instance = self.serializer_class(data=self.data_dict)
+
         if not serializer_instance.is_valid():
             errors = serializer_instance.errors
             if "email" in serializer_instance.errors:
@@ -68,25 +79,24 @@ class UserNinja:
             return serializer_instance.data
 
     def __create_candidate_or_organization_user(self):
-        organization = self.data_dict.get("organization", None)
         if not self.is_super_user:
-            organization = OrganizationUser.objects.filter(user_id=self.logged_in_user.id).values("organization_id").first()["organization_id"]  # type: ignore
+            self.organization = OrganizationUser.objects.filter(user_id=self.logged_in_user.id).values("organization_id").first()["organization_id"]  # type: ignore
             if "candidate" in self.logged_in_user_roles:
                 transaction.set_rollback(True)
                 ResponseMiddleware.return_now(make_error_response(message="Candidate is not allowed to create a user"))
         if self.is_requested_role_candidate:
-            self.__create_candidate(organization)
+            self.__create_candidate()
         else:
-            self.__create_organization_user(organization)
+            self.__create_organization_user()
 
-    def __create_candidate(self, organization):
-        Candidate.objects.create(user_id=self.created_user_data["id"], organization_id=organization)  # type: ignore
+    def __create_candidate(self):
+        Candidate.objects.create(user_id=self.created_user_data["id"], organization_id=self.organization)  # type: ignore
 
-    def __create_organization_user(self, organization):
-        if organization is None:
+    def __create_organization_user(self):
+        if self.organization is None:
             transaction.set_rollback(True)
             ResponseMiddleware.return_now(make_error_response(message="Organization is required for creating organization user"))
-        OrganizationUser.objects.create(user_id=self.created_user_data["id"], organization_id=organization)  # type: ignore
+        OrganizationUser.objects.create(user_id=self.created_user_data["id"], organization_id=self.organization)  # type: ignore
 
     def __send_email_verification_link(self):
         key = get_encryption_key()
@@ -114,20 +124,14 @@ class UserNinja:
         del email_notification_ninja
 
     def __validate_password(self):
-        old_password = self.data_dict.get("old_password")
-        new_password = self.data_dict.get("new_password")
+        if not self.requested_user_instance.check_password(self.old_password):  # type: ignore
+            ResponseMiddleware.return_now(make_error_response(message="Old password is incorrect"))
 
-        if old_password:
-            if self.requested_user_instance.check_password(old_password):
-                self.data_dict["password"] = new_password
-            else:
-                ResponseMiddleware.return_now(make_error_response(message="Old password is incorrect"))
+        self.data_dict["password"] = self.new_password
 
     def __create_profile_picture_media(self):
-        profile_picture = self.data_dict.get("profile_picture", None)
-        if profile_picture:
-            media_serializer = MediaSerializer(data={"file": profile_picture})
-            media_serializer.is_valid()
-            media_serializer.save()
-            media_id = media_serializer.data["id"]  # type: ignore
-            self.data_dict["profile_picture"] = media_id
+        media_serializer = MediaSerializer(data={"file": self.profile_picture})
+        media_serializer.is_valid()
+        media_serializer.save()
+        media_id = media_serializer.data["id"]  # type: ignore
+        self.data_dict["profile_picture"] = media_id
