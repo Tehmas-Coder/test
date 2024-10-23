@@ -5,6 +5,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.user.helpers.role_ninja import RoleNinja
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
@@ -36,15 +37,9 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         new_role_data = super().create(request, *args, **kwargs)
-        new_role_id = new_role_data.data["id"]  # type: ignore
-        permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
-        new_role_instance = Role.objects.prefetch_related("permissions").get(pk=new_role_id)
-
-        if len(permission_ids_list):
-            new_role_instance.permissions.set(permission_ids_list)
-
-        new_role_permission_data = RoleSerializer(new_role_instance).data
-        return Response(new_role_permission_data, status=status.HTTP_201_CREATED)
+        new_role_instance = RoleNinja.add_role_permissions(new_role_data.data["id"])  # type: ignore
+        response_data = RoleSerializer(new_role_instance).data
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         self.queryset = (
@@ -76,9 +71,7 @@ class RoleViewSet(viewsets.ModelViewSet):
     def set_permissions(self, request, *args, **kwargs):
         permissions = request.data["permissions"]
         role_id = self.get_object().id
-
         RolePermission.objects.filter(role_id=role_id).update(is_active=False)
-
         if permissions:
             RolePermission.objects.filter(role_id=role_id, permission_id__in=permissions).update(is_active=True)
 
