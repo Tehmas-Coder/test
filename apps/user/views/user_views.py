@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from apps.organization.models.organization_models import OrganizationUser
 from apps.user.filters.user_filters import UserFilterBackend
 from apps.user.helpers.user_ninja import UserNinja
-from apps.user.helpers.verification_email import VerificationEmailNinja
+from apps.user.helpers.verification_email_ninja import VerificationEmailNinja
 from apps.user.models import UserRole
 from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
