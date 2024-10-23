@@ -30,23 +30,24 @@ class UserNinja:
     def create(self):
         self.request_data_role_ids: list = self.data_dict.pop("roles", [])
         self.is_requested_role_candidate: bool = "candidate" in get_roles_names(self.request_data_role_ids)
-        self.organization = self.data_dict.get("organization", None)
+        organization = self.data_dict.get("organization", None)
 
         self.created_user_data = self.__validate_and_save_user()
-        self.__create_candidate_or_organization_user()
+        self.__create_candidate_or_organization_user(organization)
         self.__send_email_verification_link()
         return self.created_user_data
 
     def update(self):
         self.requested_user_instance: BaseUser = self.data_dict.pop("requested_instance")
-        self.old_password = self.data_dict.get("old_password")
-        self.new_password = self.data_dict.get("new_password")
-        self.profile_picture = self.data_dict.get("profile_picture")
+        old_password = self.data_dict.get("old_password")
+        new_password = self.data_dict.get("new_password")
+        profile_picture = self.data_dict.get("profile_picture")
 
-        if self.old_password:
-            self.__validate_password()
-        if self.profile_picture:
-            self.__create_profile_picture_media()  # Creating the media transaction for profile picture then setting the media id in the profile_picture value in request data
+        if old_password:
+            if self.__validate_password(old_password):
+                self.data_dict["password"] = new_password
+        if profile_picture:
+            self.data_dict["profile_picture"] = self.__create_profile_picture_media(profile_picture)
         self.__validate_and_save_user(is_update=True)
 
     @staticmethod
@@ -78,25 +79,25 @@ class UserNinja:
             user_instance.roles.set(self.request_data_role_ids)
             return serializer_instance.data
 
-    def __create_candidate_or_organization_user(self):
+    def __create_candidate_or_organization_user(self, organization):
         if not self.is_super_user:
-            self.organization = OrganizationUser.objects.filter(user_id=self.logged_in_user.id).values("organization_id").first()["organization_id"]  # type: ignore
+            organization = OrganizationUser.objects.filter(user_id=self.logged_in_user.id).values("organization_id").first()["organization_id"]  # type: ignore
             if "candidate" in self.logged_in_user_roles:
                 transaction.set_rollback(True)
                 ResponseMiddleware.return_now(make_error_response(message="Candidate is not allowed to create a user"))
         if self.is_requested_role_candidate:
-            self.__create_candidate()
-        else:
-            self.__create_organization_user()
-
-    def __create_candidate(self):
-        Candidate.objects.create(user_id=self.created_user_data["id"], organization_id=self.organization)  # type: ignore
-
-    def __create_organization_user(self):
-        if self.organization is None:
+            self.__create_candidate(organization, self.created_user_data["id"])  # type: ignore
+        elif organization is None:
             transaction.set_rollback(True)
             ResponseMiddleware.return_now(make_error_response(message="Organization is required for creating organization user"))
-        OrganizationUser.objects.create(user_id=self.created_user_data["id"], organization_id=self.organization)  # type: ignore
+        else:
+            self.__create_organization_user(organization, self.created_user_data["id"])  # type: ignore
+
+    def __create_candidate(self, organization, user_id):
+        Candidate.objects.create(user_id=user_id, organization_id=organization)  # type: ignore
+
+    def __create_organization_user(self, organization, user_id):
+        OrganizationUser.objects.create(user_id=user_id, organization_id=organization)  # type: ignore
 
     def __send_email_verification_link(self):
         key = get_encryption_key()
@@ -123,15 +124,13 @@ class UserNinja:
             ResponseMiddleware.return_now(make_error_response(message="User created successfully but failed to send email"))
         del email_notification_ninja
 
-    def __validate_password(self):
-        if not self.requested_user_instance.check_password(self.old_password):  # type: ignore
+    def __validate_password(self, old_password) -> bool:
+        if not self.requested_user_instance.check_password(old_password):  # type: ignore
             ResponseMiddleware.return_now(make_error_response(message="Old password is incorrect"))
+        return True
 
-        self.data_dict["password"] = self.new_password
-
-    def __create_profile_picture_media(self):
-        media_serializer = MediaSerializer(data={"file": self.profile_picture})
+    def __create_profile_picture_media(self, profile_picture) -> int:
+        media_serializer = MediaSerializer(data={"file": profile_picture})
         media_serializer.is_valid()
         media_serializer.save()
-        media_id = media_serializer.data["id"]  # type: ignore
-        self.data_dict["profile_picture"] = media_id
+        return media_serializer.data["id"]  # type: ignore
