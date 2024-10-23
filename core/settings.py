@@ -16,6 +16,20 @@ from pathlib import Path
 
 from decouple import config
 
+import sentry_sdk
+
+if int(config("ENABLE_SENTRY")):
+    sentry_sdk.init(
+        dsn=config("SENTRY_DSN"),
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        traces_sample_rate=1.0,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0,
+    )
+
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM SETTINGS                               #
 # ---------------------------------------------------------------------------- #
