@@ -22,7 +22,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core.temp_api import TempApi
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
+    path("api/sentry-debug/", trigger_error),
     # ? Temp-API
     path("api/temp-api/", TempApi.as_view(), name="temp-api"),
     # ? Admin
