@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'pipeline/dev', description: 'Git Branch to deploy') // Default is dev
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'prod'], description: 'Environment to deploy')
+    }
+
+    environment {
+        DJANGO_EC2_IP = "${params.ENVIRONMENT == 'dev' ? 'ec2-54-216-182-84.eu-west-1.compute.amazonaws.com' : (params.ENVIRONMENT == 'staging' ? 'ec2-staging-ip' : 'ec2-prod-ip')}"
+        SHELL_SCRIPT_PATH = "/var/lib/jenkins/workspace/scripts/pipeline_my_psychometric_exam.sh"  // Updated for new project
+        SLACK_WEBHOOK_URL = credentials('slack-webhook-url')
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: "*/${params.BRANCH}"]],
+                          userRemoteConfigs: [[url: 'https://github.com/r-naeem-afzal/my-psychometric-exam.git', 
+                                               credentialsId: 'github-token']]])
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                script {
+                    // Use SSH credentials for EC2 access
+                    sshagent(['django-ec2-ssh-key']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ubuntu@${DJANGO_EC2_IP} 'bash ${SHELL_SCRIPT_PATH} ${params.ENVIRONMENT} ${params.BRANCH}'
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Notify Slack: Deployment Started') {
+            steps {
+                script {
+                    // Notify Slack that the deployment has started
+                    sh """
+                        curl -X POST -H 'Content-type: application/json' --data '{"text":"Deployment started for branch ${params.BRANCH} in ${params.ENVIRONMENT} environment."}' ${SLACK_WEBHOOK_URL}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs() // Clean up workspace after every build
+        }
+
+        success {
+            script {
+                // Send a success notification to Slack using the webhook
+                sh """
+                    curl -X POST -H 'Content-type: application/json' --data '{"text":"Branch ${params.BRANCH} successfully deployed to ${params.ENVIRONMENT} environment."}' ${SLACK_WEBHOOK_URL}
+                """
+            }
+        }
+
+        failure {
+            script {
+                // Send a failure notification to Slack using the webhook
+                sh """
+                    curl -X POST -H 'Content-type: application/json' --data '{"text":"Deployment of branch ${params.BRANCH} to ${params.ENVIRONMENT} failed."}' ${SLACK_WEBHOOK_URL}
+                """
+            }
+        }
+    }
+}
+
