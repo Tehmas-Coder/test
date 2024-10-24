@@ -30,7 +30,6 @@ def trigger_error(request):
 
 urlpatterns = [
     path("api/sentry-debug/", trigger_error),  # type: ignore
-    path("api", include("ping.urls")),
     # ? Temp-API
     path("api/temp-api/", TempApi.as_view(), name="temp-api"),
     # ? Admin

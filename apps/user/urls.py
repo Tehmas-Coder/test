@@ -4,6 +4,7 @@ from rest_framework import routers
 from apps.user.views.auth_views import *
 from apps.user.views.role_permission_views import *
 from apps.user.views.user_views import *
+from ping.ping_views import PingAPI
 
 router = routers.DefaultRouter()
 # ----------------------------------- AUTH ----------------------------------- #
@@ -21,8 +22,8 @@ urlpatterns = [
     path("system-to-qb-login/", FromSaLoginToQBApiView.as_view()),
     path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
     path("system-user-create/", CreateSystemUserAPI.as_view({"post": "user_creation_by_system_user"})),
+    path("ping/", PingAPI.as_view()),
 ]
-
 # ----------------------------------- USERS ---------------------------------- #
 router.register(r"users", UserViewSet)
 

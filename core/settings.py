@@ -153,7 +153,6 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     # * System
-    "ping",
     "apps.lookups",
     "apps.user",
     "apps.organization",
