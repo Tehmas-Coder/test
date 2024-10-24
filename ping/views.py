@@ -10,4 +10,4 @@ class PingAPI(views.APIView):
 
     def get(self, request):
 
-        return Response(data={"Status": "success", "Message": "pong to ponga"}, status=status.HTTP_200_OK)
+        return Response(data={"Status": "success", "Message": "pong"}, status=status.HTTP_200_OK)
