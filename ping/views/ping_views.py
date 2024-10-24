@@ -9,5 +9,5 @@ class PingAPI(views.APIView):
     def get(self, request):
 
         return Response(
-            data={"Status": "success", "Message": "pongi"}, status=status.HTTP_200_OK
+            data={"Status": "success", "Message": "pongiii"}, status=status.HTTP_200_OK
         )
