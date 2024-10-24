@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: "*/${params.BRANCH}"]],
-                          userRemoteConfigs: [[url: 'https://github.com/haider-coder/my-psychometric-exam.git',  // Update the repo URL
+                          userRemoteConfigs: [[url: 'https://github.com/r-naeem-afzal/my-psychometric-exam.git', 
                                                credentialsId: 'github-token']]])
             }
         }
