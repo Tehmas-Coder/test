@@ -6,6 +6,7 @@ from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers import (
     ExamBacklogDetailSerializer,
     ExamBacklogEditSerializer,
+    ExamBacklogQuestionScoresheetSerializer,
 )
 from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
@@ -63,17 +64,19 @@ class CandidateExamListSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
-            "candidate",
-            "candidate_email",
-            "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
+            "obtained_marks",
             "exam_duration",
             "schedule",
             "start_datetime",
             "end_datetime",
             "waiting_duration",
             "extra_duration",
+            "exam_status",
+            "candidate_email",
+            "candidate",
+            "exam_backlog",
         ] + get_base_model_fields()
 
 
@@ -85,17 +88,19 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
-            "candidate",
-            "candidate_email",
-            "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
+            "obtained_marks",
             "exam_duration",
             "schedule",
             "start_datetime",
             "end_datetime",
             "waiting_duration",
             "extra_duration",
+            "exam_status",
+            "candidate_email",
+            "candidate",
+            "exam_backlog",
         ] + get_base_model_fields()
 
     def __init__(self, *args, **kwargs):
@@ -137,9 +142,6 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
-            "candidate",
-            "candidate_email",
-            "exam_backlog",
             "is_preparatory",
             "total_obtainable_marks",
             "obtained_marks",
@@ -149,6 +151,10 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
             "end_datetime",
             "waiting_duration",
             "extra_duration",
+            "exam_status",
+            "candidate_email",
+            "candidate",
+            "exam_backlog",
         ] + get_base_model_fields()
 
     def __init__(self, *args, **kwargs):
@@ -161,3 +167,31 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
 
     def get_exam_backlog(self, obj):
         return ExamBacklogDetailSerializer(obj.exam_backlog, context=self.context).data
+
+
+# ------------------- Candidate Exam Scoresheet Serializer ------------------- #
+
+
+class CandidateExamScoresheetSerializer(BaseModelSerializer):
+    exam_backlog = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CandidateExam
+        fields = [
+            "id",
+            "is_preparatory",
+            "total_obtainable_marks",
+            "obtained_marks",
+            "exam_duration",
+            "schedule",
+            "start_datetime",
+            "end_datetime",
+            "waiting_duration",
+            "extra_duration",
+            "exam_status",
+            "candidate_email",
+            "exam_backlog",
+        ] + get_base_model_fields()
+
+    def get_exam_backlog(self, obj):
+        return ExamBacklogQuestionScoresheetSerializer(obj.exam_backlog).data

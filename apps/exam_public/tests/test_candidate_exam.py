@@ -1,4 +1,3 @@
-import copy
 import json
 
 from rest_framework import status
@@ -29,13 +28,18 @@ class CandidateExamUnitTest(TestSetUp):
         "tag_seed",
         "difficulty_level_seed",
         "question_seed",
+        "question_subject_seed",
+        "question_subject_country_seed",
+        "question_retry_hint_seed",
+        "question_choice_seed",
+        "question_tag_seed",
         "section_seed",
         "subsection_seed",
         "exam_subject_question_seed",
         "schedule_seed",
         "organization_seed",
         "role_seed",
-        "test_user_seed",
+        "user_seed",
         "candidate_seed",
     ]
 
@@ -59,7 +63,7 @@ class CandidateExamUnitTest(TestSetUp):
         url = "/api/candidate-exam/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
+        return response.data["results"]  # type: ignore
 
     def do_get_one_candidate_exam(self, candidate_exam_id):
         print_test_header("get_one_candidate_exam")
@@ -85,21 +89,21 @@ class CandidateExamTest(CandidateExamUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "candidates": [
-            1,
+            "cyberaxescandidate@gmail.com",
         ],
-        "exam": 2,
+        "exam": 1,
         "schedule": 2,
+        "exam_duration": 120,
     }
     list_of_fields_of_candidate_exam_model = [
         "id",
         "candidate",
         "exam_backlog",
         "schedule",
-        "obtained_marks",
         "is_preparatory",
-        "date",
-        "start_time",
-        "end_time",
+        "start_datetime",
+        "end_datetime",
+        "exam_duration",
         "waiting_duration",
         "extra_duration",
     ]

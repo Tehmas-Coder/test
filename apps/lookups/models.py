@@ -18,6 +18,7 @@ class Region(BaseUserModel):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
+
     countries = models.ManyToManyField(
         "lookups.Country",
         related_name="regions",
@@ -51,27 +52,14 @@ class Country(BaseUserModel):
     lon = models.FloatField(null=True, blank=True)
     dial_code = models.CharField(max_length=255, blank=True)
     capital = models.CharField(max_length=255, blank=True)
-
-    timezones = models.ManyToManyField(
-        "lookups.Timezone",
-        related_name="countries",
-    )
-
-    currencies = models.ManyToManyField(
-        "lookups.Currency",
-        related_name="countries",
-    )
-
-    languages = models.ManyToManyField(
-        "lookups.Language",
-        related_name="countries",
-    )
-
     flag = models.ImageField(upload_to="flags/", null=True, blank=True)
-
     flag_svg = models.TextField(null=True, blank=True)
 
     is_un_member = models.BooleanField(default=False)
+
+    timezones = models.ManyToManyField("lookups.Timezone", related_name="countries")
+    currencies = models.ManyToManyField("lookups.Currency", related_name="countries")
+    languages = models.ManyToManyField("lookups.Language", related_name="countries")
 
     class Meta:
         app_label = "lookups"
@@ -102,14 +90,11 @@ class Country(BaseUserModel):
 
 
 class State(BaseUserModel):
+    country = models.ForeignKey("lookups.Country", related_name="states", on_delete=models.CASCADE)
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
-    country = models.ForeignKey(
-        "lookups.Country",
-        related_name="states",
-        on_delete=models.CASCADE,
-    )
 
     class Meta:
         app_label = "lookups"
@@ -119,14 +104,11 @@ class State(BaseUserModel):
 
 
 class City(BaseUserModel):
+    state = models.ForeignKey("lookups.State", related_name="cities", on_delete=models.CASCADE)
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
-    state = models.ForeignKey(
-        "lookups.State",
-        related_name="cities",
-        on_delete=models.CASCADE,
-    )
 
     is_capital = models.BooleanField(default=False)
 

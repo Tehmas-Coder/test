@@ -15,14 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
-from django.conf import settings
-from django.conf.urls.static import static
+
 from core.temp_api import TempApi
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
+    path("api/sentry-debug/", trigger_error),  # type: ignore
+    path("api", include("ping.urls")),
     # ? Temp-API
     path("api/temp-api/", TempApi.as_view(), name="temp-api"),
     # ? Admin

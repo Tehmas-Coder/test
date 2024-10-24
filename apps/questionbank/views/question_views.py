@@ -101,7 +101,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
-    queryset = SubjectEducationLevel.objects.all()
+    queryset = SubjectEducationLevel.objects.all().select_related("subject", "education_level")
     serializer_class = SubjectEducationLevelDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
@@ -260,8 +260,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
-        question = serializer.save()
-        serializer = QuestionDetailSerializer(question)
+        serializer.save()
+        serializer = QuestionDetailSerializer(self.get_object())
         return Response(serializer.data)
 
     @action(detail=False, methods=["delete"], url_path="delete-all")
@@ -305,7 +305,7 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
         serializer = QuestionMediaDetailSerializer(question_medias, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    @action(detail=False, methods=["post"], url_path="bulk-delete")
     def bulk_delete_question_medias(self, request):
         delete_request_ids = request.data.get("ids", [])
         QuestionMedia.objects.filter(id__in=delete_request_ids).update(meta_status="deleted")
@@ -331,6 +331,8 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
 
 
 # ---------------------------------- CHOICES --------------------------------- #
+
+
 class QuestionChoiceViewSet(viewsets.ModelViewSet):
     queryset = QuestionChoice.objects.all().prefetch_related("medias")
     serializer_class = QuestionChoiceSerializer
@@ -412,7 +414,7 @@ class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
         serializer = QuestionChoiceMediaSerializer(question_choice_medias, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    @action(detail=False, methods=["post"], url_path="bulk-delete")
     def bulk_delete_question_choice_medias(self, request):
         delete_request_ids = request.data.get("ids", [])
         QuestionChoiceMedia.objects.filter(id__in=delete_request_ids).update(meta_status="deleted")
@@ -514,7 +516,7 @@ class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
         serializer = QuestionRetryHintMediaSerializer(question_retry_hint_medias, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=["delete"], url_path="bulk-delete")
+    @action(detail=False, methods=["post"], url_path="bulk-delete")
     def bulk_delete_question_retry_hint_medias(self, request):
         delete_request_ids = request.data.get("ids", [])
         QuestionRetryHintMedia.objects.filter(id__in=delete_request_ids).update(meta_status="deleted")  # Bulk Delete

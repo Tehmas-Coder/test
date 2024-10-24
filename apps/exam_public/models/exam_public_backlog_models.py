@@ -9,14 +9,13 @@ from core.models import BaseModel
 
 class ExamBacklog(BaseModel):
     exam = models.ForeignKey("exam_admin.Exam", on_delete=models.DO_NOTHING)
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.DO_NOTHING)
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10, blank=True)
     abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField(null=True, blank=True)
-
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.DO_NOTHING)
     education_level_name = models.CharField(max_length=255)
-
     total_marks = models.PositiveIntegerField(default=0)
     pass_marks = models.PositiveIntegerField(default=0)
 
@@ -32,12 +31,19 @@ class ExamBacklog(BaseModel):
 class ExamBacklogQuestion(BaseModel):
     exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE, related_name="backlog_questions")
     subject = models.ForeignKey("questionbank.Subject", on_delete=models.DO_NOTHING)
-    subject_name = models.CharField(max_length=255)
+    difficulty_level = models.ForeignKey("questionbank.DifficultyLevel", on_delete=models.DO_NOTHING)
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
+    section_backlog = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING, null=True)
+    subsection_backlog = models.ForeignKey("exam_public.SubSectionBacklog", on_delete=models.DO_NOTHING, null=True)
     education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.DO_NOTHING)
+
+    subject_name = models.CharField(max_length=255)
     education_level_name = models.CharField(max_length=255)
+
     # * Question Fields
     question = models.ForeignKey("questionbank.Question", on_delete=models.DO_NOTHING)
     type = models.ForeignKey("questionbank.QuestionType", on_delete=models.DO_NOTHING)
+
     title = models.CharField(max_length=255)
     text = models.TextField(null=True, blank=True)
     max_retries = models.IntegerField(default=0)
@@ -51,13 +57,6 @@ class ExamBacklogQuestion(BaseModel):
     is_public = models.BooleanField(default=False)
     is_global = models.BooleanField(default=False)
     has_media = models.BooleanField(default=False)
-
-    difficulty_level = models.ForeignKey("questionbank.DifficultyLevel", on_delete=models.DO_NOTHING)
-
-    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
-
-    section_backlog = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING, null=True)
-    subsection_backlog = models.ForeignKey("exam_public.SubSectionBacklog", on_delete=models.DO_NOTHING, null=True)
 
     medias = models.ManyToManyField("user.Media", through="ExamBacklogQuestionMedia")
     countries = models.ManyToManyField("lookups.Country", through="ExamBacklogQuestionCountry")
@@ -96,8 +95,10 @@ class ExamBacklogQuestionCountry(BaseModel):
 
 class ExamBacklogQuestionChoice(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_choices")
+
     # * Question Choice Fields
     question_choice = models.ForeignKey("questionbank.QuestionChoice", on_delete=models.DO_NOTHING)
+
     title = models.CharField(max_length=255)
     text = models.TextField(null=True, blank=True)
     weight = models.IntegerField(default=0)
@@ -127,8 +128,10 @@ class ExamBacklogQuestionChoiceMedia(BaseModel):
 
 class ExamBacklogQuestionTag(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_tags")
+
     # * Question Tag Fields
     tag = models.ForeignKey("questionbank.Tag", on_delete=models.DO_NOTHING)
+
     name = models.CharField(max_length=255)
 
     class Meta:
@@ -141,8 +144,10 @@ class ExamBacklogQuestionTag(BaseModel):
 
 class ExamBacklogQuestionRetryHint(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_retry_hints")
+
     # * Question Retry Hint Fields
     retry_hint = models.ForeignKey("questionbank.QuestionRetryHint", on_delete=models.DO_NOTHING)
+
     text = models.TextField(null=True, blank=True)
     sequence = models.IntegerField(default=1)
 
@@ -169,8 +174,10 @@ class ExamBacklogQuestionRetryHintMedia(BaseModel):
 
 class ExamBacklogQuestionAttemptResponse(BaseModel):
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_attempt_responses")
+
     # * Question Attempt Response Fields
     attempt_response = models.ForeignKey("questionbank.QuestionAttemptResponse", on_delete=models.DO_NOTHING)
+
     text = models.TextField(null=True, blank=True)
     TYPE_CHOICES = (
         ("correct", "Correct"),
@@ -192,20 +199,17 @@ class ExamBacklogQuestionAttemptResponse(BaseModel):
 
 class SectionBacklog(BaseModel):
     exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE, related_name="section_backlogs")
+
     # * Section Fields
     section = models.ForeignKey("exam_admin.Section", on_delete=models.DO_NOTHING)
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.DO_NOTHING)
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
-
     time_limit = models.PositiveIntegerField(null=True)
-    total_marks = models.PositiveIntegerField(default=0)
-    passing_marks = models.PositiveIntegerField(null=True)
 
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
-    is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_public"
@@ -217,6 +221,7 @@ class SectionBacklog(BaseModel):
 
 class SubSectionBacklog(BaseModel):
     exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE)
+
     # * SubSection Fields
     subsection = models.ForeignKey("exam_admin.SubSection", on_delete=models.DO_NOTHING)
     section = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING, related_name="subsection_backlogs")
@@ -224,14 +229,10 @@ class SubSectionBacklog(BaseModel):
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
-
     time_limit = models.PositiveIntegerField(null=True)
-    total_marks = models.PositiveIntegerField(default=0)
-    passing_marks = models.PositiveIntegerField(null=True)
 
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
-    is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_public"

@@ -70,7 +70,6 @@ class SubSectionTest(SubSectionUnitTest):
         "measuring_unit": 2,
         "sequence": 1,
         "time_limit": 10,
-        "is_negative_marking": 0,
         "section": 2,
     }
     list_of_fields_of_subsection_model = [
@@ -79,9 +78,6 @@ class SubSectionTest(SubSectionUnitTest):
         "title",
         "sequence",
         "time_limit",
-        "total_marks",
-        "passing_marks",
-        "is_negative_marking",
         "is_global",
         "is_shuffle",
         "description",

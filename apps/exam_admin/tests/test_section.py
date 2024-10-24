@@ -71,7 +71,6 @@ class SectionTest(SectionUnitTest):
         "title": "Section 3",
         "sequence": 1,
         "time_limit": 10,
-        "is_negative_marking": 0,
     }
     list_of_fields_of_section_model = [
         "id",
@@ -79,11 +78,8 @@ class SectionTest(SectionUnitTest):
         "title",
         "sequence",
         "time_limit",
-        "total_marks",
-        "passing_marks",
         "is_global",
         "is_shuffle",
-        "is_negative_marking",
         "description",
     ]
 

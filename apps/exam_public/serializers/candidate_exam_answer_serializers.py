@@ -20,6 +20,7 @@ class CandidateExamAnswerSerializer(BaseModelSerializer):
             "answer_text",
             "answer_files",
             "seconds_taken",
+            "is_attempted",
             "is_correct",
             "score",
         ] + get_base_model_fields()
@@ -38,6 +39,7 @@ class CandidateExamQuestionAnswerSerializer(BaseModelSerializer):
             "answer_text",
             "answer_files",
             "seconds_taken",
+            "is_attempted",
             "is_correct",
             "score",
         ] + get_base_model_fields()

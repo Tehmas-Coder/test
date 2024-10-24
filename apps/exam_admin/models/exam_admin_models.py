@@ -25,34 +25,25 @@ class Section(BaseModel):
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
-
     time_limit = models.PositiveIntegerField(null=True)
-    total_marks = models.PositiveIntegerField(default=0)
-    passing_marks = models.PositiveIntegerField(null=True)
 
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
-    is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_admin"
 
 
 class SubSection(BaseModel):
-
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="subsections")
     measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="subsections_measuring_unit")
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
-
     time_limit = models.PositiveIntegerField(null=True)
-    total_marks = models.PositiveIntegerField(default=0)
-    passing_marks = models.PositiveIntegerField(null=True)
 
     is_global = models.BooleanField(default=True)
     is_shuffle = models.BooleanField(default=False)
-    is_negative_marking = models.BooleanField(default=False)
 
     class Meta:
         app_label = "exam_admin"
@@ -64,19 +55,26 @@ class SubSection(BaseModel):
 
 
 class Exam(BaseModel):
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10, blank=True)
     abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField(blank=True, null=True)
-
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
-
     total_marks = models.PositiveIntegerField(default=0)
     pass_marks = models.PositiveIntegerField(default=0)
 
-    subjects = models.ManyToManyField("questionbank.SubjectEducationLevel", through="ExamSubject")
+    TYPE_CHOICES = (
+        ("draft", "Draft"),
+        ("active", "Active"),
+    )
 
+    exam_status = models.CharField(max_length=100, choices=TYPE_CHOICES, default="draft")
+
+    is_public = models.BooleanField(default=False)
     is_global = models.BooleanField(default=True)
+
+    subjects = models.ManyToManyField("questionbank.SubjectEducationLevel", through="ExamSubject")
 
     class Meta:
         app_label = "exam_admin"
@@ -128,10 +126,7 @@ class Exam(BaseModel):
 
 
 class ExamSubject(BaseModel):
-    exam = models.ForeignKey(
-        Exam,
-        on_delete=models.CASCADE,
-    )
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     subject_education_level = models.ForeignKey("questionbank.SubjectEducationLevel", on_delete=models.CASCADE)
 
     questions = models.ManyToManyField("questionbank.Question", through="ExamSubjectQuestion")
@@ -147,6 +142,7 @@ class ExamSubjectQuestion(BaseModel):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, related_name="questions")
     subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True, related_name="questions")
 
+    total_marks = models.PositiveIntegerField(default=0)
     sequence = models.PositiveIntegerField(default=1)
 
     class Meta:

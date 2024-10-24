@@ -1,3 +1,6 @@
+from django.db import transaction
+from MySQLdb import IntegrityError
+from requests import Response
 from rest_framework import serializers
 
 from apps.questionbank.models import (
@@ -34,6 +37,7 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
 )
 from apps.questionbank.serializers.tag_serializers import TagSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print, make_error_response
 
 
 class QuestionSerializer(BaseModelSerializer):
@@ -190,6 +194,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
 
         return question
 
+    @transaction.atomic
     def update(self, instance, validated_data):
 
         subjects_data = validated_data.pop("subjects", None)
@@ -205,34 +210,41 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         instance.has_media = validated_data.get("has_media", instance.has_media)
         instance.save()
 
-        #! Clear existing question subjects
         if subjects_data:
-            QuestionSubject.objects.filter(question=instance).delete()
+            exisiting_question_subject_ids: list = list(QuestionSubject.objects.filter(question=instance).values_list("id", flat=True))
 
             # * Update or create question subjects
             for question_subject_data in subjects_data:
+                id = question_subject_data.pop("id", None)
                 question_subject_countries = question_subject_data.pop("countries", [])
                 subject_education_level_data = question_subject_data.pop("subject_education_level")
 
-                # * Get or create subject education level
+                #  Get or create subject education level
                 subject_education_level, _ = SubjectEducationLevel.objects.get_or_create(
                     subject=subject_education_level_data["subject"],
                     education_level=subject_education_level_data["education_level"],
                     defaults=subject_education_level_data,
                 )
 
-                # * Get or create question subject
-                question_subject, _ = QuestionSubject.objects.get_or_create(
-                    question=instance,
-                    subject_education_level=subject_education_level,
-                    defaults=question_subject_data,
-                )
+                question_subject_data["subject_education_level"] = subject_education_level
+                question_subject_data["question"] = instance
 
-                # * Update question subject
-                question_subject.save()
+                #  Update Existing question subject
+                if id:
+                    exisiting_question_subject_ids.remove(id)
+                    question_subject, _ = QuestionSubject.objects.update_or_create(pk=id, defaults=question_subject_data)
+                else:
+                    #  Create question subject
+                    question_subject = QuestionSubject.objects.create(**question_subject_data)
 
-                # * Assign countries to question subject
-                question_subject.countries.set(question_subject_countries)
+                #  Assign countries to question subject, emptying countries list if the question_subject is set to global
+                if question_subject_data["is_global"]:
+                    question_subject.countries.set([])  # type: ignore
+                else:
+                    question_subject.countries.set(question_subject_countries)  # type: ignore
+
+            # Deleting the objects which were not included in the request
+            QuestionSubject.objects.filter(pk__in=exisiting_question_subject_ids).update(meta_status="deleted")
 
         # * Update tags
         if tags is not None:
@@ -242,10 +254,4 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         if instance.type.slug not in ["single-select", "multiple-select"]:
             QuestionChoice.objects.filter(question=instance).update(meta_status="deleted")  # Bulk Delete
 
-        # #! Delete retry hints if max retries is set to 0
-        # if not instance.max_retries:
-        #     QuestionRetryHint.objects.filter(question=instance).update(meta_status="deleted")  # Bulk Delete
-
-        # refresh instance
-        instance.refresh_from_db()
         return instance

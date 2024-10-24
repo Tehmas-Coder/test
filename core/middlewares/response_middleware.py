@@ -24,10 +24,10 @@ class ResponseMiddleware(MiddlewareMixin):
 
     @staticmethod
     def _ensure_response_rendered(response):
-        if not response.accepted_renderer:
+        if not hasattr(response, "accepted_renderer"):
             response.accepted_renderer = JSONRenderer()
-        if not response.accepted_media_type:
+        if not hasattr(response, "accepted_media_type"):
             response.accepted_media_type = "application/json"
-        if not response.renderer_context:
+        if not hasattr(response, "renderer_context"):
             response.renderer_context = {}
         response.render()

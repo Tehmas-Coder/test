@@ -14,7 +14,20 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import sentry_sdk
 from decouple import config
+
+if int(config("ENABLE_SENTRY")):
+    sentry_sdk.init(
+        dsn=config("SENTRY_DSN"),
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        traces_sample_rate=1.0,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0,
+    )
 
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM SETTINGS                               #
@@ -134,18 +147,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-    "django_filters",
     # * System
+    "ping",
     "apps.lookups",
     "apps.user",
     "apps.organization",
     "apps.questionbank",
     "apps.exam_admin",
     "apps.exam_public",
+    "apps.exam_scoring",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -264,4 +279,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "exam_admin" / "seeds",
     BASE_DIR / "apps" / "exam_public" / "seeds",
     BASE_DIR / "apps" / "organization" / "seeds",
+    BASE_DIR / "apps" / "exam_scoring" / "seeds",
 ]

@@ -70,8 +70,8 @@ class SubjectEducationLevelUnitTest(TestSetUp):
 class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
-        "subject": 4,
-        "education_level": 4,
+        "subject": 6,
+        "education_level": 1,
     }
     list_of_fields_of_subject_education_level_model = [
         "id",

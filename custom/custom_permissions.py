@@ -12,28 +12,31 @@ class IsAuthenticated(BasePermission):
         request_method = request.method.lower()
         request_path = request.path.replace("/api", "")
 
+        if is_url_public(request_method, request_path):
+            return True
+
         if not request_user.is_authenticated:
             return False
 
         if request_user.is_superuser:
             return True
 
-        user_role = request_user.roles.all().values().first()
-        role_id = user_role["id"]
+        user_roles = request_user.roles.all()
+        user_role_ids = [one_role.id for one_role in user_roles]
+        user_roles_names = [one_role.slug for one_role in user_roles]
 
-        if is_url_public(request_method, request_path):
-            return True
-
-        if user_role["name"].lower() == "system":
+        # TODO: Here only the resources assigned to the system role will be allowed, later when role_resource seeds will be added
+        if "system" in user_roles_names:
             return True
 
         # return True
-        return validate_resources(request_method, request_path, role_id)
+        return validate_resources(request_method, request_path, user_role_ids)
 
 
 def is_url_public(request_method, request_path):
     bypassed_api_urls_dict = {
         "get": [
+            "/ping/",
             "/countries/",
             "/timezones/",
             "/regions/",
@@ -55,7 +58,7 @@ def is_url_public(request_method, request_path):
     return False
 
 
-def validate_resources(request_method, request_path, role_id):
+def validate_resources(request_method, request_path, role_ids):
     regex_pattern = string_url_to_regex(request_path)
     resource_id = 0
 
@@ -67,9 +70,9 @@ def validate_resources(request_method, request_path, role_id):
         return False
 
     # try:
-    #     RoleResource.objects.get(role_id=role_id, resource_id=resource_id)
+    #     RoleResource.objects.get(role_id__in=role_ids, resource_id=resource_id)
     # except:
-    #     print(f"RoleID ({role_id}) id un-authorized for ({request_method} => {request_path}) request.")
+    #     print(f"RoleIDs ({role_ids}) id un-authorized for ({request_method} => {request_path}) request.")
     #     return False
 
     return True
@@ -79,6 +82,10 @@ def string_url_to_regex(string_url):
     exam_url = "/candidate-exam/token="
     if string_url.startswith(exam_url):
         return "^/candidate-exam/[0-9]+/$"
+
+    exam_score_url = "/candidate-exam-scoresheet/token="
+    if string_url.startswith(exam_score_url):
+        return "^/candidate-exam-scoresheet/[0-9]+/$"
 
     # Escape special characters in the input string
     escaped_string = re.escape(string_url)

@@ -20,7 +20,7 @@ class UserUnitTest(TestSetUp):
         "resource_seed",
         "country_test_seed",
         "role_seed",
-        "test_user_seed",
+        "user_seed",
         "user_role_seed",
         "organization_seed",
         "organization_user_seed",
@@ -62,6 +62,7 @@ class UserUnitTest(TestSetUp):
             url,
             headers=self.headers,
             data=request_body,
+            format="multipart",
         )
         validate_success_200_test_response(self, response)
         return response.data  # type: ignore
@@ -79,7 +80,7 @@ class UserTest(UserUnitTest):
         "date_of_birth": "1995-07-27",
         "country": 1,
         "phone": "+9323346489529",
-        "role": 4,
+        "roles": [4],
         "description": "This is a test user",
     }
 
@@ -116,17 +117,17 @@ class UserTest(UserUnitTest):
     # ?###################################################
 
     def successfull_creation_of_a_record_test(self):
-        # ------------------------ User Creation By SuperUser ------------------------ #
+        # ------------------------ Candidate User Creation By SuperUser ------------------------ #
         response = self.do_create_user(json.dumps(self.reuseable_request_body))
-        color_print("## => Testing User Creation by SuperUser")
+        color_print("## => Testing Candidate User Creation by SuperUser")
         json_data = response.data["data"]  # type: ignore
         for one_field in self.list_of_fields_of_user_model:
             self.assertIn(one_field, json_data)
         for key in self.reuseable_request_body:
             if key == "password":
                 continue
-            if key == "role":
-                self.assertEqual(json_data["roles"][0]["id"], self.reuseable_request_body[key])
+            if key == "roles":
+                self.assertEqual(json_data["roles"][0]["id"], self.reuseable_request_body[key][0])
                 continue
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
         validate_success_201_test_response(self, response)
@@ -135,8 +136,55 @@ class UserTest(UserUnitTest):
             if not candidate_instance:
                 color_print("Failed: User created but Candidate not created", "red")
 
+        # ------------------------ Organization Candidate Creation By SuperUser ------------------------ #
+        candidate_user_request_body = copy.deepcopy(self.reuseable_request_body)
+        candidate_user_request_body["email"] = "sheryarbaloch87@gmail.com"
+        candidate_user_request_body["organization"] = 2
+        response = self.do_create_user(json.dumps(candidate_user_request_body))
+        color_print("## => Testing Organization Candidate Creation by SuperUser")
+        json_data = response.data["data"]  # type: ignore
+        for one_field in self.list_of_fields_of_user_model:
+            self.assertIn(one_field, json_data)
+        for key in candidate_user_request_body:
+            if key == "password" or key == "organization":
+                continue
+            if key == "roles":
+                self.assertEqual(json_data["roles"][0]["id"], candidate_user_request_body[key][0])
+                continue
+            self.assertEqual(json_data[key], candidate_user_request_body[key])
+        validate_success_201_test_response(self, response)
+        if json_data["roles"][0]["name"].lower() == "candidate":
+            candidate_instance = Candidate.objects.filter(user_id=json_data["id"]).first()
+            if not (candidate_instance.organization_id == candidate_user_request_body["organization"]):  # type: ignore
+                color_print("Failed: User created but Candidate not created with this organization", "red")
+
+        # ------------------------ Organization User Creation By SuperUser ------------------------ #
+        request_body = copy.deepcopy(self.reuseable_request_body)
+        request_body["email"] = "sheryarbaloch97@gmail.com"
+        request_body["roles"] = [1, 2]
+        request_body["organization"] = 2
+        response = self.do_create_user(json.dumps(request_body))
+        color_print("## => Testing Organization User Creation by SuperUser")
+        json_data = response.data["data"]  # type: ignore
+        for one_field in self.list_of_fields_of_user_model:
+            self.assertIn(one_field, json_data)
+        for key in request_body:
+            if key == "password" or key == "organization":
+                continue
+            if key == "roles":
+                self.assertEqual(json_data["roles"][0]["id"], request_body[key][0])
+                self.assertEqual(json_data["roles"][1]["id"], request_body[key][1])
+                continue
+            self.assertEqual(json_data[key], request_body[key])
+        validate_success_201_test_response(self, response)
+        if json_data["roles"][0]["name"].lower() != "candidate":
+            organization_user_instance = OrganizationUser.objects.filter(user_id=json_data["id"]).first()
+            if not organization_user_instance:
+                color_print("Failed: User created but Organziation user not created", "red")
+                self.assertEqual(organization_user_instance.organization_id, request_body["organization"])  # type: ignore
+
         # -------------------- Candidate User Creation By Organization User -------------------- #
-        self.custom_login(email="user3@example.com", password=12345678)
+        self.custom_login(email="asgharkhan@gmail.com", password=12345678)
         request_body_for_organization_candidate = copy.deepcopy(self.reuseable_request_body)
         request_body_for_organization_candidate["email"] = "sheryarbaloch57@gmail.com"
         response = self.do_create_user(json.dumps(request_body_for_organization_candidate))
@@ -147,8 +195,8 @@ class UserTest(UserUnitTest):
         for key in request_body_for_organization_candidate:
             if key == "password":
                 continue
-            if key == "role":
-                self.assertEqual(json_data["roles"][0]["id"], request_body_for_organization_candidate[key])
+            if key == "roles":
+                self.assertEqual(json_data["roles"][0]["id"], request_body_for_organization_candidate[key][0])
                 continue
             self.assertEqual(json_data[key], request_body_for_organization_candidate[key])
         validate_success_201_test_response(self, response)
@@ -161,7 +209,7 @@ class UserTest(UserUnitTest):
         # -------------------- Organization Worker Creation By Organization User -------------------- #
         request_body_for_organization_user = copy.deepcopy(self.reuseable_request_body)
         request_body_for_organization_user["email"] = "sheryarbaloch77@gmail.com"
-        request_body_for_organization_user["role"] = 2
+        request_body_for_organization_user["roles"] = [2, 3]
         response = self.do_create_user(json.dumps(request_body_for_organization_user))
         color_print("## => Testing Organization Worker Creation by OrganizationUser")
         json_data = response.data["data"]  # type: ignore
@@ -170,8 +218,9 @@ class UserTest(UserUnitTest):
         for key in request_body_for_organization_user:
             if key == "password":
                 continue
-            if key == "role":
-                self.assertEqual(json_data["roles"][0]["id"], request_body_for_organization_user[key])
+            if key == "roles":
+                self.assertEqual(json_data["roles"][0]["id"], request_body_for_organization_user[key][0])
+                self.assertEqual(json_data["roles"][1]["id"], request_body_for_organization_user[key][1])
                 continue
             self.assertEqual(json_data[key], request_body_for_organization_user[key])
         validate_success_201_test_response(self, response)
@@ -200,7 +249,7 @@ class UserTest(UserUnitTest):
         return json_data["results"]
 
     def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_user_id = list_of_records[len(list_of_records) - 3]["id"]
+        test_user_id = list_of_records[len(list_of_records) - 5]["id"]
         json_data = self.do_get_one_user(test_user_id)
         self.assertEqual(
             json_data["id"],
@@ -210,7 +259,7 @@ class UserTest(UserUnitTest):
         return test_user_id
 
     def successfull_updation_of_record_test(self, test_record_id):
-        updated_request_body = copy.deepcopy(self.reuseable_request_body)
+        updated_request_body = {}
         updated_request_body["first_name"] = "first name edited"
         updated_request_body["last_name"] = "last name edited"
         updated_request_body["profile_picture"] = self.file_1
@@ -221,11 +270,14 @@ class UserTest(UserUnitTest):
         for key in updated_request_body:
             if key == "password":
                 continue
-            if key == "role":
-                self.assertEqual(json_data["roles"][0]["id"], updated_request_body[key])
+            if key == "roles":
+                self.assertEqual(json_data["roles"][0]["id"], updated_request_body[key][0])
                 continue
             if key == "profile_picture":
-                self.assertEqual(json_data[key], 1)
+                self.assertEqual(type(json_data[key]["id"]), int)
+                continue
+            if key == "country":
+                self.assertEqual(json_data[key]["id"], self.reuseable_request_body[key])
                 continue
             self.assertEqual(json_data[key], updated_request_body[key])
         self.assertEqual(updated_response_json_data["id"], test_record_id)

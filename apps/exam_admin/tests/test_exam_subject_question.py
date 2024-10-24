@@ -25,7 +25,6 @@ class ExamSubjectQuestionUnitTest(TestSetUp):
         "currency_test_seed",
         "language_test_seed",
         "country_test_seed",
-        "measuring_unit_seed",
         "media_type_seed",
         "tag_seed",
         "difficulty_level_seed",
@@ -74,12 +73,13 @@ class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
     reuseable_request_body = {
         "exam_subject": {
             "subject_education_level": 5,
-            "exam": 2,
+            "exam": 1,
         },
         "question": 1,
         "section": None,
         "subsection": None,
         "sequence": 5,
+        "total_marks": 20,
     }
     list_of_fields_of_exam_subject_question_model = [
         "id",
@@ -88,6 +88,7 @@ class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
         "section",
         "subsection",
         "sequence",
+        "total_marks",
         "description",
     ]
 
@@ -110,6 +111,7 @@ class ExamSubjectQuestionTest(ExamSubjectQuestionUnitTest):
         updated_request_body["section"] = 1
         updated_request_body["subsection"] = 2
         updated_request_body["sequence"] = 1
+        updated_request_body["total_marks"] = 10
         updated_response_json_data = self.do_update_one_exam_subject_question(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:

@@ -12,7 +12,15 @@ from utils.rna_utils import (
 
 
 class OrganizationUserUnitTest(TestSetUp):
-    fixtures = ["country_test_seed", "organization_seed", "role_seed", "test_user_seed", "organization_user_seed"]
+    fixtures = [
+        "country_test_seed",
+        "organization_seed",
+        "role_seed",
+        "user_seed",
+        "user_role_seed",
+        "organization_user_seed",
+        "resource_seed",
+    ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -40,7 +48,7 @@ class OrganizationUserUnitTest(TestSetUp):
         url = "/api/get-user-organizations-list/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
+        return response.data[0]  # type: ignore
 
     def do_remove_one_organization_user(self, organization_user_id):
         print_test_header("remove_organization_user")
@@ -53,7 +61,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "organization": 1,
-        "user": 11,
+        "user": 6,
     }
     list_of_fields_of_organization_user_model = [
         "id",
@@ -87,11 +95,18 @@ class OrganizationUserTest(OrganizationUserUnitTest):
 
     def successsfull_fetching_of_list_of_organization_users_test(self):
         json_data = self.do_get_one_organization_users_list(organization_id=1)
-        list_of_fields_of_organization_users = ["id", "name", "country", "organization_users_count", "organization_users"]
+        list_of_fields_of_organization_users = [
+            "id",
+            "name",
+            "country",
+            "organization_users_count",
+            "organization_users",
+        ]
         for one_field in list_of_fields_of_organization_users:
             self.assertIn(one_field, json_data)
 
     def successsfull_fetching_of_list_of_user_organizations_test(self):
+        self.custom_login(email="generalcandidate@gmail.com", password="12345678")
         json_data = self.do_get_one_user_organizations_list()
         list_of_fields_of_user_organizations = [
             "id",
@@ -105,6 +120,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
             self.assertIn(one_field, json_data)
 
     def successfull_removal_of_one_organization_user_test(self, test_record_id):
+        self.custom_login(email="test@gmail.com", password="12345678")
         self.do_remove_one_organization_user(test_record_id)
 
 

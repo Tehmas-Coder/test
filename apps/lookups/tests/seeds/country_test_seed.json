@@ -123,10 +123,10 @@
     "model": "lookups.country",
     "pk": 5,
     "fields": {
-      "name": "Country E",
-      "iso2_code": "CB",
-      "iso3_code": "CTB",
-      "abbreviation": "CB",
+      "name": "Hungary",
+      "iso2_code": "HU",
+      "iso3_code": "HUN",
+      "abbreviation": "HU",
       "lat": -10.0,
       "lon": -20.0,
       "dial_code": "+200",
@@ -271,16 +271,76 @@
   },
   {
     "model": "lookups.country",
-    "pk": 10,
+    "pk": 45,
     "fields": {
-      "name": "Country J",
-      "iso2_code": "CB",
-      "iso3_code": "CTB",
-      "abbreviation": "CB",
+      "name": "Afghanistan",
+      "iso2_code": "AF",
+      "iso3_code": "AF",
+      "abbreviation": "AF",
       "lat": -10.0,
       "lon": -20.0,
       "dial_code": "+200",
-      "capital": "Capital B",
+      "capital": "Kabul",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 75,
+    "fields": {
+      "name": "Pakistan",
+      "iso2_code": "PK",
+      "iso3_code": "PKS",
+      "abbreviation": "PK",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Islamabad",
+      "flag": null,
+      "is_un_member": false,
+      "timezones": [
+        1,
+        2
+      ],
+      "languages": [
+        1,
+        2
+      ],
+      "currencies": [
+        1,
+        2
+      ],
+      "created_at": "2024-07-19T00:00:00Z",
+      "updated_at": "2024-07-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "lookups.country",
+    "pk": 86,
+    "fields": {
+      "name": "India",
+      "iso2_code": "IN",
+      "iso3_code": "IN",
+      "abbreviation": "IN",
+      "lat": -10.0,
+      "lon": -20.0,
+      "dial_code": "+200",
+      "capital": "Delhi",
       "flag": null,
       "is_un_member": false,
       "timezones": [

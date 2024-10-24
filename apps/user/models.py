@@ -6,6 +6,10 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
+from apps.user.helpers.user_app_queryset_functions import (
+    get_role_detailed_queryset,
+    get_user_detailed_queryset,
+)
 from core.models import BaseModel, BaseUserModel
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp
@@ -42,11 +46,18 @@ class CustomUserManager(UserManager):
         username = email
         return super().create_superuser(username, email, password, **extra_fields)
 
+    def get_queryset(self):
+        qs = super().get_queryset().filter(meta_status="active")
+        return qs
+
 
 class BaseUser(BaseUserModel, AbstractUser):
     """
     Custom user model where email is the unique identifier, inhertied from abstract user provided by auth
     """
+
+    country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
+    profile_picture = models.ForeignKey("user.Media", on_delete=models.SET_NULL, null=True, blank=True)
 
     username = models.CharField(_("username"), max_length=150, blank=True)
     email = models.EmailField(_("email address"), unique=True)
@@ -56,18 +67,13 @@ class BaseUser(BaseUserModel, AbstractUser):
     phone = models.CharField(_("phone"), max_length=15, blank=True)
     date_of_birth = models.DateField(_("date of birth"), blank=True, null=True)
     otp = models.CharField(_("otp"), max_length=6, blank=True)
+    date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
+    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
     is_verified = models.BooleanField(_("verified"), default=False)
     is_superuser = models.BooleanField(_("superuser"), default=False)
 
-    date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
-    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
-
-    country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
-
     roles = models.ManyToManyField("Role", related_name="users", blank=True, through="UserRole", through_fields=("user", "role"))
-
-    profile_picture = models.ForeignKey("user.Media", on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = CustomUserManager()
 
@@ -91,18 +97,17 @@ class BaseUser(BaseUserModel, AbstractUser):
             return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
         return None
 
+    @property
+    def get_user_role_slugs(self):
+        return list(self.roles.values_list("slug", flat=True))
+
     @classmethod
     def get_user_by_email(cls, email: str):
         return cls.objects.filter(email=email).first()
 
-    def activate(self, *args, **kwargs):
-        return super().activate(*args, **kwargs)
-
-    def deactivate(self, *args, **kwargs):
-        return super().deactivate(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        return super().delete(*args, **kwargs)
+    @classmethod
+    def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False):
+        return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission)
 
     def verify_otp(self, otp: str) -> bool:
         if self.otp != otp:
@@ -145,9 +150,11 @@ class BaseUser(BaseUserModel, AbstractUser):
 # ---------------------------------------------------------------------------- #
 class Role(BaseModel):
     name = models.CharField(max_length=255)
-    permissions = models.ManyToManyField("Permission", blank=True, through="RolePermission")
     slug = models.SlugField(max_length=100, null=True, unique=True)
+
     is_system_role = models.BooleanField(default=False)
+
+    permissions = models.ManyToManyField("Permission", blank=True, through="RolePermission")
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -155,6 +162,10 @@ class Role(BaseModel):
 
     class Meta:
         app_label = "user"
+
+    @classmethod
+    def get_detail_queryset(cls, permissions=False, role_permissions=False, role_permissions_permission=False):
+        return get_role_detailed_queryset(cls, permissions, role_permissions, role_permissions_permission)
 
 
 class UserRole(BaseModel):
@@ -168,6 +179,7 @@ class UserRole(BaseModel):
 
 class Permission(BaseModel):
     name = models.CharField(max_length=255)
+    context_value = models.CharField(max_length=255)
 
     class Meta:
         app_label = "user"
@@ -199,7 +211,6 @@ class Resource(BaseModel):
 
 
 class RoleResource(BaseModel):
-
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
     resource = models.ForeignKey(Resource, on_delete=models.PROTECT)
 

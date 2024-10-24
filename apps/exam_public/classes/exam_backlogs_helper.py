@@ -18,7 +18,7 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
 )
 
 
-class ExamBacklogs:
+class ExamBacklogsNinja:
     def __init__(self, exam_data: dict) -> None:
         self.exam_data = exam_data
         self.section_backlog_ids_hashmap = {}
@@ -143,7 +143,7 @@ class ExamBacklogs:
                     can_shuffle=question_data["can_shuffle"],
                     has_media=question_data["has_media"],
                     time_limit=question_data["time_limit"],
-                    total_marks=question_data["total_marks"],
+                    total_marks=one_exam_question["total_marks"],
                     is_optional=question_data["is_optional"],
                     is_global=question_data["is_global"],
                     difficulty_level_id=question_data["difficulty_level"]["id"],

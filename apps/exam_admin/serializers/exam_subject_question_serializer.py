@@ -20,6 +20,7 @@ class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
             "id",
             "section",
             "subsection",
+            "total_marks",
             "sequence",
         ] + get_base_model_fields()
 
@@ -42,6 +43,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
             "question",
             "section",
             "subsection",
+            "total_marks",
             "sequence",
         ] + get_base_model_fields()
 
@@ -50,14 +52,11 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         ]
 
     def get_question(self, obj):
-        # QuestionDetailSerializer(obj.question)
         question_data = QuestionDetailSerializer(obj.question).data
         question_subject_data = question_data.pop("subjects")  # type: ignore
-        # debug_print(obj.exam_subject.subject.id)
         exam_subject_id = obj.exam_subject.subject_education_level.subject.id
         exam_subject_education_level_id = obj.exam_subject.subject_education_level.education_level.id
 
-        # TODO : here i didn't applied education level filter yet because that is yet to be decided
         question_more_data: dict = {}
         for one_dict in question_subject_data:
             if (one_dict["subject"]["id"] == exam_subject_id) and (one_dict["education_level"]["id"] == exam_subject_education_level_id):
@@ -84,6 +83,7 @@ class ExamSubjectQuestionSerializer(BaseModelSerializer):
             "question",
             "section",
             "subsection",
+            "total_marks",
             "sequence",
         ] + get_base_model_fields()
 
@@ -146,56 +146,3 @@ class ExamSubjectQuestionBulkUpdateSerializer(serializers.Serializer):
         ExamSubjectQuestion.objects.bulk_update(exam_subject_question_instances, ["sequence"])
 
         return exam_subject_question_instances
-
-
-# ? This Serializer was for when we want to get_or_create exam subjects but that scenario was not occcuring as we would have question pool containing only questions with existing exam_subject
-# class ExamSubjectQuestionBulkCreateSerializer(serializers.Serializer):
-#     create_list = ExamSubjectQuestionSerializer(many=True)
-
-#     def create(self, validated_data):
-
-#         validated_data = validated_data["create_list"]
-
-#         exam_subject_instances_list = []
-#         all_exam_subjects = ExamSubject.objects.all()
-#         existing_exam_subjects = list(all_exam_subjects.values_list("exam", "subject"))
-#         exam_subjects_to_fetch = []
-
-#         for one_dict in validated_data:
-#             exam_subject_request_data = one_dict.get("exam_subject")
-#             exam_subject_pair = (exam_subject_request_data["exam"].id, exam_subject_request_data["subject"].id)
-#             exam_subjects_to_fetch.append(exam_subject_pair)
-
-#             if exam_subject_pair not in existing_exam_subjects:
-#                 existing_exam_subjects.append(exam_subject_pair)
-#                 exam_subject_instances_list.append(ExamSubject(exam=exam_subject_request_data["exam"], subject=exam_subject_request_data["subject"]))
-
-#         exam_subjects_to_fetch = list(set(exam_subjects_to_fetch))
-#         exam_subjects = []
-#         for one_exam_subject in all_exam_subjects:
-#             for one_exam_subject_pair in exam_subjects_to_fetch:
-#                 if (one_exam_subject.exam_id == one_exam_subject_pair[0]) and (one_exam_subject.subject_id == one_exam_subject_pair[1]):
-#                     exam_subjects.append(one_exam_subject)
-
-#         ExamSubject.objects.bulk_create(exam_subject_instances_list)
-
-#         created_exam_subjects_instances = ExamSubject.objects.all().order_by("-created_at")[: len(exam_subject_instances_list)]
-
-#         exam_subjects = exam_subjects + list(created_exam_subjects_instances)
-
-#         for one_dict in validated_data:
-#             exam_subject_request_data = one_dict.get("exam_subject")
-
-#             for one_exam_subject in exam_subjects:
-#                 if (one_exam_subject.exam_id == exam_subject_request_data["exam"].id) and (
-#                     one_exam_subject.subject_id == exam_subject_request_data["subject"].id
-#                 ):
-#                     one_dict["exam_subject"] = one_exam_subject
-
-#         exam_subject_question_instances = [ExamSubjectQuestion(**one_exam_subject_question) for one_exam_subject_question in validated_data]
-
-#         ExamSubjectQuestion.objects.bulk_create(exam_subject_question_instances)
-#         created_exam_subject_questions_instances = ExamSubjectQuestion.objects.all().order_by("-created_at")[: len(exam_subject_question_instances)]
-#         created_exam_subject_questions_instances = sorted(created_exam_subject_questions_instances, key=lambda instance: instance.id)
-
-#         return created_exam_subject_questions_instances

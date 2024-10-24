@@ -118,8 +118,8 @@ class RegisterTest(RegisterUnitTest):
         request_body_for_superuser["email"] = "superuser123@gmail.com"
         request_body_for_superuser["is_superuser"] = True  # type: ignore
         response = self.do_register(json.dumps(request_body_for_superuser))
-        validate_success_register_response(self, response)
         color_print("## => SuperUser Registration")
+        validate_success_register_response(self, response)
         json_data = response.data  # type: ignore
         for one_field in self.list_of_fields_of_user_model:
             self.assertIn(one_field, json_data)
