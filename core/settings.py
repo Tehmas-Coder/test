@@ -14,9 +14,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from decouple import config
-
 import sentry_sdk
+from decouple import config
 
 if int(config("ENABLE_SENTRY")):
     sentry_sdk.init(
@@ -154,6 +153,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     # * System
+    "ping",
     "apps.lookups",
     "apps.user",
     "apps.organization",
