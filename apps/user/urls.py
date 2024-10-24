@@ -22,7 +22,6 @@ urlpatterns = [
     path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
     path("system-user-create/", CreateSystemUserAPI.as_view({"post": "user_creation_by_system_user"})),
 ]
-
 # ----------------------------------- USERS ---------------------------------- #
 router.register(r"users", UserViewSet)
 

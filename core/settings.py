@@ -14,13 +14,12 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from decouple import config
-
 import sentry_sdk
+from decouple import config
 
 if int(config("ENABLE_SENTRY")):
     sentry_sdk.init(
-        dsn=config("SENTRY_DSN"),
+        dsn=config("SENTRY_DSN"),  # type: ignore
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         traces_sample_rate=1.0,
@@ -154,6 +153,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     # * System
+    "ping",
     "apps.lookups",
     "apps.user",
     "apps.organization",

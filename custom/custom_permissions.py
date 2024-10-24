@@ -36,6 +36,7 @@ class IsAuthenticated(BasePermission):
 def is_url_public(request_method, request_path):
     bypassed_api_urls_dict = {
         "get": [
+            "/ping/",
             "/countries/",
             "/timezones/",
             "/regions/",
