@@ -1,4 +1,6 @@
 import json
+from dataclasses import dataclass
+from typing import Callable
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -16,13 +18,19 @@ from utils.email_notifications import EmailNotification
 from utils.rna_utils import get_encryption_key, make_error_response
 
 
+@dataclass
 class UserNinja:
-    def __init__(self, logged_in_user, request_data: dict, serializer_class) -> None:
-        self.logged_in_user: BaseUser = logged_in_user
+    logged_in_user: BaseUser
+    data_dict: dict
+    serializer_class: Callable
+
+    def __post_init__(self):
+        """
+        This method is automatically called after the dataclass __init__ method.
+        It initializes additional attributes for the UserNinja class.
+        """
         self.logged_in_user_roles: list = self.logged_in_user.get_user_role_slugs
         self.is_super_user: bool = self.logged_in_user.is_superuser
-        self.data_dict = request_data
-        self.serializer_class = serializer_class
 
     # ---------------------------------------------------------------------------- #
     #                                Public methods                                #
