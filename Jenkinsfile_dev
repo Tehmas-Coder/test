@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'BRANCH', defaultValue: 'pipeline/dev', description: 'Git Branch to deploy') // Default is dev
+        string(name: 'BRANCH', defaultValue: 'dev', description: 'Git Branch to deploy') // Default is dev
         choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'prod'], description: 'Environment to deploy')
     }
 
