@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-from apps.user.helpers.user_app_queryset_functions import (
+from apps.user.helpers.queryset_functions import (
     get_role_detailed_queryset,
     get_user_detailed_queryset,
 )

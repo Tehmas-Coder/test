@@ -2,7 +2,7 @@ from django.db.models import Prefetch
 
 
 def get_user_detailed_queryset(model, country=False, roles=False, role_permissions=False, role_permissions_permission=False):
-    user_queryset = model.objects.all().select_related("profile_picture")
+    user_queryset = model.objects.get_queryset().select_related("profile_picture")
     if country:
         user_queryset = user_queryset.select_related("country")
     if roles:
@@ -14,7 +14,7 @@ def get_user_detailed_queryset(model, country=False, roles=False, role_permissio
 
 
 def get_role_detailed_queryset(model, permissions=False, role_permissions=False, role_permissions_permission=False):
-    role_queryset = model.objects.all()
+    role_queryset = model.objects.get_queryset()
     if permissions:
         role_queryset = role_queryset.prefetch_related("permissions")
     if role_permissions:

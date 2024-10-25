@@ -7,6 +7,11 @@ from rest_framework.response import Response
 _thread_local = threading.local()
 
 
+class ImmediateHttpResponse(Exception):
+    def __init__(self, response):
+        self.response = response
+
+
 class ResponseMiddleware(MiddlewareMixin):
     def process_request(self, request):
         _thread_local.custom_response = None
@@ -20,7 +25,7 @@ class ResponseMiddleware(MiddlewareMixin):
 
     @staticmethod
     def return_now(response: Response):
-        _thread_local.custom_response = response
+        raise ImmediateHttpResponse(response)
 
     @staticmethod
     def _ensure_response_rendered(response):
@@ -31,3 +36,9 @@ class ResponseMiddleware(MiddlewareMixin):
         if not hasattr(response, "renderer_context"):
             response.renderer_context = {}
         response.render()
+
+    def process_exception(self, request, exception):
+        if isinstance(exception, ImmediateHttpResponse):
+            self._ensure_response_rendered(exception.response)
+            return exception.response
+        return None

@@ -88,6 +88,20 @@ class Country(BaseUserModel):
     def add_timezone(self, timezone):
         self.timezones.add(timezone)
 
+    @classmethod
+    def get_detail_queryset(cls):
+        return (
+            cls.objects.get_queryset()
+            .prefetch_related(
+                "timezones",
+                "currencies",
+                "languages",
+                "states",
+                "states__cities",
+            )
+            .order_by("name")
+        )
+
 
 class State(BaseUserModel):
     country = models.ForeignKey("lookups.Country", related_name="states", on_delete=models.CASCADE)

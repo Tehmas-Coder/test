@@ -160,7 +160,6 @@ class FromSaLoginToQBApiView(TokenObtainPairView):
 
         if "is_system_user" in request.data:
             email = request.data.get("email", None)
-            # email = "john.doe@example.com"
 
             if not email:
                 return make_error_response(message="Email is required!")

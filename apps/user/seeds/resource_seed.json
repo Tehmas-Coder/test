@@ -135,30 +135,6 @@
     "model": "user.Resource",
     "pk": 12,
     "fields": {
-      "name": "Restore User",
-      "description": "Restore a deleted User",
-      "regex": "^/users/[0-9]+/restore/$",
-      "method": "post",
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.Resource",
-    "pk": 13,
-    "fields": {
-      "name": "Bulk Delete all Users",
-      "description": "Bulk delete users",
-      "regex": "^/users/bulk-delete/$",
-      "method": "post",
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.Resource",
-    "pk": 14,
-    "fields": {
       "name": "Add Role",
       "description": "Add One Role",
       "regex": "^/roles/$",
@@ -169,7 +145,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 15,
+    "pk": 13,
     "fields": {
       "name": "Get Role",
       "description": "Get One Role",
@@ -181,7 +157,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 16,
+    "pk": 14,
     "fields": {
       "name": "Get Roles",
       "description": "Get All Roles",
@@ -193,7 +169,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 17,
+    "pk": 15,
     "fields": {
       "name": "Update Role",
       "description": "Update One Role",
@@ -205,7 +181,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 18,
+    "pk": 16,
     "fields": {
       "name": "Delete Role",
       "description": "Delete One Role",
@@ -217,7 +193,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 19,
+    "pk": 17,
     "fields": {
       "name": "Add Permission",
       "description": "Add One Permission",
@@ -229,7 +205,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 20,
+    "pk": 18,
     "fields": {
       "name": "Get Permission",
       "description": "Get One Permission",
@@ -241,7 +217,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 21,
+    "pk": 19,
     "fields": {
       "name": "Get Permissions",
       "description": "Get All Permissions",
@@ -253,7 +229,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 22,
+    "pk": 20,
     "fields": {
       "name": "Update Permission",
       "description": "Update One Permission",
@@ -265,7 +241,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 23,
+    "pk": 21,
     "fields": {
       "name": "Delete Permission",
       "description": "Delete One Permission",
@@ -277,7 +253,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 24,
+    "pk": 22,
     "fields": {
       "name": "Add Organization",
       "description": "Add One Organization",
@@ -289,7 +265,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 25,
+    "pk": 23,
     "fields": {
       "name": "Get Organization",
       "description": "Get One Organization",
@@ -301,7 +277,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 26,
+    "pk": 24,
     "fields": {
       "name": "Get Organizations",
       "description": "Get All Organizations",
@@ -313,7 +289,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 27,
+    "pk": 25,
     "fields": {
       "name": "Update Organization",
       "description": "Update One Organization",
@@ -325,7 +301,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 28,
+    "pk": 26,
     "fields": {
       "name": "Delete Organization",
       "description": "Delete One Organization",
@@ -337,7 +313,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 29,
+    "pk": 27,
     "fields": {
       "name": "Get Organization Users List",
       "description": "Get list of all the users with in an Organization",
@@ -349,7 +325,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 30,
+    "pk": 28,
     "fields": {
       "name": "Get Organization Candidates List",
       "description": "Get list of all the candidates with in an Organization",
@@ -361,7 +337,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 31,
+    "pk": 29,
     "fields": {
       "name": "Get Candidate Organizations List",
       "description": "Get list of all the organizations of a Candidate",
@@ -373,7 +349,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 32,
+    "pk": 30,
     "fields": {
       "name": "Get Candidate Organizations List",
       "description": "Get list of all the organizations of a User",
@@ -385,7 +361,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 60,
+    "pk": 31,
     "fields": {
       "name": "Get Country",
       "description": "Get One Country",
@@ -397,7 +373,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 33,
+    "pk": 32,
     "fields": {
       "name": "Get Countries",
       "description": "Get All Countries",
@@ -409,7 +385,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 34,
+    "pk": 33,
     "fields": {
       "name": "Get Timezone",
       "description": "Get One Timezone",
@@ -421,7 +397,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 35,
+    "pk": 34,
     "fields": {
       "name": "Get Timezones",
       "description": "Get All Timezones",
@@ -433,7 +409,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 36,
+    "pk": 35,
     "fields": {
       "name": "Get Region",
       "description": "Get One Region",
@@ -445,7 +421,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 37,
+    "pk": 36,
     "fields": {
       "name": "Get Regions",
       "description": "Get All Regions",
@@ -457,7 +433,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 38,
+    "pk": 37,
     "fields": {
       "name": "Get State",
       "description": "Get One State",
@@ -469,7 +445,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 39,
+    "pk": 38,
     "fields": {
       "name": "Get States",
       "description": "Get All States",
@@ -481,7 +457,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 40,
+    "pk": 39,
     "fields": {
       "name": "Get Language",
       "description": "Get One Language",
@@ -493,7 +469,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 41,
+    "pk": 40,
     "fields": {
       "name": "Get Languages",
       "description": "Get All Languages",
@@ -505,7 +481,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 42,
+    "pk": 41,
     "fields": {
       "name": "Get Currency",
       "description": "Get One Currency",
@@ -517,7 +493,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 43,
+    "pk": 42,
     "fields": {
       "name": "Get Currencies",
       "description": "Get All Currencies",
@@ -529,7 +505,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 44,
+    "pk": 43,
     "fields": {
       "name": "Get Measuring Unit",
       "description": "Get One Measuring Unit",
@@ -541,7 +517,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 45,
+    "pk": 44,
     "fields": {
       "name": "Get Measuring Units",
       "description": "Get All Measuring Units",
@@ -553,7 +529,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 46,
+    "pk": 45,
     "fields": {
       "name": "Get Media Type",
       "description": "Get One Media Type",
@@ -565,7 +541,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 47,
+    "pk": 46,
     "fields": {
       "name": "Get Media Types",
       "description": "Get All Media Types",
@@ -577,7 +553,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 48,
+    "pk": 47,
     "fields": {
       "name": "Add Tag",
       "description": "Add One Tag",
@@ -589,7 +565,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 49,
+    "pk": 48,
     "fields": {
       "name": "Get Tag",
       "description": "Get One Tag",
@@ -601,7 +577,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 50,
+    "pk": 49,
     "fields": {
       "name": "Get Tags",
       "description": "Get All Tags",
@@ -613,7 +589,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 51,
+    "pk": 50,
     "fields": {
       "name": "Update Tag",
       "description": "Update One Tag",
@@ -625,7 +601,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 52,
+    "pk": 51,
     "fields": {
       "name": "Delete Tag",
       "description": "Delete One Tag",
@@ -637,7 +613,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 53,
+    "pk": 52,
     "fields": {
       "name": "Get Question Type",
       "description": "Get One Question Type",
@@ -649,7 +625,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 54,
+    "pk": 53,
     "fields": {
       "name": "Get Question Types",
       "description": "Get All Question Types",
@@ -661,7 +637,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 55,
+    "pk": 54,
     "fields": {
       "name": "Add Difficulty Level",
       "description": "Add One Difficulty Level",
@@ -673,7 +649,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 56,
+    "pk": 55,
     "fields": {
       "name": "Get Difficulty Level",
       "description": "Get One Difficulty Level",
@@ -685,7 +661,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 57,
+    "pk": 56,
     "fields": {
       "name": "Get Difficulty Levels",
       "description": "Get All Difficulty Levels",
@@ -697,7 +673,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 58,
+    "pk": 57,
     "fields": {
       "name": "Update Difficulty Level",
       "description": "Update One Difficulty Level",
@@ -709,7 +685,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 59,
+    "pk": 58,
     "fields": {
       "name": "Delete Difficulty Level",
       "description": "Delete One Difficulty Level",
@@ -721,7 +697,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 61,
+    "pk": 59,
     "fields": {
       "name": "Add Subject",
       "description": "Add One Subject",
@@ -733,7 +709,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 62,
+    "pk": 60,
     "fields": {
       "name": "Get Subject",
       "description": "Get One Subject",
@@ -745,7 +721,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 63,
+    "pk": 61,
     "fields": {
       "name": "Get Subjects",
       "description": "Get All Subjects",
@@ -757,7 +733,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 64,
+    "pk": 62,
     "fields": {
       "name": "Update Subject",
       "description": "Update One Subject",
@@ -769,7 +745,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 65,
+    "pk": 63,
     "fields": {
       "name": "Delete Subject",
       "description": "Delete One Subject",
@@ -781,7 +757,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 66,
+    "pk": 64,
     "fields": {
       "name": "Add Education Level",
       "description": "Add One Education Level",
@@ -793,7 +769,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 67,
+    "pk": 65,
     "fields": {
       "name": "Get Education Level",
       "description": "Get One Education Level",
@@ -805,7 +781,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 68,
+    "pk": 66,
     "fields": {
       "name": "Get Education Levels",
       "description": "Get All Education Levels",
@@ -817,7 +793,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 69,
+    "pk": 67,
     "fields": {
       "name": "Update Education Level",
       "description": "Update One Education Level",
@@ -829,7 +805,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 70,
+    "pk": 68,
     "fields": {
       "name": "Delete Education Level",
       "description": "Delete One Education Level",
@@ -841,7 +817,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 71,
+    "pk": 69,
     "fields": {
       "name": "Add Subject Education Level",
       "description": "Add One Subject Education Level",
@@ -853,7 +829,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 72,
+    "pk": 70,
     "fields": {
       "name": "Get Subject Education Level",
       "description": "Get One Subject Education Level",
@@ -865,7 +841,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 73,
+    "pk": 71,
     "fields": {
       "name": "Get Subject Education Levels",
       "description": "Get All Subject Education Levels",
@@ -877,7 +853,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 74,
+    "pk": 72,
     "fields": {
       "name": "Update Subject Education Level",
       "description": "Update One Subject Education Level",
@@ -889,7 +865,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 75,
+    "pk": 73,
     "fields": {
       "name": "Delete Subject Education Level",
       "description": "Delete One Subject Education Level",
@@ -901,7 +877,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 76,
+    "pk": 74,
     "fields": {
       "name": "Add Question",
       "description": "Add One Question",
@@ -913,7 +889,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 77,
+    "pk": 75,
     "fields": {
       "name": "Get Question",
       "description": "Get One Question",
@@ -925,7 +901,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 78,
+    "pk": 76,
     "fields": {
       "name": "Get Questions",
       "description": "Get All Questions",
@@ -937,7 +913,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 79,
+    "pk": 77,
     "fields": {
       "name": "Update Question",
       "description": "Update One Question",
@@ -949,7 +925,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 80,
+    "pk": 78,
     "fields": {
       "name": "Delete Question",
       "description": "Delete One Question",
@@ -961,7 +937,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 81,
+    "pk": 79,
     "fields": {
       "name": "Bulk Delete Questions",
       "description": "Bulk Delete All Questions",
@@ -973,7 +949,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 82,
+    "pk": 80,
     "fields": {
       "name": "Add Question Media",
       "description": "Add One Question Media",
@@ -985,7 +961,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 83,
+    "pk": 81,
     "fields": {
       "name": "Delete Question Media",
       "description": "Delete One Question Media",
@@ -997,7 +973,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 84,
+    "pk": 82,
     "fields": {
       "name": "Bulk Create Question Medias",
       "description": "Bulk Create Question Medias",
@@ -1009,7 +985,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 85,
+    "pk": 83,
     "fields": {
       "name": "Bulk Delete Question Medias",
       "description": "Bulk Delete Question Medias",
@@ -1021,7 +997,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 86,
+    "pk": 84,
     "fields": {
       "name": "Add Question Tag",
       "description": "Add One Question Tag",
@@ -1033,7 +1009,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 87,
+    "pk": 85,
     "fields": {
       "name": "Delete Question Tag",
       "description": "Delete One Question Tag",
@@ -1045,7 +1021,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 88,
+    "pk": 86,
     "fields": {
       "name": "Bulk Create Question Tags",
       "description": "Bulk Create Question Tags",
@@ -1057,7 +1033,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 89,
+    "pk": 87,
     "fields": {
       "name": "Add Question Choice",
       "description": "Add One Question Choice",
@@ -1069,7 +1045,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 90,
+    "pk": 88,
     "fields": {
       "name": "Edit Question Choice",
       "description": "Edit One Question Choice",
@@ -1081,7 +1057,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 91,
+    "pk": 89,
     "fields": {
       "name": "Delete Question Choice",
       "description": "Delete One Question Choice",
@@ -1093,7 +1069,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 92,
+    "pk": 90,
     "fields": {
       "name": "Bulk Create Question Choices",
       "description": "Bulk Create Question Choices",
@@ -1105,7 +1081,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 93,
+    "pk": 91,
     "fields": {
       "name": "Add Question Choice Media",
       "description": "Add One Question Choice Media",
@@ -1117,7 +1093,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 94,
+    "pk": 92,
     "fields": {
       "name": "Delete Question Choice Media",
       "description": "Delete One Question Choice Media",
@@ -1129,7 +1105,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 95,
+    "pk": 93,
     "fields": {
       "name": "Bulk Create Question Choice Medias",
       "description": "Bulk Create Question Choice Medias",
@@ -1141,7 +1117,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 96,
+    "pk": 94,
     "fields": {
       "name": "Bulk Delete Question Choice Medias",
       "description": "Bulk Delete Question Choice Medias",
@@ -1153,7 +1129,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 97,
+    "pk": 95,
     "fields": {
       "name": "Add Question Attempt Response",
       "description": "Add One Question Attempt Response",
@@ -1165,7 +1141,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 98,
+    "pk": 96,
     "fields": {
       "name": "Get Question Attempt Response",
       "description": "Get One Question Attempt Response",
@@ -1177,7 +1153,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 99,
+    "pk": 97,
     "fields": {
       "name": "Get Question Attempt Responses",
       "description": "Get All Question Attempt Responses",
@@ -1189,7 +1165,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 100,
+    "pk": 98,
     "fields": {
       "name": "Update Question Attempt Response",
       "description": "Update One Question Attempt Response",
@@ -1201,7 +1177,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 101,
+    "pk": 99,
     "fields": {
       "name": "Delete Question Attempt Response",
       "description": "Delete One Question Attempt Response",
@@ -1213,7 +1189,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 102,
+    "pk": 100,
     "fields": {
       "name": "Bulk Create Question Attempt Responses",
       "description": "Bulk Create Question Attempt Responses",
@@ -1225,7 +1201,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 103,
+    "pk": 101,
     "fields": {
       "name": "Add Question Retry Hint",
       "description": "Add One Question Retry Hint",
@@ -1237,7 +1213,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 104,
+    "pk": 102,
     "fields": {
       "name": "Update Question Retry Hint",
       "description": "Update One Question Retry Hint",
@@ -1249,7 +1225,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 105,
+    "pk": 103,
     "fields": {
       "name": "Delete Question Retry Hint",
       "description": "Delete One Question Retry Hint",
@@ -1261,7 +1237,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 106,
+    "pk": 104,
     "fields": {
       "name": "Bulk Create Question Retry Hints",
       "description": "Bulk Create Question Retry Hints",
@@ -1273,7 +1249,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 107,
+    "pk": 105,
     "fields": {
       "name": "Add Question Retry Hint Media",
       "description": "Add One Question Retry Hint Media",
@@ -1285,7 +1261,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 108,
+    "pk": 106,
     "fields": {
       "name": "Delete Question Retry Hint Media",
       "description": "Delete One Question Retry Hint Media",
@@ -1297,7 +1273,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 109,
+    "pk": 107,
     "fields": {
       "name": "Bulk Create Question Retry Hint Medias",
       "description": "Bulk Create Question Retry Hint Medias",
@@ -1309,7 +1285,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 110,
+    "pk": 108,
     "fields": {
       "name": "Bulk Delete Question Retry Hint Medias",
       "description": "Bulk Delete Question Retry Hint Medias",
@@ -1321,7 +1297,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 111,
+    "pk": 109,
     "fields": {
       "name": "Add Section",
       "description": "Add One Section",
@@ -1333,7 +1309,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 112,
+    "pk": 110,
     "fields": {
       "name": "Get Section",
       "description": "Get One Section",
@@ -1345,7 +1321,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 113,
+    "pk": 111,
     "fields": {
       "name": "Get Sections",
       "description": "Get All Sections",
@@ -1357,7 +1333,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 114,
+    "pk": 112,
     "fields": {
       "name": "Update Section",
       "description": "Update One Section",
@@ -1369,7 +1345,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 115,
+    "pk": 113,
     "fields": {
       "name": "Delete Section",
       "description": "Delete One Section",
@@ -1381,7 +1357,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 116,
+    "pk": 114,
     "fields": {
       "name": "Add SubSection",
       "description": "Add One SubSection",
@@ -1393,7 +1369,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 117,
+    "pk": 115,
     "fields": {
       "name": "Get SubSection",
       "description": "Get One SubSection",
@@ -1405,7 +1381,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 118,
+    "pk": 116,
     "fields": {
       "name": "Get SubSections",
       "description": "Get All SubSections",
@@ -1417,7 +1393,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 119,
+    "pk": 117,
     "fields": {
       "name": "Update SubSection",
       "description": "Update One SubSection",
@@ -1429,7 +1405,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 120,
+    "pk": 118,
     "fields": {
       "name": "Delete SubSection",
       "description": "Delete One SubSection",
@@ -1441,7 +1417,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 121,
+    "pk": 119,
     "fields": {
       "name": "Add Schedule",
       "description": "Add One Schedule",
@@ -1453,7 +1429,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 122,
+    "pk": 120,
     "fields": {
       "name": "Get Schedule",
       "description": "Get One Schedule",
@@ -1465,7 +1441,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 123,
+    "pk": 121,
     "fields": {
       "name": "Get Schedules",
       "description": "Get All Schedules",
@@ -1477,7 +1453,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 124,
+    "pk": 122,
     "fields": {
       "name": "Update Schedule",
       "description": "Update One Schedule",
@@ -1489,7 +1465,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 125,
+    "pk": 123,
     "fields": {
       "name": "Delete Schedule",
       "description": "Delete One Schedule",
@@ -1501,7 +1477,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 126,
+    "pk": 124,
     "fields": {
       "name": "Add Exam",
       "description": "Add One Exam",
@@ -1513,7 +1489,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 127,
+    "pk": 125,
     "fields": {
       "name": "Get Exam",
       "description": "Get One Exam",
@@ -1525,7 +1501,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 128,
+    "pk": 126,
     "fields": {
       "name": "Get Exams",
       "description": "Get All Exams",
@@ -1537,7 +1513,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 129,
+    "pk": 127,
     "fields": {
       "name": "Update Exam",
       "description": "Update One Exam",
@@ -1549,7 +1525,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 130,
+    "pk": 128,
     "fields": {
       "name": "Delete Exam",
       "description": "Delete One Exam",
@@ -1561,7 +1537,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 131,
+    "pk": 129,
     "fields": {
       "name": "Create Random Exam",
       "description": "Create One Random Exam",
@@ -1573,7 +1549,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 132,
+    "pk": 130,
     "fields": {
       "name": "Get All Exams Lookup Details",
       "description": "Get only exam lookup details of All Exams",
@@ -1585,7 +1561,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 133,
+    "pk": 131,
     "fields": {
       "name": "Add Exam Subject",
       "description": "Add One Exam Subject",
@@ -1597,7 +1573,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 134,
+    "pk": 132,
     "fields": {
       "name": "Delete Exam Subject",
       "description": "Delete One Exam Subject",
@@ -1609,7 +1585,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 135,
+    "pk": 133,
     "fields": {
       "name": "Add Exam Subject Question",
       "description": "Add One Exam Subject Question",
@@ -1621,7 +1597,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 136,
+    "pk": 134,
     "fields": {
       "name": "Update Exam Subject Question",
       "description": "Update One Exam Subject Question",
@@ -1633,7 +1609,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 137,
+    "pk": 135,
     "fields": {
       "name": "Delete Exam Subject Question",
       "description": "Delete One Exam Subject Question",
@@ -1645,7 +1621,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 138,
+    "pk": 136,
     "fields": {
       "name": "Bulk Create Exam Subject Question",
       "description": "Bulk Create Exam Subject Question",
@@ -1657,7 +1633,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 139,
+    "pk": 137,
     "fields": {
       "name": "Bulk Update All Exam Subject Questions Sequence",
       "description": "Bulk Update All Exam Subject Questions only Sequence",
@@ -1669,7 +1645,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 140,
+    "pk": 138,
     "fields": {
       "name": "Add Candidate",
       "description": "Add One Candidate",
@@ -1681,7 +1657,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 141,
+    "pk": 139,
     "fields": {
       "name": "Get Candidate",
       "description": "Get One Candidate",
@@ -1693,7 +1669,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 142,
+    "pk": 140,
     "fields": {
       "name": "Get Candidates",
       "description": "Get All Candidates",
@@ -1705,7 +1681,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 143,
+    "pk": 141,
     "fields": {
       "name": "Update Candidate",
       "description": "Update One Candidate",
@@ -1717,7 +1693,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 144,
+    "pk": 142,
     "fields": {
       "name": "Add Candidate Exam",
       "description": "Add One Candidate Exam",
@@ -1729,7 +1705,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 145,
+    "pk": 143,
     "fields": {
       "name": "Get Candidate Exam",
       "description": "Get One Candidate Exam",
@@ -1741,7 +1717,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 146,
+    "pk": 144,
     "fields": {
       "name": "Get Candidate Exams",
       "description": "Get All Candidate Exams",
@@ -1753,7 +1729,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 147,
+    "pk": 145,
     "fields": {
       "name": "Update Candidate Exam",
       "description": "Update One Candidate Exam",
@@ -1765,7 +1741,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 148,
+    "pk": 146,
     "fields": {
       "name": "Get One Candidate Exam Answers",
       "description": "Get One Candidate Exam with Answers",
@@ -1777,7 +1753,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 149,
+    "pk": 147,
     "fields": {
       "name": "Get All Candidate Exams with Candidates List",
       "description": "Get All Candidate Exams with their associated Candidates List",
@@ -1789,7 +1765,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 150,
+    "pk": 148,
     "fields": {
       "name": "Add Candidate Exam Answer",
       "description": "Add One Candidate Exam Answer",
@@ -1801,7 +1777,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 151,
+    "pk": 149,
     "fields": {
       "name": "Get Candidate Exam Answer",
       "description": "Get One Candidate Exam Answer",
@@ -1813,7 +1789,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 152,
+    "pk": 150,
     "fields": {
       "name": "Get Candidate Exam Answers",
       "description": "Get All Candidate Exam Answers",
@@ -1825,7 +1801,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 153,
+    "pk": 151,
     "fields": {
       "name": "Resend Verification Link",
       "description": "Resend verification link of a user who does not recieved an email",
@@ -1837,7 +1813,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 154,
+    "pk": 152,
     "fields": {
       "name": "User Verification Link",
       "description": "Verifing User account via verification link",
@@ -1849,7 +1825,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 155,
+    "pk": 153,
     "fields": {
       "name": "Delete An Organization User",
       "description": "Delete An Organization User",
@@ -1861,7 +1837,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 156,
+    "pk": 154,
     "fields": {
       "name": "Add Role Permission",
       "description": "Bulk Assign a Role Permissions",
@@ -1873,7 +1849,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 157,
+    "pk": 155,
     "fields": {
       "name": "Get Role Permission",
       "description": "Get One Role Permission",
@@ -1885,7 +1861,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 158,
+    "pk": 156,
     "fields": {
       "name": "Get Role Permissions",
       "description": "Get All Role Permissions",
@@ -1897,7 +1873,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 159,
+    "pk": 157,
     "fields": {
       "name": "Upsert Role Permission",
       "description": "Bulk Upsert a Role Permissions",
@@ -1909,7 +1885,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 160,
+    "pk": 158,
     "fields": {
       "name": "Delete Role Permission",
       "description": "Delete One Role Permission",
@@ -1921,7 +1897,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 161,
+    "pk": 159,
     "fields": {
       "name": "Set Role Permissions",
       "description": "Setting a Role Permissions",
@@ -1933,7 +1909,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 162,
+    "pk": 160,
     "fields": {
       "name": "Set User Role",
       "description": "Set Role of a User",
@@ -1945,7 +1921,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 163,
+    "pk": 161,
     "fields": {
       "name": "Update Role Permissions from Student Apply Backend",
       "description": "Update Role Permissions from Student Apply Backend",
@@ -1957,7 +1933,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 164,
+    "pk": 162,
     "fields": {
       "name": "Delete Role with its Permissions from Student Apply Backend",
       "description": "Delete Role with its Permissions from Student Apply Backend",
@@ -1969,7 +1945,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 165,
+    "pk": 163,
     "fields": {
       "name": "Login user from system to question bank",
       "description": "Login user from system to question bank",
@@ -1981,7 +1957,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 166,
+    "pk": 164,
     "fields": {
       "name": "Submit One Candidate Exam",
       "description": "Submit One Candidate Exam",
@@ -1993,7 +1969,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 167,
+    "pk": 165,
     "fields": {
       "name": "Get One Exam Backlog Answers Key",
       "description": "Get One Exam Backlog Answers Key",
@@ -2005,7 +1981,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 168,
+    "pk": 166,
     "fields": {
       "name": "Send a exam link to candidate user",
       "description": "Send a exam link to candidate user",
@@ -2017,7 +1993,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 169,
+    "pk": 167,
     "fields": {
       "name": "One Candidate Exam Scoresheet",
       "description": "View One Candidate Exam Scoresheet",
@@ -2029,7 +2005,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 170,
+    "pk": 168,
     "fields": {
       "name": "Get One Retry Hint for Candidate Exam",
       "description": "Get One Retry Hint for Candidate Exam",
@@ -2041,7 +2017,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 171,
+    "pk": 169,
     "fields": {
       "name": "Mark One Candidate Exam",
       "description": "Mark One Candidate Exam",
@@ -2053,7 +2029,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 172,
+    "pk": 170,
     "fields": {
       "name": "Create Package",
       "description": "Create a new package",
@@ -2065,7 +2041,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 173,
+    "pk": 171,
     "fields": {
       "name": "Get one Package",
       "description": "Get one package",
@@ -2077,7 +2053,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 174,
+    "pk": 172,
     "fields": {
       "name": "Get All Packages",
       "description": "Get all users",
@@ -2089,7 +2065,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 175,
+    "pk": 173,
     "fields": {
       "name": "Update Package",
       "description": "Edit a single package",
@@ -2101,7 +2077,7 @@
   },
   {
     "model": "user.Resource",
-    "pk": 176,
+    "pk": 174,
     "fields": {
       "name": "Delete Package",
       "description": "Delete a package",

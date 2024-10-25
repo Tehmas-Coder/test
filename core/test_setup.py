@@ -15,7 +15,7 @@ class TestSetUp(APITestCase):
         self.headers = {"Authorization": ""}
         self.user = None
         self.admin_user = {
-            "email": "test@gmail.com",
+            "email": "test_user@gmail.com",
             "first_name": "haider",
             "last_name": "majeed",
             "date_of_birth": "1995-07-27",
