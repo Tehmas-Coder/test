@@ -31,6 +31,7 @@ class UserNinja:
         """
         self.logged_in_user_roles: list = self.logged_in_user.get_user_role_slugs
         self.is_super_user: bool = self.logged_in_user.is_superuser
+        self.requested_user_instance: BaseUser = None  # type: ignore
 
     # ---------------------------------------------------------------------------- #
     #                                Public methods                                #
@@ -102,10 +103,10 @@ class UserNinja:
             self.__create_organization_user(organization, self.created_user_data["id"])  # type: ignore
 
     def __create_candidate(self, organization, user_id):
-        Candidate.objects.create(user_id=user_id, organization_id=organization)  # type: ignore
+        Candidate.objects.create(user_id=user_id, organization_id=organization)
 
     def __create_organization_user(self, organization, user_id):
-        OrganizationUser.objects.create(user_id=user_id, organization_id=organization)  # type: ignore
+        OrganizationUser.objects.create(user_id=user_id, organization_id=organization)
 
     def __send_email_verification_link(self):
         key = get_encryption_key()
