@@ -1,4 +1,3 @@
-
 python manage.py populate_country_data
 REM --------------------------------- USER -------------------------------------
 python manage.py loaddata prod_user_seed.json
