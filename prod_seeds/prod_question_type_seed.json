@@ -1,0 +1,122 @@
+[
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 1,
+        "fields": {
+            "name": "Multiple Select",
+            "slug": "multiple-select",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 2,
+        "fields": {
+            "name": "Single Select",
+            "slug": "single-select",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 3,
+        "fields": {
+            "name": "Text",
+            "slug": "text",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 4,
+        "fields": {
+            "name": "Long Text",
+            "slug": "long-text",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 5,
+        "fields": {
+            "name": "Audio File",
+            "slug": "audio-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 6,
+        "fields": {
+            "name": "Video File",
+            "slug": "video-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 7,
+        "fields": {
+            "name": "Image File",
+            "slug": "image-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 8,
+        "fields": {
+            "name": "Document File",
+            "slug": "document-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 9,
+        "fields": {
+            "name": "Date",
+            "slug": "date",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 10,
+        "fields": {
+            "name": "Date Interval",
+            "slug": "date-interval",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 11,
+        "fields": {
+            "name": "Number",
+            "slug": "number",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 12,
+        "fields": {
+            "name": "Range",
+            "slug": "range",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]
