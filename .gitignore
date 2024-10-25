@@ -10,8 +10,4 @@ my_lab.py
 *.prof
 profiling
 prod.env
-uploaded_documents
-chatbot/vectorstore
-extracted_tables
-extracted_images
-migrations
+# migrations
