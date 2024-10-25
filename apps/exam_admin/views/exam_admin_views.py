@@ -120,7 +120,7 @@ class SubSectionViewSet(viewsets.ModelViewSet):
 
 
 class ExamViewSet(viewsets.ModelViewSet):
-    queryset = Exam.get_detail_queryset()
+    queryset = Exam.get_detail_queryset(all=True)
     serializer_class = ExamEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = [ExamFilterBackend]

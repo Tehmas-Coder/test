@@ -120,11 +120,14 @@ class SubjectEducationLevelTest(SubjectEducationLevelUnitTest):
 
     def successfull_updation_of_record_test(self, test_record_id):
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
-        updated_request_body["subject"] = 2
+        updated_request_body["education_level"] = 2
 
         updated_response_json_data = self.do_update_one_subject_education_level(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
+            if key in ["subject", "education_level"]:
+                self.assertEqual(updated_response_json_data[key]["id"], updated_request_body[key])
+                continue
             self.assertEqual(updated_response_json_data[key], updated_request_body[key])
 
     # * Test to check the deletion of a record

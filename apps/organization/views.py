@@ -28,7 +28,10 @@ class OrganizationViewSet(viewsets.ModelViewSet):
             "organization_packages",
             "organization_packages__package",
         )
-        .annotate(users_count=Count("organization_users"), candidates_count=Count("organization_candidates"))
+        .annotate(
+            users_count=Count("organization_users", distinct=True),
+            candidates_count=Count("organization_candidates", distinct=True),
+        )
     )
     serializer_class = OrganizationSerializer
     http_method_names = ["get", "post", "patch", "delete"]

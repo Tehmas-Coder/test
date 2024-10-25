@@ -1,6 +1,5 @@
 import json
 import random
-from re import sub
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -151,7 +150,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request_data = request.data
         exam_id = request_data.pop("exam")
-        exam_instance = Exam.get_detail_queryset().get(pk=exam_id)
+        exam_instance = Exam.get_detail_queryset(all=True).get(pk=exam_id)
 
         # * Creating Backlogs for Exam
         exam_data = ExamDetailSerializerForBacklogs(exam_instance).data

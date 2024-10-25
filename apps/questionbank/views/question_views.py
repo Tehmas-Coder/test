@@ -101,7 +101,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
-    queryset = SubjectEducationLevel.objects.all().select_related("subject", "education_level")
+    queryset = SubjectEducationLevel.get_detail_queryset()
     serializer_class = SubjectEducationLevelDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
@@ -112,16 +112,27 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
-        if SubjectEducationLevel.objects.filter(
-            subject_id=request.data["subject"],
-            education_level_id=request.data["education_level"],
-        ).exists():
+        if SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"]).exists():
             return make_error_response(data=request.data, message="Subject education level already exists.")
         serializer = SubjectEducationLevelEditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         subject_education_level = serializer.save()
         serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if (
+            SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"])
+            .exclude(id=instance.id)
+            .exists()
+        ):
+            return make_error_response(data=request.data, message="Subject education level already exists.")
+        serializer = SubjectEducationLevelEditSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        subject_education_level = serializer.save()
+        serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
+        return Response(serializer.data)
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
@@ -142,7 +153,7 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 #                                   QUESTION                                   #
 # ---------------------------------------------------------------------------- #
 class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.get_detail_queryset()
+    queryset = Question.get_detail_queryset(all=True)
     filter_backends = [QuestionFilterBackend]
     serializer_class = QuestionDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]

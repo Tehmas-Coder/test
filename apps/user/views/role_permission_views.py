@@ -5,6 +5,8 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.user.helpers.role_ninja import RoleNinja
+from apps.user.helpers.role_permission_ninja import RolePermissionNinja
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
@@ -32,21 +34,13 @@ class RoleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action == "retrieve":
             return Role.get_detail_queryset(role_permissions=True, role_permissions_permission=True)
-
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
         new_role_data = super().create(request, *args, **kwargs)
-
-        new_role_id = new_role_data.data["id"]  # type: ignore
-        permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
-
-        new_role_instance = Role.objects.prefetch_related("permissions").get(pk=new_role_id)
-        if len(permission_ids_list):
-            new_role_instance.permissions.set(permission_ids_list)
-
-        new_role_permssion_data = RoleSerializer(new_role_instance).data
-        return Response(new_role_permssion_data, status=status.HTTP_201_CREATED)
+        new_role_instance = RoleNinja.add_role_permissions(new_role_data.data["id"])  # type: ignore
+        response_data = RoleSerializer(new_role_instance).data
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         self.queryset = (
@@ -54,12 +48,8 @@ class RoleViewSet(viewsets.ModelViewSet):
             .exclude(slug__in=["system"])
             .annotate(user_count=Count("users"))
         )
-        request_user_roles = request.user.get_user_role_slugs
-
-        if len(request_user_roles):
-            if "system" in request_user_roles:
-                self.queryset = self.queryset.filter(is_system_role=True)
-
+        if "system" in request.user.get_user_role_slugs:
+            self.queryset = self.queryset.filter(is_system_role=True)
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
@@ -78,12 +68,8 @@ class RoleViewSet(viewsets.ModelViewSet):
     def set_permissions(self, request, *args, **kwargs):
         permissions = request.data["permissions"]
         role_id = self.get_object().id
-
         RolePermission.objects.filter(role_id=role_id).update(is_active=False)
-
-        if permissions:
-            RolePermission.objects.filter(role_id=role_id, permission_id__in=permissions).update(is_active=True)
-
+        RolePermission.objects.filter(role_id=role_id, permission_id__in=permissions).update(is_active=True)
         return Response({"message": "Permissions set successfully"}, status=status.HTTP_200_OK)
 
 
@@ -112,11 +98,11 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
         request_data = request.data
         role = Role.objects.filter(id=request_data["role"]).first()
         role.permissions.set(request_data["permissions"])  # type: ignore
-
         return Response({"message": "Permissions set successfully"}, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def update_role_permissions_from_sa_be(self, request, *args, **kwargs):
+        # role_permissions_ninja_instance = RolePermissionNinja(request.data)
         request_data = request.data
         request_role_name = request_data["RoleName"]
         request_role_name_slug = slugify(request_role_name)

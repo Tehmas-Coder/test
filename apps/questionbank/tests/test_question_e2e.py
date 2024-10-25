@@ -390,7 +390,7 @@ class QuestionTest(QuestionUnitTest):
         validate_failed_400_test_response(self, updated_response)
 
     def successfull_updation_of_record_test(self, test_record_id):
-        self.custom_login(email="test@gmail.com", password="12345678")
+        self.custom_login(email="test_user@gmail.com", password="12345678")
         updated_request_body = {}
         updated_request_body["title"] = "Are you not crazy?"
         updated_request_body["text"] = "Please don't give reasons you are crazy for sure"
