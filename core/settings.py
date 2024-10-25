@@ -37,7 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (True if config("ENV") != "production" else False,)  #! SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True if config("ENV") != "production" else False  #! SECURITY WARNING: don't run with debug turned on in production!
 
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
