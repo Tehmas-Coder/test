@@ -119,10 +119,13 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
+AWS_SES_REGION_NAME = config("AWS_DEFAULT_REGION")
+
 try:
     os.environ["AWS_ACCESS_KEY_ID"] = config("AWS_ACCESS_KEY_ID")  # type: ignore
     os.environ["AWS_SECRET_ACCESS_KEY"] = config("AWS_SECRET_ACCESS_KEY")  # type: ignore
     os.environ["AWS_DEFAULT_REGION"] = config("AWS_DEFAULT_REGION")  # type: ignore
+
 except:
     pass
 
@@ -152,6 +155,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    "eb_sqs",
     # * System
     "ping",
     "apps.lookups",
