@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import OuterRef, Q, Subquery
 from hashids import Hashids
 
-from core.middlewares.current_user_middleware import get_current_user
+from middlewares.current_user_middleware import get_current_user
 
 hashids = Hashids(min_length=8, salt="your_salt_here")
 

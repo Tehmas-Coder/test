@@ -11,7 +11,7 @@ from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionSerializer,
 )
 from apps.questionbank.models import Question, Subject
-from core.middlewares.response_middleware import ResponseMiddleware
+from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response, object_contains_all_values
 
 

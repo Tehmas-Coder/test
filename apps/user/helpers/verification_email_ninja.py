@@ -4,7 +4,7 @@ from cryptography.fernet import Fernet
 from decouple import config
 
 from apps.user.models import BaseUser
-from core.middlewares.response_middleware import ResponseMiddleware
+from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     generate_random_password,

@@ -13,7 +13,7 @@ from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.models import BaseUser
 from apps.user.utils.utils import get_roles_names
-from core.middlewares.response_middleware import ResponseMiddleware
+from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import get_encryption_key, make_error_response
 
