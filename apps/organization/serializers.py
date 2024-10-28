@@ -63,6 +63,7 @@ class OrganizationEditSerializer(BaseModelSerializer):
             "id",
             "name",
             "country",
+            "webhook_url",
             "package",
         ] + get_base_model_fields()
 

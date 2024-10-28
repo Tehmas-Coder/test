@@ -12,6 +12,7 @@ class Organization(BaseModel):
     packages = models.ManyToManyField("lookups.Package", through="OrganizationPackage")
     questions = models.ManyToManyField("questionbank.Question", through="OrganizationQuestion")
     exams = models.ManyToManyField("exam_admin.Exam", through="OrganizationExam")
+    webhook_url = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         app_label = "organization"
