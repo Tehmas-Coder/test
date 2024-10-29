@@ -150,7 +150,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 
         # * Update obtained marks with the sum of scores and exam_status = scored if none of the questions left to mark otherwise set the status to marked
         candidate_exam_instance_queryset = CandidateExam.objects.filter(id=candidate_exam_id).select_related(
-            "exam_backlog", "candidate", "candidate__user"
+            "exam_backlog", "candidate", "candidate__user", "candidate__organization"
         )
         if len(candidate_exam_answer_queryset) == length_of_scored_candidate_exam_answers:
             candidate_exam_instance_queryset.update(obtained_marks=all_scores_sum, exam_status="scored")
@@ -158,7 +158,6 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             response_status = status.HTTP_200_OK
             candidate_exam_instance = candidate_exam_instance_queryset.first()
             if candidate_exam_instance.candidate.organization.webhook_url:  # type: ignore
-                print("PASSSSSSSSSSSs")
                 if not send_exam_result_to_student_apply_webhook(candidate_exam_instance):
                     message += ", failed to send webhook"
                     response_status = status.HTTP_307_TEMPORARY_REDIRECT
@@ -169,6 +168,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
                 response_status = status.HTTP_307_TEMPORARY_REDIRECT
         else:
             message = "Exam questions marked and scored successfully"
+            response_status = status.HTTP_200_OK
             candidate_exam_instance_queryset.update(obtained_marks=all_scores_sum, exam_status="marked")
         return Response({"message": message}, status=response_status)
 

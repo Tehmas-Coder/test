@@ -539,6 +539,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
+        if not candidate_exam_instance:
+            return make_error_response(message="Candidate Exam not found")
+        if candidate_exam_instance.exam_status == "submitted":
+            return make_error_response(message="Exam already submitted")
+
         candidate_exam_answers_queryset = (
             CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id)
             .select_related(
