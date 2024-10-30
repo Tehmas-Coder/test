@@ -202,18 +202,11 @@ class RolePermission(BaseModel):
 
 
 class Resource(BaseModel):
+    permission = models.ForeignKey(Permission, on_delete=models.PROTECT, null=True, blank=True, related_name="permission_resources")
+
     name = models.CharField(max_length=255)
     regex = models.CharField(max_length=255)
     method = models.CharField(max_length=255)
 
     class Meta:
         app_label = "user"
-
-
-class RoleResource(BaseModel):
-    role = models.ForeignKey(Role, on_delete=models.PROTECT)
-    resource = models.ForeignKey(Resource, on_delete=models.PROTECT)
-
-    class Meta:
-        app_label = "user"
-        db_table = "user_role_resource"
