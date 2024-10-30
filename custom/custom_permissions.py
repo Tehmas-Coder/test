@@ -3,7 +3,8 @@ import re
 from django.forms.models import model_to_dict
 from rest_framework.permissions import BasePermission
 
-from apps.user.models import Resource
+from apps.user.models import Resource, RolePermission
+from utils.rna_utils import color_print
 
 
 class IsAuthenticated(BasePermission):
@@ -60,18 +61,21 @@ def is_url_public(request_method, request_path):
 
 def validate_resources(request_method, request_path, role_ids):
     regex_pattern = string_url_to_regex(request_path)
-    resource_id = 0
 
     try:
         resource_dict = model_to_dict(Resource.objects.get(regex__exact=regex_pattern, method=request_method))
-        # resource_permission = resource_dict["permission"]
-        resource_id = resource_dict["id"]
+        resource_permission = resource_dict["permission"]
     except:
         print(f"No Resource ({request_method} => {request_path}) found on server.")
         return False
 
-    # fetch RolePermission.objects.get(role_id__in=role_ids, permission=resource_permission, is_active=True)
+    # try:
+    #     RolePermission.objects.get(role_id__in=role_ids, permission=resource_permission, is_active=True)
+    # except:
+    #     color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
+    #     return False
 
+    # ? This implementation is obsolete and was for the previous implementation of role_resource, use the above implementation
     # try:
     #     RoleResource.objects.get(role_id__in=role_ids, resource_id=resource_id)
     # except:
