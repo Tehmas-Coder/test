@@ -64,10 +64,13 @@ def validate_resources(request_method, request_path, role_ids):
 
     try:
         resource_dict = model_to_dict(Resource.objects.get(regex__exact=regex_pattern, method=request_method))
+        # resource_permission = resource_dict["permission"]
         resource_id = resource_dict["id"]
     except:
         print(f"No Resource ({request_method} => {request_path}) found on server.")
         return False
+
+    # fetch RolePermission.objects.get(role_id__in=role_ids, permission=resource_permission, is_active=True)
 
     # try:
     #     RoleResource.objects.get(role_id__in=role_ids, resource_id=resource_id)

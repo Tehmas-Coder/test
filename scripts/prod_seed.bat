@@ -4,7 +4,6 @@ python manage.py loaddata prod_user_seed.json
 python manage.py loaddata prod_role_seed.json
 python manage.py loaddata prod_user_role_seed.json
 python manage.py loaddata prod_resource_seed.json
-python manage.py loaddata prod_role_resource_seed.json
 python manage.py loaddata prod_permission_seed.json
 python manage.py loaddata prod_role_permission_seed.json
 REM -------------------------------- LOOKUPS -----------------------------------
