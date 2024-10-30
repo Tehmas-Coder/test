@@ -1,7 +1,9 @@
+import json
 from dataclasses import dataclass
 
 import requests
-from cryptography.fernet import Fernet
+
+from utils.rna_utils import decrypt_message, encrypt_message
 
 
 @dataclass
@@ -9,12 +11,7 @@ class GenericWebhook:
     data_dict: dict
 
     def send_request(self, encryption_key: str, token: str) -> bool:
-        webhook_url = self.__decrypt_token(encryption_key, token)
-        response = requests.post(webhook_url, json=self.data_dict)
+        webhook_url = decrypt_message(token, encryption_key)
+        encrypted_data = encrypt_message(json.dumps(self.data_dict), encryption_key)
+        response = requests.post(webhook_url, json=encrypted_data)
         return True if response.status_code == 200 else False
-
-    def __decrypt_token(self, encryption_key, token) -> str:
-        decoded_key = encryption_key[1:]
-        cipher = Fernet(decoded_key)
-        decrypted_message = cipher.decrypt(token).decode()
-        return decrypted_message

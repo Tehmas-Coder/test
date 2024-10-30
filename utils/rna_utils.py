@@ -5,6 +5,7 @@ import string
 import threading
 from typing import Any, Type
 
+from cryptography.fernet import Fernet
 from django.db.models.base import Model
 from rest_framework import status
 from rest_framework.response import Response
@@ -284,3 +285,19 @@ def generate_random_password():
     # Choose from digits 0-9 to create a 6-digit password
     password = "".join(random.choices(string.digits, k=6))
     return password
+
+
+def encrypt_message(message: str, key: str) -> str:
+    if key.startswith("b'"):
+        key = key[1:]
+    fernet = Fernet(key)
+    encrypted_message = fernet.encrypt(message.encode())
+    return encrypted_message.decode("utf-8")
+
+
+def decrypt_message(encrypted_message: str, key: str) -> str:
+    if key.startswith("b'"):
+        key = key[1:]
+    fernet = Fernet(key)
+    decrypted_message = fernet.decrypt(encrypted_message)
+    return decrypted_message.decode()
