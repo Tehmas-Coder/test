@@ -14,6 +14,7 @@ class GenericWebhook:
         return True if response.status_code == 200 else False
 
     def __decrypt_token(self, encryption_key, token) -> str:
-        cipher = Fernet(encryption_key)
+        decoded_key = encryption_key[1:]
+        cipher = Fernet(decoded_key)
         decrypted_message = cipher.decrypt(token).decode()
         return decrypted_message
