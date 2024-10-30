@@ -20,6 +20,20 @@ class Organization(BaseModel):
         db_table = "organization_organization"
 
 
+# ---------------------------------------------------------------------------- #
+#                                     MAPS                                     #
+# ---------------------------------------------------------------------------- #
+
+
+class OrganizationRole(BaseModel):
+    organization = models.ForeignKey("Organization", on_delete=models.PROTECT, related_name="organization_roles")
+    role = models.OneToOneField("user.Role", on_delete=models.PROTECT)
+
+    class Meta:
+        app_label = "organization"
+        db_table = "organization_organization_role"
+
+
 class OrganizationUser(BaseModel):
     organization = models.ForeignKey("Organization", on_delete=models.CASCADE, related_name="organization_users")
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_organizations")
