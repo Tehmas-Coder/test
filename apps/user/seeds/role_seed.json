@@ -13,8 +13,8 @@
     "model": "user.Role",
     "pk": 2,
     "fields": {
-      "name": "Administrator",
-      "slug": "administrator",
+      "name": "Worker",
+      "slug": "worker",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -23,8 +23,8 @@
     "model": "user.Role",
     "pk": 3,
     "fields": {
-      "name": "Examiner",
-      "slug": "examiner",
+      "name": "System",
+      "slug": "system",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -35,16 +35,6 @@
     "fields": {
       "name": "Candidate",
       "slug": "candidate",
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
-  },
-  {
-    "model": "user.Role",
-    "pk": 5,
-    "fields": {
-      "name": "System",
-      "slug": "system",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
