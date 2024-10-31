@@ -3,8 +3,8 @@ REM --------------------------------- USER -------------------------------------
 python manage.py loaddata prod_user_seed.json
 python manage.py loaddata prod_role_seed.json
 python manage.py loaddata prod_user_role_seed.json
-python manage.py loaddata prod_resource_seed.json
 python manage.py loaddata prod_permission_seed.json
+python manage.py loaddata prod_resource_seed.json
 python manage.py loaddata prod_role_permission_seed.json
 REM -------------------------------- LOOKUPS -----------------------------------
 python manage.py loaddata prod_media_type_seed.json
