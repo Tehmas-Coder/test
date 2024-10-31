@@ -46,6 +46,9 @@ def is_url_public(request_method, request_path):
             "/currencies/",
             "/measuring-units/",
             "/media-types/",
+            "question-types/",
+            "difficulty-levels/",
+            # TODO: tags also have permissions, but they are public, check back to remove these from here
             "/tags/",
             # "/countries/(?P<pk>[0-9]+)/",
         ]
