@@ -46,8 +46,8 @@ def is_url_public(request_method, request_path):
             "/currencies/",
             "/measuring-units/",
             "/media-types/",
-            "question-types/",
-            "difficulty-levels/",
+            "/question-types/",
+            "/difficulty-levels/",
             # TODO: tags also have permissions, but they are public, check back to remove these from here
             "/tags/",
             # "/countries/(?P<pk>[0-9]+)/",
@@ -72,11 +72,14 @@ def validate_resources(request_method, request_path, role_ids):
         print(f"No Resource ({request_method} => {request_path}) found on server.")
         return False
 
-    # try:
-    #     RolePermission.objects.get(role_id__in=role_ids, permission=resource_permission, is_active=True)
-    # except:
-    #     color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
-    #     return False
+    try:
+        RolePermission.objects.get(role_id__in=role_ids, permission=resource_permission, is_active=True)
+        color_print("PASSSSSSSSSSSSSSSSS")
+    except:
+        color_print("****************************************************************", "red")
+        color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
+        color_print("****************************************************************", "red")
+        return False
 
     # ? This implementation is obsolete and was for the previous implementation of role_resource, use the above implementation
     # try:
