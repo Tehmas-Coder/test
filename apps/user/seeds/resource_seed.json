@@ -7,6 +7,7 @@
       "description": "Signup a new user account",
       "regex": "^/register/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -19,6 +20,7 @@
       "description": "Signin an existing user account",
       "regex": "^/login/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -31,6 +33,7 @@
       "description": "Refresh a token",
       "regex": "^/refresh/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -43,6 +46,7 @@
       "description": "Logout a signed in user",
       "regex": "^/logout/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -55,6 +59,7 @@
       "description": "Verify a user OTP",
       "regex": "^/verify-otp/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -67,6 +72,7 @@
       "description": "Resend an OTP to a user email",
       "regex": "^/resend-otp/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -79,6 +85,7 @@
       "description": "Create a new user",
       "regex": "^/users/$",
       "method": "post",
+      "permission": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -91,6 +98,7 @@
       "description": "Get one user",
       "regex": "^/users/[0-9]+/$",
       "method": "get",
+      "permission": 2,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -103,6 +111,7 @@
       "description": "Get all users",
       "regex": "^/users/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -115,6 +124,7 @@
       "description": "Edit a single user",
       "regex": "^/users/[0-9]+/$",
       "method": "patch",
+      "permission": 2,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -127,6 +137,7 @@
       "description": "Delete a User",
       "regex": "^/users/[0-9]+/$",
       "method": "delete",
+      "permission": 3,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -139,6 +150,7 @@
       "description": "Add One Role",
       "regex": "^/roles/$",
       "method": "post",
+      "permission": 45,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -151,6 +163,7 @@
       "description": "Get One Role",
       "regex": "^/roles/[0-9]+/$",
       "method": "get",
+      "permission": 46,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -163,6 +176,7 @@
       "description": "Get All Roles",
       "regex": "^/roles/$",
       "method": "get",
+      "permission": 47,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -175,6 +189,7 @@
       "description": "Update One Role",
       "regex": "^/roles/[0-9]+/$",
       "method": "patch",
+      "permission": 46,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -187,6 +202,7 @@
       "description": "Delete One Role",
       "regex": "^/roles/[0-9]+/$",
       "method": "delete",
+      "permission": 48,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -199,6 +215,7 @@
       "description": "Add One Permission",
       "regex": "^/permissions/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -211,6 +228,7 @@
       "description": "Get One Permission",
       "regex": "^/permissions/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -223,6 +241,7 @@
       "description": "Get All Permissions",
       "regex": "^/permissions/$",
       "method": "get",
+      "permission": 47,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -235,6 +254,7 @@
       "description": "Update One Permission",
       "regex": "^/permissions/[0-9]+/$",
       "method": "patch",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -247,6 +267,7 @@
       "description": "Delete One Permission",
       "regex": "^/permissions/[0-9]+/$",
       "method": "delete",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -259,6 +280,7 @@
       "description": "Add One Organization",
       "regex": "^/organizations/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -271,6 +293,7 @@
       "description": "Get One Organization",
       "regex": "^/organizations/[0-9]+/$",
       "method": "get",
+      "permission": 4,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -283,6 +306,7 @@
       "description": "Get All Organizations",
       "regex": "^/organizations/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -295,6 +319,7 @@
       "description": "Update One Organization",
       "regex": "^/organizations/[0-9]+/$",
       "method": "patch",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -307,6 +332,7 @@
       "description": "Delete One Organization",
       "regex": "^/organizations/[0-9]+/$",
       "method": "delete",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -319,6 +345,7 @@
       "description": "Get list of all the users with in an Organization",
       "regex": "^/get-organization-users-list/[0-9]+/$",
       "method": "get",
+      "permission": 7,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -331,6 +358,7 @@
       "description": "Get list of all the candidates with in an Organization",
       "regex": "^/get-organization-candidates-list/[0-9]+/$",
       "method": "get",
+      "permission": 8,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -343,6 +371,7 @@
       "description": "Get list of all the organizations of a Candidate",
       "regex": "^/get-candidate-organizations-list/$",
       "method": "get",
+      "permission": 49,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -351,10 +380,11 @@
     "model": "user.Resource",
     "pk": 30,
     "fields": {
-      "name": "Get Candidate Organizations List",
+      "name": "Get User Organizations List",
       "description": "Get list of all the organizations of a User",
       "regex": "^/get-user-organizations-list/$",
       "method": "get",
+      "permission": 2,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -367,6 +397,7 @@
       "description": "Get One Country",
       "regex": "^/countries/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -379,6 +410,7 @@
       "description": "Get All Countries",
       "regex": "^/countries/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -391,6 +423,7 @@
       "description": "Get One Timezone",
       "regex": "^/timezones/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -403,6 +436,7 @@
       "description": "Get All Timezones",
       "regex": "^/timezones/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -415,6 +449,7 @@
       "description": "Get One Region",
       "regex": "^/regions/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -427,6 +462,7 @@
       "description": "Get All Regions",
       "regex": "^/regions/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -439,6 +475,7 @@
       "description": "Get One State",
       "regex": "^/states/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -451,6 +488,7 @@
       "description": "Get All States",
       "regex": "^/states/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -463,6 +501,7 @@
       "description": "Get One Language",
       "regex": "^/languages/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -475,6 +514,7 @@
       "description": "Get All Languages",
       "regex": "^/languages/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -487,6 +527,7 @@
       "description": "Get One Currency",
       "regex": "^/currencies/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -499,6 +540,7 @@
       "description": "Get All Currencies",
       "regex": "^/currencies/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -511,6 +553,7 @@
       "description": "Get One Measuring Unit",
       "regex": "^/measuring-units/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -523,6 +566,7 @@
       "description": "Get All Measuring Units",
       "regex": "^/measuring-units/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -535,6 +579,7 @@
       "description": "Get One Media Type",
       "regex": "^/media-types/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -547,6 +592,7 @@
       "description": "Get All Media Types",
       "regex": "^/media-types/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -559,6 +605,7 @@
       "description": "Add One Tag",
       "regex": "^/tags/$",
       "method": "post",
+      "permission": 36,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -571,6 +618,7 @@
       "description": "Get One Tag",
       "regex": "^/tags/[0-9]+/$",
       "method": "get",
+      "permission": 37,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -583,6 +631,7 @@
       "description": "Get All Tags",
       "regex": "^/tags/$",
       "method": "get",
+      "permission": 35,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -595,6 +644,7 @@
       "description": "Update One Tag",
       "regex": "^/tags/[0-9]+/$",
       "method": "patch",
+      "permission": 37,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -607,6 +657,7 @@
       "description": "Delete One Tag",
       "regex": "^/tags/[0-9]+/$",
       "method": "delete",
+      "permission": 38,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -619,6 +670,7 @@
       "description": "Get One Question Type",
       "regex": "^/question-types/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -631,6 +683,7 @@
       "description": "Get All Question Types",
       "regex": "^/question-types/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -643,6 +696,7 @@
       "description": "Add One Difficulty Level",
       "regex": "^/difficulty-levels/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -655,6 +709,7 @@
       "description": "Get One Difficulty Level",
       "regex": "^/difficulty-levels/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -667,6 +722,7 @@
       "description": "Get All Difficulty Levels",
       "regex": "^/difficulty-levels/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -679,6 +735,7 @@
       "description": "Update One Difficulty Level",
       "regex": "^/difficulty-levels/[0-9]+/$",
       "method": "patch",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -691,6 +748,7 @@
       "description": "Delete One Difficulty Level",
       "regex": "^/difficulty-levels/[0-9]+/$",
       "method": "delete",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -703,6 +761,7 @@
       "description": "Add One Subject",
       "regex": "^/subjects/$",
       "method": "post",
+      "permission": 28,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -715,6 +774,7 @@
       "description": "Get One Subject",
       "regex": "^/subjects/[0-9]+/$",
       "method": "get",
+      "permission": 29,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -727,6 +787,7 @@
       "description": "Get All Subjects",
       "regex": "^/subjects/$",
       "method": "get",
+      "permission": 27,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -739,6 +800,7 @@
       "description": "Update One Subject",
       "regex": "^/subjects/[0-9]+/$",
       "method": "patch",
+      "permission": 29,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -751,6 +813,7 @@
       "description": "Delete One Subject",
       "regex": "^/subjects/[0-9]+/$",
       "method": "delete",
+      "permission": 30,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -763,6 +826,7 @@
       "description": "Add One Education Level",
       "regex": "^/education-levels/$",
       "method": "post",
+      "permission": 32,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -775,6 +839,7 @@
       "description": "Get One Education Level",
       "regex": "^/education-levels/[0-9]+/$",
       "method": "get",
+      "permission": 33,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -787,6 +852,7 @@
       "description": "Get All Education Levels",
       "regex": "^/education-levels/$",
       "method": "get",
+      "permission": 31,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -799,6 +865,7 @@
       "description": "Update One Education Level",
       "regex": "^/education-levels/[0-9]+/$",
       "method": "patch",
+      "permission": 33,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -811,6 +878,7 @@
       "description": "Delete One Education Level",
       "regex": "^/education-levels/[0-9]+/$",
       "method": "delete",
+      "permission": 34,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -823,6 +891,7 @@
       "description": "Add One Subject Education Level",
       "regex": "^/subject-education-levels/$",
       "method": "post",
+      "permission": 40,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -835,6 +904,7 @@
       "description": "Get One Subject Education Level",
       "regex": "^/subject-education-levels/[0-9]+/$",
       "method": "get",
+      "permission": 41,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -847,6 +917,7 @@
       "description": "Get All Subject Education Levels",
       "regex": "^/subject-education-levels/$",
       "method": "get",
+      "permission": 39,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -859,6 +930,7 @@
       "description": "Update One Subject Education Level",
       "regex": "^/subject-education-levels/[0-9]+/$",
       "method": "patch",
+      "permission": 41,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -871,6 +943,7 @@
       "description": "Delete One Subject Education Level",
       "regex": "^/subject-education-levels/[0-9]+/$",
       "method": "delete",
+      "permission": 4,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -883,6 +956,7 @@
       "description": "Add One Question",
       "regex": "^/questions/$",
       "method": "post",
+      "permission": 10,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -895,6 +969,7 @@
       "description": "Get One Question",
       "regex": "^/questions/[0-9]+/$",
       "method": "get",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -907,6 +982,7 @@
       "description": "Get All Questions",
       "regex": "^/questions/$",
       "method": "get",
+      "permission": 9,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -919,6 +995,7 @@
       "description": "Update One Question",
       "regex": "^/questions/[0-9]+/$",
       "method": "patch",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -931,6 +1008,7 @@
       "description": "Delete One Question",
       "regex": "^/questions/[0-9]+/$",
       "method": "delete",
+      "permission": 12,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -943,6 +1021,7 @@
       "description": "Bulk Delete All Questions",
       "regex": "^/questions/delete-all/$",
       "method": "delete",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -955,6 +1034,7 @@
       "description": "Add One Question Media",
       "regex": "^/question-media/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -967,6 +1047,7 @@
       "description": "Delete One Question Media",
       "regex": "^/question-media/[0-9]+/$",
       "method": "delete",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -979,6 +1060,7 @@
       "description": "Bulk Create Question Medias",
       "regex": "^/question-media/bulk-create/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -991,6 +1073,7 @@
       "description": "Bulk Delete Question Medias",
       "regex": "^/question-media/bulk-delete/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1003,6 +1086,7 @@
       "description": "Add One Question Tag",
       "regex": "^/question-tag/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1015,6 +1099,7 @@
       "description": "Delete One Question Tag",
       "regex": "^/question-tag/[0-9]+/$",
       "method": "delete",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1027,6 +1112,7 @@
       "description": "Bulk Create Question Tags",
       "regex": "^/question-tag/bulk-upsert/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1039,6 +1125,7 @@
       "description": "Add One Question Choice",
       "regex": "^/question-choice/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1051,6 +1138,7 @@
       "description": "Edit One Question Choice",
       "regex": "^/question-choice/[0-9]+/$",
       "method": "patch",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1063,6 +1151,7 @@
       "description": "Delete One Question Choice",
       "regex": "^/question-choice/[0-9]+/$",
       "method": "delete",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1075,6 +1164,7 @@
       "description": "Bulk Create Question Choices",
       "regex": "^/question-choice/bulk-create/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1087,6 +1177,7 @@
       "description": "Add One Question Choice Media",
       "regex": "^/question-choice-media/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1099,6 +1190,7 @@
       "description": "Delete One Question Choice Media",
       "regex": "^/question-choice-media/[0-9]+/$",
       "method": "delete",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1111,6 +1203,7 @@
       "description": "Bulk Create Question Choice Medias",
       "regex": "^/question-choice-media/bulk-create/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1123,6 +1216,7 @@
       "description": "Bulk Delete Question Choice Medias",
       "regex": "^/question-choice-media/bulk-delete/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1135,6 +1229,7 @@
       "description": "Add One Question Attempt Response",
       "regex": "^/question-attempt-response/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1147,6 +1242,7 @@
       "description": "Get One Question Attempt Response",
       "regex": "^/question-attempt-response/[0-9]+/$",
       "method": "get",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1159,6 +1255,7 @@
       "description": "Get All Question Attempt Responses",
       "regex": "^/question-attempt-response/$",
       "method": "get",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1171,6 +1268,7 @@
       "description": "Update One Question Attempt Response",
       "regex": "^/question-attempt-response/[0-9]+/$",
       "method": "patch",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1183,6 +1281,7 @@
       "description": "Delete One Question Attempt Response",
       "regex": "^/question-attempt-response/[0-9]+/$",
       "method": "delete",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1195,6 +1294,7 @@
       "description": "Bulk Create Question Attempt Responses",
       "regex": "^/question-attempt-response/bulk-create/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1207,6 +1307,7 @@
       "description": "Add One Question Retry Hint",
       "regex": "^/question-retry-hint/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1219,6 +1320,7 @@
       "description": "Update One Question Retry Hint",
       "regex": "^/question-retry-hint/[0-9]+/$",
       "method": "patch",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1231,6 +1333,7 @@
       "description": "Delete One Question Retry Hint",
       "regex": "^/question-retry-hint/[0-9]+/$",
       "method": "delete",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1243,6 +1346,7 @@
       "description": "Bulk Create Question Retry Hints",
       "regex": "^/question-retry-hint/bulk-create/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1255,6 +1359,7 @@
       "description": "Add One Question Retry Hint Media",
       "regex": "^/question-retry-hint-media/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1267,6 +1372,7 @@
       "description": "Delete One Question Retry Hint Media",
       "regex": "^/question-retry-hint-media/[0-9]+/$",
       "method": "delete",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1279,6 +1385,7 @@
       "description": "Bulk Create Question Retry Hint Medias",
       "regex": "^/question-retry-hint-media/bulk-create/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1291,6 +1398,7 @@
       "description": "Bulk Delete Question Retry Hint Medias",
       "regex": "^/question-retry-hint-media/bulk-delete/$",
       "method": "post",
+      "permission": 11,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1303,6 +1411,7 @@
       "description": "Add One Section",
       "regex": "^/sections/$",
       "method": "post",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1315,6 +1424,7 @@
       "description": "Get One Section",
       "regex": "^/sections/[0-9]+/$",
       "method": "get",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1327,6 +1437,7 @@
       "description": "Get All Sections",
       "regex": "^/sections/$",
       "method": "get",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1339,6 +1450,7 @@
       "description": "Update One Section",
       "regex": "^/sections/[0-9]+/$",
       "method": "patch",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1351,6 +1463,7 @@
       "description": "Delete One Section",
       "regex": "^/sections/[0-9]+/$",
       "method": "delete",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1363,6 +1476,7 @@
       "description": "Add One SubSection",
       "regex": "^/subsections/$",
       "method": "post",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1375,6 +1489,7 @@
       "description": "Get One SubSection",
       "regex": "^/subsections/[0-9]+/$",
       "method": "get",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1387,6 +1502,7 @@
       "description": "Get All SubSections",
       "regex": "^/subsections/$",
       "method": "get",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1399,6 +1515,7 @@
       "description": "Update One SubSection",
       "regex": "^/subsections/[0-9]+/$",
       "method": "patch",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1411,6 +1528,7 @@
       "description": "Delete One SubSection",
       "regex": "^/subsections/[0-9]+/$",
       "method": "delete",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1423,6 +1541,7 @@
       "description": "Add One Schedule",
       "regex": "^/schedules/$",
       "method": "post",
+      "permission": 14,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1435,6 +1554,7 @@
       "description": "Get One Schedule",
       "regex": "^/schedules/[0-9]+/$",
       "method": "get",
+      "permission": 15,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1447,6 +1567,7 @@
       "description": "Get All Schedules",
       "regex": "^/schedules/$",
       "method": "get",
+      "permission": 13,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1459,6 +1580,7 @@
       "description": "Update One Schedule",
       "regex": "^/schedules/[0-9]+/$",
       "method": "patch",
+      "permission": 15,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1471,6 +1593,7 @@
       "description": "Delete One Schedule",
       "regex": "^/schedules/[0-9]+/$",
       "method": "delete",
+      "permission": 16,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1483,6 +1606,7 @@
       "description": "Add One Exam",
       "regex": "^/exams/$",
       "method": "post",
+      "permission": 18,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1495,6 +1619,7 @@
       "description": "Get One Exam",
       "regex": "^/exams/[0-9]+/$",
       "method": "get",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1507,6 +1632,7 @@
       "description": "Get All Exams",
       "regex": "^/exams/$",
       "method": "get",
+      "permission": 17,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1519,6 +1645,7 @@
       "description": "Update One Exam",
       "regex": "^/exams/[0-9]+/$",
       "method": "patch",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1531,6 +1658,7 @@
       "description": "Delete One Exam",
       "regex": "^/exams/[0-9]+/$",
       "method": "delete",
+      "permission": 20,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1543,6 +1671,7 @@
       "description": "Create One Random Exam",
       "regex": "^/exams/create-random/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1555,6 +1684,7 @@
       "description": "Get only exam lookup details of All Exams",
       "regex": "^/exams/get-exams-lookup/$",
       "method": "get",
+      "permission": 23,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1567,6 +1697,7 @@
       "description": "Add One Exam Subject",
       "regex": "^/exam-subject/$",
       "method": "post",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1579,6 +1710,7 @@
       "description": "Delete One Exam Subject",
       "regex": "^/exam-subject/[0-9]+/$",
       "method": "delete",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1591,6 +1723,7 @@
       "description": "Add One Exam Subject Question",
       "regex": "^/exam-subject-question/$",
       "method": "post",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1603,6 +1736,7 @@
       "description": "Update One Exam Subject Question",
       "regex": "^/exam-subject-question/[0-9]+/$",
       "method": "patch",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1615,6 +1749,7 @@
       "description": "Delete One Exam Subject Question",
       "regex": "^/exam-subject-question/[0-9]+/$",
       "method": "delete",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1627,6 +1762,7 @@
       "description": "Bulk Create Exam Subject Question",
       "regex": "^/exam-subject-question/bulk-create/$",
       "method": "post",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1639,6 +1775,7 @@
       "description": "Bulk Update All Exam Subject Questions only Sequence",
       "regex": "^/exam-subject-question/bulk-update/$",
       "method": "patch",
+      "permission": 19,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1651,6 +1788,7 @@
       "description": "Add One Candidate",
       "regex": "^/candidate/$",
       "method": "post",
+      "permission": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1663,6 +1801,7 @@
       "description": "Get One Candidate",
       "regex": "^/candidate/[0-9]+/$",
       "method": "get",
+      "permission": 2,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1675,6 +1814,7 @@
       "description": "Get All Candidates",
       "regex": "^/candidate/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1687,6 +1827,7 @@
       "description": "Update One Candidate",
       "regex": "^/candidate/[0-9]+/$",
       "method": "patch",
+      "permission": 2,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1699,6 +1840,7 @@
       "description": "Add One Candidate Exam",
       "regex": "^/candidate-exam/$",
       "method": "post",
+      "permission": 23,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1711,6 +1853,7 @@
       "description": "Get One Candidate Exam",
       "regex": "^/candidate-exam/[0-9]+/$",
       "method": "get",
+      "permission": 26,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1723,6 +1866,7 @@
       "description": "Get All Candidate Exams",
       "regex": "^/candidate-exam/$",
       "method": "get",
+      "permission": 26,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1735,6 +1879,7 @@
       "description": "Update One Candidate Exam",
       "regex": "^/candidate-exam/[0-9]+/$",
       "method": "patch",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1747,6 +1892,7 @@
       "description": "Get One Candidate Exam with Answers",
       "regex": "^/candidate-exam/[0-9]+/answers/$",
       "method": "get",
+      "permission": 21,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1759,6 +1905,7 @@
       "description": "Get All Candidate Exams with their associated Candidates List",
       "regex": "^/get-exams-backlogs-with-candidates/$",
       "method": "get",
+      "permission": 26,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1771,6 +1918,7 @@
       "description": "Add One Candidate Exam Answer",
       "regex": "^/candidate-exam-answer/$",
       "method": "post",
+      "permission": 43,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1783,6 +1931,7 @@
       "description": "Get One Candidate Exam Answer",
       "regex": "^/candidate-exam-answer/[0-9]+/$",
       "method": "get",
+      "permission": 21,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1795,6 +1944,7 @@
       "description": "Get All Candidate Exam Answers",
       "regex": "^/candidate-exam-answer/$",
       "method": "get",
+      "permission": 21,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1807,6 +1957,7 @@
       "description": "Resend verification link of a user who does not recieved an email",
       "regex": "^/resend-verification-link/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1819,6 +1970,7 @@
       "description": "Verifing User account via verification link",
       "regex": "^/users/verify/account$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1831,6 +1983,7 @@
       "description": "Delete An Organization User",
       "regex": "^remove-organization-user/[0-9]+/$",
       "method": "delete",
+      "permission": 6,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1843,6 +1996,7 @@
       "description": "Bulk Assign a Role Permissions",
       "regex": "^/role-permissions/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1855,6 +2009,7 @@
       "description": "Get One Role Permission",
       "regex": "^/role-permissions/[0-9]+/$",
       "method": "get",
+      "permission": 47,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1867,6 +2022,7 @@
       "description": "Get All Role Permissions",
       "regex": "^/role-permissions/$",
       "method": "get",
+      "permission": 47,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1879,6 +2035,7 @@
       "description": "Bulk Upsert a Role Permissions",
       "regex": "^/role-permissions/[0-9]+/$",
       "method": "patch",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1891,6 +2048,7 @@
       "description": "Delete One Role Permission",
       "regex": "^/role-permissions/[0-9]+/$",
       "method": "delete",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1903,6 +2061,7 @@
       "description": "Setting a Role Permissions",
       "regex": "^/roles/[0-9]+/set-permissions/$",
       "method": "post",
+      "permission": 46,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1915,6 +2074,7 @@
       "description": "Set Role of a User",
       "regex": "^/set-user-role/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1927,6 +2087,7 @@
       "description": "Update Role Permissions from Student Apply Backend",
       "regex": "^/update-role-permissions-from-sa-be/$",
       "method": "put",
+      "permission": 50,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1939,6 +2100,7 @@
       "description": "Delete Role with its Permissions from Student Apply Backend",
       "regex": "^/delete-role-with-permissions-from-sa-be/$",
       "method": "delete",
+      "permission": 50,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1951,6 +2113,7 @@
       "description": "Login user from system to question bank",
       "regex": "^/system-to-qb-login/$",
       "method": "post",
+      "permission": 50,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1963,6 +2126,7 @@
       "description": "Submit One Candidate Exam",
       "regex": "^/candidate-exam/[0-9]+/submit/$",
       "method": "post",
+      "permission": 43,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1975,6 +2139,7 @@
       "description": "Get One Exam Backlog Answers Key",
       "regex": "^/exam-backlog-answers-key/[0-9]+/$",
       "method": "get",
+      "permission": 22,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1983,10 +2148,11 @@
     "model": "user.Resource",
     "pk": 166,
     "fields": {
-      "name": "Send a exam link to candidate user",
-      "description": "Send a exam link to candidate user",
+      "name": "Send an exam link to candidate user",
+      "description": "Send an exam link to candidate user",
       "regex": "^/send-exam-link-to-users/$",
       "method": "post",
+      "permission": 23,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1999,6 +2165,7 @@
       "description": "View One Candidate Exam Scoresheet",
       "regex": "^/candidate-exam-scoresheet/[0-9]+/$",
       "method": "get",
+      "permission": 51,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -2011,6 +2178,7 @@
       "description": "Get One Retry Hint for Candidate Exam",
       "regex": "^/candidate-exam/[0-9]+/retry-hint/$",
       "method": "get",
+      "permission": 44,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -2023,6 +2191,7 @@
       "description": "Mark One Candidate Exam",
       "regex": "^/mark-candidate-exam/$",
       "method": "post",
+      "permission": 24,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -2035,6 +2204,7 @@
       "description": "Create a new package",
       "regex": "^/packages/$",
       "method": "post",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -2047,6 +2217,7 @@
       "description": "Get one package",
       "regex": "^/packages/[0-9]+/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -2059,6 +2230,7 @@
       "description": "Get all users",
       "regex": "^/packages/$",
       "method": "get",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -2071,6 +2243,7 @@
       "description": "Edit a single package",
       "regex": "^/packages/[0-9]+/$",
       "method": "patch",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -2083,6 +2256,7 @@
       "description": "Delete a package",
       "regex": "^/packages/[0-9]+/$",
       "method": "delete",
+      "permission": null,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
