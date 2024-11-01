@@ -1,6 +1,5 @@
 from django.db import models
 
-from apps.organization.models.organization_models import Organization
 from core.models import BaseModel
 
 MEDIA_MODEL = "user.Media"
@@ -8,7 +7,7 @@ MEDIA_MODEL = "user.Media"
 
 class Candidate(BaseModel):
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
-    organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
     class Meta:
         app_label = "exam_public"

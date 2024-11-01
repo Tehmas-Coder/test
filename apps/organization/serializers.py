@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
 from apps.exam_public.models.exam_public_models import Candidate
+from apps.lookups.models import Organization
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.lookups.serializers.package_serializers import PackageSerializer
 from apps.organization.models.organization_models import (
-    Organization,
     OrganizationPackage,
     OrganizationUser,
 )
