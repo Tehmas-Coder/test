@@ -74,11 +74,8 @@ def validate_resources(request_method, request_path, role_ids):
 
     try:
         RolePermission.objects.get(role_id__in=role_ids, permission=resource_permission, is_active=True)
-        color_print("PASSSSSSSSSSSSSSSSS")
     except:
-        color_print("****************************************************************", "red")
         color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
-        color_print("****************************************************************", "red")
         return False
 
     # ? This implementation is obsolete and was for the previous implementation of role_resource, use the above implementation
@@ -92,13 +89,9 @@ def validate_resources(request_method, request_path, role_ids):
 
 
 def string_url_to_regex(string_url):
-    exam_url = "/candidate-exam/token="
-    if string_url.startswith(exam_url):
-        return "^/candidate-exam/[0-9]+/$"
-
-    exam_score_url = "/candidate-exam-scoresheet/token="
-    if string_url.startswith(exam_score_url):
-        return "^/candidate-exam-scoresheet/[0-9]+/$"
+    bypass_url = string_url.split("/token=")
+    if len(bypass_url) > 1:
+        return f"^{bypass_url[0]}/[0-9]+/$"
 
     # Escape special characters in the input string
     escaped_string = re.escape(string_url)
