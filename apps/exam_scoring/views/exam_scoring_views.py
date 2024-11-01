@@ -159,7 +159,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             candidate_exam_instance = candidate_exam_instance_queryset.first()
             if candidate_exam_instance.candidate.organization.token:  # type: ignore
                 if not send_exam_result_to_student_apply_webhook(candidate_exam_instance):
-                    message += ", failed to send webhook"
+                    message += ", failed to send webhook request"
                     response_status = status.HTTP_307_TEMPORARY_REDIRECT
             # * Sending Email notification to the candidate to view exam result
             exam_scoring = ExamScoringNinja(candidate_exam_instance=candidate_exam_instance)
