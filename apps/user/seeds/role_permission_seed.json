@@ -489,7 +489,7 @@
     "fields": {
       "role": 1,
       "permission": 45,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -500,7 +500,7 @@
     "fields": {
       "role": 1,
       "permission": 46,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -511,7 +511,7 @@
     "fields": {
       "role": 1,
       "permission": 47,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -522,7 +522,7 @@
     "fields": {
       "role": 1,
       "permission": 48,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -533,7 +533,7 @@
     "fields": {
       "role": 1,
       "permission": 49,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -555,7 +555,7 @@
     "fields": {
       "role": 1,
       "permission": 51,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -566,7 +566,7 @@
     "fields": {
       "role": 2,
       "permission": 1,
-      "is_active": 1,
+      "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -588,7 +588,7 @@
     "fields": {
       "role": 2,
       "permission": 3,
-      "is_active": 1,
+      "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -610,7 +610,7 @@
     "fields": {
       "role": 2,
       "permission": 5,
-      "is_active": 1,
+      "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -621,7 +621,7 @@
     "fields": {
       "role": 2,
       "permission": 6,
-      "is_active": 1,
+      "is_active": 0,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -741,7 +741,7 @@
     "pk": 68,
     "fields": {
       "role": 2,
-      "permission": 16,
+      "permission": 17,
       "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
@@ -1116,7 +1116,7 @@
     "fields": {
       "role": 2,
       "permission": 51,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1138,7 +1138,7 @@
     "fields": {
       "role": 4,
       "permission": 2,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1160,7 +1160,7 @@
     "fields": {
       "role": 4,
       "permission": 4,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1402,7 +1402,7 @@
     "fields": {
       "role": 4,
       "permission": 26,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1589,7 +1589,7 @@
     "fields": {
       "role": 4,
       "permission": 43,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1600,7 +1600,7 @@
     "fields": {
       "role": 4,
       "permission": 44,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1655,7 +1655,7 @@
     "fields": {
       "role": 4,
       "permission": 49,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -1677,7 +1677,7 @@
     "fields": {
       "role": 4,
       "permission": 51,
-      "is_active": 0,
+      "is_active": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
