@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils.text import slugify
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -14,7 +14,8 @@ from apps.user.serializers.role_permission_serializers import (
     RolePermissionSerializer,
     RoleSerializer,
 )
-from utils.rna_utils import debug_print
+from apps.user.utils.utils import get_current_user_organization
+from utils.rna_utils import debug_print, make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                                     ROLES                                    #
@@ -22,7 +23,7 @@ from utils.rna_utils import debug_print
 
 
 class RoleViewSet(viewsets.ModelViewSet):
-    http_method_names = ["get", "post"]
+    http_method_names = ["get", "post", "patch"]
     queryset = Role.get_detail_queryset(permissions=True)
     serializer_class = RoleSerializer
 
@@ -33,10 +34,12 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == "retrieve":
-            return Role.get_detail_queryset(role_permissions=True, role_permissions_permission=True)
+            return Role.get_detail_queryset(organization=True, role_permissions=True, role_permissions_permission=True)
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            request.data["organization"] = get_current_user_organization()
         new_role_data = super().create(request, *args, **kwargs)
         new_role_instance = RoleNinja.add_role_permissions(new_role_data.data["id"])  # type: ignore
         response_data = RoleSerializer(new_role_instance).data
@@ -44,10 +47,12 @@ class RoleViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         self.queryset = (
-            Role.get_detail_queryset(role_permissions=True, role_permissions_permission=True)
+            Role.get_detail_queryset(organization=True, role_permissions=True, role_permissions_permission=True)
             .exclude(slug__in=["system"])
             .annotate(user_count=Count("users"))
         )
+        if not request.user.is_superuser:
+            self.queryset = self.queryset.filter(Q(organization__isnull=True) | Q(organization=get_current_user_organization()))
         if "system" in request.user.get_user_role_slugs:
             self.queryset = self.queryset.filter(is_system_role=True)
         return super().list(request, *args, **kwargs)
@@ -57,12 +62,23 @@ class RoleViewSet(viewsets.ModelViewSet):
             temp_ref = self.kwargs["pk"]
             is_id = temp_ref.isdigit()
             self.kwargs["pk"] = Role.objects.get(slug=temp_ref).pk if not is_id else temp_ref
-            return super().retrieve(request, *args, **kwargs)
+            response_data = super().retrieve(request, *args, **kwargs).data
+            if (not request.user.is_superuser) and response_data["organization"]:  # type: ignore
+                if response_data["organization"] != get_current_user_organization():  # type: ignore
+                    return make_error_response(message="This role doesn't belong to your organization")
+            else:
+                return Response(response_data, status=status.HTTP_200_OK)
         except Role.DoesNotExist:
             return Response(
                 {"status": "error", "message": "Role not found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def partial_update(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            if self.get_object().organization.id != get_current_user_organization():
+                return make_error_response(message="This role doesn't belong to your organization")
+        return super().update(request, *args, **kwargs)
 
     @action(detail=True, methods=["post"], url_path="set-permissions")
     def set_permissions(self, request, *args, **kwargs):

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+# from apps.organization.serializers import OrganizationEditSerializer
 from apps.user.models import Permission, Role, RolePermission
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
@@ -25,6 +26,7 @@ class RoleSerializer(BaseModelSerializer):
             "name",
             "slug",
             "is_system_role",
+            "organization",
             "permissions",
         ] + get_base_model_fields()
 
@@ -45,6 +47,7 @@ class RolePermissionSerializerForRole(BaseModelSerializer):
 class RoleDetailSerializer(BaseModelSerializer):
     role_permissions = RolePermissionSerializerForRole(many=True)
     user_count = serializers.IntegerField(required=False)
+    # organization = OrganizationEditSerializer(read_only=True)
 
     class Meta:
         model = Role
@@ -53,6 +56,7 @@ class RoleDetailSerializer(BaseModelSerializer):
             "name",
             "is_system_role",
             "slug",
+            "organization",
             "role_permissions",
             "user_count",
         ] + get_base_model_fields()
