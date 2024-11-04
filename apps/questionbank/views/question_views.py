@@ -243,8 +243,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id == organization_id) | Q(is_public=True))
+            user_organization_id = get_current_user_organization()
+            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(is_public=True))
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
