@@ -29,7 +29,7 @@ class OrganizationPackageSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
-class OrganizationSerializer(BaseModelSerializer):
+class OrganizationSerializer(serializers.ModelSerializer):
     users_count = serializers.IntegerField(read_only=True)
     candidates_count = serializers.IntegerField(read_only=True)
     organization_packages = OrganizationPackageSerializer(many=True)
@@ -43,7 +43,11 @@ class OrganizationSerializer(BaseModelSerializer):
             "candidates_count",
             "country",
             "organization_packages",
-        ] + get_base_model_fields()
+            "description",
+            "created_at",
+            "updated_at",
+            "meta_status",
+        ]
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -54,7 +58,7 @@ class OrganizationSerializer(BaseModelSerializer):
         return representation
 
 
-class OrganizationEditSerializer(BaseModelSerializer):
+class OrganizationEditSerializer(serializers.ModelSerializer):
     package = serializers.IntegerField(required=False)
 
     class Meta:
@@ -64,7 +68,11 @@ class OrganizationEditSerializer(BaseModelSerializer):
             "name",
             "country",
             "package",
-        ] + get_base_model_fields()
+            "description",
+            "created_at",
+            "updated_at",
+            "meta_status",
+        ]
 
     def create(self, validated_data):
         package = validated_data.pop("package")
@@ -111,7 +119,7 @@ class OrganizationUserDetailSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
-class OrganizationWithUsersListSerializer(BaseModelSerializer):
+class OrganizationWithUsersListSerializer(serializers.ModelSerializer):
     organization_users = OrganizationUserDetailSerializer(many=True)
     organization_users_count = serializers.SerializerMethodField()
 
@@ -121,9 +129,13 @@ class OrganizationWithUsersListSerializer(BaseModelSerializer):
             "id",
             "name",
             "country",
+            "description",
+            "created_at",
+            "updated_at",
+            "meta_status",
             "organization_users_count",
             "organization_users",
-        ] + get_base_model_fields()
+        ]
 
     def get_organization_users_count(self, obj):
         return obj.organization_users.count()
@@ -141,7 +153,7 @@ class CandidateWthoutOrganizationDetailSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
 
-class OrganizationWithCandidateListSerializer(BaseModelSerializer):
+class OrganizationWithCandidateListSerializer(serializers.ModelSerializer):
     organization_candidates = CandidateWthoutOrganizationDetailSerializer(many=True)
     organization_candidates_count = serializers.SerializerMethodField()
 
@@ -151,9 +163,13 @@ class OrganizationWithCandidateListSerializer(BaseModelSerializer):
             "id",
             "name",
             "country",
+            "description",
+            "created_at",
+            "updated_at",
+            "meta_status",
             "organization_candidates_count",
             "organization_candidates",
-        ] + get_base_model_fields()
+        ]
 
     def get_organization_candidates_count(self, obj):
         return obj.organization_candidates.count()
