@@ -1,7 +1,5 @@
-from datetime import datetime
-
 from django.db import models
-from django.db.models import Count, F, Prefetch, Q, QuerySet
+from django.db.models import Count, F, Q, QuerySet
 
 from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
 from core.models import BaseModel
