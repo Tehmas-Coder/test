@@ -7,10 +7,10 @@ def send_exam_result_to_student_apply_webhook(candidate_exam_instance):
     data = {
         "event_type": "exam_result",
         "data": {
-            "exam_name": candidate_exam_instance.exam_backlog.name,
             "candidate_exam_id": candidate_exam_instance.id,  # type: ignore
             "total_marks": candidate_exam_instance.total_obtainable_marks,
             "obtained_marks": candidate_exam_instance.obtained_marks,
+            "exam_status": candidate_exam_instance.exam_status,
         },
     }
     webhook_instance = GenericWebhook(data_dict=data)
