@@ -1,6 +1,6 @@
 from apps.exam_public.models.exam_public_models import Candidate
 from apps.lookups.serializers.country_serializers import CountrySerializer
-from apps.organization.serializers import (
+from apps.lookups.serializers.organization_serializers import (
     OrganizationEditSerializer,
     OrganizationSerializer,
 )

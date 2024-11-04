@@ -1,6 +1,5 @@
-from django.db.models import Count, F, Prefetch
+from django.db.models import F, Prefetch
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
@@ -8,72 +7,12 @@ from apps.exam_public.serializers.candiate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
 from apps.lookups.models import Organization
-from apps.organization.filters.organization_filters import OrganizationFilterBackend
 from apps.organization.models.organization_models import OrganizationUser
 from apps.organization.serializers import (
-    OrganizationEditSerializer,
-    OrganizationSerializer,
-    OrganizationUserSerializer,
     OrganizationWithCandidateListSerializer,
     OrganizationWithUsersListSerializer,
 )
 from apps.user.models import BaseUser
-from utils.rna_utils import make_error_response
-
-
-class OrganizationViewSet(viewsets.ModelViewSet):
-    queryset = (
-        Organization.objects.all()
-        .select_related("country")
-        .prefetch_related(
-            "organization_packages",
-            "organization_packages__package",
-        )
-        .annotate(
-            users_count=Count("organization_users", distinct=True),
-            candidates_count=Count("organization_candidates", distinct=True),
-        )
-    )
-    serializer_class = OrganizationSerializer
-    http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = [OrganizationFilterBackend]
-
-    def get_serializer_class(self):
-        if self.action in ["create", "partial_update"]:
-            return OrganizationEditSerializer
-        return super().get_serializer_class()
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        organization = serializer.save()
-        response = OrganizationSerializer(organization).data
-        return Response(response, status=status.HTTP_201_CREATED)
-
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        organization = serializer.save()
-        organization.refresh_from_db()
-        response = OrganizationSerializer(organization).data
-        return Response(response, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=["post"], url_path="assign-organization-user")
-    def assign_organization_user(self, request):
-        if OrganizationUser.objects.filter(
-            user_id=request.data["user"],
-        ).exists():
-            return make_error_response(data=request.data, message="This user already exists with an organization.")
-
-        serializer = OrganizationUserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def remove_organization_user(self, request, *args, **kwargs):
-        OrganizationUser.objects.filter(id=self.kwargs["pk"]).update(meta_status="deleted")
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class OrganizationRelatedViewset(viewsets.ViewSet):
