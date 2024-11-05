@@ -99,6 +99,10 @@ class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
 
+    def list(self, request, *args, **kwargs):
+        self.queryset = Permission.objects.all().exclude(context_value__in=["studentapply", "candidates"])
+        return super().list(request, *args, **kwargs)
+
 
 # ---------------------------------------------------------------------------- #
 #                               ROLE PERMISSIONS                               #
