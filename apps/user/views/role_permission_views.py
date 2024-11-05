@@ -15,6 +15,7 @@ from apps.user.serializers.role_permission_serializers import (
     RoleSerializer,
 )
 from apps.user.utils.utils import get_current_user_organization
+from core.middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_error_response
 
 # ---------------------------------------------------------------------------- #
@@ -52,7 +53,7 @@ class RoleViewSet(viewsets.ModelViewSet):
             .annotate(user_count=Count("users"))
         )
         if not request.user.is_superuser:
-            self.queryset = self.queryset.filter(Q(organization__isnull=True) | Q(organization=get_current_user_organization()))
+            self.queryset = self.queryset.filter(Q(organization__isnull=True) | Q(organization_id=get_current_user_organization()))
         if "system" in request.user.get_user_role_slugs:
             self.queryset = self.queryset.filter(is_system_role=True)
         return super().list(request, *args, **kwargs)
@@ -61,13 +62,14 @@ class RoleViewSet(viewsets.ModelViewSet):
         try:
             temp_ref = self.kwargs["pk"]
             is_id = temp_ref.isdigit()
-            self.kwargs["pk"] = Role.objects.get(slug=temp_ref).pk if not is_id else temp_ref
+            requested_user_organization_id = get_current_user_organization()
+            role_slug = slugify(f"{requested_user_organization_id}-{temp_ref}")
+            self.kwargs["pk"] = Role.objects.get(slug=role_slug).pk if not is_id else temp_ref
             response_data = super().retrieve(request, *args, **kwargs).data
             if (not request.user.is_superuser) and response_data["organization"]:  # type: ignore
-                if response_data["organization"] != get_current_user_organization():  # type: ignore
+                if response_data["organization"]["id"] != requested_user_organization_id:  # type: ignore
                     return make_error_response(message="This role doesn't belong to your organization")
-            else:
-                return Response(response_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
         except Role.DoesNotExist:
             return Response(
                 {"status": "error", "message": "Role not found"},
@@ -124,23 +126,30 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
     def update_role_permissions_from_sa_be(self, request, *args, **kwargs):
         # role_permissions_ninja_instance = RolePermissionNinja(request.data)
         request_data = request.data
+        requested_user_organization_id = get_current_user_organization()
         request_role_name = request_data["RoleName"]
-        request_role_name_slug = slugify(request_role_name)
-        role_instance = Role.objects.filter(slug=request_role_name_slug, name=request_role_name)
+        request_role_name_slug = slugify(f"{requested_user_organization_id}-{request_role_name}")
+        role_instance = Role.objects.filter(slug=request_role_name_slug)
 
         if len(request_data.get("default_qb_permissions", [])):
-            if len(role_instance):
+            if role_instance.exists():
                 role_instance = role_instance.first()
                 role_instance.is_system_role = True  # type: ignore
                 role_instance.save()  # type: ignore
                 RolePermission.objects.filter(role=role_instance).update(is_active=False)
             else:
-                role_instance = Role.objects.create(name=request_role_name, is_system_role=True)
-                permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))
+                role_instance = Role.objects.create(name=request_role_name, is_system_role=True, organization_id=requested_user_organization_id)
+                permission_ids_list = list(
+                    Permission.objects.exclude(Q(context_value="studentapply") & ~Q(name__icontains="Login From Student Apply"))
+                    .exclude(context_value="candidates")
+                    .values_list("id", flat=True)
+                )
                 role_instance.permissions.set(permission_ids_list)
 
             request_permission_ids_list = [one_dict["id"] for one_dict in request_data["default_qb_permissions"]]
-            RolePermission.objects.filter(role=role_instance, permission_id__in=request_permission_ids_list).update(is_active=True)
+            RolePermission.objects.filter(
+                Q(role=role_instance) & (Q(permission_id__in=request_permission_ids_list) | Q(permission__name__icontains="Login From Student Apply"))
+            ).update(is_active=True)
 
         else:
             role_instance = role_instance.first()
@@ -164,8 +173,10 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
         request_user_roles = request.user.get_user_role_slugs
         if (not request.user.is_superuser) and len(request_user_roles):
             if "system" in request_user_roles:  # make it system
-                role_slug = request.data.get("role")
-                role_instance = Role.objects.filter(slug=role_slug).first()
+                requested_user_organization_id = get_current_user_organization()
+                request_role_name = request.data.get("role")
+                request_role_name_slug = slugify(f"{requested_user_organization_id}-{request_role_name}")
+                role_instance = Role.objects.filter(slug=request_role_name_slug).first()
 
                 if not role_instance:
                     return Response({"error": "Role not found"}, status=status.HTTP_404_NOT_FOUND)
