@@ -21,9 +21,9 @@ def get_current_user_organization():
     if isinstance(current_user, AnonymousUser):
         current_user = None
     if current_user is not None:
-        if current_user.user_organizations.all().exists():
-            return current_user.user_organizations.first().organization
-        else:
-            ResponseMiddleware.return_now(make_error_response(message="User doesn't belong to any organization"))
+        # if current_user.user_organizations.exists():
+        return current_user.user_organizations.first().organization_id
+        # else:
+        #     ResponseMiddleware.return_now(make_error_response(message="User doesn't belong to any organization"))
     else:
         ResponseMiddleware.return_now(make_error_response(message="User is not logged in"))
