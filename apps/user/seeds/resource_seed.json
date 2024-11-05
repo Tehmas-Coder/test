@@ -2113,7 +2113,7 @@
       "description": "Login user from system to question bank",
       "regex": "^/system-to-qb-login/$",
       "method": "post",
-      "permission": 50,
+      "permission": 52,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }

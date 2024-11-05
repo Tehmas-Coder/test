@@ -544,7 +544,7 @@
     "fields": {
       "name": "Student Apply Only",
       "context_value": "studentapply",
-      "description": "Permission for students apply only resources",
+      "description": "Permission for student apply resources only for system user",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -556,6 +556,17 @@
       "name": "View Candidate Exam Scoresheet",
       "context_value": "exams",
       "description": "View the scoresheet of a candidate's exam",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 52,
+    "fields": {
+      "name": "Login From Student Apply to Question Bank",
+      "context_value": "studentapply",
+      "description": "Login permission for student apply users to question bank",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
