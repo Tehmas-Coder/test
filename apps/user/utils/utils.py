@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import F
 
-from apps.user.models import Role, UserRole
+from apps.organization.models.organization_models import OrganizationUser
+from apps.user.models import BaseUser, Role, UserRole
 from core.middlewares.current_user_middleware import get_current_user
 from core.middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response, remove_extra_underscore_from_key_names
@@ -21,7 +22,7 @@ def get_current_user_organization():
         current_user = None
     if current_user is not None:
         if current_user.user_organizations.all().exists():
-            return current_user.user_organizations.first().id
+            return current_user.user_organizations.first().organization
         else:
             ResponseMiddleware.return_now(make_error_response(message="User doesn't belong to any organization"))
     else:
