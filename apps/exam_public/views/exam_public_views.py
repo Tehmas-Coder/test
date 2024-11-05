@@ -712,6 +712,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         # * Updating the exam status to submitted
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="submitted")
+        candidate_exam_instance.refresh_from_db()
         if candidate_exam_instance.candidate.organization.token:  # type: ignore
             if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
                 message = message + " but failed to send exam status through webhook"
