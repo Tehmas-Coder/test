@@ -12,6 +12,7 @@ from apps.user.serializers.user_serializers import (
     UserDetailSerializer,
     UserEditSerializer,
 )
+from apps.user.utils.utils import get_current_user_organization
 from utils.rna_utils import debug_print, make_success_response
 
 from ..models import BaseUser, Role
@@ -84,6 +85,7 @@ class CreateSystemUserAPI(viewsets.ViewSet):
         logged_in_user = request.user
         logged_in_user_id = logged_in_user.id
         logged_in_user_roles = logged_in_user.get_user_role_slugs
+        requested_user_organization_id = get_current_user_organization()
 
         if "system" not in logged_in_user_roles:
             return Response(
@@ -95,7 +97,8 @@ class CreateSystemUserAPI(viewsets.ViewSet):
 
         # Check if system roles are already created
         for one_dict in request_data:
-            if not Role.objects.filter(slug=one_dict["Slug"], is_system_role=True).exists():
+            role_slug = f"{requested_user_organization_id}-{one_dict['Slug']}"
+            if not Role.objects.filter(slug=role_slug, is_system_role=True).exists():
                 return Response(
                     {"status": "failed", "message": f"This role '{one_dict['RoleName']}' is not created in QB yet."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -105,11 +108,13 @@ class CreateSystemUserAPI(viewsets.ViewSet):
         # Make hashmap of role_slug and role_id
         role_slug_id_hashmap = {}
         for one_dict in request_data:
-            role_slug_id_hashmap[one_dict["Slug"]] = Role.objects.filter(slug=one_dict["Slug"]).values("id").first()["id"]  # type: ignore
+            role_slug = f"{requested_user_organization_id}-{one_dict['Slug']}"
+            role_slug_id_hashmap[role_slug] = Role.objects.filter(slug=role_slug).values("id").first()["id"]  # type: ignore
 
         unentertained_emails = []
         for one_user in request_data:
-            role_id = role_slug_id_hashmap[one_user["Slug"]]
+            role_slug = f"{requested_user_organization_id}-{one_user['Slug']}"
+            role_id = role_slug_id_hashmap[role_slug]
             email = one_user["Email"]
             to_delete = one_user.get("ToDelete", False)
 
