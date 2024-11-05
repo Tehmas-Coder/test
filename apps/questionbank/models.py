@@ -1,7 +1,5 @@
-from datetime import datetime
-
 from django.db import models
-from django.db.models import Count, F, Prefetch, Q, QuerySet
+from django.db.models import Count, F, Q, QuerySet
 
 from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
 from core.models import BaseModel
@@ -127,6 +125,7 @@ class DifficultyLevel(BaseModel):
 
 class Question(BaseModel):
     type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_questions")
 
     title = models.CharField(max_length=255)
     text = models.TextField(null=True, blank=True)

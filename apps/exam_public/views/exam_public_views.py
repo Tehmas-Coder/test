@@ -13,6 +13,9 @@ from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerFor
 from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
+from apps.exam_public.helpers.exam_status_webhook import (
+    send_exam_status_to_student_apply_webhook,
+)
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
@@ -704,11 +707,17 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 for one_subsection_backlog_id, question_data_dict in subsection_backlog_questions_details_hashmap.items()  # type:ignore
             ]
         )
+        message = "Exam Submitted Successfully"
+        response_status = status.HTTP_200_OK
 
         # * Updating the exam status to submitted
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="submitted")
+        if candidate_exam_instance.candidate.organization.token:  # type: ignore
+            if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
+                message = message + " but failed to send exam status through webhook"
+                response_status = status.HTTP_307_TEMPORARY_REDIRECT
 
-        return Response({"message": "Exam Submitted Successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": message}, status=response_status)
 
 
 # --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
@@ -782,6 +791,9 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         )
 
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
+        if candidate_exam_instance.candidate.organization.token:  # type: ignore
+            send_exam_status_to_student_apply_webhook(candidate_exam_instance)
 
         for one_dict in newly_created_queryset:
             candidate_exam_answer_id = one_dict[0]

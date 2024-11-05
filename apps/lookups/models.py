@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 
 from core.models import BaseUserModel
@@ -181,6 +179,17 @@ class Package(BaseUserModel):
     exams = models.PositiveIntegerField()
     prep_exams = models.PositiveIntegerField()
     exam_attempts = models.PositiveIntegerField()
+
+    class Meta:
+        app_label = "lookups"
+
+
+class Organization(BaseUserModel):
+    country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE, null=True, blank=True)
+
+    name = models.CharField(max_length=255)
+    encryption_key = models.CharField(max_length=255, null=True, blank=True)
+    token = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         app_label = "lookups"

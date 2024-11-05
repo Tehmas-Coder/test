@@ -160,6 +160,8 @@ class Permission(BaseModel):
 
 
 class Role(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.PROTECT, null=True, blank=True, related_name="organization_roles")
+
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=100, null=True, unique=True)
 
@@ -168,22 +170,13 @@ class Role(BaseModel):
     permissions = models.ManyToManyField(Permission, blank=True, through="RolePermission")
 
     def save(self, *args, **kwargs):
-        user_organization_id = None
         if not self.id:  # type: ignore
-            slug_to_be = self.name
-            current_user = get_current_user()
-            if isinstance(current_user, AnonymousUser):
-                current_user = None
-            if current_user:
-                if current_user.user_organizations.all().exists():
-                    user_organization_id = current_user.user_organizations.first().id
-                    slug_to_be = f"{user_organization_id}-{slug_to_be}"
-            self.slug = slugify(slug_to_be)
+            if self.organization:
+                self.slug = slugify(f"{self.organization.id}-{self.name}")
+            else:
+                self.slug = slugify(self.name)
         try:
             super().save(*args, **kwargs)
-            if user_organization_id:
-                OrganizationRole = apps.get_model("organization", "OrganizationRole")
-                OrganizationRole.objects.create(organization_id=user_organization_id, role_id=self.id)  # type: ignore
         except IntegrityError:
             ResponseMiddleware.return_now(make_error_response(message="Role with this name already exists"))
 
@@ -191,8 +184,8 @@ class Role(BaseModel):
         app_label = "user"
 
     @classmethod
-    def get_detail_queryset(cls, permissions=False, role_permissions=False, role_permissions_permission=False):
-        return get_role_detailed_queryset(cls, permissions, role_permissions, role_permissions_permission)
+    def get_detail_queryset(cls, organization=False, permissions=False, role_permissions=False, role_permissions_permission=False):
+        return get_role_detailed_queryset(cls, organization, permissions, role_permissions, role_permissions_permission)
 
 
 class Resource(BaseModel):

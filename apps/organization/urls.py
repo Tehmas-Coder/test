@@ -1,10 +1,9 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from apps.organization.views import OrganizationRelatedViewset, OrganizationViewSet
+from apps.organization.views import OrganizationRelatedViewset
 
 router = routers.DefaultRouter()
-router.register(r"organizations", OrganizationViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
@@ -27,10 +26,6 @@ urlpatterns = [
         "get-user-organizations-list/",
         OrganizationRelatedViewset.as_view({"get": "get_user_organizations_list"}),
         name="get_user_organizations_list",
-    ),
-    path(
-        "remove-organization-user/<int:pk>/",
-        OrganizationViewSet.as_view({"delete": "remove_organization_user"}),
     ),
 ]
 

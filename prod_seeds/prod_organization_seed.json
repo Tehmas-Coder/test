@@ -1,6 +1,6 @@
 [
   {
-    "model": "organization.Organization",
+    "model": "lookups.Organization",
     "pk": 1,
     "fields": {
       "name": "Student-Apply Organization",

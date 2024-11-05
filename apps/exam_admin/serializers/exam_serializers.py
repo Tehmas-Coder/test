@@ -1,7 +1,7 @@
 from django.forms import model_to_dict
 from rest_framework import serializers
 
-from apps.exam_admin.models.exam_admin_models import Exam, ExamSubject
+from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
@@ -31,6 +31,7 @@ class ExamEditSerializer(BaseModelSerializer):
             "abbreviation",
             "instructions",
             "education_level",
+            "organization",
             "total_marks",
             "pass_marks",
             "exam_status",
@@ -62,6 +63,7 @@ class ExamDetailSerializer(BaseModelSerializer):
             "abbreviation",
             "instructions",
             "education_level",
+            "organization",
             "total_marks",
             "pass_marks",
             "exam_status",

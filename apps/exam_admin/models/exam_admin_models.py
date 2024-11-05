@@ -55,6 +55,7 @@ class SubSection(BaseModel):
 
 
 class Exam(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_exams")
     education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255)

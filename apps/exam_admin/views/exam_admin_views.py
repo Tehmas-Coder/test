@@ -36,12 +36,12 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionSerializer,
 )
 from apps.exam_admin.utils.exam_utils import create_random_exam
+from apps.lookups.models import Organization
 from apps.organization.models.organization_models import (
-    Organization,
-    OrganizationExam,
     OrganizationPackage,
     OrganizationUser,
 )
+from apps.user.utils.utils import get_current_user_organization
 from utils.rna_utils import (
     make_error_response,
     make_success_response,
@@ -124,6 +124,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     serializer_class = ExamEditSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = [ExamFilterBackend]
+    EXAM_NOT_AVAILABLE_MESSAGE = f"Failed: This Exam doesn't belong to your organization"
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
@@ -142,45 +143,37 @@ class ExamViewSet(viewsets.ModelViewSet):
             organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
             if not (organization_package.exams <= organization_package.total_exams):  # type:ignore
                 return make_error_response(message=f"Failed: Your limit to create exams is reached")
+            # * Assigning Exam to Organization if the requested user is not superuser
+            organization_package.exams = organization_package.exams + 1  # type:ignore
+            organization_package.save()  # type:ignore
+            request.data["organization"] = organization_id
+
         else:
             request.data["is_public"] = 1
 
         exam = super().create(request, *args, **kwargs).data
-
-        # * Assigning Exam to Organization if the requested user is not superuser
-        if not request.user.is_superuser:
-            organization_package.exams = organization_package.exams + 1  # type:ignore
-            organization_package.save()  # type:ignore
-            organization.exams.add(exam["id"])  # type:ignore
 
         response = ExamDetailSerializer(self.queryset.filter(pk=exam["id"]).first()).data  # type:ignore
         return Response(response, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            organization_exam_ids = list(OrganizationExam.objects.filter(organization_id=organization_id).values_list("exam", flat=True))
-            self.queryset = self.queryset.filter(Q(id__in=organization_exam_ids) | Q(is_public=True))
+            user_organization_id = get_current_user_organization()
+            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(is_public=True))
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         res = super().retrieve(request, *args, **kwargs)
-        if not request.user.is_superuser:
-            exam_id = res.data["id"]  # type:ignore
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            organization_exam = OrganizationExam.objects.filter(organization_id=organization_id, exam_id=exam_id)
-            if not ((res.data["is_public"]) or len(organization_exam)):  # type:ignore
-                return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
+        if not request.user.is_superuser and (not res.data["is_public"]):  # type:ignore
+            if res.data["organization"] != get_current_user_organization():  # type:ignore
+                return make_error_response(message=self.EXAM_NOT_AVAILABLE_MESSAGE)
         return res
 
     def partial_update(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            exam_id = self.kwargs["pk"]
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            organization_exam = OrganizationExam.objects.filter(organization_id=organization_id, exam_id=exam_id)
-            if not len(organization_exam):
-                return make_error_response(message=f"Failed: This Exam doesn't belong to your organization")
         instance = self.get_object()
+        if not request.user.is_superuser:
+            if instance.organization_id != get_current_user_organization():
+                return make_error_response(message=self.EXAM_NOT_AVAILABLE_MESSAGE)
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
