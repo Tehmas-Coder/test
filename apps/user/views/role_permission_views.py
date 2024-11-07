@@ -15,7 +15,6 @@ from apps.user.serializers.role_permission_serializers import (
     RoleSerializer,
 )
 from apps.user.utils.utils import get_current_user_organization
-from core.middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_error_response
 
 # ---------------------------------------------------------------------------- #
@@ -180,14 +179,12 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
 
                 if not role_instance:
                     return Response({"error": "Role not found"}, status=status.HTTP_404_NOT_FOUND)
-
                 elif role_instance.is_system_role:
                     role_permissions = RolePermission.objects.filter(role=role_instance)
                     role_permissions.update(meta_status="deleted")  # Bulk Delete
 
                     role_instance.delete()
                     return Response(status=status.HTTP_204_NO_CONTENT)
-
                 else:
                     return Response({"error": "Requested role is not a system role"}, status=status.HTTP_400_BAD_REQUEST)
 
