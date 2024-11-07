@@ -21,6 +21,8 @@ class Tag(BaseModel):
 
 
 class EducationLevel(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
+
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     code = models.CharField(max_length=10, unique=True)
@@ -35,6 +37,8 @@ class EducationLevel(BaseModel):
 
 
 class Subject(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
+
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     code = models.CharField(max_length=10, unique=True)
@@ -291,6 +295,8 @@ class QuestionRetryHint(BaseModel):
 
 
 class SubjectEducationLevel(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
+
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     education_level = models.ForeignKey(EducationLevel, on_delete=models.CASCADE)
 
@@ -301,6 +307,7 @@ class SubjectEducationLevel(BaseModel):
     @classmethod
     def get_detail_queryset(cls):
         return cls.objects.get_queryset().select_related(
+            "organization",
             "subject",
             "education_level",
         )
