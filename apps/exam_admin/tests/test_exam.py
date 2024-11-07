@@ -25,7 +25,9 @@ class ExamUnitTest(TestSetUp):
         "user_seed",
         "role_seed",
         "user_role_seed",
+        "permission_seed",
         "resource_seed",
+        "role_permission_seed",
     ]
 
     # ?###################################################
@@ -153,7 +155,7 @@ class ExamTest(ExamUnitTest):
 
     # * Failed test case to check a user from any organization can not modify some other organization's exam
     def failed_updation_of_any_other_organization_exam_record_test(self, test_record_id):
-        self.custom_login(email="generalcandidate@gmail.com", password="12345678")
+        self.custom_login(email="haiderjutt@gmail.com", password="12345678")
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["name"] = "Exam 3 modified"
         updated_request_body["pass_marks"] = 70
