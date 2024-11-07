@@ -81,9 +81,8 @@ class UserInvitaionLinkAPI(viewsets.ViewSet):
 class CreateSystemUserAPI(viewsets.ViewSet):
 
     @transaction.atomic
-    def user_creation_by_system_user(self, request, *args, **kwargs):
+    def user_creation_by_system_user(self, request):
         logged_in_user = request.user
-        logged_in_user_id = logged_in_user.id
         logged_in_user_roles = logged_in_user.get_user_role_slugs
         requested_user_organization_id = get_current_user_organization()
 
@@ -95,41 +94,58 @@ class CreateSystemUserAPI(viewsets.ViewSet):
 
         request_data = request.data
 
-        # Check if system roles are already created
-        for one_dict in request_data:
-            role_slug = f"{requested_user_organization_id}-{one_dict['Slug']}"
-            if not Role.objects.filter(slug=role_slug, is_system_role=True).exists():
-                return Response(
-                    {"status": "failed", "message": f"This role '{one_dict['RoleName']}' is not created in QB yet."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        # Collect all role slugs and role names
+        role_slugs = [f"{requested_user_organization_id}-{one_dict['Slug']}" for one_dict in request_data]
+        slug_to_role_name = {f"{requested_user_organization_id}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in request_data}
 
-        logged_in_user_organization_id = OrganizationUser.objects.filter(user_id=logged_in_user_id).values("organization").first()["organization"]  # type: ignore
-        # Make hashmap of role_slug and role_id
-        role_slug_id_hashmap = {}
-        for one_dict in request_data:
-            role_slug = f"{requested_user_organization_id}-{one_dict['Slug']}"
-            role_slug_id_hashmap[role_slug] = Role.objects.filter(slug=role_slug).values("id").first()["id"]  # type: ignore
+        # Check if system roles are already created
+        roles = Role.objects.filter(slug__in=role_slugs, is_system_role=True)
+        found_role_slugs = set(roles.values_list("slug", flat=True))
+        missing_slugs = set(role_slugs) - found_role_slugs
+
+        if missing_slugs:
+            missing_role_names = [slug_to_role_name[slug] for slug in missing_slugs]
+            return Response(
+                {"status": "failed", "message": f"These roles are not created in QB yet: {', '.join(missing_role_names)}."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Create a mapping from role slug to role id
+        role_slug_id_hashmap = {role.slug: role.id for role in roles}  # type: ignore
+
+        # Collect all emails
+        emails = [one_user["Email"] for one_user in request_data]
+
+        # Fetch existing users and organization users
+        existing_users = BaseUser.objects.filter(email__in=emails)
+        existing_users_dict = {user.email: user for user in existing_users}
+
+        organization_users = OrganizationUser.objects.filter(user__email__in=emails).select_related("user")
+        organization_users_dict = {org_user.user.email: org_user for org_user in organization_users}
 
         unentertained_emails = []
+
         for one_user in request_data:
             role_slug = f"{requested_user_organization_id}-{one_user['Slug']}"
             role_id = role_slug_id_hashmap[role_slug]
             email = one_user["Email"]
             to_delete = one_user.get("ToDelete", False)
 
-            # Checking if the user here already exist with any organization or not
+            # Checking if the user already exists with any organization
+            user_instance = existing_users_dict.get(email)
             create_organization_user = False
-            organization_user = OrganizationUser.objects.filter(user__email=email)
-            if not organization_user.exists():
-                create_organization_user = True
-            elif not (organization_user.first().organization_id == logged_in_user_organization_id):  # type: ignore
-                unentertained_emails.append(email)
-                continue
 
-            if not BaseUser.objects.filter(email=email).exists():
+            if email in organization_users_dict:
+                org_user = organization_users_dict[email]
+                if org_user.organization_id != requested_user_organization_id:  # type: ignore
+                    unentertained_emails.append(email)
+                    continue
+            else:
+                create_organization_user = True
+
+            if not user_instance:
                 user_instance = BaseUser.objects.create(
-                    email=one_user["Email"],
+                    email=email,
                     first_name=one_user["FirstName"],
                     last_name=one_user["LastName"],
                     phone=one_user["PhoneNumber"],
@@ -139,21 +155,20 @@ class CreateSystemUserAPI(viewsets.ViewSet):
                     user=user_instance,
                     role_id=role_id,
                 )
-
             else:
-                user_instance = BaseUser.get_user_by_email(email)
                 if to_delete:
-                    UserRole.objects.filter(user__email=email, role_id=role_id).update(meta_status="deleted")
+                    UserRole.objects.filter(user=user_instance, role_id=role_id).update(meta_status="deleted")
                 else:
                     UserRole.objects.get_or_create(
                         user=user_instance,
                         role_id=role_id,
                         defaults={"user": user_instance, "role_id": role_id},
                     )
+
             if create_organization_user:
                 OrganizationUser.objects.create(
                     user=user_instance,
-                    organization_id=logged_in_user_organization_id,
+                    organization_id=requested_user_organization_id,
                 )
 
         return Response({"data": unentertained_emails}, status=status.HTTP_200_OK)
