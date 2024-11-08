@@ -77,7 +77,7 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
     SubjectEducationLevelEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectDetailSerializer,
+    SubjectSerializer,
 )
 from apps.user.utils.utils import get_current_user_organization
 from utils.rna_utils import make_error_response
@@ -107,7 +107,7 @@ class EducationLevelViewSet(viewsets.ModelViewSet):
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all().select_related("organization")
-    serializer_class = SubjectDetailSerializer
+    serializer_class = SubjectSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
