@@ -18,6 +18,7 @@ class SubjectEducationLevelDetailSerializer(BaseModelSerializer):
             "id",
             "subject",
             "education_level",
+            "organization",
         ] + get_base_model_fields()
 
 

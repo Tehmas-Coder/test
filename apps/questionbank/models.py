@@ -3,6 +3,8 @@ from django.db.models import Count, F, Q, QuerySet
 from django.utils.text import slugify
 
 from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
+from apps.user.utils.utils import get_current_user_organization
+from core.middlewares.current_user_middleware import get_current_user
 from core.middlewares.response_middleware import ResponseMiddleware
 from core.models import BaseModel
 from utils.rna_utils import make_error_response
@@ -312,6 +314,12 @@ class SubjectEducationLevel(BaseModel):
     class Meta:
         app_label = "questionbank"
         db_table = "questionbank_subject_educationlevel"
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # type: ignore
+            if (not get_current_user().is_superuser) and (self.subject.organization or self.education_level.organization):  # type: ignore
+                self.organization_id = get_current_user_organization()
+        return super().save(*args, **kwargs)
 
     @classmethod
     def get_detail_queryset(cls):
