@@ -3,13 +3,13 @@ from apps.questionbank.serializers.question_serializers.education_level_serializ
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectListSerializer,
+    SubjectSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class SubjectEducationLevelDetailSerializer(BaseModelSerializer):
-    subject = SubjectListSerializer()
+    subject = SubjectSerializer()
     education_level = EducationLevelSerializer()
 
     class Meta:
