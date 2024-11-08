@@ -93,14 +93,14 @@ class EducationLevelViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not get_current_user().is_superuser:  # type: ignore
             user_organization_id = get_current_user_organization()
             self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
         return super().list(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not request.user.is_superuser and (instance.organization_id != get_current_user_organization()):
+        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
             return make_error_response(message="Failed: This Education Level doesn't belong to your organization")
         return super().partial_update(request, *args, **kwargs)
 
@@ -112,14 +112,14 @@ class SubjectViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not get_current_user().is_superuser:  # type: ignore
             user_organization_id = get_current_user_organization()
             self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
         return super().list(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not request.user.is_superuser and (instance.organization_id != get_current_user_organization()):
+        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
             return make_error_response(message="Failed: This Subject doesn't belong to your organization")
         return super().partial_update(request, *args, **kwargs)
 
@@ -145,14 +145,14 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not get_current_user().is_superuser:  # type: ignore
             user_organization_id = get_current_user_organization()
             self.queryset = self.queryset.filter(Q(subject__organization_id=user_organization_id) | Q(subject__organization_id=None))
         return super().list(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not request.user.is_superuser and (instance.subject.organization_id != get_current_user_organization()):
+        if not get_current_user().is_superuser and (instance.subject.organization_id != get_current_user_organization()):
             return make_error_response(message="Failed: This Subject Education Level doesn't belong to your organization")
         if (
             SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"])

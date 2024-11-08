@@ -11,4 +11,5 @@ class TagSerializer(BaseModelSerializer):
             "code",
             "abbreviation",
             "description",
+            "organization",
         ] + get_base_model_fields()

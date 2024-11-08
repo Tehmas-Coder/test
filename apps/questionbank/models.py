@@ -17,9 +17,17 @@ MEDIA_MODEL = "user.Media"
 
 
 class Tag(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # type: ignore
+            if not get_current_user().is_superuser:  # type: ignore
+                self.organization_id = get_current_user_organization()
+        return super().save(*args, **kwargs)
 
     class Meta:
         app_label = "questionbank"
