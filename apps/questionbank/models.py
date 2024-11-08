@@ -1,8 +1,11 @@
-from django.db import models
+from django.db import IntegrityError, models
 from django.db.models import Count, F, Q, QuerySet
+from django.utils.text import slugify
 
 from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
+from core.middlewares.response_middleware import ResponseMiddleware
 from core.models import BaseModel
+from utils.rna_utils import make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                               QUESTION LOOKUPS                               #
@@ -23,14 +26,18 @@ class Tag(BaseModel):
 class EducationLevel(BaseModel):
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True)
-    code = models.CharField(max_length=10, unique=True)
+    code = models.CharField(max_length=10)
     abbreviation = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(" ", "-")
-        super().save(*args, **kwargs)
+        if not self.id:  # type: ignore
+            self.slug = slugify(f"{self.organization.id}-{self.name}" if self.organization else slugify(self.name))
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError:
+            ResponseMiddleware.return_now(make_error_response(message="Education level with this name already exists"))
 
     class Meta:
         app_label = "questionbank"
@@ -39,12 +46,10 @@ class EducationLevel(BaseModel):
 class Subject(BaseModel):
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True)
-    code = models.CharField(max_length=10, unique=True)
+    code = models.CharField(max_length=10)
     abbreviation = models.CharField(max_length=10, blank=True)
-
-    education_levels = models.ManyToManyField(EducationLevel, through="SubjectEducationLevel", related_name="subjects")
 
     class Meta:
         app_label = "questionbank"
@@ -54,8 +59,12 @@ class Subject(BaseModel):
         return f"{self.name} ({self.code})"
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(" ", "-")
-        super().save(*args, **kwargs)
+        if not self.id:  # type: ignore
+            self.slug = slugify(f"{self.organization.id}-{self.name}" if self.organization else slugify(self.name))
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError:
+            ResponseMiddleware.return_now(make_error_response(message="Subject with this name already exists"))
 
     @classmethod
     def select_random_subjects(
