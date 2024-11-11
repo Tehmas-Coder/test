@@ -12,4 +12,5 @@ class ScheduleSerializer(BaseModelSerializer):
             "end_datetime",
             "waiting_duration",
             "extra_duration",
+            "organization",
         ] + get_base_model_fields()
