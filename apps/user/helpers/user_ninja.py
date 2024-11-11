@@ -34,7 +34,7 @@ class UserNinja:
         self.requested_user_instance: BaseUser = None  # type: ignore
 
     # ---------------------------------------------------------------------------- #
-    #                                Public methods                                #
+    #                                PUBLIC METHODS                                #
     # ---------------------------------------------------------------------------- #
     def create(self):
         self.request_data_role_ids: list = self.data_dict.pop("roles", [])
@@ -69,7 +69,7 @@ class UserNinja:
             ResponseMiddleware.return_now(make_error_response(message=f"Invalid Role"))
 
     # ---------------------------------------------------------------------------- #
-    #                                Private methods                               #
+    #                                PRIVATE METHODS                               #
     # ---------------------------------------------------------------------------- #
 
     def __validate_and_save_user(self, is_update: bool = False):

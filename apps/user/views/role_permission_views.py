@@ -123,47 +123,8 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def update_role_permissions_from_sa_be(self, request, *args, **kwargs):
-        # role_permissions_ninja_instance = RolePermissionNinja(request.data)
-        request_data = request.data
-        requested_user_organization_id = get_current_user_organization()
-        request_role_name = request_data["RoleName"]
-        request_role_name_slug = slugify(f"{requested_user_organization_id}-{request_role_name}")
-        role_instance = Role.objects.filter(slug=request_role_name_slug)
-
-        if len(request_data.get("default_qb_permissions", [])):
-            if role_instance.exists():
-                role_instance = role_instance.first()
-                role_instance.is_system_role = True  # type: ignore
-                role_instance.save()  # type: ignore
-                RolePermission.objects.filter(role=role_instance).update(is_active=False)
-            else:
-                role_instance = Role.objects.create(name=request_role_name, is_system_role=True, organization_id=requested_user_organization_id)
-                permission_ids_list = list(
-                    Permission.objects.exclude(Q(context_value="studentapply") & ~Q(name__icontains="Login From Student Apply"))
-                    .exclude(context_value="candidates")
-                    .values_list("id", flat=True)
-                )
-                role_instance.permissions.set(permission_ids_list)
-
-            request_permission_ids_list = [one_dict["id"] for one_dict in request_data["default_qb_permissions"]]
-            RolePermission.objects.filter(
-                Q(role=role_instance) & (Q(permission_id__in=request_permission_ids_list) | Q(permission__name__icontains="Login From Student Apply"))
-            ).update(is_active=True)
-
-        else:
-            role_instance = role_instance.first()
-            RolePermission.objects.bulk_update(
-                [
-                    RolePermission(
-                        id=one_permission["id"],
-                        role=role_instance,
-                        is_active=one_permission["is_active"],
-                    )
-                    for one_permission in request.data["qb_role_permissions"]
-                ],
-                fields=["is_active"],
-            )
-
+        role_permissions_ninja_instance = RolePermissionNinja(request.data)
+        role_permissions_ninja_instance.update_role_permissions()
         return Response(status=status.HTTP_200_OK)
 
     # This api is used by student apply backend to delete a role with all its permissions
@@ -171,7 +132,7 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
     def delete_role_with_permissions(self, request, *args, **kwargs):
         request_user_roles = request.user.get_user_role_slugs
         if (not request.user.is_superuser) and len(request_user_roles):
-            if "system" in request_user_roles:  # make it system
+            if "system" in request_user_roles:
                 requested_user_organization_id = get_current_user_organization()
                 request_role_name = request.data.get("role")
                 request_role_name_slug = slugify(f"{requested_user_organization_id}-{request_role_name}")
