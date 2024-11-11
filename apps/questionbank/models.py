@@ -43,7 +43,7 @@ class EducationLevel(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.id:  # type: ignore
-            self.slug = slugify(f"{self.organization.id}-{self.name}" if self.organization else slugify(self.name))
+            self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
             super().save(*args, **kwargs)
         except IntegrityError:
@@ -70,7 +70,7 @@ class Subject(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.id:  # type: ignore
-            self.slug = slugify(f"{self.organization.id}-{self.name}" if self.organization else slugify(self.name))
+            self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
             super().save(*args, **kwargs)
         except IntegrityError:
