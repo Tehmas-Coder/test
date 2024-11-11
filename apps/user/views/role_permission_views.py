@@ -130,23 +130,6 @@ class RolePermissionViewSet(viewsets.ModelViewSet):
     # This api is used by student apply backend to delete a role with all its permissions
     @transaction.atomic
     def delete_role_with_permissions(self, request, *args, **kwargs):
-        request_user_roles = request.user.get_user_role_slugs
-        if (not request.user.is_superuser) and len(request_user_roles):
-            if "system" in request_user_roles:
-                requested_user_organization_id = get_current_user_organization()
-                request_role_name = request.data.get("role")
-                request_role_name_slug = slugify(f"{requested_user_organization_id}-{request_role_name}")
-                role_instance = Role.objects.filter(slug=request_role_name_slug).first()
-
-                if not role_instance:
-                    return Response({"error": "Role not found"}, status=status.HTTP_404_NOT_FOUND)
-                elif role_instance.is_system_role:
-                    role_permissions = RolePermission.objects.filter(role=role_instance)
-                    role_permissions.update(meta_status="deleted")  # Bulk Delete
-
-                    role_instance.delete()
-                    return Response(status=status.HTTP_204_NO_CONTENT)
-                else:
-                    return Response({"error": "Requested role is not a system role"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        role_permissions_ninja_instance = RolePermissionNinja(request.data)
+        role_permissions_ninja_instance.delete_role_with_its_permissions()
+        return Response(status=status.HTTP_204_NO_CONTENT)

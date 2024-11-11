@@ -3,6 +3,9 @@ from django.utils.text import slugify
 
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.utils.utils import get_current_user_organization
+from core.middlewares.current_user_middleware import get_current_user
+from core.middlewares.response_middleware import ResponseMiddleware
+from utils.rna_utils import make_error_response
 
 
 class RolePermissionNinja:
@@ -28,6 +31,19 @@ class RolePermissionNinja:
             self.__activate_new_role_permissions(role_instance)
         else:
             self.__activate_existing_role_permissions(role_instance)
+
+    def delete_role_with_its_permissions(self):
+        requested_user_role_slugs = get_current_user().get_user_role_slugs  # type: ignore
+        requested_role_name = self.data_dict.get("role")
+        if not "system" in requested_user_role_slugs:
+            ResponseMiddleware.return_now(make_error_response())
+        requested_role_slug = slugify(f"{get_current_user_organization()}-{requested_role_name}")
+        role_instance = Role.objects.filter(slug=requested_role_slug).first()
+        if not role_instance:
+            ResponseMiddleware.return_now(make_error_response(message="Role not found"))
+        role_permissions = RolePermission.objects.filter(role=role_instance)
+        role_permissions.update(meta_status="deleted")
+        role_instance.delete()  # type: ignore
 
     # ---------------------------------------------------------------------------- #
     #                               PRIVATE METHODS                                #
