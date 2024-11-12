@@ -16,7 +16,8 @@ from rest_framework_simplejwt.views import (
 )
 
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
-from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
+from apps.user.serializers.auth_serializers import LoginSerializer
+from apps.user.serializers.user_serializers import UserEditSerializer
 from utils.rna_utils import (
     debug_print,
     get_encryption_key,

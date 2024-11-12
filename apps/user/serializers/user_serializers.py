@@ -1,6 +1,5 @@
 from django.db import transaction
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.questionbank.serializers.media_serializers import MediaSerializer
@@ -126,17 +125,3 @@ class UserEditSerializer(serializers.ModelSerializer):
             instance.roles.set(roles)
         instance.save()
         return super().update(instance, validated_data)
-
-
-class LoginSerializer(TokenObtainPairSerializer):
-
-    @classmethod
-    def get_token(cls, user):
-        token = super(TokenObtainPairSerializer, cls).get_token(user)
-
-        token["username"] = user.email
-        token["full_name"] = user.full_name
-        token["email"] = user.email
-        token["is_superuser"] = user.is_superuser
-
-        return token
