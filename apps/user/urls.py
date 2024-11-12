@@ -28,6 +28,5 @@ router.register(r"users", UserViewSet)
 # ----------------------------- ROLE PERMISSIONS ----------------------------- #
 router.register(r"roles", RoleViewSet)
 router.register(r"permissions", PermissionViewSet)
-router.register(r"role-permissions", RolePermissionViewSet)
 
 urlpatterns += router.urls
