@@ -154,7 +154,7 @@ class OTPViewSet(viewsets.ViewSet):
         return Response({"status": "sent", "message": "OTP sent!"})
 
 
-class FromSaLoginToQBApiView(TokenObtainPairView):
+class SaToQBLoginApiView(TokenObtainPairView):
 
     def post(self, request):
 
