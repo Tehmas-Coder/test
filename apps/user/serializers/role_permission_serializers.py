@@ -16,55 +16,7 @@ class PermissionSerializer(BaseModelSerializer):
 
 
 # ----------------------------------- ROLE ----------------------------------- #
-class RoleSerializer(BaseModelSerializer):
-    permissions = PermissionSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Role
-        fields = [
-            "id",
-            "name",
-            "slug",
-            "is_system_role",
-            "organization",
-            "permissions",
-        ] + get_base_model_fields()
-
-
-class RolePermissionSerializerForRole(BaseModelSerializer):
-    permission = PermissionSerializer()
-
-    class Meta:
-        model = RolePermission
-        fields = [
-            "id",
-            "role",
-            "is_active",
-            "permission",
-        ] + get_base_model_fields()
-
-
-class RoleDetailSerializer(BaseModelSerializer):
-    role_permissions = RolePermissionSerializerForRole(many=True)
-    user_count = serializers.IntegerField(required=False)
-    organization = OrganizationEditSerializer(read_only=True)
-
-    class Meta:
-        model = Role
-        fields = [
-            "id",
-            "name",
-            "is_system_role",
-            "slug",
-            "organization",
-            "role_permissions",
-            "user_count",
-        ] + get_base_model_fields()
-
-
-# ------------------------------ ROLE PERMISSION ----------------------------- #
 class RolePermissionSerializer(BaseModelSerializer):
-    role = RoleSerializer(read_only=True)
     permission = PermissionSerializer(read_only=True)
 
     class Meta:
@@ -72,6 +24,41 @@ class RolePermissionSerializer(BaseModelSerializer):
         fields = [
             "id",
             "is_active",
-            "role",
             "permission",
         ] + get_base_model_fields()
+
+
+class RoleSerializer(BaseModelSerializer):
+    permissions = PermissionSerializer(many=True, read_only=True)
+    role_permissions = RolePermissionSerializer(many=True)
+    user_count = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Role
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "is_system_role",
+            "user_count",
+            "organization",
+            "permissions",
+            "role_permissions",
+        ] + get_base_model_fields()
+
+    def __init__(self, instance=None, data=..., **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("mutator", False):
+            self.fields.pop("role_permissions")
+            self.fields.pop("user_count")
+        else:
+            self.fields.pop("permissions")
+        if data is not ...:
+            super().__init__(instance, data, **kwargs)
+        super().__init__(instance, **kwargs)
+
+    def to_representation(self, instance):
+        res = super().to_representation(instance)
+        if not self._context.get("mutator", False) and res.get("organization"):
+            res["organization"] = OrganizationEditSerializer(instance.organization).data
+        return res

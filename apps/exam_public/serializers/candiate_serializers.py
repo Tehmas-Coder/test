@@ -57,7 +57,7 @@ class CandidateWithOrganizationDetailSerializer(BaseModelSerializer):
 
 class CandidateWithOrganizationsSerializer(BaseModelSerializer):
 
-    roles = RoleSerializer(many=True, read_only=True)
+    roles = RoleSerializer(many=True, read_only=True, context={"mutator": True})
     country = CountrySerializer(read_only=True)
     user_candidates = CandidateWithOrganizationDetailSerializer(many=True)
 
