@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from apps.organization.models.organization_models import OrganizationUser
 from apps.user.filters.user_filters import UserFilterBackend
+from apps.user.helpers.system_user_ninja import SystemUserNinja
 from apps.user.helpers.user_ninja import UserNinja
 from apps.user.helpers.verification_email_ninja import VerificationEmailNinja
 from apps.user.models import UserRole
@@ -84,7 +85,6 @@ class CreateSystemUserAPI(viewsets.ViewSet):
     def user_creation_by_system_user(self, request):
         logged_in_user = request.user
         logged_in_user_roles = logged_in_user.get_user_role_slugs
-        requested_user_organization_id = get_current_user_organization()
 
         if "system" not in logged_in_user_roles:
             return Response(
@@ -95,8 +95,8 @@ class CreateSystemUserAPI(viewsets.ViewSet):
         request_data = request.data
 
         # Collect all role slugs and role names
-        role_slugs = [f"{requested_user_organization_id}-{one_dict['Slug']}" for one_dict in request_data]
-        slug_to_role_name = {f"{requested_user_organization_id}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in request_data}
+        role_slugs = [f"{get_current_user_organization()}-{one_dict['Slug']}" for one_dict in request_data]
+        slug_to_role_name = {f"{get_current_user_organization()}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in request_data}
 
         # Check if system roles are already created
         roles = Role.objects.filter(slug__in=role_slugs, is_system_role=True)
@@ -126,7 +126,7 @@ class CreateSystemUserAPI(viewsets.ViewSet):
         unentertained_emails = []
 
         for one_user in request_data:
-            role_slug = f"{requested_user_organization_id}-{one_user['Slug']}"
+            role_slug = f"{get_current_user_organization()}-{one_user['Slug']}"
             role_id = role_slug_id_hashmap[role_slug]
             email = one_user["Email"]
             to_delete = one_user.get("ToDelete", False)
@@ -137,7 +137,7 @@ class CreateSystemUserAPI(viewsets.ViewSet):
 
             if email in organization_users_dict:
                 org_user = organization_users_dict[email]
-                if org_user.organization_id != requested_user_organization_id:  # type: ignore
+                if org_user.organization_id != get_current_user_organization():  # type: ignore
                     unentertained_emails.append(email)
                     continue
             else:
@@ -168,7 +168,12 @@ class CreateSystemUserAPI(viewsets.ViewSet):
             if create_organization_user:
                 OrganizationUser.objects.create(
                     user=user_instance,
-                    organization_id=requested_user_organization_id,
+                    organization_id=get_current_user_organization(),
                 )
 
         return Response({"data": unentertained_emails}, status=status.HTTP_200_OK)
+
+    # @transaction.atomic
+    # def user_creation_by_system_user(self, request):
+    #     system_user_ninja = SystemUserNinja(request.user, request.data)
+    #     return system_user_ninja.create_system_user()
