@@ -9,6 +9,7 @@ from core.middlewares.response_middleware import ResponseMiddleware
 
 class SystemUserNinja:
     def __init__(self, request_data):
+        self.logged_in_user_organization = get_current_user_organization()
         self.data_dict: dict = request_data
         self.roles = None
         self.role_slug_id_hashmap: dict = {}
@@ -23,8 +24,8 @@ class SystemUserNinja:
         return self.unentertained_emails
 
     def __collect_roles(self):
-        role_slugs = [f"{get_current_user_organization()}-{one_dict['Slug']}" for one_dict in self.data_dict]
-        slugs_to_role_name_hashmap = {f"{get_current_user_organization()}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in self.data_dict}
+        role_slugs = [f"{self.logged_in_user_organization}-{one_dict['Slug']}" for one_dict in self.data_dict]
+        slugs_to_role_name_hashmap = {f"{self.logged_in_user_organization}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in self.data_dict}
 
         self.roles = Role.objects.filter(slug__in=role_slugs, is_system_role=True)
         found_role_slugs = set(self.roles.values_list("slug", flat=True))
@@ -51,7 +52,7 @@ class SystemUserNinja:
 
     def __process_system_users(self):
         for one_user in self.data_dict:
-            role_slug = f"{get_current_user_organization()}-{one_user['Slug']}"
+            role_slug = f"{self.logged_in_user_organization}-{one_user['Slug']}"
             role_id = self.role_slug_id_hashmap[role_slug]
             email = one_user["Email"]
             to_delete = one_user.get("ToDelete", False)
@@ -61,7 +62,7 @@ class SystemUserNinja:
 
             if email in self.existing_organization_users_email_and_instance_hashmap:
                 org_user = self.existing_organization_users_email_and_instance_hashmap[email]
-                if org_user.organization_id != get_current_user_organization():  # type: ignore
+                if org_user.organization_id != self.logged_in_user_organization:  # type: ignore
                     self.unentertained_emails.append(email)
                     continue
             else:
@@ -76,7 +77,7 @@ class SystemUserNinja:
                     UserRole.objects.get_or_create(user=user_instance, role_id=role_id, defaults={"user": user_instance, "role_id": role_id})
 
             if create_organization_user:
-                OrganizationUser.objects.create(user=user_instance, organization_id=get_current_user_organization())
+                OrganizationUser.objects.create(user=user_instance, organization_id=self.logged_in_user_organization)
 
     def __create_system_user(self, email, role_id, one_user):
         user_instance = BaseUser.objects.create(

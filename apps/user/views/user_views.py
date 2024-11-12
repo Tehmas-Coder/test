@@ -14,7 +14,7 @@ from apps.user.serializers.user_serializers import (
 from core.middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_success_response
 
-from ..models import BaseUser, Role
+from ..models import BaseUser
 
 # ---------------------------------------------------------------------------- #
 #                                     USER                                     #
