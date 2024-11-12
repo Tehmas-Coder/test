@@ -16,7 +16,7 @@ def get_user_detailed_queryset(model, country=False, roles=False, role_permissio
 def get_role_detailed_queryset(model, organization=False, permissions=False, role_permissions=False, role_permissions_permission=False):
     role_queryset = model.objects.get_queryset()
     if organization:
-        role_queryset = role_queryset.select_related("organization")
+        role_queryset = role_queryset.select_related("organization", "organization__country")
     if permissions:
         role_queryset = role_queryset.prefetch_related("permissions")
     if role_permissions:
