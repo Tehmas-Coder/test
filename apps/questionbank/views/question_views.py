@@ -10,6 +10,12 @@ from apps.organization.models.organization_models import (
     OrganizationPackage,
     OrganizationUser,
 )
+from apps.questionbank.custom.question_classes import (
+    OrganizationValidator,
+    QuestionService,
+    QuestionVisibilitySetter,
+    RequestParser,
+)
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.models import (
     DifficultyLevel,
@@ -191,87 +197,95 @@ class QuestionViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     QUESTION_NOT_AVAILABLE_MESSAGE = f"Failed: This Question doesn't belong to your organization"
 
-    def parse_media(self, request):
-        request_data = json.loads(request.data["data"])
+    # def parse_media(self, request):
+    #     request_data = json.loads(request.data["data"])
 
-        # * Extract media for questions
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append(
-                    {
-                        "file": file,
-                    }
-                )
+    #     # * Extract media for questions
+    #     media_keys = request_data.pop("medias", [])
+    #     request_data["medias"] = []
+    #     for key in media_keys:
+    #         file = request.FILES.get(key)
+    #         if file:
+    #             request_data["medias"].append(
+    #                 {
+    #                     "file": file,
+    #                 }
+    #             )
 
-        # * Extract media for hints
-        for hint in request_data.get("retry_hints", []):
-            hint_medias = hint.pop("medias", [])
-            if hint["has_media"]:
-                hint["medias"] = []
-                for key in hint_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        hint["medias"].append(
-                            {
-                                "file": file,
-                            }
-                        )
+    #     # * Extract media for hints
+    #     for hint in request_data.get("retry_hints", []):
+    #         hint_medias = hint.pop("medias", [])
+    #         if hint["has_media"]:
+    #             hint["medias"] = []
+    #             for key in hint_medias:
+    #                 file = request.FILES.get(key)
+    #                 if file:
+    #                     hint["medias"].append(
+    #                         {
+    #                             "file": file,
+    #                         }
+    #                     )
 
-        # * Extract media for choices
-        for choice in request_data.get("choices", []):
-            choice_medias = choice.pop("medias", [])
-            if choice["has_media"]:
-                choice["medias"] = []
-                for key in choice_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        choice["medias"].append(
-                            {
-                                "file": file,
-                            }
-                        )
+    #     # * Extract media for choices
+    #     for choice in request_data.get("choices", []):
+    #         choice_medias = choice.pop("medias", [])
+    #         if choice["has_media"]:
+    #             choice["medias"] = []
+    #             for key in choice_medias:
+    #                 file = request.FILES.get(key)
+    #                 if file:
+    #                     choice["medias"].append(
+    #                         {
+    #                             "file": file,
+    #                         }
+    #                     )
 
-        return request_data
+    #     return request_data
 
     def get_serializer(self, *args, **kwargs):
         if self.action in ["create", "partial_update"]:
             return QuestionEditSerializer(*args, **kwargs)
         return super().get_serializer(*args, **kwargs)
 
+    # def create(self, request, *args, **kwargs):
+    #     if "data" in request.data:
+    #         request_data = self.parse_media(request)
+    #     else:
+    #         request_data = request.data
+
+    #     # * Setting Question to public if the user is a superuser
+    #     if request.user.is_superuser:
+    #         request_data["is_public"] = 1
+    #     else:
+    #         request_data["is_public"] = 0
+    #         organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
+    #         if not organization_id:
+    #             return make_error_response(message=f"Failed: User doesn't belong to any organization")
+    #         organization = Organization.objects.get(id=organization_id)
+    #         # * Checking the usage of questions of Organization package
+    #         organization_package = (
+    #             OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
+    #         )
+    #         if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
+    #             return make_error_response(message=f"Failed: Your limit to create questions is reached")
+    #         # * Assigning Question to Organization if the requested user is not superuser
+    #         organization_package.questions = organization_package.questions + 1  # type:ignore
+    #         organization_package.save()  # type:ignore
+    #         request_data["organization"] = organization_id
+
+    #     serializer = self.get_serializer(data=request_data)
+    #     serializer.is_valid(raise_exception=True)
+    #     question = serializer.save()
+    #     serializer = QuestionDetailSerializer(question)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def create(self, request, *args, **kwargs):
-        if "data" in request.data:
-            request_data = self.parse_media(request)
-        else:
-            request_data = request.data
+        request_parser = RequestParser()
 
-        # * Setting Question to public if the user is a superuser
-        if request.user.is_superuser:
-            request_data["is_public"] = 1
-        else:
-            request_data["is_public"] = 0
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            if not organization_id:
-                return make_error_response(message=f"Failed: User doesn't belong to any organization")
-            organization = Organization.objects.get(id=organization_id)
-            # * Checking the usage of questions of Organization package
-            organization_package = (
-                OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
-            )
-            if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
-                return make_error_response(message=f"Failed: Your limit to create questions is reached")
-            # * Assigning Question to Organization if the requested user is not superuser
-            organization_package.questions = organization_package.questions + 1  # type:ignore
-            organization_package.save()  # type:ignore
-            request_data["organization"] = organization_id
-
-        serializer = self.get_serializer(data=request_data)
-        serializer.is_valid(raise_exception=True)
-        question = serializer.save()
-        serializer = QuestionDetailSerializer(question)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        visibility_setter = QuestionVisibilitySetter()
+        organization_validator = OrganizationValidator()
+        question_service = QuestionService(request_parser, visibility_setter, organization_validator, serializer_class=self.get_serializer_class())
+        return question_service.create_question(request)
 
     def list(self, request, *args, **kwargs):
         if not request.user.is_superuser:
