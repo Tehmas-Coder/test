@@ -1,15 +1,13 @@
 from webhooks.generic_webhook import GenericWebhook
 
 
-def send_exam_result_to_student_apply_webhook(candidate_exam_instance):
+def send_exam_status_to_student_apply_webhook(candidate_exam_instance):
     encryption_key = candidate_exam_instance.candidate.organization.encryption_key
     token = candidate_exam_instance.candidate.organization.token
     data = {
-        "event_type": "exam_result",
+        "event_type": "exam_status",
         "data": {
             "candidate_exam_id": candidate_exam_instance.id,  # type: ignore
-            "total_marks": candidate_exam_instance.total_obtainable_marks,
-            "obtained_marks": candidate_exam_instance.obtained_marks,
             "exam_status": candidate_exam_instance.exam_status,
         },
     }

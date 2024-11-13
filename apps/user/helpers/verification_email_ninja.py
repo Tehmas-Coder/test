@@ -18,7 +18,7 @@ class VerificationEmailNinja:
         pass
 
     # ---------------------------------------------------------------------------- #
-    #                                Public methods                                #
+    #                                PUBLIC METHODS                                #
     # ---------------------------------------------------------------------------- #
 
     def send(self, token):
@@ -36,7 +36,7 @@ class VerificationEmailNinja:
         self.__send_verification_email(user_instance)
 
     # ---------------------------------------------------------------------------- #
-    #                                Private methods                               #
+    #                                PRIVATE METHODS                               #
     # ---------------------------------------------------------------------------- #
 
     def __decrypt_token_data(self, token):

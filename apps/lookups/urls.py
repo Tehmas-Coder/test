@@ -7,6 +7,7 @@ from apps.lookups.views import (
     LanguageViewset,
     MeasuringUnitViewset,
     MediaTypeViewset,
+    OrganizationViewSet,
     PackageViewset,
     RegionViewset,
     StateViewset,
@@ -27,9 +28,14 @@ router.register(r"measuring-units", MeasuringUnitViewset)
 router.register(r"media-types", MediaTypeViewset)
 router.register(r"tags", TagViewset)
 router.register(r"packages", PackageViewset)
+router.register(r"organizations", OrganizationViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path(
+        "remove-organization-user/<int:pk>/",
+        OrganizationViewSet.as_view({"delete": "remove_organization_user"}),
+    ),
 ]
 
 

@@ -16,7 +16,8 @@ from rest_framework_simplejwt.views import (
 )
 
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
-from apps.user.serializers.user_serializers import LoginSerializer, UserEditSerializer
+from apps.user.serializers.auth_serializers import LoginSerializer
+from apps.user.serializers.user_serializers import UserSerializer
 from utils.rna_utils import (
     debug_print,
     get_encryption_key,
@@ -41,13 +42,13 @@ class RegisterApiView(views.APIView):
                     password=request.data.pop("password"),
                     **request.data,
                 )
-                serializer = UserEditSerializer(super_user_instance)
+                serializer = UserSerializer(super_user_instance, context={"mutator": True})
                 return Response(serializer.data, status=201)
             except Exception as e:
                 return make_error_response(message=f"{str(e)}")
 
         else:
-            serializer = UserEditSerializer(data=request.data)
+            serializer = UserSerializer(data=request.data, context={"mutator": False})
             if serializer.is_valid():
                 user_instance = serializer.save()
                 role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
@@ -154,7 +155,7 @@ class OTPViewSet(viewsets.ViewSet):
         return Response({"status": "sent", "message": "OTP sent!"})
 
 
-class FromSaLoginToQBApiView(TokenObtainPairView):
+class SaToQBLoginApiView(TokenObtainPairView):
 
     def post(self, request):
 

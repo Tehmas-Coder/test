@@ -4,9 +4,8 @@ REM --------------------------------- USER -------------------------------------
 python manage.py loaddata user_seed.json
 python manage.py loaddata role_seed.json
 python manage.py loaddata user_role_seed.json
-python manage.py loaddata resource_seed.json
-python manage.py loaddata role_resource_seed.json
 python manage.py loaddata permission_seed.json
+python manage.py loaddata resource_seed.json
 python manage.py loaddata role_permission_seed.json
 REM -------------------------------- LOOKUPS -----------------------------------
 python manage.py loaddata media_type_seed.json

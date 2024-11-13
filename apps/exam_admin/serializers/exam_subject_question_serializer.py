@@ -3,17 +3,19 @@ from rest_framework.exceptions import ValidationError
 
 from apps.exam_admin.models.exam_admin_models import ExamSubject, ExamSubjectQuestion
 from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
+from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+    EducationLevelSerializer,
+)
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionDetailSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectListSerializer,
+    SubjectSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
-
     class Meta:
         model = ExamSubjectQuestion
         fields = [
@@ -30,8 +32,8 @@ class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
 
 
 class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
-    subject = SubjectListSerializer(read_only=True, source="exam_subject.subject_education_level.subject")
-    education_level = SubjectListSerializer(read_only=True, source="exam_subject.subject_education_level.education_level")
+    subject = SubjectSerializer(read_only=True, source="exam_subject.subject_education_level.subject")
+    education_level = EducationLevelSerializer(read_only=True, source="exam_subject.subject_education_level.education_level")
     question = serializers.SerializerMethodField()
 
     class Meta:

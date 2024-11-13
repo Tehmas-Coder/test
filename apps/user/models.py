@@ -1,8 +1,9 @@
 from datetime import date, datetime
 from typing import Any
 
-from django.contrib.auth.models import AbstractUser, UserManager
-from django.db import models
+from django.apps import apps
+from django.contrib.auth.models import AbstractUser, AnonymousUser, UserManager
+from django.db import IntegrityError, models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -10,9 +11,11 @@ from apps.user.helpers.queryset_functions import (
     get_role_detailed_queryset,
     get_user_detailed_queryset,
 )
+from core.middlewares.current_user_middleware import get_current_user
+from core.middlewares.response_middleware import ResponseMiddleware
 from core.models import BaseModel, BaseUserModel
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import generate_otp
+from utils.rna_utils import generate_otp, make_error_response
 
 
 def upload_to(instance, filename):
@@ -148,41 +151,54 @@ class BaseUser(BaseUserModel, AbstractUser):
 # ---------------------------------------------------------------------------- #
 #                                  PERMISSIONS                                 #
 # ---------------------------------------------------------------------------- #
-class Role(BaseModel):
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=100, null=True, unique=True)
-
-    is_system_role = models.BooleanField(default=False)
-
-    permissions = models.ManyToManyField("Permission", blank=True, through="RolePermission")
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
-    class Meta:
-        app_label = "user"
-
-    @classmethod
-    def get_detail_queryset(cls, permissions=False, role_permissions=False, role_permissions_permission=False):
-        return get_role_detailed_queryset(cls, permissions, role_permissions, role_permissions_permission)
-
-
-class UserRole(BaseModel):
-    user = models.ForeignKey(BaseUser, on_delete=models.PROTECT)
-    role = models.ForeignKey(Role, on_delete=models.PROTECT)
-
-    class Meta:
-        app_label = "user"
-        db_table = "user_baseuser_role"
-
-
 class Permission(BaseModel):
     name = models.CharField(max_length=255)
     context_value = models.CharField(max_length=255)
 
     class Meta:
         app_label = "user"
+
+
+class Role(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.PROTECT, null=True, blank=True, related_name="organization_roles")
+
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=100, null=True, unique=True)
+
+    is_system_role = models.BooleanField(default=False)
+
+    permissions = models.ManyToManyField(Permission, blank=True, through="RolePermission")
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # type: ignore
+            self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError:
+            ResponseMiddleware.return_now(make_error_response(message="Role with this name already exists"))
+
+    class Meta:
+        app_label = "user"
+
+    @classmethod
+    def get_detail_queryset(cls, organization=False, permissions=False, role_permissions=False, role_permissions_permission=False):
+        return get_role_detailed_queryset(cls, organization, permissions, role_permissions, role_permissions_permission)
+
+
+class Resource(BaseModel):
+    permission = models.ForeignKey(Permission, on_delete=models.PROTECT, null=True, blank=True, related_name="permission_resources")
+
+    name = models.CharField(max_length=255)
+    regex = models.CharField(max_length=255)
+    method = models.CharField(max_length=255)
+
+    class Meta:
+        app_label = "user"
+
+
+# ---------------------------------------------------------------------------- #
+#                                     MAPS                                     #
+# ---------------------------------------------------------------------------- #
 
 
 class RolePermission(BaseModel):
@@ -196,24 +212,10 @@ class RolePermission(BaseModel):
         db_table = "user_role_permission"
 
 
-# ---------------------------------------------------------------------------- #
-#                                  ROLE RESOURCE                               #
-# ---------------------------------------------------------------------------- #
-
-
-class Resource(BaseModel):
-    name = models.CharField(max_length=255)
-    regex = models.CharField(max_length=255)
-    method = models.CharField(max_length=255)
-
-    class Meta:
-        app_label = "user"
-
-
-class RoleResource(BaseModel):
+class UserRole(BaseModel):
+    user = models.ForeignKey(BaseUser, on_delete=models.PROTECT)
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
-    resource = models.ForeignKey(Resource, on_delete=models.PROTECT)
 
     class Meta:
         app_label = "user"
-        db_table = "user_role_resource"
+        db_table = "user_baseuser_role"

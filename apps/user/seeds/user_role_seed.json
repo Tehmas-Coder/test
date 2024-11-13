@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "user": 2,
-      "role": 5,
+      "role": 3,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -24,7 +24,7 @@
     "pk": 3,
     "fields": {
       "user": 4,
-      "role": 2,
+      "role": 1,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
@@ -64,7 +64,7 @@
     "pk": 7,
     "fields": {
       "user": 7,
-      "role": 5,
+      "role": 3,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
