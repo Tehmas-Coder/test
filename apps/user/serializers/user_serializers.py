@@ -8,56 +8,12 @@ from apps.user.serializers.role_permission_serializers import RoleSerializer
 from utils.rna_utils import debug_print
 
 
-class UserDetailSerializer(serializers.ModelSerializer):
-    roles = RoleSerializer(many=True, read_only=True)
-    country = CountrySerializer(read_only=True)
-    profile_picture = MediaSerializer(required=False)
-
-    class Meta:
-        model = BaseUser
-        fields = [
-            "id",
-            "email",
-            "first_name",
-            "last_name",
-            "full_name",
-            "date_of_birth",
-            "profile_picture",
-            "roles",
-            "country",
-            "phone",
-            "otp",
-            "is_verified",
-            "is_superuser",
-            "date_joined",
-            "last_login",
-            "description",
-            "created_at",
-            "updated_at",
-            "meta_status",
-        ]
-
-        read_only_fields = [
-            "id",
-            "email",
-            "first_name",
-            "last_name",
-            "full_name",
-            "date_of_birth",
-            "roles",
-            "country",
-            "phone",
-            "is_verified",
-            "is_superuser",
-            "date_joined",
-            "last_login",
-            "created_at",
-            "updated_at",
-        ]
-
-
-class UserEditSerializer(serializers.ModelSerializer):
-    roles = RoleSerializer(many=True, read_only=True, context={"mutator": True})
+class UserSerializer(serializers.ModelSerializer):
+    """
+    roles : List[Dicts]
+    country : Dict (if context is not mutator)
+    profile_picture : Dict (if context is not mutator)
+    """
 
     class Meta:
         model = BaseUser
@@ -86,11 +42,8 @@ class UserEditSerializer(serializers.ModelSerializer):
 
         read_only_fields = [
             "id",
-            "otp",
             "full_name",
-            "created_at",
             "is_verified",
-            "updated_at",
             "is_superuser",
             "date_joined",
             "last_login",
@@ -98,14 +51,6 @@ class UserEditSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         extra_kwargs = {"password": {"write_only": True}}
-
-    def __init__(self, instance=None, data=..., **kwargs):
-        context = kwargs.get("context", {})
-        if context.get("is_update", False):
-            self.Meta.fields.remove("roles")
-        if data is not ...:
-            super().__init__(instance, data, **kwargs)
-        super().__init__(instance, **kwargs)
 
     @transaction.atomic
     def create(self, validated_data):
@@ -125,3 +70,15 @@ class UserEditSerializer(serializers.ModelSerializer):
             instance.roles.set(roles)
         instance.save()
         return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        res = super().to_representation(instance)
+        mutator_context = self.context.get("mutator", False)
+        if not mutator_context:
+            if res["country"]:
+                res["country"] = CountrySerializer(instance.country).data
+            if res["profile_picture"]:
+                res["profile_picture"] = MediaSerializer(instance.profile_picture).data
+        if res["roles"]:
+            res["roles"] = RoleSerializer(instance.roles, many=True, context={"mutator": mutator_context}).data
+        return res

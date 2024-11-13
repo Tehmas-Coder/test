@@ -7,14 +7,10 @@ from apps.user.filters.user_filters import UserFilterBackend
 from apps.user.helpers.system_user_ninja import SystemUserNinja
 from apps.user.helpers.user_ninja import UserNinja
 from apps.user.helpers.verification_email_ninja import VerificationEmailNinja
-from apps.user.serializers.user_serializers import (
-    UserDetailSerializer,
-    UserEditSerializer,
-)
+from apps.user.models import BaseUser
+from apps.user.serializers.user_serializers import UserSerializer
 from core.middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_success_response
-
-from ..models import BaseUser
 
 # ---------------------------------------------------------------------------- #
 #                                     USER                                     #
@@ -23,18 +19,13 @@ from ..models import BaseUser
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = BaseUser.get_detail_queryset(country=True, roles=True, role_permissions=True, role_permissions_permission=True)
-    serializer_class = UserDetailSerializer
+    serializer_class = UserSerializer
     filter_backends = [UserFilterBackend]
     http_method_names = ["get", "post", "patch", "delete"]
 
-    def get_serializer_class(self):
-        if self.action in ["create", "partial_update"]:
-            return UserEditSerializer
-        return super().get_serializer_class()
-
     def get_serializer_context(self):
-        if self.action == "partial_update":
-            return {"update_request": True}
+        if self.action in ["create", "partial_update"]:
+            return {"mutator": True}
         return super().get_serializer_context()
 
     @transaction.atomic
@@ -51,7 +42,7 @@ class UserViewSet(viewsets.ModelViewSet):
         request_data["requested_instance"] = self.get_object()
         user_ninja_instance = UserNinja(request.user, request_data, self.get_serializer_class())
         user_ninja_instance.update()
-        response_data = UserDetailSerializer(self.get_object()).data
+        response_data = UserSerializer(self.get_object()).data
         return make_success_response(data=response_data, message="User updated successfully")
 
     def set_user_role(self, request, *args, **kwargs):
