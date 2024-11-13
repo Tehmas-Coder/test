@@ -284,5 +284,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "exam_public" / "seeds",
     BASE_DIR / "apps" / "organization" / "seeds",
     BASE_DIR / "apps" / "exam_scoring" / "seeds",
-    BASE_DIR / "prod_seeds",
+    BASE_DIR / "seeds",
 ]

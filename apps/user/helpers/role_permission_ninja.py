@@ -3,8 +3,8 @@ from django.utils.text import slugify
 
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.utils.utils import get_current_user_organization
-from core.middlewares.current_user_middleware import get_current_user
-from core.middlewares.response_middleware import ResponseMiddleware
+from middlewares.current_user_middleware import get_current_user
+from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response
 
 

@@ -1,5 +1,5 @@
 from apps.user.models import Permission, Role
-from core.middlewares.current_user_middleware import get_current_user
+from middlewares.current_user_middleware import get_current_user
 
 
 class RoleNinja:

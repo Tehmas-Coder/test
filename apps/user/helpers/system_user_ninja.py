@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from apps.organization.models.organization_models import OrganizationUser
 from apps.user.models import BaseUser, Role, UserRole
 from apps.user.utils.utils import get_current_user_organization
-from core.middlewares.response_middleware import ResponseMiddleware
+from middlewares.response_middleware import ResponseMiddleware
 
 
 class SystemUserNinja:

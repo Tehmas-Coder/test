@@ -11,9 +11,9 @@ from apps.user.helpers.queryset_functions import (
     get_role_detailed_queryset,
     get_user_detailed_queryset,
 )
-from core.middlewares.current_user_middleware import get_current_user
-from core.middlewares.response_middleware import ResponseMiddleware
 from core.models import BaseModel, BaseUserModel
+from middlewares.current_user_middleware import get_current_user
+from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp, make_error_response
 

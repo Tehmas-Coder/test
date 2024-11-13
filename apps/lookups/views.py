@@ -37,7 +37,7 @@ from apps.organization.serializers import OrganizationUserSerializer
 from apps.questionbank.models import Tag
 from apps.questionbank.serializers.tag_serializers import TagSerializer
 from apps.user.utils.utils import get_current_user_organization
-from core.middlewares.current_user_middleware import get_current_user
+from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import make_error_response
 
 

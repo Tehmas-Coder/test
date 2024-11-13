@@ -1,7 +1,7 @@
 from apps.questionbank.models import Subject
 from apps.user.utils.utils import get_current_user_organization
-from core.middlewares.current_user_middleware import get_current_user
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from middlewares.current_user_middleware import get_current_user
 
 
 class SubjectSerializer(BaseModelSerializer):
