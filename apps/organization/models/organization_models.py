@@ -3,25 +3,8 @@ from django.db import models
 from core.models import BaseModel
 
 
-class Organization(BaseModel):
-    country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE, null=True, blank=True)
-
-    name = models.CharField(max_length=255)
-
-    users = models.ManyToManyField("user.BaseUser", through="OrganizationUser", through_fields=("organization", "user"))
-    packages = models.ManyToManyField("lookups.Package", through="OrganizationPackage")
-    questions = models.ManyToManyField("questionbank.Question", through="OrganizationQuestion")
-    exams = models.ManyToManyField("exam_admin.Exam", through="OrganizationExam")
-    encryption_key = models.CharField(max_length=255, null=True, blank=True)
-    token = models.CharField(max_length=255, null=True, blank=True)
-
-    class Meta:
-        app_label = "organization"
-        db_table = "organization_organization"
-
-
 class OrganizationUser(BaseModel):
-    organization = models.ForeignKey("Organization", on_delete=models.CASCADE, related_name="organization_users")
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, related_name="organization_users")
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_organizations")
 
     class Meta:
@@ -29,26 +12,8 @@ class OrganizationUser(BaseModel):
         db_table = "organization_organization_user"
 
 
-class OrganizationQuestion(BaseModel):
-    organization = models.ForeignKey("Organization", on_delete=models.CASCADE, related_name="organization_questions")
-    question = models.ForeignKey("questionbank.Question", on_delete=models.DO_NOTHING)
-
-    class Meta:
-        app_label = "organization"
-        db_table = "organization_organization_question"
-
-
-class OrganizationExam(BaseModel):
-    organization = models.ForeignKey("Organization", on_delete=models.CASCADE, related_name="organization_exams")
-    exam = models.ForeignKey("exam_admin.Exam", on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = "organization"
-        db_table = "organization_organization_exam"
-
-
 class OrganizationPackage(BaseModel):
-    organization = models.ForeignKey("Organization", on_delete=models.CASCADE, related_name="organization_packages")
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, related_name="organization_packages")
     package = models.ForeignKey("lookups.Package", on_delete=models.CASCADE)
 
     users = models.PositiveIntegerField(default=0)

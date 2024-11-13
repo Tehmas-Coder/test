@@ -1,13 +1,10 @@
 from apps.questionbank.models import Subject
-from apps.questionbank.serializers.question_serializers.education_level_serializers import (
-    EducationLevelSerializer,
-)
+from apps.user.utils.utils import get_current_user_organization
+from core.middlewares.current_user_middleware import get_current_user
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class SubjectDetailSerializer(BaseModelSerializer):
-    education_levels = EducationLevelSerializer(many=True, read_only=True)
-
+class SubjectSerializer(BaseModelSerializer):
     class Meta:
         model = Subject
         fields = [
@@ -15,16 +12,10 @@ class SubjectDetailSerializer(BaseModelSerializer):
             "name",
             "code",
             "abbreviation",
-            "education_levels",
+            "organization",
         ] + get_base_model_fields()
 
-
-class SubjectListSerializer(BaseModelSerializer):
-    class Meta:
-        model = Subject
-        fields = [
-            "id",
-            "name",
-            "code",
-            "abbreviation",
-        ] + get_base_model_fields()
+    def create(self, validated_data):
+        if not get_current_user().is_superuser:  # type: ignore
+            validated_data["organization_id"] = get_current_user_organization()
+        return super().create(validated_data)

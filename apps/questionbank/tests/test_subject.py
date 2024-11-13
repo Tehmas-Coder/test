@@ -75,7 +75,6 @@ class SubjectTest(SubjectUnitTest):
         "name",
         "code",
         "abbreviation",
-        "education_levels",
     ]
 
     # ?###################################################

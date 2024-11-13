@@ -17,9 +17,11 @@ from utils.rna_utils import (
 
 class UserUnitTest(TestSetUp):
     fixtures = [
+        "permission_seed",
         "resource_seed",
         "country_test_seed",
         "role_seed",
+        "role_permission_seed",
         "user_seed",
         "user_role_seed",
         "organization_seed",
@@ -237,6 +239,7 @@ class UserTest(UserUnitTest):
         validate_failed_400_test_response(self, response)
 
     def successsfull_fetching_of_list_of_records_test(self):
+        self.custom_login(email="test_user@gmail.com", password="12345678")
         json_data = self.do_get_user_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data["results"]:

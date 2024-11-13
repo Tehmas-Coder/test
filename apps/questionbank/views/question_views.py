@@ -5,10 +5,9 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.lookups.models import Organization
 from apps.organization.models.organization_models import (
-    Organization,
     OrganizationPackage,
-    OrganizationQuestion,
     OrganizationUser,
 )
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
@@ -78,8 +77,10 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
     SubjectEducationLevelEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectDetailSerializer,
+    SubjectSerializer,
 )
+from apps.user.utils.utils import get_current_user_organization
+from core.middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import make_error_response
 
 
@@ -87,17 +88,41 @@ from utils.rna_utils import make_error_response
 #                               QUESTION LOOKUPS                               #
 # ---------------------------------------------------------------------------- #
 class EducationLevelViewSet(viewsets.ModelViewSet):
-    queryset = EducationLevel.objects.all()
+    queryset = EducationLevel.objects.all().select_related("organization")
     serializer_class = EducationLevelSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
+    def list(self, request, *args, **kwargs):
+        if not get_current_user().is_superuser:  # type: ignore
+            user_organization_id = get_current_user_organization()
+            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
+        return super().list(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
+            return make_error_response(message="Failed: This Education Level doesn't belong to your organization")
+        return super().partial_update(request, *args, **kwargs)
+
 
 class SubjectViewSet(viewsets.ModelViewSet):
-    queryset = Subject.objects.all()
-    serializer_class = SubjectDetailSerializer
+    queryset = Subject.objects.all().select_related("organization")
+    serializer_class = SubjectSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        if not get_current_user().is_superuser:  # type: ignore
+            user_organization_id = get_current_user_organization()
+            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
+        return super().list(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
+            return make_error_response(message="Failed: This Subject doesn't belong to your organization")
+        return super().partial_update(request, *args, **kwargs)
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
@@ -120,8 +145,15 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
         serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def list(self, request, *args, **kwargs):
+        if not get_current_user().is_superuser:  # type: ignore
+            self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
+        return super().list(request, *args, **kwargs)
+
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
+        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
+            return make_error_response(message="Failed: This Subject Education Level doesn't belong to your organization")
         if (
             SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"])
             .exclude(id=instance.id)
@@ -157,6 +189,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     filter_backends = [QuestionFilterBackend]
     serializer_class = QuestionDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
+    QUESTION_NOT_AVAILABLE_MESSAGE = f"Failed: This Question doesn't belong to your organization"
 
     def parse_media(self, request):
         request_data = json.loads(request.data["data"])
@@ -229,46 +262,29 @@ class QuestionViewSet(viewsets.ModelViewSet):
             )
             if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
                 return make_error_response(message=f"Failed: Your limit to create questions is reached")
+            # * Assigning Question to Organization if the requested user is not superuser
+            organization_package.questions = organization_package.questions + 1  # type:ignore
+            organization_package.save()  # type:ignore
+            request_data["organization"] = organization_id
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
-
-        # * Assigning Question to Organization if the requested user is not superuser
-        if not request.user.is_superuser:
-            organization_package.questions = organization_package.questions + 1  # type:ignore
-            organization_package.save()  # type:ignore
-            organization.questions.add(question.id)  # type:ignore
-
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            organization_question_ids = list(OrganizationQuestion.objects.filter(organization_id=organization_id).values_list("question", flat=True))
-            self.queryset = self.queryset.filter(Q(id__in=organization_question_ids) | Q(is_public=True))
+            user_organization_id = get_current_user_organization()
+            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(is_public=True))
         return super().list(request, *args, **kwargs)
 
-    def retrieve(self, request, *args, **kwargs):
-        res = super().retrieve(request, *args, **kwargs)
-        if not request.user.is_superuser:
-            question_id = res.data["id"]  # type:ignore
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            organization_question = OrganizationQuestion.objects.filter(organization_id=organization_id, question_id=question_id)
-            if not ((res.data["is_public"]) or len(organization_question)):  # type:ignore
-                return make_error_response(message=f"Failed: This Question doesn't belong to your organization")
-        return res
-
     def partial_update(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            question_id = self.kwargs["pk"]
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            organization_question = OrganizationQuestion.objects.filter(organization_id=organization_id, question_id=question_id)
-            if not len(organization_question):
-                return make_error_response(message=f"Failed: This Question doesn't belong to your organization")
-        request_data = request.data
         instance = self.get_object()
+        if not request.user.is_superuser:
+            if instance.organization_id != get_current_user_organization():
+                return make_error_response(message=self.QUESTION_NOT_AVAILABLE_MESSAGE)
+        request_data = request.data
         serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from apps.user.models import BaseUser
-from apps.user.serializers.user_serializers import UserEditSerializer
+from apps.user.serializers.user_serializers import UserSerializer
 
 
 class TestSetUp(APITestCase):
@@ -31,7 +31,7 @@ class TestSetUp(APITestCase):
 
     def custom_login(self, email=None, password=None, create_user=0, is_superuser=0):
         if create_user:
-            user_serializer = UserEditSerializer(data=self.admin_user)
+            user_serializer = UserSerializer(data=self.admin_user, context={"mutator": True})
             user_serializer.is_valid(raise_exception=True)
             new_user_email = user_serializer.save()
             new_user_instance = BaseUser.objects.get(email=new_user_email)

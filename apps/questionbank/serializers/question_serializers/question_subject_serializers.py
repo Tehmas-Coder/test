@@ -15,7 +15,7 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
     SubjectEducationLevelEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectListSerializer,
+    SubjectSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
@@ -31,7 +31,7 @@ class QuestionSubjectListSerializer(BaseModelSerializer):
 
 class QuestionSubjectDetailSerializer(BaseModelSerializer):
     education_level = EducationLevelSerializer(source="subject_education_level.education_level")
-    subject = SubjectListSerializer(source="subject_education_level.subject")
+    subject = SubjectSerializer(source="subject_education_level.subject")
     countries = CountrySerializer(many=True)
     difficulty_level = DifficultyLevelSerializer()
     measuring_unit = MeasuringUnitSerializer()

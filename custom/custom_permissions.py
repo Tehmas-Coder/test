@@ -3,7 +3,8 @@ import re
 from django.forms.models import model_to_dict
 from rest_framework.permissions import BasePermission
 
-from apps.user.models import Resource
+from apps.user.models import Resource, RolePermission
+from utils.rna_utils import color_print
 
 
 class IsAuthenticated(BasePermission):
@@ -45,6 +46,9 @@ def is_url_public(request_method, request_path):
             "/currencies/",
             "/measuring-units/",
             "/media-types/",
+            "/question-types/",
+            "/difficulty-levels/",
+            # TODO: tags also have permissions, but they are public, check back to remove these from here
             "/tags/",
             # "/countries/(?P<pk>[0-9]+)/",
         ]
@@ -60,32 +64,37 @@ def is_url_public(request_method, request_path):
 
 def validate_resources(request_method, request_path, role_ids):
     regex_pattern = string_url_to_regex(request_path)
-    resource_id = 0
 
     try:
         resource_dict = model_to_dict(Resource.objects.get(regex__exact=regex_pattern, method=request_method))
-        resource_id = resource_dict["id"]
+        resource_permission = resource_dict["permission"]
     except:
         print(f"No Resource ({request_method} => {request_path}) found on server.")
         return False
 
+    role_permission_queryset = RolePermission.objects.filter(role_id__in=role_ids, permission=resource_permission, is_active=True)
+
+    if not role_permission_queryset.exists():
+        color_print("****************************************************************", "red")
+        color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
+        color_print("****************************************************************", "red")
+        return False
+
+    # ? This implementation is obsolete and was for the previous implementation of role_resource, use the above implementation
     # try:
     #     RoleResource.objects.get(role_id__in=role_ids, resource_id=resource_id)
     # except:
     #     print(f"RoleIDs ({role_ids}) id un-authorized for ({request_method} => {request_path}) request.")
     #     return False
 
+    color_print("PASSSSSSSSSSSSSSSSS")
     return True
 
 
 def string_url_to_regex(string_url):
-    exam_url = "/candidate-exam/token="
-    if string_url.startswith(exam_url):
-        return "^/candidate-exam/[0-9]+/$"
-
-    exam_score_url = "/candidate-exam-scoresheet/token="
-    if string_url.startswith(exam_score_url):
-        return "^/candidate-exam-scoresheet/[0-9]+/$"
+    bypass_url = string_url.split("/token=")
+    if len(bypass_url) > 1:
+        return f"^{bypass_url[0]}/[0-9]+/$"
 
     # Escape special characters in the input string
     escaped_string = re.escape(string_url)

@@ -18,9 +18,9 @@ urlpatterns = [
     path("resend-verification-link/", UserInvitaionLinkAPI.as_view({"post": "resend_verification_link"})),
     path("set-user-role/", UserViewSet.as_view({"post": "set_user_role"})),
     path("delete-role-with-permissions-from-sa-be/", RolePermissionViewSet.as_view({"delete": "delete_role_with_permissions"})),
-    path("system-to-qb-login/", FromSaLoginToQBApiView.as_view()),
+    path("system-to-qb-login/", SaToQBLoginApiView.as_view()),
     path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
-    path("system-user-create/", CreateSystemUserAPI.as_view({"post": "user_creation_by_system_user"})),
+    path("create-system-user/", CreateSystemUserAPI.as_view({"post": "user_creation_by_system_user"})),
 ]
 # ----------------------------------- USERS ---------------------------------- #
 router.register(r"users", UserViewSet)
@@ -28,6 +28,5 @@ router.register(r"users", UserViewSet)
 # ----------------------------- ROLE PERMISSIONS ----------------------------- #
 router.register(r"roles", RoleViewSet)
 router.register(r"permissions", PermissionViewSet)
-router.register(r"role-permissions", RolePermissionViewSet)
 
 urlpatterns += router.urls

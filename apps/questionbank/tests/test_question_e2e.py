@@ -34,7 +34,9 @@ class QuestionUnitTest(TestSetUp):
         "user_seed",
         "role_seed",
         "user_role_seed",
+        "permission_seed",
         "resource_seed",
+        "role_permission_seed",
     ]
 
     # ?###################################################
@@ -364,7 +366,7 @@ class QuestionTest(QuestionUnitTest):
 
     # * Failed test case to check a user from any organization can not modify some other organization's question
     def failed_updation_of_any_other_organization_question_record_test(self, test_record_id):
-        self.custom_login(email="generalcandidate@gmail.com", password="12345678")
+        self.custom_login(email="haiderjutt@gmail.com", password="12345678")
         updated_request_body = {}
         updated_request_body["title"] = "Are you not crazy?"
         updated_request_body["text"] = "Please don't give reasons you are crazy for sure"

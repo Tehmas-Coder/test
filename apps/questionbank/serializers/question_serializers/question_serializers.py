@@ -1,13 +1,10 @@
 from django.db import transaction
-from MySQLdb import IntegrityError
-from requests import Response
 from rest_framework import serializers
 
 from apps.questionbank.models import (
     Question,
     QuestionAttemptResponse,
     QuestionChoice,
-    QuestionMedia,
     QuestionRetryHint,
     QuestionSubject,
     SubjectEducationLevel,
@@ -37,7 +34,6 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
 )
 from apps.questionbank.serializers.tag_serializers import TagSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print, make_error_response
 
 
 class QuestionSerializer(BaseModelSerializer):
@@ -55,6 +51,7 @@ class QuestionSerializer(BaseModelSerializer):
             "id",
             "title",
             "type",
+            "organization",
             "text",
             "max_retries",
             "retry_penalty",
@@ -85,6 +82,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
             "id",
             "title",
             "type",
+            "organization",
             "text",
             "max_retries",
             "retry_penalty",
@@ -114,6 +112,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "type",
+            "organization",
             "text",
             "max_retries",
             "retry_penalty",
@@ -131,7 +130,6 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def create(self, validated_data):
-
         question_medias = validated_data.pop("medias", [])
         subjects_data = validated_data.pop("subjects", [])
         tags_data = validated_data.pop("tags", [])

@@ -460,5 +460,115 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 43,
+    "fields": {
+      "name": "Submit Exam",
+      "context_value": "candidates",
+      "description": "Submit an Exam (accessible to candidates only)",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 44,
+    "fields": {
+      "name": "Fetch Retry Hints",
+      "context_value": "candidates",
+      "description": "Fetch Retry Hints for an Exam (accessible to candidates only)",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 45,
+    "fields": {
+      "name": "Add Role",
+      "context_value": "roles",
+      "description": "Add a Role",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 46,
+    "fields": {
+      "name": "Update Role",
+      "context_value": "roles",
+      "description": "Update a Role",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 47,
+    "fields": {
+      "name": "Get All Roles",
+      "context_value": "roles",
+      "description": "Get all Roles",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 48,
+    "fields": {
+      "name": "Delete Role",
+      "context_value": "roles",
+      "description": "Delete a Role",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 49,
+    "fields": {
+      "name": "Get Candidate Organizations",
+      "context_value": "candidates",
+      "description": "Get organizations associated with a candidate",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 50,
+    "fields": {
+      "name": "Student Apply Only",
+      "context_value": "studentapply",
+      "description": "Permission for student apply resources only for system user",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 51,
+    "fields": {
+      "name": "View Candidate Exam Scoresheet",
+      "context_value": "exams",
+      "description": "View the scoresheet of a candidate's exam",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 52,
+    "fields": {
+      "name": "Login From Student Apply to Question Bank",
+      "context_value": "studentapply",
+      "description": "Login permission for student apply users to question bank",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
