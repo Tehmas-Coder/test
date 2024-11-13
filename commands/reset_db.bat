@@ -1,8 +1,8 @@
 REM --------------------------- DELETE MIGRATIONS ------------------------------
-@REM call .\scripts\delete_migrations.bat
+@REM call .\commands\delete_migrations.bat
 REM ---------------------------- RESET DATABASE --------------------------------
-python .\scripts\reset_db.py
+python .\commands\reset_db.py
 REM ---------------------------- MAKE MIGRATIONS -------------------------------
-call .\scripts\migrations.bat
+call .\commands\migrations.bat
 REM ---------------------------- POPULATE SEEDS --------------------------------
-call .\scripts\seed.bat
+call .\commands\seed.bat
