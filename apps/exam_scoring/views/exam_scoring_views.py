@@ -15,6 +15,9 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamScoresheetSerializer,
 )
 from apps.exam_scoring.classes.exam_scoring_helper import ExamScoringNinja
+from apps.exam_scoring.helpers.scoring_webhook import (
+    send_exam_result_to_student_apply_webhook,
+)
 from apps.exam_scoring.models.exam_score_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
@@ -146,18 +149,28 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         all_scores_sum = exam_questions_scores_sum + all_sections_score
 
         # * Update obtained marks with the sum of scores and exam_status = scored if none of the questions left to mark otherwise set the status to marked
-        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).select_related("exam_backlog", "candidate", "candidate__user")
+        candidate_exam_instance_queryset = CandidateExam.objects.filter(id=candidate_exam_id).select_related(
+            "exam_backlog", "candidate", "candidate__user", "candidate__organization"
+        )
         if len(candidate_exam_answer_queryset) == length_of_scored_candidate_exam_answers:
-            candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="scored")
+            candidate_exam_instance_queryset.update(obtained_marks=all_scores_sum, exam_status="scored")
             message = "Exam's all questions are marked and scored successfully"
+            response_status = status.HTTP_200_OK
+            candidate_exam_instance = candidate_exam_instance_queryset.first()
+            if candidate_exam_instance.candidate.organization.token:  # type: ignore
+                if not send_exam_result_to_student_apply_webhook(candidate_exam_instance):
+                    message += ", failed to send webhook"
+                    response_status = status.HTTP_307_TEMPORARY_REDIRECT
             # * Sending Email notification to the candidate to view exam result
-            exam_scoring = ExamScoringNinja(candidate_exam_instance=candidate_exam_instance.first())
+            exam_scoring = ExamScoringNinja(candidate_exam_instance=candidate_exam_instance)
             if not exam_scoring.send_result_email_to_candidate():
-                message = "Exam's all questions are marked and scored successfully but failed to send email notification"
+                message += ", failed to send email notification"
+                response_status = status.HTTP_307_TEMPORARY_REDIRECT
         else:
             message = "Exam questions marked and scored successfully"
-            candidate_exam_instance.update(obtained_marks=all_scores_sum, exam_status="marked")
-        return Response({"message": message}, status=status.HTTP_200_OK)
+            response_status = status.HTTP_200_OK
+            candidate_exam_instance_queryset.update(obtained_marks=all_scores_sum, exam_status="marked")
+        return Response({"message": message}, status=response_status)
 
     # * -------------------------- Candidate Exam Scoresheet -------------------------- #
 
