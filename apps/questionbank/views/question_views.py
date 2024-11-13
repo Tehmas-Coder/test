@@ -1,16 +1,12 @@
 import json
 
-from django.db.models import F, Q
+from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.lookups.models import Organization
-from apps.organization.models.organization_models import (
-    OrganizationPackage,
-    OrganizationUser,
-)
 from apps.questionbank.custom.question_classes import (
+    DefaultMediaExtractor,
     OrganizationValidator,
     QuestionService,
     QuestionVisibilitySetter,
@@ -197,6 +193,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     QUESTION_NOT_AVAILABLE_MESSAGE = f"Failed: This Question doesn't belong to your organization"
 
+    def get_serializer_class(self):
+        if self.action in ["create", "partial_update"]:
+            return QuestionEditSerializer
+        return super().get_serializer_class()
+
     # def parse_media(self, request):
     #     request_data = json.loads(request.data["data"])
 
@@ -242,11 +243,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     #     return request_data
 
-    def get_serializer(self, *args, **kwargs):
-        if self.action in ["create", "partial_update"]:
-            return QuestionEditSerializer(*args, **kwargs)
-        return super().get_serializer(*args, **kwargs)
-
     # def create(self, request, *args, **kwargs):
     #     if "data" in request.data:
     #         request_data = self.parse_media(request)
@@ -280,11 +276,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def create(self, request, *args, **kwargs):
-        request_parser = RequestParser()
-
+        request_parser = RequestParser(DefaultMediaExtractor())
         visibility_setter = QuestionVisibilitySetter()
         organization_validator = OrganizationValidator()
-        question_service = QuestionService(request_parser, visibility_setter, organization_validator, serializer_class=self.get_serializer_class())
+        question_service = QuestionService(request_parser, visibility_setter, organization_validator, self.get_serializer_class())
         return question_service.create_question(request)
 
     def list(self, request, *args, **kwargs):
