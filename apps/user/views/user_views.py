@@ -3,19 +3,14 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from apps.organization.models.organization_models import OrganizationUser
 from apps.user.filters.user_filters import UserFilterBackend
+from apps.user.helpers.system_user_ninja import SystemUserNinja
 from apps.user.helpers.user_ninja import UserNinja
 from apps.user.helpers.verification_email_ninja import VerificationEmailNinja
-from apps.user.models import UserRole
-from apps.user.serializers.user_serializers import (
-    UserDetailSerializer,
-    UserEditSerializer,
-)
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.models import BaseUser
+from apps.user.serializers.user_serializers import UserSerializer
+from core.middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_success_response
-
-from ..models import BaseUser, Role
 
 # ---------------------------------------------------------------------------- #
 #                                     USER                                     #
@@ -24,18 +19,13 @@ from ..models import BaseUser, Role
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = BaseUser.get_detail_queryset(country=True, roles=True, role_permissions=True, role_permissions_permission=True)
-    serializer_class = UserDetailSerializer
+    serializer_class = UserSerializer
     filter_backends = [UserFilterBackend]
     http_method_names = ["get", "post", "patch", "delete"]
 
-    def get_serializer_class(self):
-        if self.action in ["create", "partial_update"]:
-            return UserEditSerializer
-        return super().get_serializer_class()
-
     def get_serializer_context(self):
-        if self.action == "partial_update":
-            return {"update_request": True}
+        if self.action in ["create", "partial_update"]:
+            return {"mutator": True}
         return super().get_serializer_context()
 
     @transaction.atomic
@@ -52,7 +42,7 @@ class UserViewSet(viewsets.ModelViewSet):
         request_data["requested_instance"] = self.get_object()
         user_ninja_instance = UserNinja(request.user, request_data, self.get_serializer_class())
         user_ninja_instance.update()
-        response_data = UserDetailSerializer(self.get_object()).data
+        response_data = UserSerializer(self.get_object()).data
         return make_success_response(data=response_data, message="User updated successfully")
 
     def set_user_role(self, request, *args, **kwargs):
@@ -82,93 +72,11 @@ class CreateSystemUserAPI(viewsets.ViewSet):
 
     @transaction.atomic
     def user_creation_by_system_user(self, request):
-        logged_in_user = request.user
-        logged_in_user_roles = logged_in_user.get_user_role_slugs
-        requested_user_organization_id = get_current_user_organization()
-
-        if "system" not in logged_in_user_roles:
+        if "system" not in get_current_user().get_user_role_slugs:  # type: ignore
             return Response(
                 {"status": "failed", "message": "User must be a system user to perform this action."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        request_data = request.data
-
-        # Collect all role slugs and role names
-        role_slugs = [f"{requested_user_organization_id}-{one_dict['Slug']}" for one_dict in request_data]
-        slug_to_role_name = {f"{requested_user_organization_id}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in request_data}
-
-        # Check if system roles are already created
-        roles = Role.objects.filter(slug__in=role_slugs, is_system_role=True)
-        found_role_slugs = set(roles.values_list("slug", flat=True))
-        missing_slugs = set(role_slugs) - found_role_slugs
-
-        if missing_slugs:
-            missing_role_names = [slug_to_role_name[slug] for slug in missing_slugs]
-            return Response(
-                {"status": "failed", "message": f"These roles are not created in QB yet: {', '.join(missing_role_names)}."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # Create a mapping from role slug to role id
-        role_slug_id_hashmap = {role.slug: role.id for role in roles}  # type: ignore
-
-        # Collect all emails
-        emails = [one_user["Email"] for one_user in request_data]
-
-        # Fetch existing users and organization users
-        existing_users = BaseUser.objects.filter(email__in=emails)
-        existing_users_dict = {user.email: user for user in existing_users}
-
-        organization_users = OrganizationUser.objects.filter(user__email__in=emails).select_related("user")
-        organization_users_dict = {org_user.user.email: org_user for org_user in organization_users}
-
-        unentertained_emails = []
-
-        for one_user in request_data:
-            role_slug = f"{requested_user_organization_id}-{one_user['Slug']}"
-            role_id = role_slug_id_hashmap[role_slug]
-            email = one_user["Email"]
-            to_delete = one_user.get("ToDelete", False)
-
-            # Checking if the user already exists with any organization
-            user_instance = existing_users_dict.get(email)
-            create_organization_user = False
-
-            if email in organization_users_dict:
-                org_user = organization_users_dict[email]
-                if org_user.organization_id != requested_user_organization_id:  # type: ignore
-                    unentertained_emails.append(email)
-                    continue
-            else:
-                create_organization_user = True
-
-            if not user_instance:
-                user_instance = BaseUser.objects.create(
-                    email=email,
-                    first_name=one_user["FirstName"],
-                    last_name=one_user["LastName"],
-                    phone=one_user["PhoneNumber"],
-                    date_of_birth=one_user["DateOfBirth"],
-                )
-                UserRole.objects.create(
-                    user=user_instance,
-                    role_id=role_id,
-                )
-            else:
-                if to_delete:
-                    UserRole.objects.filter(user=user_instance, role_id=role_id).update(meta_status="deleted")
-                else:
-                    UserRole.objects.get_or_create(
-                        user=user_instance,
-                        role_id=role_id,
-                        defaults={"user": user_instance, "role_id": role_id},
-                    )
-
-            if create_organization_user:
-                OrganizationUser.objects.create(
-                    user=user_instance,
-                    organization_id=requested_user_organization_id,
-                )
-
+        system_user_ninja = SystemUserNinja(request.data)
+        unentertained_emails = system_user_ninja.create_system_user()
         return Response({"data": unentertained_emails}, status=status.HTTP_200_OK)

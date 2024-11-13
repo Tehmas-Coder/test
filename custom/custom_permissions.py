@@ -72,10 +72,9 @@ def validate_resources(request_method, request_path, role_ids):
         print(f"No Resource ({request_method} => {request_path}) found on server.")
         return False
 
-    try:
-        RolePermission.objects.get(role_id__in=role_ids, permission=resource_permission, is_active=True)
+    role_permission_queryset = RolePermission.objects.filter(role_id__in=role_ids, permission=resource_permission, is_active=True)
 
-    except:
+    if not role_permission_queryset.exists():
         color_print("****************************************************************", "red")
         color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
         color_print("****************************************************************", "red")

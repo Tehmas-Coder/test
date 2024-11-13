@@ -171,10 +171,7 @@ class Role(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.id:  # type: ignore
-            if self.organization:
-                self.slug = slugify(f"{self.organization.id}-{self.name}")
-            else:
-                self.slug = slugify(self.name)
+            self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
             super().save(*args, **kwargs)
         except IntegrityError:

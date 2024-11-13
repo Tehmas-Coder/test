@@ -19,6 +19,7 @@ class OrganizationUserUnitTest(TestSetUp):
         "user_seed",
         "user_role_seed",
         "organization_user_seed",
+        "permission_seed",
         "resource_seed",
     ]
 

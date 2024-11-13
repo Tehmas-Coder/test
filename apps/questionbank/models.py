@@ -1,8 +1,13 @@
-from django.db import models
+from django.db import IntegrityError, models
 from django.db.models import Count, F, Q, QuerySet
+from django.utils.text import slugify
 
 from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
+from apps.user.utils.utils import get_current_user_organization
+from core.middlewares.current_user_middleware import get_current_user
+from core.middlewares.response_middleware import ResponseMiddleware
 from core.models import BaseModel
+from utils.rna_utils import make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                               QUESTION LOOKUPS                               #
@@ -12,35 +17,49 @@ MEDIA_MODEL = "user.Media"
 
 
 class Tag(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # type: ignore
+            if not get_current_user().is_superuser:  # type: ignore
+                self.organization_id = get_current_user_organization()
+        return super().save(*args, **kwargs)
 
     class Meta:
         app_label = "questionbank"
 
 
 class EducationLevel(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
+
+    name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True)
-    code = models.CharField(max_length=10, unique=True)
+    code = models.CharField(max_length=10)
     abbreviation = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(" ", "-")
-        super().save(*args, **kwargs)
+        if not self.id:  # type: ignore
+            self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError:
+            ResponseMiddleware.return_now(make_error_response(message="Education level with this name already exists"))
 
     class Meta:
         app_label = "questionbank"
 
 
 class Subject(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
-    code = models.CharField(max_length=10, unique=True)
-    abbreviation = models.CharField(max_length=10, blank=True)
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
-    education_levels = models.ManyToManyField(EducationLevel, through="SubjectEducationLevel", related_name="subjects")
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
+    code = models.CharField(max_length=10)
+    abbreviation = models.CharField(max_length=10, blank=True)
 
     class Meta:
         app_label = "questionbank"
@@ -50,8 +69,12 @@ class Subject(BaseModel):
         return f"{self.name} ({self.code})"
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(" ", "-")
-        super().save(*args, **kwargs)
+        if not self.id:  # type: ignore
+            self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError:
+            ResponseMiddleware.return_now(make_error_response(message="Subject with this name already exists"))
 
     @classmethod
     def select_random_subjects(
@@ -291,6 +314,8 @@ class QuestionRetryHint(BaseModel):
 
 
 class SubjectEducationLevel(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
+
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     education_level = models.ForeignKey(EducationLevel, on_delete=models.CASCADE)
 
@@ -298,9 +323,16 @@ class SubjectEducationLevel(BaseModel):
         app_label = "questionbank"
         db_table = "questionbank_subject_educationlevel"
 
+    def save(self, *args, **kwargs):
+        if not self.id:  # type: ignore
+            if (not get_current_user().is_superuser) and (self.subject.organization or self.education_level.organization):  # type: ignore
+                self.organization_id = get_current_user_organization()
+        return super().save(*args, **kwargs)
+
     @classmethod
     def get_detail_queryset(cls):
         return cls.objects.get_queryset().select_related(
+            "organization",
             "subject",
             "education_level",
         )

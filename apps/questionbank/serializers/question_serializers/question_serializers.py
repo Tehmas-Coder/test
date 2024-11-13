@@ -130,7 +130,6 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def create(self, validated_data):
-
         question_medias = validated_data.pop("medias", [])
         subjects_data = validated_data.pop("subjects", [])
         tags_data = validated_data.pop("tags", [])

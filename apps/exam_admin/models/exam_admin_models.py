@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models import QuerySet
 
 from apps.exam_admin.helpers.queryset_functions import get_exam_detailed_queryset
+from apps.user.utils.utils import get_current_user_organization
+from core.middlewares.current_user_middleware import get_current_user
 from core.models import BaseModel
 
 
@@ -9,11 +11,19 @@ from core.models import BaseModel
 #                                  EXAM BASIC                                  #
 # ---------------------------------------------------------------------------- #
 class Schedule(BaseModel):
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_schedules")
+
     title = models.CharField(max_length=255, blank=True)
     start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
     end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
     waiting_duration = models.PositiveIntegerField(null=True)
     extra_duration = models.PositiveIntegerField(null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # type: ignore
+            if not get_current_user().is_superuser:  # type: ignore
+                self.organization_id = get_current_user_organization()
+        return super().save(*args, **kwargs)
 
     class Meta:
         app_label = "exam_admin"

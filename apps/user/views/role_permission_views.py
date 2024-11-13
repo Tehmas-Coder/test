@@ -10,8 +10,6 @@ from apps.user.helpers.role_permission_ninja import RolePermissionNinja
 from apps.user.models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
-    RoleDetailSerializer,
-    RolePermissionSerializer,
     RoleSerializer,
 )
 from apps.user.utils.utils import get_current_user_organization
@@ -27,22 +25,23 @@ class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.get_detail_queryset(permissions=True)
     serializer_class = RoleSerializer
 
-    def get_serializer_class(self):
-        if self.action in ["list", "retrieve"]:
-            return RoleDetailSerializer
-        return super().get_serializer_class()
+    def get_serializer_context(self):
+        if self.action in ["create", "partial_update"]:
+            return {"mutator": True}
+        return super().get_serializer_context()
 
     def get_queryset(self):
         if self.action == "retrieve":
             return Role.get_detail_queryset(organization=True, role_permissions=True, role_permissions_permission=True)
         return super().get_queryset()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             request.data["organization"] = get_current_user_organization()
         new_role_data = super().create(request, *args, **kwargs)
         new_role_instance = RoleNinja.add_role_permissions(new_role_data.data["id"])  # type: ignore
-        response_data = RoleSerializer(new_role_instance).data
+        response_data = RoleSerializer(new_role_instance, context={"mutator": True}).data
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
@@ -110,82 +109,17 @@ class PermissionViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------- #
 
 
-class RolePermissionViewSet(viewsets.ModelViewSet):
-    http_method_names = ["get", "post", "patch", "delete", "put"]
-    queryset = RolePermission.objects.all().select_related("role", "permission")
-    serializer_class = RolePermissionSerializer
-
-    def create(self, request, *args, **kwargs):
-        request_data = request.data
-        role = Role.objects.filter(id=request_data["role"]).first()
-        role.permissions.set(request_data["permissions"])  # type: ignore
-        return Response({"message": "Permissions set successfully"}, status=status.HTTP_201_CREATED)
+class RolePermissionViewSet(viewsets.ViewSet):
 
     @transaction.atomic
     def update_role_permissions_from_sa_be(self, request, *args, **kwargs):
-        # role_permissions_ninja_instance = RolePermissionNinja(request.data)
-        request_data = request.data
-        requested_user_organization_id = get_current_user_organization()
-        request_role_name = request_data["RoleName"]
-        request_role_name_slug = slugify(f"{requested_user_organization_id}-{request_role_name}")
-        role_instance = Role.objects.filter(slug=request_role_name_slug)
-
-        if len(request_data.get("default_qb_permissions", [])):
-            if role_instance.exists():
-                role_instance = role_instance.first()
-                role_instance.is_system_role = True  # type: ignore
-                role_instance.save()  # type: ignore
-                RolePermission.objects.filter(role=role_instance).update(is_active=False)
-            else:
-                role_instance = Role.objects.create(name=request_role_name, is_system_role=True, organization_id=requested_user_organization_id)
-                permission_ids_list = list(
-                    Permission.objects.exclude(Q(context_value="studentapply") & ~Q(name__icontains="Login From Student Apply"))
-                    .exclude(context_value="candidates")
-                    .values_list("id", flat=True)
-                )
-                role_instance.permissions.set(permission_ids_list)
-
-            request_permission_ids_list = [one_dict["id"] for one_dict in request_data["default_qb_permissions"]]
-            RolePermission.objects.filter(
-                Q(role=role_instance) & (Q(permission_id__in=request_permission_ids_list) | Q(permission__name__icontains="Login From Student Apply"))
-            ).update(is_active=True)
-
-        else:
-            role_instance = role_instance.first()
-            RolePermission.objects.bulk_update(
-                [
-                    RolePermission(
-                        id=one_permission["id"],
-                        role=role_instance,
-                        is_active=one_permission["is_active"],
-                    )
-                    for one_permission in request.data["qb_role_permissions"]
-                ],
-                fields=["is_active"],
-            )
-
+        role_permissions_ninja_instance = RolePermissionNinja(request.data)
+        role_permissions_ninja_instance.update_role_permissions()
         return Response(status=status.HTTP_200_OK)
 
     # This api is used by student apply backend to delete a role with all its permissions
     @transaction.atomic
     def delete_role_with_permissions(self, request, *args, **kwargs):
-        request_user_roles = request.user.get_user_role_slugs
-        if (not request.user.is_superuser) and len(request_user_roles):
-            if "system" in request_user_roles:  # make it system
-                requested_user_organization_id = get_current_user_organization()
-                request_role_name = request.data.get("role")
-                request_role_name_slug = slugify(f"{requested_user_organization_id}-{request_role_name}")
-                role_instance = Role.objects.filter(slug=request_role_name_slug).first()
-
-                if not role_instance:
-                    return Response({"error": "Role not found"}, status=status.HTTP_404_NOT_FOUND)
-                elif role_instance.is_system_role:
-                    role_permissions = RolePermission.objects.filter(role=role_instance)
-                    role_permissions.update(meta_status="deleted")  # Bulk Delete
-
-                    role_instance.delete()
-                    return Response(status=status.HTTP_204_NO_CONTENT)
-                else:
-                    return Response({"error": "Requested role is not a system role"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        role_permissions_ninja_instance = RolePermissionNinja(request.data)
+        role_permissions_ninja_instance.delete_role_with_its_permissions()
+        return Response(status=status.HTTP_204_NO_CONTENT)

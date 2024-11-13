@@ -34,7 +34,7 @@ class UserNinja:
         self.requested_user_instance: BaseUser = None  # type: ignore
 
     # ---------------------------------------------------------------------------- #
-    #                                Public methods                                #
+    #                                PUBLIC METHODS                                #
     # ---------------------------------------------------------------------------- #
     def create(self):
         self.request_data_role_ids: list = self.data_dict.pop("roles", [])
@@ -69,14 +69,14 @@ class UserNinja:
             ResponseMiddleware.return_now(make_error_response(message=f"Invalid Role"))
 
     # ---------------------------------------------------------------------------- #
-    #                                Private methods                               #
+    #                                PRIVATE METHODS                               #
     # ---------------------------------------------------------------------------- #
 
     def __validate_and_save_user(self, is_update: bool = False):
         if is_update:
-            serializer_instance = self.serializer_class(self.requested_user_instance, data=self.data_dict, partial=True)
+            serializer_instance = self.serializer_class(self.requested_user_instance, data=self.data_dict, partial=True, context={"mutator": True})
         else:
-            serializer_instance = self.serializer_class(data=self.data_dict)
+            serializer_instance = self.serializer_class(data=self.data_dict, context={"mutator": True})
 
         if not serializer_instance.is_valid():
             errors = serializer_instance.errors
