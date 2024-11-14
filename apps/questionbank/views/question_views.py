@@ -1,5 +1,6 @@
 import json
 
+from django.db import transaction
 from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -275,6 +276,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     #     serializer = QuestionDetailSerializer(question)
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_parser = RequestParser(DefaultMediaExtractor())
         visibility_setter = QuestionVisibilitySetter()
