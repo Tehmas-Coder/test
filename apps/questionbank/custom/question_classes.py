@@ -56,7 +56,7 @@ class RequestParser:
     def parse_media(self, request):
         request_data = json.loads(request.data["data"])
 
-        # * Extract media for questions
+        # * Extract medias for question, its choices and hints
         media_keys = request_data.pop("medias", [])
         request_data["medias"] = self.media_extractor.extract(request, media_keys)
         request_data["retry_hints"] = HintMediaExtractor().extract(request, request_data.get("retry_hints", []))
@@ -99,7 +99,7 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
 
     def validate_limit(self, current_count, total_limit):
         if not (current_count <= total_limit):
-            raise ValueError("Limit reached")
+            raise ValueError("Package limit for this action has been reached")
         current_count += 1
         return current_count
 
@@ -107,7 +107,7 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
         self.organization_package.save()  # type: ignore
 
 
-class QuestionPackageLimitValidator(OrganizationPackageLimitValidator):
+class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidator):
     def validate(self):
         try:
             self.organization_package.questions = self.validate_limit(self.organization_package.questions, self.organization_package.package.questions)  # type: ignore
@@ -139,7 +139,7 @@ class QuestionService:
 
         if not get_current_user().is_superuser:  # type: ignore
             try:
-                organization_id = QuestionPackageLimitValidator().validate()
+                organization_id = OrganizationPackageQuestionLimitValidator().validate()
                 request_data["organization"] = organization_id  # type: ignore
             except ValueError as e:
                 ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))
