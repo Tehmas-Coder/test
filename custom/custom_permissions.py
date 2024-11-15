@@ -1,9 +1,12 @@
 import re
 
 from django.forms.models import model_to_dict
+from rest_framework import status
 from rest_framework.permissions import BasePermission
+from rest_framework.response import Response
 
 from apps.user.models import Resource, RolePermission
+from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import color_print
 
 
@@ -31,7 +34,10 @@ class IsAuthenticated(BasePermission):
             return True
 
         # return True
-        return validate_resources(request_method, request_path, user_role_ids)
+        if not validate_resources(request_method, request_path, user_role_ids):
+            ResponseMiddleware.return_now(Response({"error": "Unauthorized access"}, status=status.HTTP_400_BAD_REQUEST))
+        else:
+            return True
 
 
 def is_url_public(request_method, request_path):
