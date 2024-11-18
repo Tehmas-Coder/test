@@ -2,13 +2,13 @@ from rest_framework import serializers
 
 from apps.exam_admin.models.exam_admin_models import ExamSubject
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
-    SubjectEducationLevelDetailSerializer,
+    SubjectEducationLevelSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class ExamSubjectDetailSerializer(BaseModelSerializer):
-    subject_education_level = SubjectEducationLevelDetailSerializer()
+    subject_education_level = SubjectEducationLevelSerializer()
 
     class Meta:
         model = ExamSubject
@@ -28,7 +28,7 @@ class ExamSubjectDetailSerializer(BaseModelSerializer):
 
 
 class ExamSubjectListSerializer(serializers.ModelSerializer):
-    subject_education_level = SubjectEducationLevelDetailSerializer()
+    subject_education_level = SubjectEducationLevelSerializer()
 
     class Meta:
         model = ExamSubject

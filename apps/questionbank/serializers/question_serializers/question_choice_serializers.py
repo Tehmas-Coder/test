@@ -30,9 +30,6 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
         read_only_fields = ["id"]
 
-    def validate(self, attrs):
-        return super().validate(attrs)
-
     @transaction.atomic
     def create(self, validated_data):
         try:

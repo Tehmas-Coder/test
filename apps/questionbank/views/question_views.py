@@ -75,8 +75,7 @@ from apps.questionbank.serializers.question_serializers.question_type_serializer
     QuestionTypeSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
-    SubjectEducationLevelDetailSerializer,
-    SubjectEducationLevelEditSerializer,
+    SubjectEducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectSerializer,
@@ -129,29 +128,31 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     queryset = SubjectEducationLevel.get_detail_queryset()
-    serializer_class = SubjectEducationLevelDetailSerializer
+    serializer_class = SubjectEducationLevelSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def get_serializer_class(self):
+    def get_serializer_context(self):
         if self.action in ["create", "partial_update"]:
-            return SubjectEducationLevelEditSerializer
-        return super().get_serializer_class()
+            return {"mutator": True}
+        return super().get_serializer_context()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"]).exists():
             return make_error_response(data=request.data, message="Subject education level already exists.")
-        serializer = SubjectEducationLevelEditSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         subject_education_level = serializer.save()
-        serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response_data = SubjectEducationLevelSerializer(subject_education_level).data
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         if not get_current_user().is_superuser:  # type: ignore
             self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
         return super().list(request, *args, **kwargs)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
@@ -161,12 +162,12 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
             .exclude(id=instance.id)
             .exists()
         ):
-            return make_error_response(data=request.data, message="Subject education level already exists.")
-        serializer = SubjectEducationLevelEditSerializer(instance, data=request.data, partial=True)
+            return make_error_response(message="Failed: This subject education level already exists.")
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         subject_education_level = serializer.save()
-        serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
-        return Response(serializer.data)
+        response_data = SubjectEducationLevelSerializer(subject_education_level).data
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):

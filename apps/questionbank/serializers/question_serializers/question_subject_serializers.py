@@ -12,7 +12,7 @@ from apps.questionbank.serializers.question_serializers.education_level_serializ
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
-    SubjectEducationLevelEditSerializer,
+    SubjectEducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectSerializer,
@@ -55,7 +55,7 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):
     id = serializers.IntegerField(required=False)  # Make id optional
-    subject_education_level = SubjectEducationLevelEditSerializer()
+    subject_education_level = SubjectEducationLevelSerializer(context={"mutator": True})
     difficulty_level = serializers.PrimaryKeyRelatedField(queryset=DifficultyLevel.objects.all())
     measuring_unit = serializers.PrimaryKeyRelatedField(queryset=MeasuringUnit.objects.all())
     countries = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), many=True, required=False)
