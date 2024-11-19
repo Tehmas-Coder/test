@@ -10,9 +10,12 @@ from apps.lookups.custom.lookups_classes import (
     OrganizationResourceValidator,
 )
 from apps.questionbank.custom.question_classes import (
+    ChoiceMediaExtractor,
+    HintMediaExtractor,
+    OrganizationPackageQuestionLimitValidator,
     QuestionService,
     QuestionVisibilitySetter,
-    RequestParser,
+    RequestMediaParser,
 )
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.models import (
@@ -200,9 +203,19 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_parser = RequestParser(fetch_hint_medias=True, fetch_choice_medias=True)
+        request_parser = RequestMediaParser()
+        request_choice_media_parser = RequestMediaParser(ChoiceMediaExtractor())
+        request_hint_media_parser = RequestMediaParser(HintMediaExtractor())
         visibility_setter = QuestionVisibilitySetter()
-        question_service = QuestionService(request_parser, visibility_setter, self.get_serializer_class())
+        organization_validator = OrganizationPackageQuestionLimitValidator()
+        question_service = QuestionService(
+            request_parser,
+            request_choice_media_parser,
+            request_hint_media_parser,
+            visibility_setter,
+            organization_validator,
+            self.get_serializer_class(),
+        )
         return question_service.create_question(request)
 
     @transaction.atomic
@@ -227,7 +240,6 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
     queryset = QuestionMedia.objects.all()
     serializer_class = QuestionMediaEditSerializer
     http_method_names = ["post", "delete"]
-    # parser_classes = [FormParser, MultiPartParser]
 
     def create(self, request, *args, **kwargs):
         request_data = request.data
