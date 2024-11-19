@@ -6,9 +6,11 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.questionbank.custom.question_classes import (
+from apps.lookups.custom.lookups_classes import (
     OrganizationResourceQuerysetMutator,
     OrganizationResourceValidator,
+)
+from apps.questionbank.custom.question_classes import (
     OrganizationValidator,
     QuestionService,
     QuestionVisibilitySetter,
