@@ -10,8 +10,6 @@ from apps.lookups.custom.lookups_classes import (
     OrganizationResourceValidator,
 )
 from apps.questionbank.custom.question_classes import (
-    OrganizationPackageQuestionLimitValidator,
-    OrganizationValidator,
     QuestionService,
     QuestionVisibilitySetter,
     RequestParser,
