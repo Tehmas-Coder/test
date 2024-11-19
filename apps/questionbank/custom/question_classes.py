@@ -1,7 +1,9 @@
 import json
 from abc import ABC, abstractmethod
 
+from django.db.models import Q
 from rest_framework import status
+from rest_framework.generics import QuerySet
 from rest_framework.response import Response
 
 from apps.organization.models.organization_models import OrganizationPackage
@@ -21,6 +23,10 @@ class MediaExtractor(ABC):
 
 
 class DefaultMediaExtractor(MediaExtractor):
+    """
+    This class is used to extract the media files from the request.
+    """
+
     def extract(self, request, media_keys: list) -> list:
         medias = []
         for key in media_keys:
@@ -31,6 +37,10 @@ class DefaultMediaExtractor(MediaExtractor):
 
 
 class HintMediaExtractor(DefaultMediaExtractor):
+    """
+    This class is used to extract the media files from the hints of the question.
+    """
+
     def extract(self, request, hints: list) -> list:
         for hint in hints:
             hint["medias"] = super().extract(request, hint.get("medias", []))
@@ -38,6 +48,10 @@ class HintMediaExtractor(DefaultMediaExtractor):
 
 
 class ChoiceMediaExtractor(DefaultMediaExtractor):
+    """
+    This class is used to extract the media files from the choices of the question.
+    """
+
     def extract(self, request, choices: list) -> list:
         for choice in choices:
             choice["medias"] = super().extract(request, choice.get("medias", []))
@@ -45,6 +59,10 @@ class ChoiceMediaExtractor(DefaultMediaExtractor):
 
 
 class RequestParser:
+    """
+    This class is used to parse the request data and extract the media files from the request.
+    """
+
     def __init__(
         self,
         media_extractor: MediaExtractor = DefaultMediaExtractor(),
@@ -74,6 +92,10 @@ class RequestParser:
 
 
 class VisibilitySetter:
+    """
+    This class is used to set the visibility of the question to public or non public based on the user's role.
+    """
+
     def set_visibility(self, request_data: dict) -> dict:
         if get_current_user().is_superuser:  # type: ignore
             request_data["is_public"] = 1
@@ -83,6 +105,10 @@ class VisibilitySetter:
 
 
 class QuestionVisibilitySetter(VisibilitySetter):
+    """
+    This class is used to set the visibility of the question to public or non public based on the user's role.
+    """
+
     def set_visibility(self, request_data: dict) -> dict:
         return super().set_visibility(request_data)
 
@@ -93,16 +119,57 @@ class OrganizationValidator:
             organization_id = get_current_user_organization()
         self.organization_id = organization_id
 
-    def validate(self) -> int:
-        return self.organization_id  # type: ignore
+    def validate(self) -> bool:
+        return True
+
+
+class OrganizationResourceValidator(OrganizationValidator):
+    """
+    This class is used to validate the organization_id of the resource, to check if the resource belongs to the organization of the user.
+    """
+
+    def __init__(self, organization_id=None, instance_organization_id=None) -> None:
+        super().__init__(organization_id)
+        self.instance_organization_id = instance_organization_id
+
+    def validate(self) -> bool:
+        if (not get_current_user().is_superuser) and (self.instance_organization_id != self.organization_id):  # type: ignore
+            ResponseMiddleware.return_now(make_error_response(message="Failed: This resource doesn't belong to your organization"))
+        return True
+
+
+class OrganizationResourceQuerysetMutator:
+    """
+    This class is used to filter the queryset based on the organization_id.
+    """
+
+    def __init__(self, organization_id=None, queryset=None, is_public=False) -> None:
+        if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
+            organization_id = get_current_user_organization()
+        self.organization_id = organization_id
+        self.queryset = queryset
+        self.is_public = is_public
+
+    def get_queryset(self) -> QuerySet:
+        q_filter = Q()
+        if not get_current_user().is_superuser:  # type: ignore
+            if self.is_public:
+                q_filter &= Q(organization_id=self.organization_id) | Q(is_public=True)
+            else:
+                q_filter &= Q(organization_id=self.organization_id) | Q(organization_id=None)
+        return self.queryset.filter(q_filter)  # type: ignore
 
 
 class OrganizationPackageLimitValidator(OrganizationValidator):
+    """
+    This class is used to validate the package limits of the organization.
+    """
+
     def __init__(self, organization_id=None) -> None:
         super().__init__(organization_id)
         self.organization_package = OrganizationPackage.objects.filter(organization_id=self.organization_id).select_related("package").last()
 
-    def validate(self) -> int:
+    def validate(self) -> bool:
         return super().validate()
 
     def validate_limit(self, current_count, total_limit) -> int:
@@ -116,16 +183,27 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
 
 
 class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidator):
-    def validate(self) -> int:
+    """
+    This class is used to validate the question creation package limits of the organization.
+    """
+
+    def __init__(self, organization_id=None) -> None:
+        super().__init__(organization_id)
+
+    def validate(self) -> bool:
         try:
             self.organization_package.questions = self.validate_limit(self.organization_package.questions, self.organization_package.package.questions)  # type: ignore
             self.save_organization_package()
-            return self.organization_id  # type: ignore
+            return True
         except ValueError as e:
             raise ValueError(str(e))
 
 
 class QuestionService:
+    """
+    This class is used to perfrom question CRUD operations.
+    """
+
     def __init__(
         self,
         request_parser: RequestParser,
@@ -147,7 +225,8 @@ class QuestionService:
 
         if not get_current_user().is_superuser:  # type: ignore
             try:
-                organization_id = OrganizationPackageQuestionLimitValidator().validate()
+                organization_id = get_current_user_organization()
+                OrganizationPackageQuestionLimitValidator(organization_id=organization_id).validate()
                 request_data["organization"] = organization_id  # type: ignore
             except ValueError as e:
                 ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))

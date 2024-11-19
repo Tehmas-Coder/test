@@ -7,6 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.questionbank.custom.question_classes import (
+    OrganizationResourceQuerysetMutator,
+    OrganizationResourceValidator,
     OrganizationValidator,
     QuestionService,
     QuestionVisibilitySetter,
@@ -192,12 +194,16 @@ class QuestionViewSet(viewsets.ModelViewSet):
     filter_backends = [QuestionFilterBackend]
     serializer_class = QuestionDetailSerializer
     http_method_names = ["get", "post", "patch", "delete"]
-    QUESTION_NOT_AVAILABLE_MESSAGE = f"Failed: This Question doesn't belong to your organization"
 
     def get_serializer_class(self):
         if self.action in ["create", "partial_update"]:
             return QuestionEditSerializer
         return super().get_serializer_class()
+
+    def get_queryset(self):
+        if self.action == "list":
+            self.queryset = OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
+        return super().get_queryset()
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -207,19 +213,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
         question_service = QuestionService(request_parser, visibility_setter, organization_validator, self.get_serializer_class())
         return question_service.create_question(request)
 
-    def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(is_public=True))
-        return super().list(request, *args, **kwargs)
-
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not request.user.is_superuser:
-            if instance.organization_id != get_current_user_organization():
-                return make_error_response(message=self.QUESTION_NOT_AVAILABLE_MESSAGE)
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         request_data = request.data
-        serializer = self.get_serializer(instance, data=request_data, partial=True)
+        serializer = self.get_serializer(self.get_object(), data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         serializer = QuestionDetailSerializer(self.get_object())
