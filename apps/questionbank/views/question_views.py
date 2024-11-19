@@ -1,7 +1,6 @@
 import json
 
 from django.db import transaction
-from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,6 +10,7 @@ from apps.lookups.custom.lookups_classes import (
     OrganizationResourceValidator,
 )
 from apps.questionbank.custom.question_classes import (
+    OrganizationPackageQuestionLimitValidator,
     OrganizationValidator,
     QuestionService,
     QuestionVisibilitySetter,
@@ -98,16 +98,13 @@ class EducationLevelViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def list(self, request, *args, **kwargs):
-        if not get_current_user().is_superuser:  # type: ignore
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
-            return make_error_response(message="Failed: This Education Level doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().partial_update(request, *args, **kwargs)
 
 
@@ -117,16 +114,13 @@ class SubjectViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def list(self, request, *args, **kwargs):
-        if not get_current_user().is_superuser:  # type: ignore
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
-            return make_error_response(message="Failed: This Subject doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().partial_update(request, *args, **kwargs)
 
 
@@ -141,6 +135,11 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
             return {"mutator": True}
         return super().get_serializer_context()
 
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
+
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         if SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"]).exists():
@@ -151,16 +150,10 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
         response_data = SubjectEducationLevelSerializer(subject_education_level).data
         return Response(response_data, status=status.HTTP_201_CREATED)
 
-    def list(self, request, *args, **kwargs):
-        if not get_current_user().is_superuser:  # type: ignore
-            self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
-
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
-            return make_error_response(message="Failed: This Subject Education Level doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=instance.organization_id).validate()
         if (
             SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"])
             .exclude(id=instance.id)
@@ -204,15 +197,14 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == "list":
-            self.queryset = OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
         return super().get_queryset()
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_parser = RequestParser(fetch_hint_medias=True, fetch_choice_medias=True)
         visibility_setter = QuestionVisibilitySetter()
-        organization_validator = OrganizationValidator()
-        question_service = QuestionService(request_parser, visibility_setter, organization_validator, self.get_serializer_class())
+        question_service = QuestionService(request_parser, visibility_setter, self.get_serializer_class())
         return question_service.create_question(request)
 
     @transaction.atomic
@@ -282,8 +274,7 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="bulk-upsert")
     def bulk_upsert_question_tags(self, request):
-        request_data = request.data
-        serializer = QuestionTagBulkUpsertSerializer(data=request_data)
+        serializer = QuestionTagBulkUpsertSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         question_tags = serializer.save()
         serializer = QuestionTagSerializer(question_tags, many=True)

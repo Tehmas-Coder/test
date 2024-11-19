@@ -128,12 +128,10 @@ class QuestionService:
         self,
         request_parser: RequestParser,
         visibility_setter: VisibilitySetter,
-        organization_validator: OrganizationValidator,
         serializer_class,
     ) -> None:
         self.request_parser = request_parser
         self.visibility_setter = visibility_setter
-        self.organization_validator = organization_validator
         self.serializer_class = serializer_class
 
     def create_question(self, request) -> Response:
