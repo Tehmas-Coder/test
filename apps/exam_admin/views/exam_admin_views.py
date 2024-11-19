@@ -53,6 +53,25 @@ from utils.rna_utils import (
 # ---------------------------------------------------------------------------- #
 
 
+class ScheduleViewSet(viewsets.ModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
+        return super().list(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not request.user.is_superuser:
+            if instance.organization_id != get_current_user_organization():
+                return make_error_response(message="Failed: This Schedule doesn't belong to your organization")
+        return super().partial_update(request, *args, **kwargs)
+
+
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all().select_related("measuring_unit")
     serializer_class = SectionEditSerializer
@@ -78,25 +97,6 @@ class SectionViewSet(viewsets.ModelViewSet):
         section = serializer.save()
         response = SectionSerializer(section).data
         return Response(response)
-
-
-class ScheduleViewSet(viewsets.ModelViewSet):
-    queryset = Schedule.objects.all()
-    serializer_class = ScheduleSerializer
-    http_method_names = ["get", "post", "patch", "delete"]
-    pagination_class = None
-
-    def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
-
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not request.user.is_superuser:
-            if instance.organization_id != get_current_user_organization():
-                return make_error_response(message="Failed: This Schedule doesn't belong to your organization")
-        return super().partial_update(request, *args, **kwargs)
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
