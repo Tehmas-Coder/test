@@ -216,8 +216,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
-        request_data = request.data
-        serializer = self.get_serializer(self.get_object(), data=request_data, partial=True)
+        serializer = self.get_serializer(self.get_object(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         serializer = QuestionDetailSerializer(self.get_object())

@@ -93,7 +93,7 @@ class RequestParser:
 
 class VisibilitySetter:
     """
-    This class is used to set the visibility of the question to public or non public based on the user's role.
+    This class is used to set the visibility of the question to public or non public based on the user's superuser status.
     """
 
     def set_visibility(self, request_data: dict) -> dict:
