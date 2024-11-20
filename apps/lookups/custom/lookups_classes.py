@@ -64,7 +64,7 @@ class OrganizationResourceQuerysetMutator:
             if self.is_public:
                 q_filter &= Q(organization_id=self.organization_id) | Q(is_public=True)
             else:
-                q_filter &= Q(organization_id=self.organization_id) | Q(organization_id=None)
+                q_filter &= Q(organization_id=self.organization_id) | Q(organization__isnull=True)
         return self.queryset.filter(q_filter)  # type: ignore
 
 
