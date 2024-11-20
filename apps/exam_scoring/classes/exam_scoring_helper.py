@@ -23,7 +23,7 @@ class ExamScoringNinja:
         token_data = encrypted_data.decode("utf-8")
         token = f"{token_data}"
         url = config("QB_PUBLIC_FE_URL")
-        final_url = f"{url}/exam-scoresheet/{token}"
+        final_url = f"{url}/result/token={token}"
 
         send_email_data_dict = {
             "first_name": candidate_first_name,
