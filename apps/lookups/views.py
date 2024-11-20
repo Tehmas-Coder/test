@@ -3,6 +3,10 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.lookups.custom.lookups_classes import (
+    OrganizationResourceQuerysetMutator,
+    OrganizationResourceValidator,
+)
 from apps.lookups.models import (
     Country,
     Currency,
@@ -111,16 +115,13 @@ class TagViewset(viewsets.ModelViewSet):
     pagination_class = None
     queryset = Tag.objects.all()
 
-    def list(self, request, *args, **kwargs):
-        if not get_current_user().is_superuser:  # type: ignore
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
-            return make_error_response(message="Failed: This Tag doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().partial_update(request, *args, **kwargs)
 
 
