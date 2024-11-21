@@ -5,7 +5,7 @@ from apps.questionbank.models import QuestionChoice
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
     QuestionChoiceMediaBulkCreateSerializer,
-    QuestionChoiceMediaDetailSerializer,
+    QuestionChoiceMediaSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from utils.rna_utils import debug_print
@@ -74,7 +74,7 @@ class QuestionChoiceEditSerializer(BaseModelSerializer):
 
 
 class QuestionChoiceDetailSerializer(BaseModelSerializer):
-    medias = QuestionChoiceMediaDetailSerializer(many=True, required=False, source="questionchoicemedia_set")
+    medias = QuestionChoiceMediaSerializer(many=True, required=False, source="questionchoicemedia_set", context={"rem_question_choice": True})
 
     class Meta:
         model = QuestionChoice

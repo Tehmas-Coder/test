@@ -48,7 +48,6 @@ from apps.questionbank.serializers.question_serializers.question_attempt_respons
 )
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
     QuestionChoiceMediaBulkCreateSerializer,
-    QuestionChoiceMediaEditSerializer,
     QuestionChoiceMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
@@ -309,31 +308,13 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
 
 
 class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
-    queryset = QuestionChoiceMedia.objects.all()
-    serializer_class = QuestionChoiceMediaEditSerializer
+    queryset = QuestionChoiceMedia.objects.all().select_related("media")
+    serializer_class = QuestionChoiceMediaSerializer
     http_method_names = ["post", "delete"]
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        res = super().create(request, *args, **kwargs)
-        if res.data:
-            instance = QuestionChoiceMedia.objects.get(id=res.data["id"])
-            serializer = QuestionChoiceMediaSerializer(instance)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return res
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_choice_medias(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # * Extract medias for question choice
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
         serializer = QuestionChoiceMediaBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice_medias = serializer.save()

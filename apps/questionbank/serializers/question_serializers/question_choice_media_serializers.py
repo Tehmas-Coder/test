@@ -9,33 +9,6 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionChoiceMediaSerializer(BaseModelSerializer):
-    media = MediaSerializer()
-
-    class Meta:
-        model = QuestionChoiceMedia
-        fields = [
-            "id",
-            "question_choice",
-            "media",
-        ] + get_base_model_fields()
-
-        read_only_fields = ["id"]
-
-
-class QuestionChoiceMediaDetailSerializer(BaseModelSerializer):
-    media = MediaSerializer()
-
-    class Meta:
-        model = QuestionChoiceMedia
-        fields = [
-            "id",
-            "media",
-        ] + get_base_model_fields()
-
-        read_only_fields = ["id"]
-
-
-class QuestionChoiceMediaEditSerializer(BaseModelSerializer):
     media = serializers.FileField(use_url=True)
 
     class Meta:
@@ -56,6 +29,13 @@ class QuestionChoiceMediaEditSerializer(BaseModelSerializer):
         question_choice_media = QuestionChoiceMedia.objects.create(media=media, **validated_data)
         question_choice_media.refresh_from_db()
         return question_choice_media
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["media"] = MediaSerializer(instance.media).data
+        if self.context.get("rem_question_choice", False):
+            del rep["question_choice"]
+        return rep
 
 
 class QuestionChoiceMediaBulkCreateSerializer(BaseModelSerializer):
@@ -80,7 +60,7 @@ class QuestionChoiceMediaBulkCreateSerializer(BaseModelSerializer):
         # * Bulk Create question choice media objects
         question_choice_media_instances = [QuestionChoiceMedia(media=media, **validated_data) for media in media_instances]
         QuestionChoiceMedia.objects.bulk_create(question_choice_media_instances)
-        created_question_choice_media_instances = QuestionChoiceMedia.objects.all().order_by("-id")[: len(question_choice_media_instances)]
-        created_question_choice_media_instances = sorted(created_question_choice_media_instances, key=lambda instance: instance.id)  # type: ignore
-
-        return created_question_choice_media_instances
+        created_question_choice_media_instances = (
+            QuestionChoiceMedia.objects.all().select_related("media").order_by("-id")[: len(question_choice_media_instances)]
+        )
+        return sorted(created_question_choice_media_instances, key=lambda instance: instance.pk)
