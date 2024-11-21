@@ -20,7 +20,7 @@ class Schedule(BaseModel):
     extra_duration = models.PositiveIntegerField(null=True)
 
     def save(self, *args, **kwargs):
-        if not self.id:  # type: ignore
+        if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
                 self.organization_id = get_current_user_organization()
         return super().save(*args, **kwargs)

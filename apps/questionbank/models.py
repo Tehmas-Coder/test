@@ -24,7 +24,7 @@ class Tag(BaseModel):
     abbreviation = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
-        if not self.id:  # type: ignore
+        if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
                 self.organization_id = get_current_user_organization()
         return super().save(*args, **kwargs)
@@ -42,7 +42,7 @@ class EducationLevel(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.id:  # type: ignore
+        if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
             super().save(*args, **kwargs)
@@ -69,7 +69,7 @@ class Subject(BaseModel):
         return f"{self.name} ({self.code})"
 
     def save(self, *args, **kwargs):
-        if not self.id:  # type: ignore
+        if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
             super().save(*args, **kwargs)
@@ -324,7 +324,7 @@ class SubjectEducationLevel(BaseModel):
         db_table = "questionbank_subject_educationlevel"
 
     def save(self, *args, **kwargs):
-        if not self.id:  # type: ignore
+        if not self.pk:
             if (not get_current_user().is_superuser) and (self.subject.organization or self.education_level.organization):  # type: ignore
                 self.organization_id = get_current_user_organization()
         return super().save(*args, **kwargs)

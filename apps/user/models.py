@@ -170,7 +170,7 @@ class Role(BaseModel):
     permissions = models.ManyToManyField(Permission, blank=True, through="RolePermission")
 
     def save(self, *args, **kwargs):
-        if not self.id:  # type: ignore
+        if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
             super().save(*args, **kwargs)
