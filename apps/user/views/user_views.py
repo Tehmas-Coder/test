@@ -37,6 +37,7 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         request_data = request.data.dict()
         request_data["requested_instance"] = self.get_object()

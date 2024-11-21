@@ -1,4 +1,5 @@
-from django.db.models import Count, Q
+from django.db import transaction
+from django.db.models import Count
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -40,8 +41,6 @@ from apps.organization.models.organization_models import OrganizationUser
 from apps.organization.serializers import OrganizationUserSerializer
 from apps.questionbank.models import Tag
 from apps.questionbank.serializers.tag_serializers import TagSerializer
-from apps.user.utils.utils import get_current_user_organization
-from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import make_error_response
 
 
@@ -154,6 +153,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
             return OrganizationEditSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -161,6 +161,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         response = OrganizationSerializer(organization).data
         return Response(response, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)

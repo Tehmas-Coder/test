@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import F, Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -83,6 +84,7 @@ class SectionViewSet(viewsets.ModelViewSet):
             return SectionSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -90,6 +92,7 @@ class SectionViewSet(viewsets.ModelViewSet):
         response = SectionSerializer(section).data
         return Response(response, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -110,6 +113,7 @@ class SubSectionViewSet(viewsets.ModelViewSet):
             return SubSectionSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -117,6 +121,7 @@ class SubSectionViewSet(viewsets.ModelViewSet):
         response = SubSectionSerializer(subsection).data
         return Response(response, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -143,6 +148,7 @@ class ExamViewSet(viewsets.ModelViewSet):
             return ExamDetailSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         # * Checking Package limit to create Exam for an Organization if the requested user is not superuser
         if not request.user.is_superuser:
@@ -181,6 +187,7 @@ class ExamViewSet(viewsets.ModelViewSet):
                 return make_error_response(message=self.EXAM_NOT_AVAILABLE_MESSAGE)
         return res
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         if not request.user.is_superuser:
@@ -226,6 +233,7 @@ class ExamSubjectViewSet(viewsets.ModelViewSet):
     http_method_names = ["post", "delete"]
     pagination_class = None
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -248,6 +256,7 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
             return ExamSubjectQuestionEditSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -255,6 +264,7 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         response = ExamSubjectQuestionSerializer(exam_subject_question).data
         return Response(response, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)

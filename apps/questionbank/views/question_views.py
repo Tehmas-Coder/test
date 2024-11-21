@@ -221,6 +221,7 @@ class QuestionMediaViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionMediaEditSerializer
     http_method_names = ["post", "delete"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data
         serializer = self.get_serializer(data=request_data)
@@ -279,6 +280,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionChoiceSerializer
     http_method_names = ["post", "patch", "delete"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data.copy()
         if len(request.FILES) > 0:
@@ -292,6 +294,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = QuestionChoiceDetailSerializer(question_choice)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -329,6 +332,7 @@ class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionChoiceMediaEditSerializer
     http_method_names = ["post", "delete"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         res = super().create(request, *args, **kwargs)
         if res.data:
@@ -388,6 +392,7 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionRetryHintSerializer
     http_method_names = ["post", "patch", "delete"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data.copy()
         if len(request.FILES) > 0:
@@ -431,6 +436,7 @@ class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionRetryHintMediaEditSerializer
     http_method_names = ["post", "delete"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         res = super().create(request, *args, **kwargs)
         if res.data:

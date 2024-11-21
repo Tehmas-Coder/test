@@ -78,6 +78,7 @@ class RoleViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().update(request, *args, **kwargs)

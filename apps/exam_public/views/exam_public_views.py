@@ -3,6 +3,7 @@ import random
 
 from cryptography.fernet import Fernet
 from decouple import config
+from django.db import transaction
 from django.db.models import F, Prefetch, Q, Sum
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
@@ -101,6 +102,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
             return CandidateDetailSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if Candidate.objects.filter(
             user_id=request.data["user"],
@@ -150,6 +152,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             return CandidateExamListSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data
         exam_id = request_data.pop("exam")
@@ -735,6 +738,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
     pagination_class = None
     http_method_names = ["get", "post"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = json.loads(request.data["data"])
         candidate_exam_id = request_data.pop("candidate_exam")
