@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 from django.db.models import Q
 from rest_framework.generics import QuerySet
 
@@ -21,14 +23,15 @@ class VisibilitySetter:
         return request_data
 
 
-class OrganizationValidator:
+class OrganizationValidator(ABC):
     def __init__(self, organization_id=None) -> None:
         if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
             organization_id = get_current_user_organization()
         self.organization_id = organization_id
 
+    @abstractmethod
     def validate(self) -> bool:
-        return True
+        pass
 
 
 class OrganizationResourceValidator(OrganizationValidator):
@@ -44,28 +47,6 @@ class OrganizationResourceValidator(OrganizationValidator):
         if (not get_current_user().is_superuser) and (self.instance_organization_id != self.organization_id):  # type: ignore
             ResponseMiddleware.return_now(make_error_response(message="Failed: This resource doesn't belong to your organization"))
         return True
-
-
-class OrganizationResourceQuerysetMutator:
-    """
-    This class is used to filter the queryset based on the organization_id.
-    """
-
-    def __init__(self, organization_id=None, queryset=None, is_public=False) -> None:
-        if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
-            organization_id = get_current_user_organization()
-        self.organization_id = organization_id
-        self.queryset = queryset
-        self.is_public = is_public
-
-    def get_queryset(self) -> QuerySet:
-        q_filter = Q()
-        if not get_current_user().is_superuser:  # type: ignore
-            if self.is_public:
-                q_filter &= Q(organization_id=self.organization_id) | Q(is_public=True)
-            else:
-                q_filter &= Q(organization_id=self.organization_id) | Q(organization__isnull=True)
-        return self.queryset.filter(q_filter)  # type: ignore
 
 
 class OrganizationPackageLimitValidator(OrganizationValidator):
@@ -88,3 +69,25 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
 
     def save_organization_package(self) -> None:
         self.organization_package.save()  # type: ignore
+
+
+class OrganizationResourceQuerysetMutator:
+    """
+    This class is used to filter the queryset based on the organization_id.
+    """
+
+    def __init__(self, organization_id=None, queryset=None, is_public=False) -> None:
+        if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
+            organization_id = get_current_user_organization()
+        self.organization_id = organization_id
+        self.queryset = queryset
+        self.is_public = is_public
+
+    def get_queryset(self) -> QuerySet:
+        q_filter = Q()
+        if not get_current_user().is_superuser:  # type: ignore
+            if self.is_public:
+                q_filter &= Q(organization_id=self.organization_id) | Q(is_public=True)
+            else:
+                q_filter &= Q(organization_id=self.organization_id) | Q(organization__isnull=True)
+        return self.queryset.filter(q_filter)  # type: ignore
