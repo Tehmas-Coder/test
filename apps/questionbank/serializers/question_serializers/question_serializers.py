@@ -19,7 +19,7 @@ from apps.questionbank.serializers.question_serializers.question_choice_serializ
     QuestionChoiceEditSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
-    QuestionMediaDetailSerializer,
+    QuestionMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
     QuestionRetryHintDetailSerializer,
@@ -42,7 +42,7 @@ class QuestionSerializer(BaseModelSerializer):
     choices = QuestionChoiceDetailSerializer(many=True)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
     retry_hints = QuestionRetryHintDetailSerializer(many=True)
-    medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
+    medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
     subjects = QuestionSubjectDetailSerializer(many=True)
 
     class Meta:
@@ -74,7 +74,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
     choices = QuestionChoiceDetailSerializer(many=True)
     attempt_responses = QuestionAttemptResponseEditSerializer(many=True)
     retry_hints = QuestionRetryHintDetailSerializer(many=True)
-    medias = QuestionMediaDetailSerializer(many=True, source="questionmedia_set")
+    medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
 
     class Meta:
         model = Question

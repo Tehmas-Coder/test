@@ -58,8 +58,7 @@ from apps.questionbank.serializers.question_serializers.question_choice_serializ
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
     QuestionMediaBulkCreateSerializer,
-    QuestionMediaDetailSerializer,
-    QuestionMediaEditSerializer,
+    QuestionMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
     QuestionRetryHintMediaBulkCreateSerializer,
@@ -217,35 +216,17 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
 
 class QuestionMediaViewSet(viewsets.ModelViewSet):
-    queryset = QuestionMedia.objects.all()
-    serializer_class = QuestionMediaEditSerializer
+    queryset = QuestionMedia.objects.all().select_related("media")
+    serializer_class = QuestionMediaSerializer
     http_method_names = ["post", "delete"]
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        request_data = request.data
-        serializer = self.get_serializer(data=request_data)
-        serializer.is_valid(raise_exception=True)
-        question_media = serializer.save()
-        serializer = QuestionMediaDetailSerializer(question_media)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_medias(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # * Extract medias for question
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
         serializer = QuestionMediaBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_medias = serializer.save()
-        serializer = QuestionMediaDetailSerializer(question_medias, many=True)
+        serializer = QuestionMediaSerializer(question_medias, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["post"], url_path="bulk-delete")

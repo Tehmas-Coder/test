@@ -8,7 +8,7 @@ from apps.questionbank.serializers.media_serializers import (
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class QuestionMediaEditSerializer(BaseModelSerializer):
+class QuestionMediaSerializer(BaseModelSerializer):
     media = serializers.FileField(use_url=True)
 
     class Meta:
@@ -29,19 +29,12 @@ class QuestionMediaEditSerializer(BaseModelSerializer):
 
         # * Create question media object
         question_media = QuestionMedia.objects.create(media=media, **validated_data)
-
         return question_media
 
-
-class QuestionMediaDetailSerializer(BaseModelSerializer):
-    media = MediaSerializer()
-
-    class Meta:
-        model = QuestionMedia
-        fields = [
-            "id",
-            "media",
-        ] + get_base_model_fields()
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["media"] = MediaSerializer(instance.media).data
+        return rep
 
 
 class QuestionMediaBulkCreateSerializer(BaseModelSerializer):
@@ -66,9 +59,6 @@ class QuestionMediaBulkCreateSerializer(BaseModelSerializer):
         # * Bulk Create question media objects
         question_media_instances = [QuestionMedia(media=media, **validated_data) for media in media_instances]
         QuestionMedia.objects.bulk_create(question_media_instances)
-
-        created_question_media_instances = QuestionMedia.objects.all().order_by("-id")[: len(question_media_instances)]
-
+        created_question_media_instances = QuestionMedia.objects.all().select_related("media").order_by("-id")[: len(question_media_instances)]
         created_question_media_instances = sorted(created_question_media_instances, key=lambda instance: instance.id)  # type: ignore
-
         return created_question_media_instances
