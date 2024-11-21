@@ -18,6 +18,9 @@ from apps.questionbank.custom.question_classes import (
     RequestMediaParser,
 )
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
+from apps.questionbank.helpers.question_helpers import (
+    check_subject_education_level_existence,
+)
 from apps.questionbank.models import (
     DifficultyLevel,
     EducationLevel,
@@ -85,9 +88,6 @@ from apps.questionbank.serializers.question_serializers.subject_education_level_
 from apps.questionbank.serializers.question_serializers.subject_serializers import (
     SubjectSerializer,
 )
-from apps.user.utils.utils import get_current_user_organization
-from middlewares.current_user_middleware import get_current_user
-from utils.rna_utils import make_error_response
 
 
 # ---------------------------------------------------------------------------- #
@@ -131,11 +131,6 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def get_serializer_context(self):
-        if self.action in ["create", "partial_update"]:
-            return {"mutator": True}
-        return super().get_serializer_context()
-
     def get_queryset(self):
         if self.action == "list":
             return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
@@ -143,29 +138,14 @@ class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        if SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"]).exists():
-            return make_error_response(data=request.data, message="Subject education level already exists.")
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        subject_education_level = serializer.save()
-        response_data = SubjectEducationLevelSerializer(subject_education_level).data
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        check_subject_education_level_existence(request.data["subject"], request.data["education_level"])
+        return super().create(request, *args, **kwargs)
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        OrganizationResourceValidator(instance_organization_id=instance.organization_id).validate()
-        if (
-            SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"])
-            .exclude(id=instance.id)
-            .exists()
-        ):
-            return make_error_response(message="Failed: This subject education level already exists.")
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        subject_education_level = serializer.save()
-        response_data = SubjectEducationLevelSerializer(subject_education_level).data
-        return Response(response_data, status=status.HTTP_200_OK)
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
+        check_subject_education_level_existence(request.data["subject"], request.data["education_level"], self.get_object().id)
+        return super().partial_update(request, *args, **kwargs)
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
