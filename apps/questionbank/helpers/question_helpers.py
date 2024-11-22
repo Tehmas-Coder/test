@@ -6,7 +6,7 @@ from utils.rna_utils import make_error_response
 # ---------------------------------------------------------------------------- #
 #                     QUESTIONBANK LOOKUPS HELPER FUNCTIONS                    #
 # ---------------------------------------------------------------------------- #
-def check_subject_education_level_existence(subject_id: int, education_level_id: int, instance_id: int | None = None):
+def check_subject_education_level_existence(subject_id: int, education_level_id: int, instance_id: int | None = None) -> None:
     """
     This function is used to check if the subject education level exists.
     """
