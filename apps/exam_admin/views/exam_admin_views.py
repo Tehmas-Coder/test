@@ -37,7 +37,7 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionSerializer,
 )
 from apps.exam_admin.utils.exam_utils import create_random_exam
-from apps.lookups.models import Organization
+from apps.lookups.models.lookup_models import Organization
 from apps.organization.models.organization_models import (
     OrganizationPackage,
     OrganizationUser,

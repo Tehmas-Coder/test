@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.lookups.models import MeasuringUnit
+from apps.lookups.models.lookup_models import MeasuringUnit
 
 
 class MeasuringUnitSerializer(serializers.ModelSerializer):

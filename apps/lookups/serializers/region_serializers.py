@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from apps.lookups.models import Region
+
+from apps.lookups.models.lookup_models import Region
 from apps.lookups.serializers.country_serializers import CountrySerializer
 
 

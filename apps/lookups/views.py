@@ -8,7 +8,7 @@ from apps.lookups.custom.lookups_classes import (
     OrganizationResourceQuerysetMutator,
     OrganizationResourceValidator,
 )
-from apps.lookups.models import (
+from apps.lookups.models.lookup_models import (
     Country,
     Currency,
     Language,

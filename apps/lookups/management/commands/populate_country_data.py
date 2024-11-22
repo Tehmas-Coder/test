@@ -4,7 +4,14 @@ import pandas as pd
 import requests
 from django.core.management.base import BaseCommand
 
-from apps.lookups.models import Country, Currency, Language, Region, State, Timezone
+from apps.lookups.models.lookup_models import (
+    Country,
+    Currency,
+    Language,
+    Region,
+    State,
+    Timezone,
+)
 
 
 class Command(BaseCommand):

@@ -1,7 +1,7 @@
 from django.forms.models import model_to_dict
 from rest_framework import serializers
 
-from apps.lookups.models import Country, MeasuringUnit
+from apps.lookups.models.lookup_models import Country, MeasuringUnit
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
 from apps.questionbank.models import DifficultyLevel, QuestionSubject

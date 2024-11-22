@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.lookups.models import Country
+from apps.lookups.models.lookup_models import Country
 from apps.lookups.serializers.currency_serializers import CurrencySerializer
 from apps.lookups.serializers.language_serializers import LanguageSerializer
 from apps.lookups.serializers.state_serializers import StateSerializer

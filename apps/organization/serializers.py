@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.exam_public.models.exam_public_models import Candidate
-from apps.lookups.models import Organization
+from apps.lookups.models.lookup_models import Organization
 from apps.organization.models.organization_models import OrganizationUser
 from apps.user.serializers.user_serializers import UserSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
