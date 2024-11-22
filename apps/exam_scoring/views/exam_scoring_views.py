@@ -21,7 +21,7 @@ from apps.exam_scoring.helpers.exam_scoring_helper import ExamScoringNinja
 from apps.exam_scoring.helpers.scoring_webhook import (
     send_exam_result_to_student_apply_webhook,
 )
-from apps.exam_scoring.models.exam_score_models import (
+from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
