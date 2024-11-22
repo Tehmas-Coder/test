@@ -103,7 +103,7 @@ class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidato
     This class is used to validate the question creation package limits of the organization.
     """
 
-    def __init__(self, organization_id=None) -> None:
+    def __init__(self, organization_id: int | None = None) -> None:
         super().__init__(organization_id)
 
     def validate(self) -> bool:

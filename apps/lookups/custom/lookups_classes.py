@@ -24,7 +24,7 @@ class VisibilitySetter:
 
 
 class OrganizationValidator(ABC):
-    def __init__(self, organization_id=None) -> None:
+    def __init__(self, organization_id: int | None = None) -> None:
         if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
             organization_id = get_current_user_organization()
         self.organization_id = organization_id
@@ -39,7 +39,7 @@ class OrganizationResourceValidator(OrganizationValidator):
     This class is used to validate the organization_id of the resource, to check if the resource belongs to the organization of the user.
     """
 
-    def __init__(self, organization_id=None, instance_organization_id=None) -> None:
+    def __init__(self, organization_id: int | None = None, instance_organization_id: int | None = None) -> None:
         super().__init__(organization_id)
         self.instance_organization_id = instance_organization_id
 
@@ -54,7 +54,7 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
     This class is used to validate the package limits of the organization.
     """
 
-    def __init__(self, organization_id=None) -> None:
+    def __init__(self, organization_id: int | None = None) -> None:
         super().__init__(organization_id)
         self.organization_package = OrganizationPackage.objects.filter(organization_id=self.organization_id).select_related("package").last()
 
@@ -76,7 +76,7 @@ class OrganizationResourceQuerysetMutator:
     This class is used to filter the queryset based on the organization_id.
     """
 
-    def __init__(self, organization_id=None, queryset=None, is_public=False) -> None:
+    def __init__(self, organization_id: int | None = None, queryset=None, is_public=False) -> None:
         if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
             organization_id = get_current_user_organization()
         self.organization_id = organization_id
