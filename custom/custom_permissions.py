@@ -78,22 +78,15 @@ def validate_resources(request_method, request_path, role_ids):
         print(f"No Resource ({request_method} => {request_path}) found on server.")
         return False
 
-    role_permission_queryset = RolePermission.objects.filter(role_id__in=role_ids, permission=resource_permission, is_active=True)
+    # role_permission_queryset = RolePermission.objects.filter(role_id__in=role_ids, permission=resource_permission, is_active=True)
 
-    if not role_permission_queryset.exists():
-        color_print("****************************************************************", "red")
-        color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
-        color_print("****************************************************************", "red")
-        return False
-
-    # ? This implementation is obsolete and was for the previous implementation of role_resource, use the above implementation
-    # try:
-    #     RoleResource.objects.get(role_id__in=role_ids, resource_id=resource_id)
-    # except:
-    #     print(f"RoleIDs ({role_ids}) id un-authorized for ({request_method} => {request_path}) request.")
+    # if not role_permission_queryset.exists():
+    #     color_print("****************************************************************", "red")
+    #     color_print(f"RoleIDs ({role_ids}) are un-authorized for ({request_method} => {request_path}) request.", "red")
+    #     color_print("****************************************************************", "red")
     #     return False
 
-    color_print("PASSSSSSSSSSSSSSSSS")
+    # color_print("PASSSSSSSSSSSSSSSSS")
     return True
 
 
