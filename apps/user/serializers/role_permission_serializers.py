@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.lookups.serializers.organization_serializers import OrganizationEditSerializer
-from apps.user.models import Permission, Role, RolePermission
+from apps.user.models.user_models import Permission, Role, RolePermission
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

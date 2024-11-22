@@ -2,7 +2,7 @@ import django_filters
 from django.db import models
 from django_filters import rest_framework as filters
 
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 
 
 class UserFilter(filters.FilterSet):

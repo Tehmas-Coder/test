@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.utils.text import slugify
 
-from apps.user.models import Permission, Role, RolePermission
+from apps.user.models.user_models import Permission, Role, RolePermission
 from apps.user.utils.utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware

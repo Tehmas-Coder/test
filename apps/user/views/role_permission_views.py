@@ -11,7 +11,7 @@ from apps.lookups.custom.lookups_classes import (
 )
 from apps.user.helpers.role_ninja import RoleNinja
 from apps.user.helpers.role_permission_ninja import RolePermissionNinja
-from apps.user.models import Permission, Role, RolePermission
+from apps.user.models.user_models import Permission, Role, RolePermission
 from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
     RoleSerializer,

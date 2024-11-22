@@ -11,9 +11,9 @@ from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
-from apps.exam_public.custom.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
+from apps.exam_public.helpers.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.helpers.exam_status_webhook import (
     send_exam_status_to_student_apply_webhook,
 )
@@ -60,7 +60,7 @@ from apps.exam_scoring.models.exam_scoring_models import (
 )
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.user.models import BaseUser, Role, RolePermission
+from apps.user.models.user_models import BaseUser, Role, RolePermission
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     color_print,

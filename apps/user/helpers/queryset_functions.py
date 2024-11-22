@@ -6,7 +6,7 @@ def get_user_detailed_queryset(model, country=False, roles=False, role_permissio
     if country:
         user_queryset = user_queryset.select_related("country")
     if roles:
-        from apps.user.models import Role
+        from apps.user.models.user_models import Role
 
         role_queryset = get_role_detailed_queryset(Role, True, False, role_permissions, role_permissions_permission)
         user_queryset = user_queryset.prefetch_related(Prefetch("roles", role_queryset))
@@ -20,7 +20,7 @@ def get_role_detailed_queryset(model, organization=False, permissions=False, rol
     if permissions:
         role_queryset = role_queryset.prefetch_related("permissions")
     if role_permissions:
-        from apps.user.models import RolePermission
+        from apps.user.models.user_models import RolePermission
 
         role_permissions_queryset = RolePermission.objects.all()
         if role_permissions_permission:

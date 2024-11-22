@@ -7,7 +7,7 @@ from apps.user.filters.user_filters import UserFilterBackend
 from apps.user.helpers.system_user_ninja import SystemUserNinja
 from apps.user.helpers.user_ninja import UserNinja
 from apps.user.helpers.verification_email_ninja import VerificationEmailNinja
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 from apps.user.serializers.user_serializers import UserSerializer
 from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_success_response

@@ -25,7 +25,7 @@ from utils.rna_utils import (
     make_success_response,
 )
 
-from ..models import BaseUser, Role
+from ..models.user_models import BaseUser, Role
 
 
 class RegisterApiView(views.APIView):

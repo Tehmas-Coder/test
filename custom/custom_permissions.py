@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
-from apps.user.models import Resource, RolePermission
+from apps.user.models.user_models import Resource, RolePermission
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import color_print
 

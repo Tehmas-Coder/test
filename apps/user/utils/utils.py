@@ -2,7 +2,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db.models import F
 
 from apps.organization.models.organization_models import OrganizationUser
-from apps.user.models import BaseUser, Role, UserRole
+from apps.user.models.user_models import BaseUser, Role, UserRole
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response, remove_extra_underscore_from_key_names

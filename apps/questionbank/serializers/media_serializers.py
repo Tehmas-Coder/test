@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.user.models import Media
+from apps.user.models.user_models import Media
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 MEDIA_TYPES = {

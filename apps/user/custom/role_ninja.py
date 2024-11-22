@@ -1,4 +1,4 @@
-from apps.user.models import Permission, Role
+from apps.user.models.user_models import Permission, Role
 from middlewares.current_user_middleware import get_current_user
 
 

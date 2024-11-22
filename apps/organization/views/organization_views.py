@@ -12,7 +12,7 @@ from apps.organization.serializers.organization_serializers import (
     OrganizationWithCandidateListSerializer,
     OrganizationWithUsersListSerializer,
 )
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 
 
 class OrganizationRelatedViewset(viewsets.ViewSet):
