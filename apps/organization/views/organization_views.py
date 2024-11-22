@@ -8,7 +8,7 @@ from apps.exam_public.serializers.candiate_serializers import (
 )
 from apps.lookups.models.lookup_models import Organization
 from apps.organization.models.organization_models import OrganizationUser
-from apps.organization.serializers import (
+from apps.organization.serializers.organization_serializers import (
     OrganizationWithCandidateListSerializer,
     OrganizationWithUsersListSerializer,
 )

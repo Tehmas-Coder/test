@@ -38,7 +38,9 @@ from apps.lookups.serializers.state_serializers import StateSerializer
 from apps.lookups.serializers.timezone_serializers import TimezoneSerializer
 from apps.organization.filters.organization_filters import OrganizationFilterBackend
 from apps.organization.models.organization_models import OrganizationUser
-from apps.organization.serializers import OrganizationUserSerializer
+from apps.organization.serializers.organization_serializers import (
+    OrganizationUserSerializer,
+)
 from apps.questionbank.models import Tag
 from apps.questionbank.serializers.tag_serializers import TagSerializer
 from utils.rna_utils import make_error_response
