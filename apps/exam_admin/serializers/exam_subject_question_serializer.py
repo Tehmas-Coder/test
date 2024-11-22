@@ -3,15 +3,13 @@ from rest_framework.exceptions import ValidationError
 
 from apps.exam_admin.models.exam_admin_models import ExamSubject, ExamSubjectQuestion
 from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
-from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionDetailSerializer,
 )
-from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectSerializer,
-)
+from apps.questionbank.serializers.subject_serializers import SubjectSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

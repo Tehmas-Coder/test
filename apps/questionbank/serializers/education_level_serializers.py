@@ -1,4 +1,4 @@
-from apps.questionbank.models import EducationLevel
+from apps.questionbank.models.question_models import EducationLevel
 from apps.user.utils.utils import get_current_user_organization
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from middlewares.current_user_middleware import get_current_user

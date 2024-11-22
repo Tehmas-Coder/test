@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.questionbank.models import QuestionChoiceMedia
+from apps.questionbank.models.question_models import QuestionChoiceMedia
 from apps.questionbank.serializers.media_serializers import (
     MediaBulkCreateSerializer,
     MediaSerializer,

@@ -13,7 +13,7 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionEditSerializer,
     SubSectionSerializer,
 )
-from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields

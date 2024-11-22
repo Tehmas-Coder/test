@@ -1,10 +1,8 @@
-from apps.questionbank.models import SubjectEducationLevel
-from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+from apps.questionbank.models.question_models import SubjectEducationLevel
+from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
-from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectSerializer,
-)
+from apps.questionbank.serializers.subject_serializers import SubjectSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

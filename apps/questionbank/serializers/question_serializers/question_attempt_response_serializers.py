@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.questionbank.models import QuestionAttemptResponse
+from apps.questionbank.models.question_models import QuestionAttemptResponse
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

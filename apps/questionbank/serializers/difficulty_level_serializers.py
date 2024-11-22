@@ -1,4 +1,4 @@
-from apps.questionbank.models import DifficultyLevel
+from apps.questionbank.models.question_models import DifficultyLevel
 from core.serializers import BaseModelSerializer
 
 

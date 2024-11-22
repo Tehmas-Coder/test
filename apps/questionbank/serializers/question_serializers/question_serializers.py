@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.questionbank.models import (
+from apps.questionbank.models.question_models import (
     Question,
     QuestionAttemptResponse,
     QuestionChoice,

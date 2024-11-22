@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.exam_admin.models.exam_admin_models import ExamSubject
-from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
+from apps.questionbank.serializers.subject_education_level_serializers import (
     SubjectEducationLevelSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields

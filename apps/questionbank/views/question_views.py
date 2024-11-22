@@ -21,7 +21,7 @@ from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.helpers.question_helpers import (
     check_subject_education_level_existence,
 )
-from apps.questionbank.models import (
+from apps.questionbank.models.question_models import (
     DifficultyLevel,
     EducationLevel,
     Question,
@@ -36,10 +36,10 @@ from apps.questionbank.models import (
     Subject,
     SubjectEducationLevel,
 )
-from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
+from apps.questionbank.serializers.difficulty_level_serializers import (
     DifficultyLevelSerializer,
 )
-from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_attempt_response_serializers import (
@@ -80,12 +80,10 @@ from apps.questionbank.serializers.question_serializers.question_tag_serializers
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
     QuestionTypeSerializer,
 )
-from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
+from apps.questionbank.serializers.subject_education_level_serializers import (
     SubjectEducationLevelSerializer,
 )
-from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectSerializer,
-)
+from apps.questionbank.serializers.subject_serializers import SubjectSerializer
 
 
 # ---------------------------------------------------------------------------- #

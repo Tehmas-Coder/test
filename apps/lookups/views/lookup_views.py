@@ -41,7 +41,7 @@ from apps.organization.models.organization_models import OrganizationUser
 from apps.organization.serializers.organization_serializers import (
     OrganizationUserSerializer,
 )
-from apps.questionbank.models import Tag
+from apps.questionbank.models.question_models import Tag
 from apps.questionbank.serializers.tag_serializers import TagSerializer
 from utils.rna_utils import make_error_response
 

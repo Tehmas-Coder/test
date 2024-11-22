@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from apps.questionbank.models import Question, QuestionTag, Tag
+from apps.questionbank.models.question_models import Question, QuestionTag, Tag
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

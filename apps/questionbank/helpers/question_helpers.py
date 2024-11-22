@@ -1,4 +1,4 @@
-from apps.questionbank.models import SubjectEducationLevel
+from apps.questionbank.models.question_models import SubjectEducationLevel
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response
 
