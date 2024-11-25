@@ -1,9 +1,5 @@
-from typing import Any
-
 from rest_framework import status, views
 from rest_framework.response import Response
-
-from utils.rna_utils import print_test_header
 
 
 class PingAPI(views.APIView):

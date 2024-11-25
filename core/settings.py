@@ -157,7 +157,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "eb_sqs",
     # * System
-    "ping",
+    "apps.ping",
     "apps.lookups",
     "apps.user",
     "apps.organization",
