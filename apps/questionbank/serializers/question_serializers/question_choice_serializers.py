@@ -8,7 +8,6 @@ from apps.questionbank.serializers.question_serializers.question_choice_media_se
     QuestionChoiceMediaSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class QuestionChoiceSerializer(BaseModelSerializer):
@@ -32,24 +31,16 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        try:
-            request = self.context.get("request")
-            medias = []
-            for file in request.FILES:  # type: ignore
-                medias.append({"file": request.FILES[file]})  # type: ignore
-        except:
-            medias = validated_data.pop("medias")
+        validated_data.pop("medias")
+        medias = self.initial_data.get("medias", None)  # type: ignore
 
+        if medias:
+            validated_data["has_media"] = True
         question_choice = QuestionChoice.objects.create(**validated_data)
-
         bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}  # type: ignore
         question_choice_media_serializer = QuestionChoiceMediaBulkCreateSerializer(data=bulk_create_request_data)
         question_choice_media_serializer.is_valid(raise_exception=True)
         question_choice_media_serializer.save()
-
-        if medias:
-            question_choice.has_media = True
-            question_choice.save()
 
         return question_choice
 

@@ -260,12 +260,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_data = request.data.copy()
-        if len(request.FILES) > 0:
-            request_data["medias"] = []
-        for file in request.FILES:
-            request_data["medias"].append({"file": request.FILES[file]})
-            request_data.pop(file)
+        request_data = RequestMediaParser().parse(request)
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
@@ -283,18 +278,8 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_choices(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # Extract media for choices
-        for choice in request_data.get("choices", []):
-            choice_medias = choice.pop("medias", [])
-            if choice_medias:
-                choice["medias"] = []
-                for key in choice_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        choice["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
+        request_data = RequestMediaParser(ChoiceMediaExtractor()).parse_media(request, request_data)
         serializer = QuestionChoiceBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice_medias = serializer.save()
