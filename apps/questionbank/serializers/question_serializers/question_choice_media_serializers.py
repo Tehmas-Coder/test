@@ -21,6 +21,14 @@ class QuestionChoiceMediaSerializer(BaseModelSerializer):
 
         read_only_fields = ["id"]
 
+    def __init__(self, instance=None, data=..., **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("rem_question_choice", False):
+            self.fields.pop("question_choice")
+        if data != ...:
+            super().__init__(instance, data, **kwargs)
+        super().__init__(instance, **kwargs)
+
     def create(self, validated_data):
         media = validated_data.pop("media")
         media_serializer = MediaSerializer(data={"file": media})
@@ -33,8 +41,6 @@ class QuestionChoiceMediaSerializer(BaseModelSerializer):
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep["media"] = MediaSerializer(instance.media).data
-        if self.context.get("rem_question_choice", False):
-            del rep["question_choice"]
         return rep
 
 
