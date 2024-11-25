@@ -15,22 +15,18 @@ class QuestionAttemptResponseSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
         read_only_fields = ["id"]
 
-
-class QuestionAttemptResponseEditSerializer(BaseModelSerializer):
-
-    class Meta:
-        model = QuestionAttemptResponse
-        fields = [
-            "id",
-            "text",
-            "type",
-        ] + get_base_model_fields()
-        read_only_fields = ["id"]
+    def __init__(self, instance=None, data=..., **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("rem_question", False):
+            self.fields.pop("question")
+        if data != ...:
+            super().__init__(instance, data, **kwargs)
+        super().__init__(instance, **kwargs)
 
 
 class QuestionAttemptResponseBulkCreateSerializer(serializers.Serializer):
     question = serializers.IntegerField()
-    responses = serializers.ListField(child=QuestionAttemptResponseEditSerializer())
+    responses = serializers.ListField(child=QuestionAttemptResponseSerializer(context={"rem_question": True}))
 
     def validate(self, data):
         question_attempt_response_serializer_errors = []
@@ -56,7 +52,5 @@ class QuestionAttemptResponseBulkCreateSerializer(serializers.Serializer):
         created_question_attempt_responses_instances = QuestionAttemptResponse.objects.all().order_by("-created_at")[
             : len(question_attempt_responses_instances)
         ]
-
         created_question_attempt_responses_instances = sorted(created_question_attempt_responses_instances, key=lambda instance: instance.id)  # type: ignore
-
         return created_question_attempt_responses_instances
