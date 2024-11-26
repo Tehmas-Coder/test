@@ -24,6 +24,20 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
         read_only_fields = ["id"]
 
+    def __init__(self, instance=None, data=..., **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("source", False):
+            self.fields["medias"] = QuestionRetryHintMediaSerializer(
+                many=True, required=False, source="questionretryhintmedia_set", context={"rem_retry_hint": True}
+            )
+        else:
+            self.fields["medias"] = MediaSerializer(many=True, required=False)
+        if self._context.get("rem_question", False):
+            self.fields.pop("question")
+        if data != ...:
+            super().__init__(instance, data, **kwargs)
+        super().__init__(instance, **kwargs)
+
     def create(self, validated_data):
         validated_data.pop("medias")
         medias = self.initial_data.get("medias", None)  # type: ignore
@@ -38,39 +52,9 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         return retry_hint
 
 
-class QuestionRetryHintEditSerializer(BaseModelSerializer):
-    medias = MediaSerializer(many=True, required=False)
-
-    class Meta:
-        model = QuestionRetryHint
-        fields = [
-            "id",
-            "text",
-            "has_media",
-            "sequence",
-            "medias",
-        ] + get_base_model_fields()
-        read_only_fields = ["id"]
-
-
-class QuestionRetryHintDetailSerializer(BaseModelSerializer):
-    medias = QuestionRetryHintMediaSerializer(many=True, required=False, source="questionretryhintmedia_set", context={"rem_retry_hint": True})
-
-    class Meta:
-        model = QuestionRetryHint
-        fields = [
-            "id",
-            "text",
-            "has_media",
-            "sequence",
-            "medias",
-        ] + get_base_model_fields()
-        read_only_fields = ["id"]
-
-
 class QuestionRetryHintBulkCreateSerializer(serializers.Serializer):
     question = serializers.IntegerField()
-    retry_hints = serializers.ListField(child=QuestionRetryHintEditSerializer())
+    retry_hints = serializers.ListField(child=QuestionRetryHintSerializer(context={"rem_question": True}))
 
     def validate(self, data):
         question_retry_hint_serializer_errors = []

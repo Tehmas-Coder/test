@@ -64,7 +64,6 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_medi
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
     QuestionRetryHintBulkCreateSerializer,
-    QuestionRetryHintDetailSerializer,
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
@@ -341,7 +340,7 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()
-        serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
+        serializer = QuestionRetryHintSerializer(question_retry_hint, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
@@ -350,7 +349,7 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()
-        serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
+        serializer = QuestionRetryHintSerializer(question_retry_hint, context={"source": True})
         return Response(serializer.data)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
@@ -370,7 +369,7 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
         serializer = QuestionRetryHintBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint_medias = serializer.save()
-        serializer = QuestionRetryHintDetailSerializer(question_retry_hint_medias, many=True)
+        serializer = QuestionRetryHintSerializer(question_retry_hint_medias, many=True, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
