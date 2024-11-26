@@ -9,19 +9,6 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionRetryHintMediaSerializer(BaseModelSerializer):
-    media = MediaSerializer()
-
-    class Meta:
-        model = QuestionRetryHintMedia
-        fields = [
-            "id",
-            "question_retry_hint",
-            "media",
-        ] + get_base_model_fields()
-        read_only_fields = ["id"]
-
-
-class QuestionRetryHintMediaEditSerializer(BaseModelSerializer):
     media = serializers.FileField(use_url=True)
 
     class Meta:
@@ -33,6 +20,14 @@ class QuestionRetryHintMediaEditSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
         read_only_fields = ["id"]
 
+    def __init__(self, instance=None, data=..., **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("rem_retry_hint", False):
+            self.fields.pop("question_retry_hint")
+        if data != ...:
+            super().__init__(instance, data, **kwargs)
+        super().__init__(instance, **kwargs)
+
     def create(self, validated_data):
         media = validated_data.pop("media")
         media_serializer = MediaSerializer(data={"file": media})
@@ -42,17 +37,10 @@ class QuestionRetryHintMediaEditSerializer(BaseModelSerializer):
         question_retry_hint_media.refresh_from_db()
         return question_retry_hint_media
 
-
-class QuestionRetryHintMediaDetailSerializer(BaseModelSerializer):
-    media = MediaSerializer()
-
-    class Meta:
-        model = QuestionRetryHintMedia
-        fields = [
-            "id",
-            "media",
-        ] + get_base_model_fields()
-        read_only_fields = ["id"]
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["media"] = MediaSerializer(instance.media).data
+        return rep
 
 
 class QuestionRetryHintMediaBulkCreateSerializer(BaseModelSerializer):
@@ -77,8 +65,8 @@ class QuestionRetryHintMediaBulkCreateSerializer(BaseModelSerializer):
         # * Bulk Create question retry hint media objects
         question_retry_hint_media_instances = [QuestionRetryHintMedia(media=media, **validated_data) for media in media_instances]
         QuestionRetryHintMedia.objects.bulk_create(question_retry_hint_media_instances)
-
-        created_question_retry_hint_media_instances = QuestionRetryHintMedia.objects.all().order_by("-id")[: len(question_retry_hint_media_instances)]
+        created_question_retry_hint_media_instances = (
+            QuestionRetryHintMedia.objects.all().select_related("media").order_by("-id")[: len(question_retry_hint_media_instances)]
+        )
         created_question_retry_hint_media_instances = sorted(created_question_retry_hint_media_instances, key=lambda instance: instance.id)  # type: ignore
-
         return created_question_retry_hint_media_instances

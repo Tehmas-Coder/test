@@ -60,7 +60,6 @@ from apps.questionbank.serializers.question_serializers.question_media_serialize
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
     QuestionRetryHintMediaBulkCreateSerializer,
-    QuestionRetryHintMediaEditSerializer,
     QuestionRetryHintMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
@@ -376,31 +375,13 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
 
 
 class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
-    queryset = QuestionRetryHintMedia.objects.all()
-    serializer_class = QuestionRetryHintMediaEditSerializer
+    queryset = QuestionRetryHintMedia.objects.all().select_related("media")
+    serializer_class = QuestionRetryHintMediaSerializer
     http_method_names = ["post", "delete"]
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        res = super().create(request, *args, **kwargs)
-        if res.data:
-            instance = QuestionRetryHintMedia.objects.get(id=res.data["id"])
-            serializer = QuestionRetryHintMediaSerializer(instance)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return res
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_retry_hint_medias(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # * Extract medias for question retry hint
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
         serializer = QuestionRetryHintMediaBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint_medias = serializer.save()

@@ -4,7 +4,7 @@ from apps.questionbank.models.question_models import QuestionRetryHint
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
     QuestionRetryHintMediaBulkCreateSerializer,
-    QuestionRetryHintMediaDetailSerializer,
+    QuestionRetryHintMediaSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
@@ -59,7 +59,7 @@ class QuestionRetryHintEditSerializer(BaseModelSerializer):
 
 
 class QuestionRetryHintDetailSerializer(BaseModelSerializer):
-    medias = QuestionRetryHintMediaDetailSerializer(many=True, required=False, source="questionretryhintmedia_set")
+    medias = QuestionRetryHintMediaSerializer(many=True, required=False, source="questionretryhintmedia_set", context={"rem_retry_hint": True})
 
     class Meta:
         model = QuestionRetryHint
