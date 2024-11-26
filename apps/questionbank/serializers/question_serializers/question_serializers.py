@@ -57,37 +57,6 @@ class QuestionSerializer(BaseModelSerializer):
             "is_public",
             "can_shuffle",
             "has_media",
-            "tags",
-            "choices",
-            "attempt_responses",
-            "retry_hints",
-            "medias",
-            "subjects",
-        ] + get_base_model_fields()
-
-
-class QuestionDetailSerializer(BaseModelSerializer):
-    type = QuestionTypeSerializer()
-    subjects = QuestionSubjectDetailSerializer(many=True)
-    tags = TagSerializer(many=True)
-    choices = QuestionChoiceSerializer(many=True, context={"source": True})
-    attempt_responses = QuestionAttemptResponseSerializer(many=True, context={"rem_question": True})
-    retry_hints = QuestionRetryHintDetailSerializer(many=True)
-    medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
-
-    class Meta:
-        model = Question
-        fields = [
-            "id",
-            "title",
-            "type",
-            "organization",
-            "text",
-            "max_retries",
-            "retry_penalty",
-            "is_public",
-            "can_shuffle",
-            "has_media",
             "subjects",
             "tags",
             "choices",

@@ -10,7 +10,7 @@ from apps.lookups.custom.lookups_classes import (
     VisibilitySetter,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
-    QuestionDetailSerializer,
+    QuestionSerializer,
 )
 from apps.user.utils.utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
@@ -153,5 +153,5 @@ class QuestionService:
                 ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))
 
         question = serializer.save()
-        response_data = QuestionDetailSerializer(question).data
+        response_data = QuestionSerializer(question).data
         return Response(response_data, status=status.HTTP_201_CREATED)

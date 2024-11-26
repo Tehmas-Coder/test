@@ -1,4 +1,3 @@
-from django.forms.models import model_to_dict
 from rest_framework import serializers
 
 from apps.lookups.models.lookup_models import Country, MeasuringUnit

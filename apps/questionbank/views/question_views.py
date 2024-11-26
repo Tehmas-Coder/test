@@ -68,8 +68,8 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_seri
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
-    QuestionDetailSerializer,
     QuestionEditSerializer,
+    QuestionSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
     QuestionTagBulkUpsertSerializer,
@@ -162,7 +162,7 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.get_detail_queryset(all=True)
     filter_backends = [QuestionFilterBackend]
-    serializer_class = QuestionDetailSerializer
+    serializer_class = QuestionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 
     def get_serializer_class(self):
@@ -198,7 +198,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(self.get_object(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        serializer = QuestionDetailSerializer(self.get_object())
+        serializer = QuestionSerializer(self.get_object())
         return Response(serializer.data)
 
     @action(detail=False, methods=["delete"], url_path="delete-all")
