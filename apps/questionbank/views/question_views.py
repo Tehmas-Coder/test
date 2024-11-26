@@ -1,5 +1,3 @@
-import json
-
 from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
