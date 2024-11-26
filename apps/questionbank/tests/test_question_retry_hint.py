@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import status
 
 from core.test_setup import TestSetUp
@@ -77,9 +79,14 @@ class QuestionRetryHintTest(QuestionRetryHintUnitTest):
         file_2 = open("./apps/questionbank/tests/test_data/images/test_image_2.jpeg", "rb")
 
         request_body = {
-            "question": 1,
-            "text": "This is hint number 1",
-            "has_media": 1,
+            "data": json.dumps(
+                {
+                    "question": 1,
+                    "text": "This is hint number 1",
+                    "has_media": 1,
+                    "medias": ["file_1", "file_2"],
+                }
+            ),
             "file_1": file_1,
             "file_2": file_2,
         }
