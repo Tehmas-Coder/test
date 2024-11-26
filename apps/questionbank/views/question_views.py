@@ -331,24 +331,27 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
 
 
 class QuestionRetryHintViewSet(viewsets.ModelViewSet):
-    queryset = QuestionRetryHint.objects.all()
+    queryset = QuestionRetryHint.objects.all().prefetch_related("medias")
     serializer_class = QuestionRetryHintSerializer
     http_method_names = ["post", "patch", "delete"]
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_data = request.data.copy()
-        if len(request.FILES) > 0:
-            request_data["medias"] = []
-        for file in request.FILES:
-            request_data["medias"].append({"file": request.FILES[file]})
-            request_data.pop(file)
-
+        request_data = RequestMediaParser().parse(request)
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()
         serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        question_retry_hint = serializer.save()
+        serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
+        return Response(serializer.data)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_retry_hints(self, request):

@@ -25,21 +25,16 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         read_only_fields = ["id"]
 
     def create(self, validated_data):
-        try:
-            request = self.context.get("request")
-            medias = []
-            for file in request.FILES:  # type: ignore
-                medias.append({"file": request.FILES[file]})  # type: ignore
-        except:
-            medias = validated_data.pop("medias")
+        validated_data.pop("medias")
+        medias = self.initial_data.get("medias", None)  # type: ignore
+        if medias:
+            validated_data["has_media"] = True
 
         retry_hint = QuestionRetryHint.objects.create(**validated_data)
-        for media in medias:
-            media_serializer = MediaSerializer(data=media)
-            media_serializer.is_valid(raise_exception=True)
-            media = media_serializer.save()
-            retry_hint.medias.add(media)
-        retry_hint.refresh_from_db()
+        bulk_create_request_data = {"question_retry_hint": retry_hint.id, "medias": medias}  # type: ignore
+        retry_hint_media_serializer = QuestionRetryHintMediaBulkCreateSerializer(data=bulk_create_request_data)
+        retry_hint_media_serializer.is_valid(raise_exception=True)
+        retry_hint_media_serializer.save()
         return retry_hint
 
 

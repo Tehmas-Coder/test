@@ -53,9 +53,9 @@ class QuestionChoiceSerializer(BaseModelSerializer):
     def create(self, validated_data):
         validated_data.pop("medias")
         medias = self.initial_data.get("medias", None)  # type: ignore
-
         if medias:
             validated_data["has_media"] = True
+
         question_choice = QuestionChoice.objects.create(**validated_data)
         bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}  # type: ignore
         question_choice_media_serializer = QuestionChoiceMediaBulkCreateSerializer(data=bulk_create_request_data)
