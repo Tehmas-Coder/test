@@ -52,7 +52,6 @@ from apps.questionbank.serializers.question_serializers.question_choice_media_se
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
     QuestionChoiceBulkCreateSerializer,
-    QuestionChoiceDetailSerializer,
     QuestionChoiceSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
@@ -264,7 +263,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceDetailSerializer(question_choice)
+        serializer = QuestionChoiceSerializer(question_choice, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
@@ -273,7 +272,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceDetailSerializer(question_choice)
+        serializer = QuestionChoiceSerializer(question_choice, context={"source": True})
         return Response(serializer.data)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
@@ -283,7 +282,7 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = QuestionChoiceBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice_medias = serializer.save()
-        serializer = QuestionChoiceDetailSerializer(question_choice_medias, many=True)
+        serializer = QuestionChoiceSerializer(question_choice_medias, many=True, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

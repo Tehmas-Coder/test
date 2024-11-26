@@ -15,8 +15,7 @@ from apps.questionbank.serializers.question_serializers.question_attempt_respons
     QuestionAttemptResponseSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
-    QuestionChoiceDetailSerializer,
-    QuestionChoiceEditSerializer,
+    QuestionChoiceSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
     QuestionMediaSerializer,
@@ -39,7 +38,7 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 class QuestionSerializer(BaseModelSerializer):
     type = QuestionTypeSerializer()
     tags = TagSerializer(many=True)
-    choices = QuestionChoiceDetailSerializer(many=True)
+    choices = QuestionChoiceSerializer(many=True, context={"source": True})
     attempt_responses = QuestionAttemptResponseSerializer(many=True, context={"rem_question": True})
     retry_hints = QuestionRetryHintDetailSerializer(many=True)
     medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
@@ -71,7 +70,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
     type = QuestionTypeSerializer()
     subjects = QuestionSubjectDetailSerializer(many=True)
     tags = TagSerializer(many=True)
-    choices = QuestionChoiceDetailSerializer(many=True)
+    choices = QuestionChoiceSerializer(many=True, context={"source": True})
     attempt_responses = QuestionAttemptResponseSerializer(many=True, context={"rem_question": True})
     retry_hints = QuestionRetryHintDetailSerializer(many=True)
     medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
@@ -101,7 +100,7 @@ class QuestionDetailSerializer(BaseModelSerializer):
 class QuestionEditSerializer(serializers.ModelSerializer):
     subjects = QuestionSubjectEditSerializer(many=True, required=False)
     tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
-    choices = QuestionChoiceEditSerializer(many=True, required=False)
+    choices = QuestionChoiceSerializer(many=True, required=False, context={"rem_question": True})
     attempt_responses = QuestionAttemptResponseSerializer(many=True, required=False, context={"rem_question": True})
     retry_hints = QuestionRetryHintEditSerializer(many=True, required=False)
     medias = MediaSerializer(many=True, required=False)
