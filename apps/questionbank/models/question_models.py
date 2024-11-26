@@ -384,6 +384,11 @@ class QuestionTag(BaseModel):
         db_table = "questionbank_question_tag"
 
 
+# ---------------------------------------------------------------------------- #
+#                                MEDIA MAPPINGS                                #
+# ---------------------------------------------------------------------------- #
+
+
 class QuestionChoiceMedia(BaseModel):
     question_choice = models.ForeignKey(QuestionChoice, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
