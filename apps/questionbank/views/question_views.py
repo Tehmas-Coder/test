@@ -11,11 +11,11 @@ from apps.lookups.custom.lookups_classes import (
 )
 from apps.questionbank.custom.question_classes import (
     ChoiceMediaExtractor,
-    HintMediaExtractor,
     OrganizationPackageQuestionLimitValidator,
     QuestionService,
     QuestionVisibilitySetter,
     RequestMediaParser,
+    RetryHintMediaExtractor,
 )
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
 from apps.questionbank.helpers.question_helpers import (
@@ -178,7 +178,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request_parser = RequestMediaParser()
         request_choice_media_parser = RequestMediaParser(ChoiceMediaExtractor())
-        request_hint_media_parser = RequestMediaParser(HintMediaExtractor())
+        request_hint_media_parser = RequestMediaParser(RetryHintMediaExtractor())
         visibility_setter = QuestionVisibilitySetter()
         organization_validator = OrganizationPackageQuestionLimitValidator()
         question_service = QuestionService(
@@ -354,18 +354,8 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_retry_hints(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # Extract media for retry hints
-        for retry_hint in request_data.get("retry_hints", []):
-            retry_hint_medias = retry_hint.pop("medias", [])
-            if retry_hint_medias:
-                retry_hint["medias"] = []
-                for key in retry_hint_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        retry_hint["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
+        request_data = RequestMediaParser(RetryHintMediaExtractor()).parse_media(request, request_data)
         serializer = QuestionRetryHintBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint_medias = serializer.save()

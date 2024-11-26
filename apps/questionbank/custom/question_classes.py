@@ -42,7 +42,7 @@ class DefaultMediaExtractor(MediaExtractor):
         return medias
 
 
-class HintMediaExtractor(DefaultMediaExtractor):
+class RetryHintMediaExtractor(DefaultMediaExtractor):
     """
     This class is used to extract the media files from the hints of the question.
     """
