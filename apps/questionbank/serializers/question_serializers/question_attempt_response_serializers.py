@@ -17,7 +17,7 @@ class QuestionAttemptResponseSerializer(BaseModelSerializer):
 
     def __init__(self, instance=None, data=..., **kwargs):
         self._context = kwargs.get("context", {})
-        if self._context.get("rem_question", False):
+        if self._context.get("exclude_question", False):
             self.fields.pop("question")
         if data != ...:
             super().__init__(instance, data, **kwargs)
@@ -26,7 +26,7 @@ class QuestionAttemptResponseSerializer(BaseModelSerializer):
 
 class QuestionAttemptResponseBulkCreateSerializer(serializers.Serializer):
     question = serializers.IntegerField()
-    responses = serializers.ListField(child=QuestionAttemptResponseSerializer(context={"rem_question": True}))
+    responses = serializers.ListField(child=QuestionAttemptResponseSerializer(context={"exclude_question": True}))
 
     def validate(self, data):
         question_attempt_response_serializer_errors = []

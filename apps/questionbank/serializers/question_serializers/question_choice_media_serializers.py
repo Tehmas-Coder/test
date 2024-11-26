@@ -23,7 +23,7 @@ class QuestionChoiceMediaSerializer(BaseModelSerializer):
 
     def __init__(self, instance=None, data=..., **kwargs):
         self._context = kwargs.get("context", {})
-        if self._context.get("rem_question_choice", False):
+        if self._context.get("exclude_question_choice", False):
             self.fields.pop("question_choice")
         if data != ...:
             super().__init__(instance, data, **kwargs)

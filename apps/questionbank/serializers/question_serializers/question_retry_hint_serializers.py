@@ -28,11 +28,11 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         self._context = kwargs.get("context", {})
         if self._context.get("source", False):
             self.fields["medias"] = QuestionRetryHintMediaSerializer(
-                many=True, required=False, source="questionretryhintmedia_set", context={"rem_retry_hint": True}
+                many=True, required=False, source="questionretryhintmedia_set", context={"exclude_retry_hint": True}
             )
         else:
             self.fields["medias"] = MediaSerializer(many=True, required=False)
-        if self._context.get("rem_question", False):
+        if self._context.get("exclude_question", False):
             self.fields.pop("question")
         if data != ...:
             super().__init__(instance, data, **kwargs)
@@ -54,7 +54,7 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
 
 class QuestionRetryHintBulkCreateSerializer(serializers.Serializer):
     question = serializers.IntegerField()
-    retry_hints = serializers.ListField(child=QuestionRetryHintSerializer(context={"rem_question": True}))
+    retry_hints = serializers.ListField(child=QuestionRetryHintSerializer(context={"exclude_question": True}))
 
     def validate(self, data):
         question_retry_hint_serializer_errors = []

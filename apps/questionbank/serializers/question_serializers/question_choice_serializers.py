@@ -16,7 +16,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
     1. When source is provided, it will serialize medias as QuestionChoiceMediaSerializer with source="questionchoicemedia_set"
     2. When source is not provided, it will serialize medias as MediaSerializer
 
-    -> When rem_question is provided, it will remove question field from the serializer
+    -> When exclude_question is provided, it will remove question field from the serializer
     """
 
     class Meta:
@@ -39,11 +39,11 @@ class QuestionChoiceSerializer(BaseModelSerializer):
         self._context = kwargs.get("context", {})
         if self._context.get("source", False):
             self.fields["medias"] = QuestionChoiceMediaSerializer(
-                many=True, required=False, source="questionchoicemedia_set", context={"rem_question_choice": True}
+                many=True, required=False, source="questionchoicemedia_set", context={"exclude_question_choice": True}
             )
         else:
             self.fields["medias"] = MediaSerializer(many=True, required=False)
-        if self._context.get("rem_question", False):
+        if self._context.get("exclude_question", False):
             self.fields.pop("question")
         if data != ...:
             super().__init__(instance, data, **kwargs)
@@ -66,7 +66,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
 class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
     question = serializers.IntegerField()
-    choices = serializers.ListField(child=QuestionChoiceSerializer(context={"rem_question": True}))
+    choices = serializers.ListField(child=QuestionChoiceSerializer(context={"exclude_question": True}))
 
     def validate(self, data):
         question_choice_serializer_errors = []

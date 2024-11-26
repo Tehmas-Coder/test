@@ -38,7 +38,7 @@ class QuestionSerializer(BaseModelSerializer):
     type = QuestionTypeSerializer()
     tags = TagSerializer(many=True)
     choices = QuestionChoiceSerializer(many=True, context={"source": True})
-    attempt_responses = QuestionAttemptResponseSerializer(many=True, context={"rem_question": True})
+    attempt_responses = QuestionAttemptResponseSerializer(many=True, context={"exclude_question": True})
     retry_hints = QuestionRetryHintSerializer(many=True, context={"source": True})
     medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
     subjects = QuestionSubjectDetailSerializer(many=True)
@@ -68,9 +68,9 @@ class QuestionSerializer(BaseModelSerializer):
 class QuestionEditSerializer(serializers.ModelSerializer):
     subjects = QuestionSubjectEditSerializer(many=True, required=False)
     tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
-    choices = QuestionChoiceSerializer(many=True, required=False, context={"rem_question": True})
-    attempt_responses = QuestionAttemptResponseSerializer(many=True, required=False, context={"rem_question": True})
-    retry_hints = QuestionRetryHintSerializer(many=True, required=False, context={"rem_question": True})
+    choices = QuestionChoiceSerializer(many=True, required=False, context={"exclude_question": True})
+    attempt_responses = QuestionAttemptResponseSerializer(many=True, required=False, context={"exclude_question": True})
+    retry_hints = QuestionRetryHintSerializer(many=True, required=False, context={"exclude_question": True})
     medias = MediaSerializer(many=True, required=False)
 
     class Meta:

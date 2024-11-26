@@ -22,7 +22,7 @@ class QuestionRetryHintMediaSerializer(BaseModelSerializer):
 
     def __init__(self, instance=None, data=..., **kwargs):
         self._context = kwargs.get("context", {})
-        if self._context.get("rem_retry_hint", False):
+        if self._context.get("exclude_retry_hint", False):
             self.fields.pop("question_retry_hint")
         if data != ...:
             super().__init__(instance, data, **kwargs)
