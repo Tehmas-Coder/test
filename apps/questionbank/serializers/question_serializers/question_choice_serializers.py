@@ -51,7 +51,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        validated_data.pop("medias")
+        validated_data.pop("medias", None)
         medias = self.initial_data.get("medias", None)  # type: ignore
         if medias:
             validated_data["has_media"] = True

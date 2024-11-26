@@ -79,6 +79,7 @@ from apps.questionbank.serializers.subject_education_level_serializers import (
     SubjectEducationLevelSerializer,
 )
 from apps.questionbank.serializers.subject_serializers import SubjectSerializer
+from utils.rna_utils import debug_print
 
 
 # ---------------------------------------------------------------------------- #
@@ -255,7 +256,14 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_data = RequestMediaParser().parse(request)
+        # TODO: When the request data from front end will get fixed then uncomment the below line and remove the request setup
+        # request_data = RequestMediaParser().parse(request)
+        request_data = request.data.copy()
+        if len(request.FILES) > 0:
+            request_data["medias"] = []
+        for file in request.FILES:
+            request_data["medias"].append({"file": request.FILES[file]})
+            request_data.pop(file)
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
@@ -334,7 +342,14 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_data = RequestMediaParser().parse(request)
+        # TODO: When the request data from front end will get fixed then uncomment the below line and remove the request setup
+        # request_data = RequestMediaParser().parse(request)
+        request_data = request.data.copy()
+        if len(request.FILES) > 0:
+            request_data["medias"] = []
+        for file in request.FILES:
+            request_data["medias"].append({"file": request.FILES[file]})
+            request_data.pop(file)
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()

@@ -45,7 +45,7 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         super().__init__(instance, **kwargs)
 
     def create(self, validated_data):
-        validated_data.pop("medias")
+        validated_data.pop("medias", None)
         medias = self.initial_data.get("medias", None)  # type: ignore
         if medias:
             validated_data["has_media"] = True
@@ -88,7 +88,9 @@ class QuestionRetryHintBulkCreateSerializer(serializers.Serializer):
         # * Bulk Create Question Retry Hints
         question_retry_hints_instances = [QuestionRetryHint(**data) for data in self.question_retry_hints_instances_data]
         QuestionRetryHint.objects.bulk_create(question_retry_hints_instances)
-        created_question_retry_hints_instances = QuestionRetryHint.objects.all().order_by("-created_at")[: len(question_retry_hints_instances)]
+        created_question_retry_hints_instances = (
+            QuestionRetryHint.objects.all().prefetch_related("medias").order_by("-created_at")[: len(question_retry_hints_instances)]
+        )
         created_question_retry_hints_instances = sorted(created_question_retry_hints_instances, key=lambda instance: instance.id)  # type: ignore
 
         # * Bulk Create Question Retry Hints Medias
