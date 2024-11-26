@@ -10,7 +10,13 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionRetryHintSerializer(BaseModelSerializer):
-    medias = MediaSerializer(many=True, required=False)
+    """
+    -> This serializer serailize media in multiple ways:
+    1. When source is provided, it will serialize medias as QuestionRetryHintMediaSerializer with source="questionretryhintmedia_set"
+    2. When source is not provided, it will serialize medias as MediaSerializer
+
+    -> When exclude_question is provided, it will exclude question field from the serializer
+    """
 
     class Meta:
         model = QuestionRetryHint

@@ -16,7 +16,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
     1. When source is provided, it will serialize medias as QuestionChoiceMediaSerializer with source="questionchoicemedia_set"
     2. When source is not provided, it will serialize medias as MediaSerializer
 
-    -> When exclude_question is provided, it will remove question field from the serializer
+    -> When exclude_question is provided, it will exclude question field from the serializer
     """
 
     class Meta:
