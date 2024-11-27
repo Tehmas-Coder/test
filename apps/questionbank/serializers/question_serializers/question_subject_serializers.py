@@ -39,7 +39,7 @@ class QuestionSubjectSerializer(BaseModelSerializer):
         ]
 
     def __init__(self, *args, **kwargs):
-        self._context = kwargs.get("context", {})
+        self._context: dict = kwargs.get("context", {})
         if self._context.get("mutator", False):
             self.fields.pop("question")
             self.fields["id"] = serializers.IntegerField(required=False)  # Make id optional

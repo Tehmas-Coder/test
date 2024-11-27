@@ -36,7 +36,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
         read_only_fields = ["id"]
 
     def __init__(self, *args, **kwargs):
-        self._context = kwargs.get("context", {})
+        self._context: dict = kwargs.get("context", {})
         if self._context.get("source", False):
             self.fields["medias"] = QuestionChoiceMediaSerializer(
                 many=True, required=False, source="questionchoicemedia_set", context={"exclude_question_choice": True}

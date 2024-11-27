@@ -31,7 +31,7 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         read_only_fields = ["id"]
 
     def __init__(self, *args, **kwargs):
-        self._context = kwargs.get("context", {})
+        self._context: dict = kwargs.get("context", {})
         if self._context.get("source", False):
             self.fields["medias"] = QuestionRetryHintMediaSerializer(
                 many=True, required=False, source="questionretryhintmedia_set", context={"exclude_retry_hint": True}

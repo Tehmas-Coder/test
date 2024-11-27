@@ -47,7 +47,7 @@ class RoleSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
     def __init__(self, *args, **kwargs):
-        self._context = kwargs.get("context", {})
+        self._context: dict = kwargs.get("context", {})
         if self._context.get("mutator", False):
             self.fields.pop("role_permissions")
             self.fields.pop("user_count")
