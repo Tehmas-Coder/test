@@ -142,7 +142,7 @@ class QuestionService:
         request_data = self.request_hint_media_parser.parse_media(request, request_data)
         request_data = self.visibility_setter.set_visibility(request_data)
 
-        serializer = self.serializer_class(data=request_data)
+        serializer = self.serializer_class(data=request_data, context={"mutator": True})
         serializer.is_valid(raise_exception=True)
 
         if not get_current_user().is_superuser:  # type: ignore

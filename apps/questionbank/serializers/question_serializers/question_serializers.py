@@ -38,13 +38,6 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionSerializer(BaseModelSerializer):
-    type = QuestionTypeSerializer()
-    tags = TagSerializer(many=True)
-    choices = QuestionChoiceSerializer(many=True, context={"source": True})
-    attempt_responses = QuestionAttemptResponseSerializer(many=True, context={"exclude_question": True})
-    retry_hints = QuestionRetryHintSerializer(many=True, context={"source": True})
-    medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
-    subjects = QuestionSubjectSerializer(many=True)
 
     class Meta:
         model = Question
@@ -67,37 +60,26 @@ class QuestionSerializer(BaseModelSerializer):
             "medias",
         ] + get_base_model_fields()
 
-
-class QuestionEditSerializer(serializers.ModelSerializer):
-    subjects = QuestionSubjectSerializer(many=True, required=False, context={"mutator": True})
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
-    choices = QuestionChoiceSerializer(many=True, required=False, context={"exclude_question": True})
-    attempt_responses = QuestionAttemptResponseSerializer(many=True, required=False, context={"exclude_question": True})
-    retry_hints = QuestionRetryHintSerializer(many=True, required=False, context={"exclude_question": True})
-    medias = MediaSerializer(many=True, required=False)
-
-    class Meta:
-        model = Question
-        fields = [
-            "id",
-            "title",
-            "type",
-            "organization",
-            "text",
-            "max_retries",
-            "retry_penalty",
-            "is_public",
-            "can_shuffle",
-            "has_media",
-            "subjects",
-            "tags",
-            "choices",
-            "attempt_responses",
-            "retry_hints",
-            "medias",
-        ]
-
         read_only_fields = ["id"]
+
+    def __init__(self, *args, **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("mutator", False):
+            self.fields["subjects"] = QuestionSubjectSerializer(many=True, required=False, context={"mutator": True})
+            self.fields["tags"] = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
+            self.fields["choices"] = QuestionChoiceSerializer(many=True, required=False, context={"exclude_question": True})
+            self.fields["attempt_responses"] = QuestionAttemptResponseSerializer(many=True, required=False, context={"exclude_question": True})
+            self.fields["retry_hints"] = QuestionRetryHintSerializer(many=True, required=False, context={"exclude_question": True})
+            self.fields["medias"] = MediaSerializer(many=True, required=False)
+        else:
+            self.fields["type"] = QuestionTypeSerializer()
+            self.fields["subjects"] = QuestionSubjectSerializer(many=True)
+            self.fields["tags"] = TagSerializer(many=True)
+            self.fields["choices"] = QuestionChoiceSerializer(many=True, context={"source": True})
+            self.fields["attempt_responses"] = QuestionAttemptResponseSerializer(many=True, context={"exclude_question": True})
+            self.fields["retry_hints"] = QuestionRetryHintSerializer(many=True, context={"source": True})
+            self.fields["medias"] = QuestionMediaSerializer(many=True, source="questionmedia_set")
+        super().__init__(*args, **kwargs)
 
     def create(self, validated_data):
         question_medias = validated_data.pop("medias", [])

@@ -65,7 +65,6 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_seri
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
-    QuestionEditSerializer,
     QuestionSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
@@ -163,10 +162,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
 
-    def get_serializer_class(self):
+    def get_serializer_context(self):
         if self.action in ["create", "partial_update"]:
-            return QuestionEditSerializer
-        return super().get_serializer_class()
+            return {"mutator": True}
+        return super().get_serializer_context()
 
     def get_queryset(self):
         if self.action == "list":
