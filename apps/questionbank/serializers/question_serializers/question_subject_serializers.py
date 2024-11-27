@@ -55,29 +55,3 @@ class QuestionSubjectSerializer(BaseModelSerializer):
             self.fields["difficulty_level"] = DifficultyLevelSerializer()
             self.fields["measuring_unit"] = MeasuringUnitSerializer()
         super().__init__(*args, **kwargs)
-
-
-class QuestionSubjectEditSerializer(BaseModelSerializer):
-    id = serializers.IntegerField(required=False)  # Make id optional
-    subject_education_level = SubjectEducationLevelSerializer(context={"mutator": True})
-    difficulty_level = serializers.PrimaryKeyRelatedField(queryset=DifficultyLevel.objects.all())
-    measuring_unit = serializers.PrimaryKeyRelatedField(queryset=MeasuringUnit.objects.all())
-    countries = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), many=True, required=False)
-
-    class Meta:
-        model = QuestionSubject
-        fields = [
-            "id",
-            "subject_education_level",
-            "difficulty_level",
-            "measuring_unit",
-            "countries",
-            "time_limit",
-            "total_marks",
-            "is_global",
-            "is_optional",
-        ] + get_base_model_fields()
-
-        read_only_fields = [
-            "id",
-        ]
