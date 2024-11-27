@@ -17,29 +17,14 @@ from apps.questionbank.serializers.subject_serializers import SubjectSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class QuestionSubjectListSerializer(BaseModelSerializer):
+class QuestionSubjectSerializer(BaseModelSerializer):
+
     class Meta:
         model = QuestionSubject
         fields = [
             "id",
             "subject_education_level",
-        ] + get_base_model_fields()
-
-
-class QuestionSubjectDetailSerializer(BaseModelSerializer):
-    education_level = EducationLevelSerializer(source="subject_education_level.education_level")
-    subject = SubjectSerializer(source="subject_education_level.subject")
-    countries = CountrySerializer(many=True)
-    difficulty_level = DifficultyLevelSerializer()
-    measuring_unit = MeasuringUnitSerializer()
-
-    class Meta:
-        model = QuestionSubject
-        fields = [
-            "id",
             "question",
-            "subject",
-            "education_level",
             "difficulty_level",
             "measuring_unit",
             "countries",
@@ -48,6 +33,28 @@ class QuestionSubjectDetailSerializer(BaseModelSerializer):
             "is_optional",
             "is_global",
         ] + get_base_model_fields()
+
+        read_only_fields = [
+            "id",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("mutator", False):
+            self.fields.pop("question")
+            self.fields["id"] = serializers.IntegerField(required=False)  # Make id optional
+            self.fields["subject_education_level"] = SubjectEducationLevelSerializer(context={"mutator": True})
+            self.fields["difficulty_level"] = serializers.PrimaryKeyRelatedField(queryset=DifficultyLevel.objects.all())
+            self.fields["measuring_unit"] = serializers.PrimaryKeyRelatedField(queryset=MeasuringUnit.objects.all())
+            self.fields["countries"] = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), many=True, required=False)
+        else:
+            self.fields.pop("subject_education_level")
+            self.fields["education_level"] = EducationLevelSerializer(source="subject_education_level.education_level")
+            self.fields["subject"] = SubjectSerializer(source="subject_education_level.subject")
+            self.fields["countries"] = CountrySerializer(many=True)
+            self.fields["difficulty_level"] = DifficultyLevelSerializer()
+            self.fields["measuring_unit"] = MeasuringUnitSerializer()
+        super().__init__(*args, **kwargs)
 
 
 class QuestionSubjectEditSerializer(BaseModelSerializer):

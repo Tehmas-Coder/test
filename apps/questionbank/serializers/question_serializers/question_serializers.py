@@ -24,8 +24,8 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_seri
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_subject_serializers import (
-    QuestionSubjectDetailSerializer,
     QuestionSubjectEditSerializer,
+    QuestionSubjectSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
     QuestionTypeSerializer,
@@ -41,7 +41,7 @@ class QuestionSerializer(BaseModelSerializer):
     attempt_responses = QuestionAttemptResponseSerializer(many=True, context={"exclude_question": True})
     retry_hints = QuestionRetryHintSerializer(many=True, context={"source": True})
     medias = QuestionMediaSerializer(many=True, source="questionmedia_set")
-    subjects = QuestionSubjectDetailSerializer(many=True)
+    subjects = QuestionSubjectSerializer(many=True)
 
     class Meta:
         model = Question
