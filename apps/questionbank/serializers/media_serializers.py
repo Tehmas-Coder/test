@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.user.models import Media
+from apps.user.models.user_models import Media
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 MEDIA_TYPES = {
@@ -61,23 +61,18 @@ class MediaBulkCreateSerializer(serializers.Serializer):
 
     def validate(self, data):
         media_serializer_errors = []
-
         for file in data.get("files", []):
             media_data = {"file": file}
             media_serializer = MediaSerializer(data=media_data)
-
             if not media_serializer.is_valid():
                 media_serializer_errors.append(media_serializer.errors)
-
         if media_serializer_errors:
             raise serializers.ValidationError({"file_errors": media_serializer_errors})
-
         return data
 
     def create(self, validated_data):
         files = validated_data.get("files", [])
         media_instances = []
-
         for file in files:
             name = file.name
             extension = file.name.split(".")[-1]
@@ -95,8 +90,6 @@ class MediaBulkCreateSerializer(serializers.Serializer):
 
         # Bulk create media instances
         Media.objects.bulk_create(media_instances)
-
         created_media_instances = Media.objects.all().order_by("-created_at")[: len(media_instances)]
         created_media_instances = sorted(created_media_instances, key=lambda instance: instance.id)  # type:ignore
-
         return created_media_instances

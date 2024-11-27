@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.questionbank.serializers.media_serializers import MediaSerializer
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 from apps.user.serializers.role_permission_serializers import RoleSerializer
 from utils.rna_utils import debug_print
 

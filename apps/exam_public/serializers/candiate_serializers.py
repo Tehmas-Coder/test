@@ -4,7 +4,7 @@ from apps.lookups.serializers.organization_serializers import (
     OrganizationEditSerializer,
     OrganizationSerializer,
 )
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 from apps.user.serializers.role_permission_serializers import RoleSerializer
 from apps.user.serializers.user_serializers import UserSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields

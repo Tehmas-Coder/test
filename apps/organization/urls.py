@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from apps.organization.views import OrganizationRelatedViewset
+from apps.organization.views.organization_views import OrganizationRelatedViewset
 
 router = routers.DefaultRouter()
 

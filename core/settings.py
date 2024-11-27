@@ -157,7 +157,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "eb_sqs",
     # * System
-    "ping",
+    "apps.ping",
     "apps.lookups",
     "apps.user",
     "apps.organization",
@@ -213,8 +213,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "core.middlewares.current_user_middleware.CurrentUserMiddleware",
-    "core.middlewares.response_middleware.ResponseMiddleware",
+    "middlewares.current_user_middleware.CurrentUserMiddleware",
+    "middlewares.response_middleware.ResponseMiddleware",
 ]
 if DEBUG:
     MIDDLEWARE += [
@@ -284,5 +284,5 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "exam_public" / "seeds",
     BASE_DIR / "apps" / "organization" / "seeds",
     BASE_DIR / "apps" / "exam_scoring" / "seeds",
-    BASE_DIR / "prod_seeds",
+    BASE_DIR / "seeds",
 ]

@@ -1,1 +1,1 @@
-from .exam_score_models import *
+from .exam_scoring_models import *

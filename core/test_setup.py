@@ -3,7 +3,7 @@ import json
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 from apps.user.serializers.user_serializers import UserSerializer
 
 

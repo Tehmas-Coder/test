@@ -1,4 +1,4 @@
-from apps.questionbank.models import QuestionType
+from apps.questionbank.models.question_models import QuestionType
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 

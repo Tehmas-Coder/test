@@ -53,7 +53,7 @@ def get_exam_detailed_queryset(
             )
         )
     if exam_subject_questions_question or all:
-        from apps.questionbank.models import Question
+        from apps.questionbank.models.question_models import Question
 
         exam_queryset = exam_queryset.prefetch_related(
             Prefetch(

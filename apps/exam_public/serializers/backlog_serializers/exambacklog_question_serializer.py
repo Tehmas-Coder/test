@@ -24,7 +24,7 @@ from apps.exam_public.serializers.candidate_exam_answer_serializers import (
     CandidateExamQuestionAnswerSerializer,
 )
 from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
-from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
+from apps.questionbank.serializers.difficulty_level_serializers import (
     DifficultyLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (

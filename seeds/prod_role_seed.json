@@ -1,0 +1,42 @@
+[
+  {
+    "model": "user.Role",
+    "pk": 1,
+    "fields": {
+      "name": "Admin",
+      "slug": "admin",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Role",
+    "pk": 2,
+    "fields": {
+      "name": "Worker",
+      "slug": "worker",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Role",
+    "pk": 3,
+    "fields": {
+      "name": "System",
+      "slug": "system",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Role",
+    "pk": 4,
+    "fields": {
+      "name": "Candidate",
+      "slug": "candidate",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  }
+]

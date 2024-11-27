@@ -1,17 +1,25 @@
-import json
-
-from django.db.models import F, Q
+from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.lookups.models import Organization
-from apps.organization.models.organization_models import (
-    OrganizationPackage,
-    OrganizationUser,
+from apps.lookups.custom.lookups_classes import (
+    OrganizationResourceQuerysetMutator,
+    OrganizationResourceValidator,
+)
+from apps.questionbank.custom.question_classes import (
+    ChoiceMediaExtractor,
+    OrganizationPackageQuestionLimitValidator,
+    QuestionService,
+    QuestionVisibilitySetter,
+    RequestMediaParser,
+    RetryHintMediaExtractor,
 )
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
-from apps.questionbank.models import (
+from apps.questionbank.helpers.question_helpers import (
+    check_subject_education_level_existence,
+)
+from apps.questionbank.models.question_models import (
     DifficultyLevel,
     EducationLevel,
     Question,
@@ -26,10 +34,10 @@ from apps.questionbank.models import (
     Subject,
     SubjectEducationLevel,
 )
-from apps.questionbank.serializers.question_serializers.difficulty_level_serializers import (
+from apps.questionbank.serializers.difficulty_level_serializers import (
     DifficultyLevelSerializer,
 )
-from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_attempt_response_serializers import (
@@ -38,32 +46,26 @@ from apps.questionbank.serializers.question_serializers.question_attempt_respons
 )
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
     QuestionChoiceMediaBulkCreateSerializer,
-    QuestionChoiceMediaEditSerializer,
     QuestionChoiceMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_choice_serializers import (
     QuestionChoiceBulkCreateSerializer,
-    QuestionChoiceDetailSerializer,
     QuestionChoiceSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_media_serializers import (
     QuestionMediaBulkCreateSerializer,
-    QuestionMediaDetailSerializer,
-    QuestionMediaEditSerializer,
+    QuestionMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
     QuestionRetryHintMediaBulkCreateSerializer,
-    QuestionRetryHintMediaEditSerializer,
     QuestionRetryHintMediaSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_retry_hint_serializers import (
     QuestionRetryHintBulkCreateSerializer,
-    QuestionRetryHintDetailSerializer,
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
-    QuestionDetailSerializer,
-    QuestionEditSerializer,
+    QuestionSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_tag_serializers import (
     QuestionTagBulkUpsertSerializer,
@@ -72,16 +74,11 @@ from apps.questionbank.serializers.question_serializers.question_tag_serializers
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
     QuestionTypeSerializer,
 )
-from apps.questionbank.serializers.question_serializers.subject_education_level_serializers import (
-    SubjectEducationLevelDetailSerializer,
-    SubjectEducationLevelEditSerializer,
+from apps.questionbank.serializers.subject_education_level_serializers import (
+    SubjectEducationLevelSerializer,
 )
-from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectSerializer,
-)
-from apps.user.utils.utils import get_current_user_organization
-from core.middlewares.current_user_middleware import get_current_user
-from utils.rna_utils import make_error_response
+from apps.questionbank.serializers.subject_serializers import SubjectSerializer
+from utils.rna_utils import debug_print
 
 
 # ---------------------------------------------------------------------------- #
@@ -93,16 +90,13 @@ class EducationLevelViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def list(self, request, *args, **kwargs):
-        if not get_current_user().is_superuser:  # type: ignore
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
-            return make_error_response(message="Failed: This Education Level doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().partial_update(request, *args, **kwargs)
 
 
@@ -112,59 +106,37 @@ class SubjectViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def list(self, request, *args, **kwargs):
-        if not get_current_user().is_superuser:  # type: ignore
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
-            return make_error_response(message="Failed: This Subject doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().partial_update(request, *args, **kwargs)
 
 
 class SubjectEducationLevelViewSet(viewsets.ModelViewSet):
     queryset = SubjectEducationLevel.get_detail_queryset()
-    serializer_class = SubjectEducationLevelDetailSerializer
+    serializer_class = SubjectEducationLevelSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def get_serializer_class(self):
-        if self.action in ["create", "partial_update"]:
-            return SubjectEducationLevelEditSerializer
-        return super().get_serializer_class()
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
-        if SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"]).exists():
-            return make_error_response(data=request.data, message="Subject education level already exists.")
-        serializer = SubjectEducationLevelEditSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        subject_education_level = serializer.save()
-        serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        check_subject_education_level_existence(request.data["subject"], request.data["education_level"])
+        return super().create(request, *args, **kwargs)
 
-    def list(self, request, *args, **kwargs):
-        if not get_current_user().is_superuser:  # type: ignore
-            self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
-
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not get_current_user().is_superuser and (instance.organization_id != get_current_user_organization()):
-            return make_error_response(message="Failed: This Subject Education Level doesn't belong to your organization")
-        if (
-            SubjectEducationLevel.objects.filter(subject_id=request.data["subject"], education_level_id=request.data["education_level"])
-            .exclude(id=instance.id)
-            .exists()
-        ):
-            return make_error_response(data=request.data, message="Subject education level already exists.")
-        serializer = SubjectEducationLevelEditSerializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        subject_education_level = serializer.save()
-        serializer = SubjectEducationLevelDetailSerializer(subject_education_level)
-        return Response(serializer.data)
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
+        check_subject_education_level_existence(request.data["subject"], request.data["education_level"], self.get_object().id)
+        return super().partial_update(request, *args, **kwargs)
 
 
 class DifficultyLevelViewSet(viewsets.ModelViewSet):
@@ -187,108 +159,43 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.get_detail_queryset(all=True)
     filter_backends = [QuestionFilterBackend]
-    serializer_class = QuestionDetailSerializer
+    serializer_class = QuestionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
-    QUESTION_NOT_AVAILABLE_MESSAGE = f"Failed: This Question doesn't belong to your organization"
 
-    def parse_media(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # * Extract media for questions
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append(
-                    {
-                        "file": file,
-                    }
-                )
-
-        # * Extract media for hints
-        for hint in request_data.get("retry_hints", []):
-            hint_medias = hint.pop("medias", [])
-            if hint["has_media"]:
-                hint["medias"] = []
-                for key in hint_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        hint["medias"].append(
-                            {
-                                "file": file,
-                            }
-                        )
-
-        # * Extract media for choices
-        for choice in request_data.get("choices", []):
-            choice_medias = choice.pop("medias", [])
-            if choice["has_media"]:
-                choice["medias"] = []
-                for key in choice_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        choice["medias"].append(
-                            {
-                                "file": file,
-                            }
-                        )
-
-        return request_data
-
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer_context(self):
         if self.action in ["create", "partial_update"]:
-            return QuestionEditSerializer(*args, **kwargs)
-        return super().get_serializer(*args, **kwargs)
+            return {"mutator": True}
+        return super().get_serializer_context()
 
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
+        return super().get_queryset()
+
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
-        if "data" in request.data:
-            request_data = self.parse_media(request)
-        else:
-            request_data = request.data
+        request_parser = RequestMediaParser()
+        request_choice_media_parser = RequestMediaParser(ChoiceMediaExtractor())
+        request_hint_media_parser = RequestMediaParser(RetryHintMediaExtractor())
+        visibility_setter = QuestionVisibilitySetter()
+        organization_validator = OrganizationPackageQuestionLimitValidator()
+        question_service = QuestionService(
+            request_parser,
+            request_choice_media_parser,
+            request_hint_media_parser,
+            visibility_setter,
+            organization_validator,
+            self.get_serializer_class(),
+        )
+        return question_service.create_question(request)
 
-        # * Setting Question to public if the user is a superuser
-        if request.user.is_superuser:
-            request_data["is_public"] = 1
-        else:
-            request_data["is_public"] = 0
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            if not organization_id:
-                return make_error_response(message=f"Failed: User doesn't belong to any organization")
-            organization = Organization.objects.get(id=organization_id)
-            # * Checking the usage of questions of Organization package
-            organization_package = (
-                OrganizationPackage.objects.filter(organization=organization).annotate(total_questions=F("package__questions")).last()
-            )
-            if not (organization_package.questions <= organization_package.total_questions):  # type:ignore
-                return make_error_response(message=f"Failed: Your limit to create questions is reached")
-            # * Assigning Question to Organization if the requested user is not superuser
-            organization_package.questions = organization_package.questions + 1  # type:ignore
-            organization_package.save()  # type:ignore
-            request_data["organization"] = organization_id
-
-        serializer = self.get_serializer(data=request_data)
-        serializer.is_valid(raise_exception=True)
-        question = serializer.save()
-        serializer = QuestionDetailSerializer(question)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(is_public=True))
-        return super().list(request, *args, **kwargs)
-
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not request.user.is_superuser:
-            if instance.organization_id != get_current_user_organization():
-                return make_error_response(message=self.QUESTION_NOT_AVAILABLE_MESSAGE)
-        request_data = request.data
-        serializer = self.get_serializer(instance, data=request_data, partial=True)
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
+        serializer = self.get_serializer(self.get_object(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        serializer = QuestionDetailSerializer(self.get_object())
+        serializer = QuestionSerializer(self.get_object())
         return Response(serializer.data)
 
     @action(detail=False, methods=["delete"], url_path="delete-all")
@@ -301,35 +208,17 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
 
 class QuestionMediaViewSet(viewsets.ModelViewSet):
-    queryset = QuestionMedia.objects.all()
-    serializer_class = QuestionMediaEditSerializer
+    queryset = QuestionMedia.objects.all().select_related("media")
+    serializer_class = QuestionMediaSerializer
     http_method_names = ["post", "delete"]
-    # parser_classes = [FormParser, MultiPartParser]
-
-    def create(self, request, *args, **kwargs):
-        request_data = request.data
-        serializer = self.get_serializer(data=request_data)
-        serializer.is_valid(raise_exception=True)
-        question_media = serializer.save()
-        serializer = QuestionMediaDetailSerializer(question_media)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_medias(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # * Extract medias for question
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
         serializer = QuestionMediaBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_medias = serializer.save()
-        serializer = QuestionMediaDetailSerializer(question_medias, many=True)
+        serializer = QuestionMediaSerializer(question_medias, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["post"], url_path="bulk-delete")
@@ -349,8 +238,7 @@ class QuestionTagViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="bulk-upsert")
     def bulk_upsert_question_tags(self, request):
-        request_data = request.data
-        serializer = QuestionTagBulkUpsertSerializer(data=request_data)
+        serializer = QuestionTagBulkUpsertSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         question_tags = serializer.save()
         serializer = QuestionTagSerializer(question_tags, many=True)
@@ -365,7 +253,10 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionChoiceSerializer
     http_method_names = ["post", "patch", "delete"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
+        # TODO: When the request data from front end will get fixed then uncomment the below line and remove the request setup
+        # request_data = RequestMediaParser().parse(request)
         request_data = request.data.copy()
         if len(request.FILES) > 0:
             request_data["medias"] = []
@@ -375,35 +266,26 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceDetailSerializer(question_choice)
+        serializer = QuestionChoiceSerializer(question_choice, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         question_choice = serializer.save()
-        serializer = QuestionChoiceDetailSerializer(question_choice)
+        serializer = QuestionChoiceSerializer(question_choice, context={"source": True})
         return Response(serializer.data)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_choices(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # Extract media for choices
-        for choice in request_data.get("choices", []):
-            choice_medias = choice.pop("medias", [])
-            if choice_medias:
-                choice["medias"] = []
-                for key in choice_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        choice["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
+        request_data = RequestMediaParser(ChoiceMediaExtractor()).parse_media(request, request_data)
         serializer = QuestionChoiceBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice_medias = serializer.save()
-        serializer = QuestionChoiceDetailSerializer(question_choice_medias, many=True)
+        serializer = QuestionChoiceSerializer(question_choice_medias, many=True, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -411,30 +293,13 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
 
 
 class QuestionChoiceMediaViewSet(viewsets.ModelViewSet):
-    queryset = QuestionChoiceMedia.objects.all()
-    serializer_class = QuestionChoiceMediaEditSerializer
+    queryset = QuestionChoiceMedia.objects.all().select_related("media")
+    serializer_class = QuestionChoiceMediaSerializer
     http_method_names = ["post", "delete"]
-
-    def create(self, request, *args, **kwargs):
-        res = super().create(request, *args, **kwargs)
-        if res.data:
-            instance = QuestionChoiceMedia.objects.get(id=res.data["id"])
-            serializer = QuestionChoiceMediaSerializer(instance)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return res
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_choice_medias(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # * Extract medias for question choice
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
         serializer = QuestionChoiceMediaBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_choice_medias = serializer.save()
@@ -470,42 +335,43 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
 
 
 class QuestionRetryHintViewSet(viewsets.ModelViewSet):
-    queryset = QuestionRetryHint.objects.all()
+    queryset = QuestionRetryHint.objects.all().prefetch_related("medias")
     serializer_class = QuestionRetryHintSerializer
     http_method_names = ["post", "patch", "delete"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
+        # TODO: When the request data from front end will get fixed then uncomment the below line and remove the request setup
+        # request_data = RequestMediaParser().parse(request)
         request_data = request.data.copy()
         if len(request.FILES) > 0:
             request_data["medias"] = []
         for file in request.FILES:
             request_data["medias"].append({"file": request.FILES[file]})
             request_data.pop(file)
-
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint = serializer.save()
-        serializer = QuestionRetryHintDetailSerializer(question_retry_hint)
+        serializer = QuestionRetryHintSerializer(question_retry_hint, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        question_retry_hint = serializer.save()
+        serializer = QuestionRetryHintSerializer(question_retry_hint, context={"source": True})
+        return Response(serializer.data)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_retry_hints(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # Extract media for retry hints
-        for retry_hint in request_data.get("retry_hints", []):
-            retry_hint_medias = retry_hint.pop("medias", [])
-            if retry_hint_medias:
-                retry_hint["medias"] = []
-                for key in retry_hint_medias:
-                    file = request.FILES.get(key)
-                    if file:
-                        retry_hint["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
+        request_data = RequestMediaParser(RetryHintMediaExtractor()).parse_media(request, request_data)
         serializer = QuestionRetryHintBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint_medias = serializer.save()
-        serializer = QuestionRetryHintDetailSerializer(question_retry_hint_medias, many=True)
+        serializer = QuestionRetryHintSerializer(question_retry_hint_medias, many=True, context={"source": True})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -513,30 +379,13 @@ class QuestionRetryHintViewSet(viewsets.ModelViewSet):
 
 
 class QuestionRetryHintMediaViewSet(viewsets.ModelViewSet):
-    queryset = QuestionRetryHintMedia.objects.all()
-    serializer_class = QuestionRetryHintMediaEditSerializer
+    queryset = QuestionRetryHintMedia.objects.all().select_related("media")
+    serializer_class = QuestionRetryHintMediaSerializer
     http_method_names = ["post", "delete"]
-
-    def create(self, request, *args, **kwargs):
-        res = super().create(request, *args, **kwargs)
-        if res.data:
-            instance = QuestionRetryHintMedia.objects.get(id=res.data["id"])
-            serializer = QuestionRetryHintMediaSerializer(instance)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return res
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_question_retry_hint_medias(self, request):
-        request_data = json.loads(request.data["data"])
-
-        # * Extract medias for question retry hint
-        media_keys = request_data.pop("medias", [])
-        request_data["medias"] = []
-        for key in media_keys:
-            file = request.FILES.get(key)
-            if file:
-                request_data["medias"].append({"file": file})
-
+        request_data = RequestMediaParser().parse(request)
         serializer = QuestionRetryHintMediaBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         question_retry_hint_medias = serializer.save()

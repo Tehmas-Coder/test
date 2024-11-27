@@ -3,13 +3,13 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from apps.user.custom.system_user_ninja import SystemUserNinja
+from apps.user.custom.user_ninja import UserNinja
+from apps.user.custom.verification_email_ninja import VerificationEmailNinja
 from apps.user.filters.user_filters import UserFilterBackend
-from apps.user.helpers.system_user_ninja import SystemUserNinja
-from apps.user.helpers.user_ninja import UserNinja
-from apps.user.helpers.verification_email_ninja import VerificationEmailNinja
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 from apps.user.serializers.user_serializers import UserSerializer
-from core.middlewares.current_user_middleware import get_current_user
+from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_success_response
 
 # ---------------------------------------------------------------------------- #
@@ -37,6 +37,7 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         request_data = request.data.dict()
         request_data["requested_instance"] = self.get_object()

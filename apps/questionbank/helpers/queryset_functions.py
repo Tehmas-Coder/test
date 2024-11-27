@@ -2,7 +2,7 @@ from django.db.models import Prefetch
 
 
 def get_question_detailed_queryset(model, tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False):
-    from apps.questionbank.models import QuestionMedia
+    from apps.questionbank.models.question_models import QuestionMedia
 
     question_queryset = (
         model.objects.get_queryset()
@@ -19,7 +19,10 @@ def get_question_detailed_queryset(model, tags=False, attempt_responses=False, c
     if attempt_responses or all:
         question_queryset = question_queryset.prefetch_related("attempt_responses")
     if choices or all:
-        from apps.questionbank.models import QuestionChoice, QuestionChoiceMedia
+        from apps.questionbank.models.question_models import (
+            QuestionChoice,
+            QuestionChoiceMedia,
+        )
 
         question_queryset = question_queryset.prefetch_related(
             Prefetch(
@@ -33,7 +36,10 @@ def get_question_detailed_queryset(model, tags=False, attempt_responses=False, c
             )
         )
     if retry_hints or all:
-        from apps.questionbank.models import QuestionRetryHint, QuestionRetryHintMedia
+        from apps.questionbank.models.question_models import (
+            QuestionRetryHint,
+            QuestionRetryHintMedia,
+        )
 
         question_queryset = question_queryset.prefetch_related(
             Prefetch(
@@ -47,7 +53,7 @@ def get_question_detailed_queryset(model, tags=False, attempt_responses=False, c
             )
         )
     if subjects or all:
-        from apps.questionbank.models import QuestionSubject
+        from apps.questionbank.models.question_models import QuestionSubject
 
         question_queryset = question_queryset.prefetch_related(
             Prefetch(

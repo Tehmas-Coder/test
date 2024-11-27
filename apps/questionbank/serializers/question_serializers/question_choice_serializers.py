@@ -1,18 +1,23 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.questionbank.models import QuestionChoice
+from apps.questionbank.models.question_models import QuestionChoice
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.questionbank.serializers.question_serializers.question_choice_media_serializers import (
     QuestionChoiceMediaBulkCreateSerializer,
-    QuestionChoiceMediaDetailSerializer,
+    QuestionChoiceMediaSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 class QuestionChoiceSerializer(BaseModelSerializer):
-    medias = MediaSerializer(many=True, required=False)
+    """
+    -> This serializer serailize media in multiple ways:
+    1. When source is provided, it will serialize medias as QuestionChoiceMediaSerializer with source="questionchoicemedia_set"
+    2. When source is not provided, it will serialize medias as MediaSerializer
+
+    -> When exclude_question is provided, it will exclude question field from the serializer
+    """
 
     class Meta:
         model = QuestionChoice
@@ -30,11 +35,25 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
         read_only_fields = ["id"]
 
-    def validate(self, attrs):
-        return super().validate(attrs)
+    def __init__(self, *args, **kwargs):
+        self._context: dict = kwargs.get("context", {})
+        if self._context.get("source", False):
+            self.fields["medias"] = QuestionChoiceMediaSerializer(
+                many=True, required=False, source="questionchoicemedia_set", context={"exclude_question_choice": True}
+            )
+        else:
+            self.fields["medias"] = MediaSerializer(many=True, required=False)
+        if self._context.get("exclude_question", False):
+            self.fields.pop("question")
+        super().__init__(*args, **kwargs)
 
     @transaction.atomic
     def create(self, validated_data):
+        # validated_data.pop("medias", None)
+        # medias = self.initial_data.get("medias", None)  # type: ignore
+        # if medias:
+        #     validated_data["has_media"] = True
+        # TODO: When the request data from front end will get fixed then uncomment the above lines and remove the try and except blocks
         try:
             request = self.context.get("request")
             medias = []
@@ -42,63 +61,17 @@ class QuestionChoiceSerializer(BaseModelSerializer):
                 medias.append({"file": request.FILES[file]})  # type: ignore
         except:
             medias = validated_data.pop("medias")
-
         question_choice = QuestionChoice.objects.create(**validated_data)
-
         bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}  # type: ignore
         question_choice_media_serializer = QuestionChoiceMediaBulkCreateSerializer(data=bulk_create_request_data)
         question_choice_media_serializer.is_valid(raise_exception=True)
         question_choice_media_serializer.save()
-
-        if medias:
-            question_choice.has_media = True
-            question_choice.save()
-
         return question_choice
-
-
-class QuestionChoiceEditSerializer(BaseModelSerializer):
-    medias = MediaSerializer(many=True, required=False)
-
-    class Meta:
-        model = QuestionChoice
-        fields = [
-            "id",
-            "title",
-            "text",
-            "weight",
-            "is_negative_weight",
-            "is_correct",
-            "has_media",
-            "medias",
-        ] + get_base_model_fields()
-
-        read_only_fields = ["id"]
-
-
-class QuestionChoiceDetailSerializer(BaseModelSerializer):
-    medias = QuestionChoiceMediaDetailSerializer(many=True, required=False, source="questionchoicemedia_set")
-
-    class Meta:
-        model = QuestionChoice
-        fields = [
-            "id",
-            "question",
-            "title",
-            "text",
-            "weight",
-            "is_negative_weight",
-            "is_correct",
-            "has_media",
-            "medias",
-        ] + get_base_model_fields()
-
-        read_only_fields = ["id"]
 
 
 class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
     question = serializers.IntegerField()
-    choices = serializers.ListField(child=QuestionChoiceEditSerializer())
+    choices = serializers.ListField(child=QuestionChoiceSerializer(context={"exclude_question": True}))
 
     def validate(self, data):
         question_choice_serializer_errors = []
@@ -126,7 +99,9 @@ class QuestionChoiceBulkCreateSerializer(serializers.Serializer):
         # * Bulk Create Question Choices
         question_choices_instances = [QuestionChoice(**data) for data in self.question_choices_instances_data]
         QuestionChoice.objects.bulk_create(question_choices_instances)
-        created_question_choices_instances = QuestionChoice.objects.all().order_by("-created_at")[: len(question_choices_instances)]
+        created_question_choices_instances = (
+            QuestionChoice.objects.all().prefetch_related("medias").order_by("-created_at")[: len(question_choices_instances)]
+        )
         created_question_choices_instances = sorted(created_question_choices_instances, key=lambda instance: instance.id)  # type: ignore
 
         # * Bulk Create Question Choices Medias

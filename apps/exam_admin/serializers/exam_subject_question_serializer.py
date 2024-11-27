@@ -3,15 +3,13 @@ from rest_framework.exceptions import ValidationError
 
 from apps.exam_admin.models.exam_admin_models import ExamSubject, ExamSubjectQuestion
 from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
-from apps.questionbank.serializers.question_serializers.education_level_serializers import (
+from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_serializers import (
-    QuestionDetailSerializer,
+    QuestionSerializer,
 )
-from apps.questionbank.serializers.question_serializers.subject_serializers import (
-    SubjectSerializer,
-)
+from apps.questionbank.serializers.subject_serializers import SubjectSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
@@ -54,7 +52,7 @@ class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
         ]
 
     def get_question(self, obj):
-        question_data = QuestionDetailSerializer(obj.question).data
+        question_data = QuestionSerializer(obj.question).data
         question_subject_data = question_data.pop("subjects")  # type: ignore
         exam_subject_id = obj.exam_subject.subject_education_level.subject.id
         exam_subject_education_level_id = obj.exam_subject.subject_education_level.education_level.id

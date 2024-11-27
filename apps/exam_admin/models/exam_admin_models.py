@@ -3,8 +3,8 @@ from django.db.models import QuerySet
 
 from apps.exam_admin.helpers.queryset_functions import get_exam_detailed_queryset
 from apps.user.utils.utils import get_current_user_organization
-from core.middlewares.current_user_middleware import get_current_user
 from core.models import BaseModel
+from middlewares.current_user_middleware import get_current_user
 
 
 # ---------------------------------------------------------------------------- #
@@ -20,7 +20,7 @@ class Schedule(BaseModel):
     extra_duration = models.PositiveIntegerField(null=True)
 
     def save(self, *args, **kwargs):
-        if not self.id:  # type: ignore
+        if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
                 self.organization_id = get_current_user_organization()
         return super().save(*args, **kwargs)

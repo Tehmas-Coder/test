@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import OuterRef, Q, Subquery
 from hashids import Hashids
 
-from core.middlewares.current_user_middleware import get_current_user
+from middlewares.current_user_middleware import get_current_user
 
 hashids = Hashids(min_length=8, salt="your_salt_here")
 
@@ -65,10 +65,6 @@ class BaseModel(models.Model):
 
         super().save(*args, **kwargs)
 
-    # @property
-    # def is_active(self) -> bool:
-    #     return self.meta_status == "active"
-
     @property
     def is_inactive(self) -> bool:
         return self.meta_status == "inactive"
@@ -77,12 +73,38 @@ class BaseModel(models.Model):
     def is_deleted(self) -> bool:
         return self.meta_status == "deleted"
 
-    def delete(self, *args, **kwargs):
+    def delete(self, using=None, keep_parents=False, *args, **kwargs):
         if config("ENABLE_SOFT_DELETE", cast=bool, default=False):
+            self._check_protect()
             self.meta_status = "deleted"
             self.save()
+            self._cascade_soft_delete()
         else:
             super().delete(*args, **kwargs)
+
+    def _check_protect(self):
+        for related_object in self._meta.related_objects:
+            related_name = related_object.get_accessor_name()
+            related_manager = getattr(self, related_name)
+            if not isinstance(related_manager, models.Manager):
+                continue
+            if related_object.on_delete != models.PROTECT:
+                continue
+            if related_manager.exists():
+                raise models.ProtectedError(
+                    f"Cannot delete {self} because protected related {related_object.related_model.__name__} exists.",
+                    protected_objects=set(related_manager.all()),
+                )
+
+    def _cascade_soft_delete(self):
+        for related_object in self._meta.related_objects:
+            related_name = related_object.get_accessor_name()
+            related_manager = getattr(self, related_name)
+            if isinstance(related_manager, models.Manager):
+                if related_object.on_delete == models.CASCADE:
+                    related_manager.all().update(meta_status="deleted")
+                elif related_object.on_delete == models.SET_NULL:
+                    related_manager.all().update(**{related_object.field.name: None})
 
     def activate(self, *args, **kwargs):
         self.meta_status = "active"
@@ -126,10 +148,6 @@ class BaseUserModel(models.Model):
         return qs
 
     @property
-    def is_active(self) -> bool:
-        return self.meta_status == "active"
-
-    @property
     def is_inactive(self) -> bool:
         return self.meta_status == "inactive"
 
@@ -137,12 +155,38 @@ class BaseUserModel(models.Model):
     def is_deleted(self) -> bool:
         return self.meta_status == "deleted"
 
-    def delete(self, *args, **kwargs):
+    def delete(self, using=None, keep_parents=False, *args, **kwargs):
         if config("ENABLE_SOFT_DELETE", cast=bool, default=False):
+            self._check_protect()
             self.meta_status = "deleted"
             self.save()
+            self._cascade_soft_delete()
         else:
             super().delete(*args, **kwargs)
+
+    def _check_protect(self):
+        for related_object in self._meta.related_objects:
+            related_name = related_object.get_accessor_name()
+            related_manager = getattr(self, related_name)
+            if not isinstance(related_manager, models.Manager):
+                continue
+            if related_object.on_delete != models.PROTECT:
+                continue
+            if related_manager.exists():
+                raise models.ProtectedError(
+                    f"Cannot delete {self} because protected related {related_object.related_model.__name__} exists.",
+                    protected_objects=set(related_manager.all()),
+                )
+
+    def _cascade_soft_delete(self):
+        for related_object in self._meta.related_objects:
+            related_name = related_object.get_accessor_name()
+            related_manager = getattr(self, related_name)
+            if isinstance(related_manager, models.Manager):
+                if related_object.on_delete == models.CASCADE:
+                    related_manager.all().update(meta_status="deleted")
+                elif related_object.on_delete == models.SET_NULL:
+                    related_manager.all().update(**{related_object.field.name: None})
 
     def activate(self, *args, **kwargs):
         self.meta_status = "active"

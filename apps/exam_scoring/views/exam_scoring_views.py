@@ -17,11 +17,11 @@ from apps.exam_public.models.exam_public_models import (
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamScoresheetSerializer,
 )
-from apps.exam_scoring.classes.exam_scoring_helper import ExamScoringNinja
+from apps.exam_scoring.helpers.exam_scoring_helper import ExamScoringNinja
 from apps.exam_scoring.helpers.scoring_webhook import (
     send_exam_result_to_student_apply_webhook,
 )
-from apps.exam_scoring.models.exam_score_models import (
+from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )

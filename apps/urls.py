@@ -8,4 +8,5 @@ urlpatterns = [
     path("", include("apps.exam_public.urls")),
     path("", include("apps.organization.urls")),
     path("", include("apps.exam_scoring.urls")),
+    path("", include("apps.ping.urls")),
 ]

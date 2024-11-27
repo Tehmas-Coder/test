@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from apps.lookups.views import (
+from apps.lookups.views.lookup_views import (
     CountryViewset,
     CurrencyViewset,
     LanguageViewset,

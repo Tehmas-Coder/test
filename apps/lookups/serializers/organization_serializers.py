@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.lookups.models import Organization
+from apps.lookups.models.lookup_models import Organization
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.lookups.serializers.package_serializers import PackageSerializer
 from apps.organization.models.organization_models import OrganizationPackage

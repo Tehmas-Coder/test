@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from apps.lookups.models import State
+
+from apps.lookups.models.lookup_models import State
 from apps.lookups.serializers.city_serializer import CitySerializer
 
 

@@ -51,7 +51,7 @@ class EmailNotification:
     # ! ------------------------------------------------------------
 
     def __generate_html_content_for_otp(self):
-        with open("./email_templates/otp_email.html", "r", encoding="utf-8") as file:
+        with open("./templates/otp_email.html", "r", encoding="utf-8") as file:
             html_content = (
                 file.read()
                 .replace("{FIRST_NAME}", self.first_name)
@@ -62,7 +62,7 @@ class EmailNotification:
         return html_content
 
     def __generate_html_content_for_url(self):
-        with open("./email_templates/link_email.html", "r", encoding="utf-8") as file:
+        with open("./templates/link_email.html", "r", encoding="utf-8") as file:
             html_content = (
                 file.read()
                 .replace("{FIRST_NAME}", self.first_name)
@@ -74,7 +74,7 @@ class EmailNotification:
         return html_content
 
     def __generate_html_content_for_exam_link(self):
-        with open("./email_templates/exam_link.html", "r", encoding="utf-8") as file:
+        with open("./templates/exam_link.html", "r", encoding="utf-8") as file:
             html_content = (
                 file.read()
                 .replace("{first_name}", self.first_name)
@@ -89,7 +89,7 @@ class EmailNotification:
         return html_content
 
     def __generate_html_content_for_exam_result(self):
-        with open("./email_templates/exam_result.html", "r", encoding="utf-8") as file:
+        with open("./templates/exam_result.html", "r", encoding="utf-8") as file:
             html_content = (
                 file.read()
                 .replace("{first_name}", self.first_name)

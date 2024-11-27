@@ -3,7 +3,7 @@ import json
 
 from rest_framework import status
 
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
 from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,

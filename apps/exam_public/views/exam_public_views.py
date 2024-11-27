@@ -3,6 +3,7 @@ import random
 
 from cryptography.fernet import Fernet
 from decouple import config
+from django.db import transaction
 from django.db.models import F, Prefetch, Q, Sum
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
@@ -10,9 +11,9 @@ from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
-from apps.exam_public.classes.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
+from apps.exam_public.helpers.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.helpers.exam_status_webhook import (
     send_exam_status_to_student_apply_webhook,
 )
@@ -53,13 +54,13 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.exam_scoring.models.exam_score_models import (
+from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.user.models import BaseUser, Role, RolePermission
+from apps.user.models.user_models import BaseUser, Role, RolePermission
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     color_print,
@@ -101,6 +102,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
             return CandidateDetailSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if Candidate.objects.filter(
             user_id=request.data["user"],
@@ -150,6 +152,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             return CandidateExamListSerializer
         return super().get_serializer_class()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data
         exam_id = request_data.pop("exam")
@@ -735,6 +738,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
     pagination_class = None
     http_method_names = ["get", "post"]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = json.loads(request.data["data"])
         candidate_exam_id = request_data.pop("candidate_exam")

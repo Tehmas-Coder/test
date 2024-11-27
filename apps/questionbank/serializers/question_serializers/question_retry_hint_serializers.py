@@ -1,16 +1,22 @@
 from rest_framework import serializers
 
-from apps.questionbank.models import QuestionRetryHint
+from apps.questionbank.models.question_models import QuestionRetryHint
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.questionbank.serializers.question_serializers.question_retry_hint_media_serializers import (
     QuestionRetryHintMediaBulkCreateSerializer,
-    QuestionRetryHintMediaDetailSerializer,
+    QuestionRetryHintMediaSerializer,
 )
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class QuestionRetryHintSerializer(BaseModelSerializer):
-    medias = MediaSerializer(many=True, required=False)
+    """
+    -> This serializer serailize media in multiple ways:
+    1. When source is provided, it will serialize medias as QuestionRetryHintMediaSerializer with source="questionretryhintmedia_set"
+    2. When source is not provided, it will serialize medias as MediaSerializer
+
+    -> When exclude_question is provided, it will exclude question field from the serializer
+    """
 
     class Meta:
         model = QuestionRetryHint
@@ -24,7 +30,28 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
         read_only_fields = ["id"]
 
+    def __init__(self, *args, **kwargs):
+        self._context: dict = kwargs.get("context", {})
+        if self._context.get("source", False):
+            self.fields["medias"] = QuestionRetryHintMediaSerializer(
+                many=True, required=False, source="questionretryhintmedia_set", context={"exclude_retry_hint": True}
+            )
+        else:
+            self.fields["medias"] = MediaSerializer(many=True, required=False)
+        if self._context.get("exclude_question", False):
+            self.fields.pop("question")
+        super().__init__(*args, **kwargs)
+
     def create(self, validated_data):
+        # validated_data.pop("medias", None)
+        # medias = self.initial_data.get("medias", None)  # type: ignore
+        # if medias:
+        #     validated_data["has_media"] = True
+        # validated_data.pop("medias", None)
+        # medias = self.initial_data.get("medias", None)  # type: ignore
+        # if medias:
+        #     validated_data["has_media"] = True
+        # TODO: When the request data from front end will get fixed then uncomment the above lines and remove the try and except blocks
         try:
             request = self.context.get("request")
             medias = []
@@ -34,48 +61,16 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
             medias = validated_data.pop("medias")
 
         retry_hint = QuestionRetryHint.objects.create(**validated_data)
-        for media in medias:
-            media_serializer = MediaSerializer(data=media)
-            media_serializer.is_valid(raise_exception=True)
-            media = media_serializer.save()
-            retry_hint.medias.add(media)
-        retry_hint.refresh_from_db()
+        bulk_create_request_data = {"question_retry_hint": retry_hint.id, "medias": medias}  # type: ignore
+        retry_hint_media_serializer = QuestionRetryHintMediaBulkCreateSerializer(data=bulk_create_request_data)
+        retry_hint_media_serializer.is_valid(raise_exception=True)
+        retry_hint_media_serializer.save()
         return retry_hint
-
-
-class QuestionRetryHintEditSerializer(BaseModelSerializer):
-    medias = MediaSerializer(many=True, required=False)
-
-    class Meta:
-        model = QuestionRetryHint
-        fields = [
-            "id",
-            "text",
-            "has_media",
-            "sequence",
-            "medias",
-        ] + get_base_model_fields()
-        read_only_fields = ["id"]
-
-
-class QuestionRetryHintDetailSerializer(BaseModelSerializer):
-    medias = QuestionRetryHintMediaDetailSerializer(many=True, required=False, source="questionretryhintmedia_set")
-
-    class Meta:
-        model = QuestionRetryHint
-        fields = [
-            "id",
-            "text",
-            "has_media",
-            "sequence",
-            "medias",
-        ] + get_base_model_fields()
-        read_only_fields = ["id"]
 
 
 class QuestionRetryHintBulkCreateSerializer(serializers.Serializer):
     question = serializers.IntegerField()
-    retry_hints = serializers.ListField(child=QuestionRetryHintEditSerializer())
+    retry_hints = serializers.ListField(child=QuestionRetryHintSerializer(context={"exclude_question": True}))
 
     def validate(self, data):
         question_retry_hint_serializer_errors = []
@@ -103,7 +98,9 @@ class QuestionRetryHintBulkCreateSerializer(serializers.Serializer):
         # * Bulk Create Question Retry Hints
         question_retry_hints_instances = [QuestionRetryHint(**data) for data in self.question_retry_hints_instances_data]
         QuestionRetryHint.objects.bulk_create(question_retry_hints_instances)
-        created_question_retry_hints_instances = QuestionRetryHint.objects.all().order_by("-created_at")[: len(question_retry_hints_instances)]
+        created_question_retry_hints_instances = (
+            QuestionRetryHint.objects.all().prefetch_related("medias").order_by("-created_at")[: len(question_retry_hints_instances)]
+        )
         created_question_retry_hints_instances = sorted(created_question_retry_hints_instances, key=lambda instance: instance.id)  # type: ignore
 
         # * Bulk Create Question Retry Hints Medias
