@@ -51,11 +51,18 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        validated_data.pop("medias", None)
-        medias = self.initial_data.get("medias", None)  # type: ignore
-        if medias:
-            validated_data["has_media"] = True
-
+        # validated_data.pop("medias", None)
+        # medias = self.initial_data.get("medias", None)  # type: ignore
+        # if medias:
+        #     validated_data["has_media"] = True
+        # TODO: When the request data from front end will get fixed then uncomment the above lines and remove the try and except blocks
+        try:
+            request = self.context.get("request")
+            medias = []
+            for file in request.FILES:  # type: ignore
+                medias.append({"file": request.FILES[file]})  # type: ignore
+        except:
+            medias = validated_data.pop("medias")
         question_choice = QuestionChoice.objects.create(**validated_data)
         bulk_create_request_data = {"question_choice": question_choice.id, "medias": medias}  # type: ignore
         question_choice_media_serializer = QuestionChoiceMediaBulkCreateSerializer(data=bulk_create_request_data)
