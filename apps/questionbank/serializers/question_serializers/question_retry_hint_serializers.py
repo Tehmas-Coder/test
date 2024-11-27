@@ -30,7 +30,7 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
         read_only_fields = ["id"]
 
-    def __init__(self, instance=None, data=..., **kwargs):
+    def __init__(self, *args, **kwargs):
         self._context = kwargs.get("context", {})
         if self._context.get("source", False):
             self.fields["medias"] = QuestionRetryHintMediaSerializer(
@@ -40,9 +40,7 @@ class QuestionRetryHintSerializer(BaseModelSerializer):
             self.fields["medias"] = MediaSerializer(many=True, required=False)
         if self._context.get("exclude_question", False):
             self.fields.pop("question")
-        if data != ...:
-            super().__init__(instance, data, **kwargs)
-        super().__init__(instance, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def create(self, validated_data):
         # validated_data.pop("medias", None)

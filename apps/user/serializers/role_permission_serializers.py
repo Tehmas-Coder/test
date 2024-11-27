@@ -46,16 +46,14 @@ class RoleSerializer(BaseModelSerializer):
             "role_permissions",
         ] + get_base_model_fields()
 
-    def __init__(self, instance=None, data=..., **kwargs):
+    def __init__(self, *args, **kwargs):
         self._context = kwargs.get("context", {})
         if self._context.get("mutator", False):
             self.fields.pop("role_permissions")
             self.fields.pop("user_count")
         else:
             self.fields.pop("permissions")
-        if data is not ...:
-            super().__init__(instance, data, **kwargs)
-        super().__init__(instance, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def to_representation(self, instance):
         res = super().to_representation(instance)

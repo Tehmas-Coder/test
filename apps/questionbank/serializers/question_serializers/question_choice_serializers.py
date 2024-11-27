@@ -35,7 +35,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
 
         read_only_fields = ["id"]
 
-    def __init__(self, instance=None, data=..., **kwargs):
+    def __init__(self, *args, **kwargs):
         self._context = kwargs.get("context", {})
         if self._context.get("source", False):
             self.fields["medias"] = QuestionChoiceMediaSerializer(
@@ -45,9 +45,7 @@ class QuestionChoiceSerializer(BaseModelSerializer):
             self.fields["medias"] = MediaSerializer(many=True, required=False)
         if self._context.get("exclude_question", False):
             self.fields.pop("question")
-        if data != ...:
-            super().__init__(instance, data, **kwargs)
-        super().__init__(instance, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @transaction.atomic
     def create(self, validated_data):
