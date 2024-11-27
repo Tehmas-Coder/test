@@ -24,7 +24,6 @@ from apps.questionbank.serializers.question_serializers.question_retry_hint_seri
     QuestionRetryHintSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_subject_serializers import (
-    QuestionSubjectEditSerializer,
     QuestionSubjectSerializer,
 )
 from apps.questionbank.serializers.question_serializers.question_type_serializers import (
@@ -66,7 +65,7 @@ class QuestionSerializer(BaseModelSerializer):
 
 
 class QuestionEditSerializer(serializers.ModelSerializer):
-    subjects = QuestionSubjectEditSerializer(many=True, required=False)
+    subjects = QuestionSubjectSerializer(many=True, required=False, context={"mutator": True})
     tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
     choices = QuestionChoiceSerializer(many=True, required=False, context={"exclude_question": True})
     attempt_responses = QuestionAttemptResponseSerializer(many=True, required=False, context={"exclude_question": True})
