@@ -37,6 +37,10 @@ from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionSerializer,
 )
 from apps.exam_admin.utils.exam_utils import create_random_exam
+from apps.lookups.custom.lookups_classes import (
+    OrganizationResourceQuerysetMutator,
+    OrganizationResourceValidator,
+)
 from apps.lookups.models.lookup_models import Organization
 from apps.organization.models.organization_models import (
     OrganizationPackage,
@@ -60,16 +64,13 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not request.user.is_superuser:
-            if instance.organization_id != get_current_user_organization():
-                return make_error_response(message="Failed: This Schedule doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().partial_update(request, *args, **kwargs)
 
 
