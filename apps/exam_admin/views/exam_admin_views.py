@@ -29,10 +29,7 @@ from apps.exam_admin.serializers.exam_subject_serializers import (
 )
 from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
 from apps.exam_admin.serializers.section_serializers import SectionSerializer
-from apps.exam_admin.serializers.subsection_serializers import (
-    SubSectionEditSerializer,
-    SubSectionSerializer,
-)
+from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
 from apps.exam_admin.utils.exam_utils import create_random_exam
 from apps.lookups.custom.lookups_classes import (
     OrganizationResourceQuerysetMutator,
@@ -79,32 +76,10 @@ class SectionViewSet(viewsets.ModelViewSet):
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
-    queryset = SubSection.objects.all().select_related("section", "measuring_unit")
-    serializer_class = SubSectionEditSerializer
+    queryset = SubSection.objects.all().select_related("measuring_unit")
+    serializer_class = SubSectionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
-
-    def get_serializer_class(self):
-        if self.action in ["retrieve", "list"]:
-            return SubSectionSerializer
-        return super().get_serializer_class()
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        subsection = serializer.save()
-        response = SubSectionSerializer(subsection).data
-        return Response(response, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        subsection = serializer.save()
-        response = SubSectionSerializer(subsection).data
-        return Response(response)
 
 
 # ---------------------------------------------------------------------------- #
