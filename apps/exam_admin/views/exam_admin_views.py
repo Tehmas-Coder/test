@@ -28,10 +28,7 @@ from apps.exam_admin.serializers.exam_subject_serializers import (
     ExamSubjectSerializer,
 )
 from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
-from apps.exam_admin.serializers.section_serializers import (
-    SectionEditSerializer,
-    SectionSerializer,
-)
+from apps.exam_admin.serializers.section_serializers import SectionSerializer
 from apps.exam_admin.serializers.subsection_serializers import (
     SubSectionEditSerializer,
     SubSectionSerializer,
@@ -76,31 +73,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all().select_related("measuring_unit")
-    serializer_class = SectionEditSerializer
+    serializer_class = SectionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
-
-    def get_serializer_class(self):
-        if self.action in ["retrieve", "list"]:
-            return SectionSerializer
-        return super().get_serializer_class()
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        section = serializer.save()
-        response = SectionSerializer(section).data
-        return Response(response, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        section = serializer.save()
-        response = SectionSerializer(section).data
-        return Response(response)
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
