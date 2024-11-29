@@ -12,6 +12,7 @@ class PermissionSerializer(BaseModelSerializer):
         fields = [
             "id",
             "name",
+            "context_value",
         ] + get_base_model_fields()
 
 
