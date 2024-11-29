@@ -174,9 +174,10 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
             response_status = status.HTTP_200_OK
             candidate_exam_instance_queryset.update(obtained_marks=all_scores_sum, exam_status="marked")
             candidate_exam_instance = candidate_exam_instance_queryset.first()
-            if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
-                message = message + " but failed to send exam status through webhook"
-                response_status = status.HTTP_307_TEMPORARY_REDIRECT
+            if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
+                if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
+                    message = message + " but failed to send exam status through webhook"
+                    response_status = status.HTTP_307_TEMPORARY_REDIRECT
         return Response({"message": message}, status=response_status)
 
     # * -------------------------- Candidate Exam Scoresheet -------------------------- #
