@@ -14,7 +14,20 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import sentry_sdk
 from decouple import config
+
+if int(config("ENABLE_SENTRY")):
+    sentry_sdk.init(
+        dsn=config("SENTRY_DSN"),  # type: ignore
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        traces_sample_rate=1.0,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0,
+    )
 
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM SETTINGS                               #
@@ -24,9 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (
-    True if config("ENV") != "production" else False,
-)  #! SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True if config("ENV") != "production" else False  #! SECURITY WARNING: don't run with debug turned on in production!
 
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
@@ -44,21 +55,15 @@ try:
         print("### >> Please specify 'APP_KEY' value before proceeding forward!!")
         exit(0)
 except:
-    print(
-        "### >> Please specify 'APP_KEY' variable in '.env' before proceeding forward!!"
-    )
+    print("### >> Please specify 'APP_KEY' variable in '.env' before proceeding forward!!")
     exit(0)
 
 # ---------------------------------------------------------------------------- #
 #                                     AUTH                                     #
 # ---------------------------------------------------------------------------- #
 
-REFRESH_TOKEN_VALIDITY = (
-    int(config("REFRESH_TOKEN_VALIDITY")) if config("REFRESH_TOKEN_VALIDITY") else 1
-)
-ACCESS_TOKEN_VALIDITY = (
-    int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 150
-)
+REFRESH_TOKEN_VALIDITY = int(config("REFRESH_TOKEN_VALIDITY")) if config("REFRESH_TOKEN_VALIDITY") else 1
+ACCESS_TOKEN_VALIDITY = int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 150
 AUTH_USER_MODEL = "user.BaseUser"
 
 SIMPLE_JWT = {
@@ -114,10 +119,13 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
+AWS_SES_REGION_NAME = config("AWS_DEFAULT_REGION")
+
 try:
     os.environ["AWS_ACCESS_KEY_ID"] = config("AWS_ACCESS_KEY_ID")  # type: ignore
     os.environ["AWS_SECRET_ACCESS_KEY"] = config("AWS_SECRET_ACCESS_KEY")  # type: ignore
     os.environ["AWS_DEFAULT_REGION"] = config("AWS_DEFAULT_REGION")  # type: ignore
+
 except:
     pass
 
@@ -142,16 +150,21 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-    "django_filters",
+    "eb_sqs",
     # * System
+    "apps.ping",
     "apps.lookups",
     "apps.user",
+    "apps.organization",
     "apps.questionbank",
-    "apps.exam",
+    "apps.exam_admin",
+    "apps.exam_public",
+    "apps.exam_scoring",
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -166,14 +179,13 @@ if DEBUG:
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": 100,
+    # "DEFAULT_PERMISSION_CLASSES": [
+    #     "rest_framework.permissions.IsAuthenticated",
+    # ],
+    "DEFAULT_PERMISSION_CLASSES": ["custom.custom_permissions.IsAuthenticated"],
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 50,
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -201,7 +213,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "core.middlewares.current_user_middleware.CurrentUserMiddleware",
+    "middlewares.current_user_middleware.CurrentUserMiddleware",
+    "middlewares.response_middleware.ResponseMiddleware",
 ]
 if DEBUG:
     MIDDLEWARE += [
@@ -267,5 +280,9 @@ FIXTURE_DIRS = [
     BASE_DIR / "apps" / "lookups" / "tests" / "seeds",
     BASE_DIR / "apps" / "user" / "seeds",
     BASE_DIR / "apps" / "questionbank" / "seeds",
-    BASE_DIR / "apps" / "exam" / "seeds",
+    BASE_DIR / "apps" / "exam_admin" / "seeds",
+    BASE_DIR / "apps" / "exam_public" / "seeds",
+    BASE_DIR / "apps" / "organization" / "seeds",
+    BASE_DIR / "apps" / "exam_scoring" / "seeds",
+    BASE_DIR / "seeds",
 ]

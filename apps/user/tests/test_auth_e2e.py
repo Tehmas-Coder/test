@@ -1,19 +1,21 @@
 import json
+
 from rest_framework import status
 
-from apps.user.models import BaseUser
+from apps.user.models.user_models import BaseUser
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
+
 from .test_register import RegisterUnitTest
 
 
 class AuthE2EUnitTest(TestSetUp):
-    fixtures = []
+    fixtures = ["role_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -78,7 +80,7 @@ class AuthE2ETest(AuthE2EUnitTest):
             "refresh": self.tokens,
         }
         response = self.do_token_refresh(request_data)
-        self.headers["refresh"] = response.data["refresh"]
+        self.headers["refresh"] = response.data["refresh"]  # type: ignore
         validate_success_response_with_token_check(self, response)
 
     # * failure test because of old refresh token
@@ -98,20 +100,18 @@ class AuthE2ETest(AuthE2EUnitTest):
 
     # * test to check the whole flow for tokens from register => login => logout
     def whole_flow_test(self):
-        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))
+        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))  # type: ignore
         validate_success_create_response(self, response)
 
         # * upon again registering user should not be able to register
-        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))
+        response = RegisterUnitTest.do_register(self, json.dumps(self.test_user))  # type: ignore
         bad_request_failure_response(self, response)
 
         new_user_data = BaseUser.objects.get(email=self.test_user["email"])
         new_user_data.__dict__["is_verified"] = True
         new_user_data.save()
 
-        response = self.custom_login(
-            self.test_user["email"], self.test_user["password"]
-        )
+        response = self.custom_login(self.test_user["email"], self.test_user["password"])
         self.successfull_refresh_token_test()
 
         self.custom_login(self.test_user["email"], self.test_user["password"])

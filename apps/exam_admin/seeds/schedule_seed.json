@@ -1,0 +1,36 @@
+[
+    {
+        "model": "exam_admin.Schedule",
+        "pk": 1,
+        "fields": {
+            "title": "Schedule 1",
+            "start_datetime": "2015-07-27T07:17:54.260105Z",
+            "end_datetime": "2095-07-27T12:17:54.260105Z",
+            "waiting_duration": 1,
+            "extra_duration": 1,
+            "description": "Schedule 1 description",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.Schedule",
+        "pk": 2,
+        "fields": {
+            "title": "Schedule 2",
+            "start_datetime": "2015-07-27T03:17:54.260105Z",
+            "end_datetime": "2095-07-27T07:17:54.260105Z",
+            "waiting_duration": 1,
+            "extra_duration": 1,
+            "description": "Schedule 2 description",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    }
+]

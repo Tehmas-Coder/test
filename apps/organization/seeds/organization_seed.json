@@ -1,0 +1,32 @@
+[
+    {
+        "model": "lookups.Organization",
+        "pk": 1,
+        "fields": {
+            "name": "Student-Apply Organization",
+            "country": null,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "lookups.Organization",
+        "pk": 2,
+        "fields": {
+            "name": "AK Consultants",
+            "country": 5,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "lookups.Organization",
+        "pk": 3,
+        "fields": {
+            "name": "Cyber Axes",
+            "country": 75,
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

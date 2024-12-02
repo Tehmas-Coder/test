@@ -1,0 +1,46 @@
+[
+  {
+    "model": "exam_public.CandidateExam",
+    "pk": 1,
+    "fields": {
+      "candidate": 2,
+      "exam_backlog": 1,
+      "schedule": 2,
+      "obtained_marks": 0,
+      "is_preparatory": 0,
+      "date": "2095-07-27",
+      "start_time": "08:00:00",
+      "end_time": "12:00:00",
+      "waiting_duration": 1,
+      "extra_duration": 1,
+      "description": "",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "updated_at": "2024-07-05T07:17:54.260105Z",
+      "created_by": null,
+      "updated_by": null,
+      "meta_status": "active"
+    }
+  },
+  {
+    "model": "exam_public.CandidateExam",
+    "pk": 2,
+    "fields": {
+      "candidate": 1,
+      "exam_backlog": 1,
+      "schedule": 2,
+      "obtained_marks": 0,
+      "is_preparatory": 0,
+      "date": "2095-07-27",
+      "start_time": "08:00:00",
+      "end_time": "12:00:00",
+      "waiting_duration": 1,
+      "extra_duration": 1,
+      "description": "",
+      "created_at": "2024-07-05T07:17:54.260105Z",
+      "created_by": null,
+      "updated_at": "2024-07-05T07:17:54.260105Z",
+      "updated_by": null,
+      "meta_status": "active"
+    }
+  }
+]

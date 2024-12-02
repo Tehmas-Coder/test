@@ -3,15 +3,20 @@ import json
 
 from rest_framework import status
 
-from apps.user.models import BaseUser
-from utils.rna_utils import print_test_failed, print_test_header, print_test_passed
-from .test_register import RegisterUnitTest
+from apps.user.models.user_models import BaseUser
 from core.test_setup import TestSetUp
-from utils.rna_utils import debug_print
+from utils.rna_utils import (
+    debug_print,
+    print_test_failed,
+    print_test_header,
+    print_test_passed,
+)
+
+from .test_register import RegisterUnitTest
 
 
 class LoginUnitTest(TestSetUp):
-    fixtures = []
+    fixtures = ["role_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
@@ -20,9 +25,7 @@ class LoginUnitTest(TestSetUp):
     def do_login(self, request_data):
         print_test_header("login")
         url = "/api/login/"
-        response = self.client.post(
-            url, data=request_data, content_type="application/json"
-        )
+        response = self.client.post(url, data=request_data, content_type="application/json")
         return response
 
 
@@ -43,11 +46,12 @@ class LoginTest(LoginUnitTest):
 
     def test_cases_login(self):
         # * User is registered here for all login test functions
-        RegisterUnitTest.do_register(self, json.dumps(self.test_user))
+        RegisterUnitTest.do_register(self, json.dumps(self.test_user))  # type: ignore
 
         # * Test functions are being called here
         self.failed_login_user_doesnot_exists()
         self.failed_login_user_missing_params()
+        self.failed_login_user_not_verified_test()
         self.successfull_login_test()
 
     # ?###################################################
@@ -78,6 +82,18 @@ class LoginTest(LoginUnitTest):
         # * Failed because of password is missing
         request_data = copy.deepcopy(request_data)
         del request_data["password"]
+        response = self.do_login(json.dumps(request_data))
+        bad_request_login_response(self, response)
+        print_test_passed()
+
+    # * failed case user is trying to login with valid credentials but is not verified
+    def failed_login_user_not_verified_test(self):
+        new_user_data = BaseUser.objects.get(email=self.test_user["email"])
+        new_user_data.save()
+        request_data = {
+            "email": self.test_user["email"],
+            "password": self.test_user["password"],
+        }
         response = self.do_login(json.dumps(request_data))
         bad_request_login_response(self, response)
         print_test_passed()

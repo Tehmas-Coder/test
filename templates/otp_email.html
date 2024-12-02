@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Email</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      .cover-content {
+        padding-top: 50px;
+        padding-left: 50px;
+        text-align: start;
+      }
+
+      .logo {
+        margin: 0 auto;
+        max-width: 200px;
+        height: 30px;
+        margin-bottom: 30px;
+      }
+
+      .otp h1 {
+        font-size: 30px;
+        font-weight: bolder;
+        letter-spacing: 10px;
+      }
+
+      .footer {
+        background-color: #f8f9fa;
+        padding: 20px 50px;
+        margin-top: 30px;
+        text-align: start;
+      }
+
+      .footer-content {
+        font-size: 14px;
+        line-height: 20px;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="cover-content">
+      <img
+        src="https://eduapply-logos.s3.eu-west-1.amazonaws.com/eduapply-logo.png"
+        alt="Logo"
+        class="logo"
+      />
+      <h1>Verify your account</h1>
+      <p>
+        Hello <strong>{FIRST_NAME} {LAST_NAME}</strong>. Below is your one time
+        password (OTP) to verify your account.
+        Email: {EMAIL}
+      </p>
+      <div class="otp"><h1>{OTP}</h1></div>
+    </div>
+    <div class="footer">
+      <div class="footer-content">
+        <p>If you did not request this OTP, please ignore this email.</p>
+        <p>
+          Regards, <br />
+          QuestionBank Team
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

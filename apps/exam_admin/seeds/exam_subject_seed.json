@@ -1,0 +1,282 @@
+[
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 1,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 1,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 2,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 2,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 3,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 3,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 4,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 4,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 5,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 5,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 6,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 6,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 7,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 7,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 8,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 8,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 9,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 9,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 10,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 10,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 11,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 11,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 12,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 12,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 13,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 13,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 14,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 14,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 15,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 15,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 16,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 16,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 17,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 17,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 18,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 18,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 19,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 19,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    },
+    {
+        "model": "exam_admin.ExamSubject",
+        "pk": 20,
+        "fields": {
+            "exam": 1,
+            "subject_education_level": 20,
+            "description": "",
+            "created_at": "2024-07-05T07:17:54.260105Z",
+            "created_by": null,
+            "updated_at": "2024-07-05T07:17:54.260105Z",
+            "updated_by": null,
+            "meta_status": "active"
+        }
+    }
+]

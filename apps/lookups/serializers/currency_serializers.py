@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from apps.lookups.models import Currency
+
+from apps.lookups.models.lookup_models import Currency
 
 
 class CurrencySerializer(serializers.ModelSerializer):

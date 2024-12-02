@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Front Cover Page</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: black;
+      }
+
+      .cover-container {
+        background: url("https://png.pngtree.com/thumb_back/fh260/background/20210814/pngtree-blue-purple-simple-gradient-background-image_760572.jpg");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .cover-content {
+        padding-top: 20px;
+        padding-left: 20px;
+        text-align: start;
+      }
+
+      .logo {
+        margin: 0 auto;
+        max-width: 50%;
+        height: 50px;
+        margin-bottom: 10px;
+      }
+
+      .link {
+        text-align: center;
+      }
+
+      .btn-email {
+        background-color: #cbabab;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        padding: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="cover-container">
+      <div class="cover-content">
+        <img
+          src="https://eduapply-logos.s3.eu-west-1.amazonaws.com/eduapply-logo.png"
+          alt="Logo"
+          class="logo"
+        />
+        <h1>Setup your Question Bank Account</h1>
+        <p>
+          Hello <strong>{FIRST_NAME} {LAST_NAME}</strong>,
+
+          <br />
+          Your <b>Question Bank</b> account has been initiated on-boarding with
+          credentials,
+          <br />
+          <br />
+          <b>Email:</b> {EMAIL}
+          <br />
+          <br />
+          <b>Password:</b> {PASSWORD}
+          <br />
+          <br />
+          The Password is for temporary use only, we recommend you change it on
+          your first log-in to your account.
+          <br />
+          You can access the account after you have verified your email using
+          the link below.
+          <br />
+          <br />
+        </p>
+        <div class="link">
+          <a class="btn-email" href="{URL}"> Verify Email Address</a>
+        </div>
+        <br />
+        <br />
+        <br />
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,12 +1,14 @@
 from rest_framework import serializers
 
-from apps.lookups.serializers.media_serializers import MediaSerializer
-from apps.questionbank.models import QuestionMedia
+from apps.questionbank.models.question_models import QuestionMedia
+from apps.questionbank.serializers.media_serializers import (
+    MediaBulkCreateSerializer,
+    MediaSerializer,
+)
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
-class QuestionMediaEditSerializer(BaseModelSerializer):
+class QuestionMediaSerializer(BaseModelSerializer):
     media = serializers.FileField(use_url=True)
 
     class Meta:
@@ -27,16 +29,36 @@ class QuestionMediaEditSerializer(BaseModelSerializer):
 
         # * Create question media object
         question_media = QuestionMedia.objects.create(media=media, **validated_data)
-
         return question_media
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["media"] = MediaSerializer(instance.media).data
+        return rep
 
-class QuestionMediaDetailSerializer(BaseModelSerializer):
-    media = MediaSerializer()
+
+class QuestionMediaBulkCreateSerializer(BaseModelSerializer):
+    medias = serializers.ListField(child=serializers.DictField(child=serializers.FileField()), write_only=True)
 
     class Meta:
         model = QuestionMedia
         fields = [
             "id",
-            "media",
+            "question",
+            "medias",
         ] + get_base_model_fields()
+
+    def create(self, validated_data):
+        medias_data = validated_data.pop("medias")
+
+        # * Bulk Create media objects
+        media_serializer = MediaBulkCreateSerializer(data={"files": [media["file"] for media in medias_data]})
+        media_serializer.is_valid(raise_exception=True)
+        media_instances = media_serializer.save()
+
+        # * Bulk Create question media objects
+        question_media_instances = [QuestionMedia(media=media, **validated_data) for media in media_instances]
+        QuestionMedia.objects.bulk_create(question_media_instances)
+        created_question_media_instances = QuestionMedia.objects.all().select_related("media").order_by("-id")[: len(question_media_instances)]
+        created_question_media_instances = sorted(created_question_media_instances, key=lambda instance: instance.id)  # type: ignore
+        return created_question_media_instances

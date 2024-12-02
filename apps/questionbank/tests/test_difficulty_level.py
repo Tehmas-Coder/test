@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class DifficultyLevelUnitTest(TestSetUp):
@@ -26,21 +28,21 @@ class DifficultyLevelUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_difficulty_level_list(self):
         print_test_header("get_difficulty_level_list")
         url = "/api/difficulty-levels/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_difficulty_level(self, difficulty_level_id):
         print_test_header("get_one_difficulty_level")
         url = f"/api/difficulty-levels/{difficulty_level_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_difficulty_level(self, difficulty_level_id, request_body):
         print_test_header("update_difficulty_level")
@@ -52,7 +54,7 @@ class DifficultyLevelUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_difficulty_level(self, difficulty_level_id):
         print_test_header("delete_difficulty_level")
@@ -88,9 +90,7 @@ class DifficultyLevelTest(DifficultyLevelUnitTest):
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_difficulty_level(
-            json.dumps(self.reuseable_request_body)
-        )
+        json_data = self.do_create_difficulty_level(json.dumps(self.reuseable_request_body))
         for key in self.reuseable_request_body:
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_difficulty_level_model:
@@ -100,9 +100,7 @@ class DifficultyLevelTest(DifficultyLevelUnitTest):
         json_data = self.do_get_difficulty_level_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_difficulty_level_model
-            ) in self.list_of_fields_of_difficulty_level_model:
+            for one_value_from_list_of_fields_of_difficulty_level_model in self.list_of_fields_of_difficulty_level_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_difficulty_level_model,
                     test_dict,
@@ -118,9 +116,7 @@ class DifficultyLevelTest(DifficultyLevelUnitTest):
             test_difficulty_level_id,
             f"The field id ({json_data['id']} is not equal to id ({test_difficulty_level_id}) )",
         )
-        for (
-            one_value_from_list_of_fields_of_difficulty_level_model
-        ) in self.list_of_fields_of_difficulty_level_model:
+        for one_value_from_list_of_fields_of_difficulty_level_model in self.list_of_fields_of_difficulty_level_model:
             self.assertIn(
                 one_value_from_list_of_fields_of_difficulty_level_model,
                 json_data,
@@ -135,9 +131,7 @@ class DifficultyLevelTest(DifficultyLevelUnitTest):
         updated_request_body["code"] = "IM"
         updated_request_body["abbreviation"] = "IMM"
         updated_request_body["sequence"] = 5
-        updated_response_json_data = self.do_update_one_difficulty_level(
-            test_record_id, json.dumps(updated_request_body)
-        )
+        updated_response_json_data = self.do_update_one_difficulty_level(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             self.assertEqual(updated_response_json_data[key], updated_request_body[key])

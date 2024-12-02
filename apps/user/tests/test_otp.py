@@ -3,35 +3,36 @@ import json
 
 from rest_framework import status
 
+from apps.user.models.user_models import BaseUser
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
+
 from .test_register import RegisterUnitTest
 from .test_user import UserUnitTest
-from core.test_setup import TestSetUp
-from apps.user.models import BaseUser
 
 
 class OTPUnitTest(TestSetUp):
-    fixtures = []
+    fixtures = ["role_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
 
-    def do_verify_otp(self, request_data, user_id):
+    def do_verify_otp(self, request_data):
         print_test_header("verify otp")
-        url = f"/api/users/{user_id}/verify-otp/"
+        url = f"/api/verify-otp/"
         response = self.client.post(url, data=request_data)
         return response
 
-    def do_resend_otp(self, user_id):
+    def do_resend_otp(self, request_data):
         print_test_header("resend otp")
-        url = f"/api/users/{user_id}/resend-otp/"
-        response = self.client.post(url)
+        url = f"/api/resend-otp/"
+        response = self.client.post(url, data=request_data)
         return response
 
 
@@ -51,33 +52,39 @@ class OTPTest(OTPUnitTest):
             "date_of_birth": "1995-07-27",
             "phone": "+9323346489529",
         }
-        user_id = RegisterUnitTest.do_register(self, json.dumps(test_user)).data["id"]
+        user_id = RegisterUnitTest.do_register(self, json.dumps(test_user)).data["id"]  # type: ignore
 
         # * Test functions are being called here
-        self.failed_test_verification_otp_not_valid(user_id)
-        self.successfull_test_resend_otp(user_id)
+        self.failed_test_verification_otp_not_valid()
+        self.successfull_test_resend_otp()
         self.successfull_test_verification_otp(user_id)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS
     # ?###################################################
 
-    def failed_test_verification_otp_not_valid(self, user_id):
-        request_data = {"otp": "1234"}
-        response = self.do_verify_otp(request_data, user_id)
+    def failed_test_verification_otp_not_valid(self):
+        request_data = {
+            "email": "register_test@gmail.com",
+            "otp": "1234",
+        }
+        response = self.do_verify_otp(request_data)
         validate_failed_400_test_response(self, response)
 
-    def successfull_test_resend_otp(self, user_id):
-        response = self.do_resend_otp(user_id)
+    def successfull_test_resend_otp(self):
+        request_data = {
+            "email": "register_test@gmail.com",
+        }
+        response = self.do_resend_otp(request_data)
         validate_success_200_test_response(self, response)
 
     def successfull_test_verification_otp(self, user_id):
-        user = BaseUser.objects.get(id=user_id)
-        otp = UserUnitTest.do_get_one_user(self, user_id)["otp"]
+        otp = UserUnitTest.do_get_one_user(self, user_id)["otp"]  # type: ignore
         request_data = {
+            "email": "register_test@gmail.com",
             "otp": otp,
         }
-        response = self.do_verify_otp(request_data, user_id)
+        response = self.do_verify_otp(request_data)
         validate_success_200_test_response(self, response)
 
 

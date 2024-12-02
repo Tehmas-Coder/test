@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class EducationLevelUnitTest(TestSetUp):
@@ -26,21 +28,21 @@ class EducationLevelUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_education_level_list(self):
         print_test_header("get_education_level_list")
         url = "/api/education-levels/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_one_education_level(self, education_level_id):
         print_test_header("get_one_education_level")
         url = f"/api/education-levels/{education_level_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_update_one_education_level(self, education_level_id, request_body):
         print_test_header("update_education_level")
@@ -52,7 +54,7 @@ class EducationLevelUnitTest(TestSetUp):
             content_type="application/json",
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_education_level(self, education_level_id):
         print_test_header("delete_education_level")
@@ -86,9 +88,7 @@ class EducationLevelTest(EducationLevelUnitTest):
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_education_level(
-            json.dumps(self.reuseable_request_body)
-        )
+        json_data = self.do_create_education_level(json.dumps(self.reuseable_request_body))
         for key in self.reuseable_request_body:
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_education_level_model:
@@ -98,9 +98,7 @@ class EducationLevelTest(EducationLevelUnitTest):
         json_data = self.do_get_education_level_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_education_level_model
-            ) in self.list_of_fields_of_education_level_model:
+            for one_value_from_list_of_fields_of_education_level_model in self.list_of_fields_of_education_level_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_education_level_model,
                     test_dict,
@@ -123,9 +121,7 @@ class EducationLevelTest(EducationLevelUnitTest):
         updated_request_body["name"] = "Masters modified"
         updated_request_body["code"] = "MM"
         updated_request_body["abbreviation"] = "MSM"
-        updated_response_json_data = self.do_update_one_education_level(
-            test_record_id, json.dumps(updated_request_body)
-        )
+        updated_response_json_data = self.do_update_one_education_level(test_record_id, json.dumps(updated_request_body))
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             self.assertEqual(updated_response_json_data[key], updated_request_body[key])

@@ -1,0 +1,17 @@
+[
+  {
+    "model": "organization.OrganizationPackage",
+    "pk": 1,
+    "fields": {
+      "organization": 1,
+      "package": 3,
+      "users": 0,
+      "questions": 0,
+      "exams": 0,
+      "prep_exams": 0,
+      "exam_attempts": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  }
+]

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam Result Link</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            line-height: 1.5;
+        }
+
+        .cover-container {
+            background: url("https://png.pngtree.com/thumb_back/fh260/background/20210814/pngtree-blue-purple-simple-gradient-background-image_760572.jpg");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cover-content {
+            padding-top: 20px;
+            padding-left: 20px;
+            display: inline-block;
+            text-align: left;
+        }
+
+        .logo {
+            margin: 0 auto;
+            max-width: 50%;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #333333;
+        }
+
+        p {
+            color: #555555;
+        }
+
+        strong {
+            color: #000000;
+        }
+
+        .link {
+            text-align: center;
+        }
+
+        .btn-email {
+            background-color: #cbabab;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cover-container">
+        <div class="cover-content">
+            <img src="https://eduapply-logos.s3.eu-west-1.amazonaws.com/eduapply-logo.png" alt="Logo" class="logo" />
+            <h1>Exam Result Link</h1>
+            <p>
+                Dear <strong>{first_name} {last_name}</strong>,
+                <br />
+                <br />
+                We are pleased to inform you that the result of the <strong>Exam: {exam}</strong> is now available.
+                <br />
+                Please click the link below to view your exam result.
+                <br />
+            <div class="link">
+                <a class="btn-email" href="{URL}">Exam Result Link</a>
+            </div>
+            <br />
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

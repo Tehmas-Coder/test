@@ -1,9 +1,11 @@
 import inspect
 import json
 import random
+import string
 import threading
 from typing import Any, Type
 
+from cryptography.fernet import Fernet
 from django.db.models.base import Model
 from rest_framework import status
 from rest_framework.response import Response
@@ -25,9 +27,7 @@ def dump_json_file(data: dict, path: str):
         json.dump(data, f)
 
 
-def make_success_response(
-    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = ""
-) -> Response:
+def make_success_response(data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = "") -> Response:
     """
     Make a success response with 200 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
@@ -37,9 +37,7 @@ def make_success_response(
     )
 
 
-def make_info_response(
-    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = ""
-) -> Response:
+def make_info_response(data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = "") -> Response:
     """
     Make a info response with 308 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
@@ -53,9 +51,7 @@ def make_info_response(
     )
 
 
-def make_warning_response(
-    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = ""
-) -> Response:
+def make_warning_response(data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = "") -> Response:
     """
     Make a warning response with 307 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
@@ -69,9 +65,7 @@ def make_warning_response(
     )
 
 
-def make_error_response(
-    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = ""
-) -> Response:
+def make_error_response(data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = "") -> Response:
     """
     Make a error response with 400 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
@@ -85,9 +79,7 @@ def make_error_response(
     )
 
 
-def make_unauthorized_response(
-    data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = ""
-) -> Response:
+def make_unauthorized_response(data: dict[str, Any] | list[Any] | dict[int, Any] | None = None, message: str = "") -> Response:
     """
     Make a unauthorized response with 401 status code. The message is optional and will be empty by default. The message is shown on the frontend with a toast based on the status of the response.
     """
@@ -203,9 +195,7 @@ def make_list_hashmap(data: list[dict], key1: str, key2: str | None = None) -> d
     return hashmap
 
 
-def make_key_hashmap(
-    data: list[dict], key1: str, key2: str, key3: str | None = None
-) -> dict:
+def make_key_hashmap(data: list[dict], key1: str, key2: str, key3: str | None = None) -> dict:
     hashmap = {}
 
     for item in data:
@@ -228,9 +218,7 @@ def jsonify(data: dict[str, Any] | list[Any] | dict[int, Any]) -> str:
     return json.dumps(data, indent=4, default=str)
 
 
-def debug_print(
-    data: dict[str, Any] | list[Any] | dict[int, Any], color: str = "green"
-) -> None:
+def debug_print(data: dict[str, Any] | list[Any] | dict[int, Any], color: str = "green") -> None:
     frame = inspect.currentframe()
     try:
         var_name = [var_name for var_name, var_val in frame.f_back.f_locals.items() if var_val is data][0]  # type: ignore
@@ -256,3 +244,60 @@ def generate_otp() -> str:
     Generate a random 4 digit OTP
     """
     return str(random.randint(1000, 9999))
+
+
+def object_contains_all_values(object: dict[str, Any]) -> bool:
+    return all(object.values())
+
+
+def rename_keys(json_obj, old_key, new_key):
+    if isinstance(json_obj, dict):
+        new_dict = {}
+        for key, value in json_obj.items():
+            if key == old_key:
+                new_dict[new_key] = value
+            else:
+                new_dict[key] = rename_keys(value, old_key, new_key)
+        return new_dict
+    elif isinstance(json_obj, list):
+        return [rename_keys(item, old_key, new_key) for item in json_obj]
+    else:
+        return json_obj
+
+
+def remove_extra_underscore_from_key_names(replace_list):
+    new_formatted_list = []
+    for one_dict in replace_list:
+        new_one_dict = one_dict
+        for one_key in one_dict:
+            seperated_key_names = one_key.split("_")
+            if seperated_key_names[len(seperated_key_names) - 1] == "id":
+                new_one_dict = rename_keys(new_one_dict, one_key, one_key.replace("_id", ""))
+        new_formatted_list.append(new_one_dict)
+    return new_formatted_list
+
+
+def get_encryption_key():
+    return "Ym3gHm4W9NrGredVTR8_rF-MdFyvGG4GfTffgP-tSeU="
+
+
+def generate_random_password():
+    # Choose from digits 0-9 to create a 6-digit password
+    password = "".join(random.choices(string.digits, k=6))
+    return password
+
+
+def encrypt_message(message: str, key: str) -> str:
+    if key.startswith("b'"):
+        key = key[1:]
+    fernet = Fernet(key)
+    encrypted_message = fernet.encrypt(message.encode())
+    return encrypted_message.decode("utf-8")
+
+
+def decrypt_message(encrypted_message: str, key: str) -> str:
+    if key.startswith("b'"):
+        key = key[1:]
+    fernet = Fernet(key)
+    decrypted_message = fernet.decrypt(encrypted_message)
+    return decrypted_message.decode()

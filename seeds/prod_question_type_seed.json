@@ -1,0 +1,82 @@
+[
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 1,
+        "fields": {
+            "name": "Multiple Select",
+            "slug": "multiple-select",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 2,
+        "fields": {
+            "name": "Single Select",
+            "slug": "single-select",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 3,
+        "fields": {
+            "name": "Text",
+            "slug": "text",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 4,
+        "fields": {
+            "name": "Long Text",
+            "slug": "long-text",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 5,
+        "fields": {
+            "name": "Audio File",
+            "slug": "audio-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 6,
+        "fields": {
+            "name": "Video File",
+            "slug": "video-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 7,
+        "fields": {
+            "name": "Image File",
+            "slug": "image-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    },
+    {
+        "model": "questionbank.QuestionType",
+        "pk": 8,
+        "fields": {
+            "name": "Document File",
+            "slug": "document-file",
+            "created_at": "1995-07-27T00:00:00Z",
+            "updated_at": "1995-07-27T00:00:00Z"
+        }
+    }
+]

@@ -1,15 +1,18 @@
 # management/commands/populate_models.py
 
+import json
+
 import pandas as pd
 import requests
 from django.core.management.base import BaseCommand
-from apps.lookups.models import (
+
+from apps.lookups.models.lookup_models import (
     Country,
-    Region,
     Currency,
     Language,
-    Timezone,
+    Region,
     State,
+    Timezone,
 )
 
 
@@ -17,11 +20,13 @@ class Command(BaseCommand):
     help = "Populate Country, Currency, Region, Language, Timezone, and State models from an external API and CSV files"
 
     def handle(self, *args, **kwargs):
-        countries_api_url = "https://restcountries.com/v3.1/all"
+        # countries_api_url = "https://restcountries.com/v3.1/all"
 
-        response = requests.get(countries_api_url)
-        if response.status_code == 200:
-            countries_data = response.json()
+        # response = requests.get(countries_api_url)
+        # if response.status_code == 200:
+        #     countries_data = response.json()
+        with open("data/country_lookups_data.json", "r", encoding="utf-8") as file:
+            countries_data = json.load(file)
             currencies_cache = {}
             regions_cache = {}
             languages_cache = {}
@@ -75,23 +80,16 @@ class Command(BaseCommand):
                         "abbreviation": country_data["cca2"],
                         "lat": country_data.get("latlng", [None])[0],
                         "lon": country_data.get("latlng", [None])[1],
-                        "dial_code": country_data.get("idd", {}).get("root", "")
-                        + (country_data.get("idd", {}).get("suffixes", [""])[0]),
-                        "capital": csv_country_data.get(
-                            "capital", country_data.get("capital", [""])[0]
-                        ),
+                        "dial_code": country_data.get("idd", {}).get("root", "") + (country_data.get("idd", {}).get("suffixes", [""])[0]),
+                        "capital": csv_country_data.get("capital", country_data.get("capital", [""])[0]),
                         "is_un_member": country_data.get("unMember", False),
-                        "flag": country_data.get("flags", {}).get("svg", ""),
+                        "flag_svg": country_data.get("flags", {}).get("svg", ""),
                     },
                 )
                 if created:
-                    self.stdout.write(
-                        self.style.SUCCESS(f'Country "{country.name}" created')
-                    )
+                    self.stdout.write(self.style.SUCCESS(f'Country "{country.name}" created'))
                 else:
-                    self.stdout.write(
-                        self.style.WARNING(f'Country "{country.name}" already exists')
-                    )
+                    self.stdout.write(self.style.WARNING(f'Country "{country.name}" already exists'))
 
                 # Associate currency with country
                 if currency:
@@ -113,11 +111,7 @@ class Command(BaseCommand):
                         region = regions_cache[region_name]
 
                     country.add_region(region)
-                    self.stdout.write(
-                        self.style.SUCCESS(
-                            f'Country "{country.name}" added to region "{region.name}"'
-                        )
-                    )
+                    self.stdout.write(self.style.SUCCESS(f'Country "{country.name}" added to region "{region.name}"'))
 
                 # Populate languages
                 language_data = country_data.get("languages")
@@ -136,11 +130,7 @@ class Command(BaseCommand):
                             language = languages_cache[language_code]
 
                         country.languages.add(language)
-                        self.stdout.write(
-                            self.style.SUCCESS(
-                                f'Language "{language.name}" created/exists'
-                            )
-                        )
+                        self.stdout.write(self.style.SUCCESS(f'Language "{language.name}" created/exists'))
 
                 # Populate timezones
                 timezones_data = country_data.get("timezones")
@@ -159,11 +149,7 @@ class Command(BaseCommand):
                             timezone = timezones_cache[timezone_name]
 
                         country.timezones.add(timezone)
-                        self.stdout.write(
-                            self.style.SUCCESS(
-                                f'Timezone "{timezone.name}" created/exists'
-                            )
-                        )
+                        self.stdout.write(self.style.SUCCESS(f'Timezone "{timezone.name}" created/exists'))
 
             # Populate states from CSV files
             for _, state_row in states_df.iterrows():
@@ -179,12 +165,8 @@ class Command(BaseCommand):
                         },
                     )
                     if created:
-                        self.stdout.write(
-                            self.style.SUCCESS(f'State "{state.name}" created')
-                        )
+                        self.stdout.write(self.style.SUCCESS(f'State "{state.name}" created'))
                     else:
-                        self.stdout.write(
-                            self.style.WARNING(f'State "{state.name}" already exists')
-                        )
+                        self.stdout.write(self.style.WARNING(f'State "{state.name}" already exists'))
 
         self.stdout.write(self.style.SUCCESS("Finished populating models"))

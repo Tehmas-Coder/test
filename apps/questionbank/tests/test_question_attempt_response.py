@@ -1,13 +1,15 @@
-import copy, json
+import copy
+import json
 
+from rest_framework import status
+
+from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
     print_test_failed,
     print_test_header,
     print_test_passed,
 )
-from core.test_setup import TestSetUp
-from rest_framework import status
 
 
 class QuestionAttemptResponseUnitTest(TestSetUp):
@@ -28,25 +30,23 @@ class QuestionAttemptResponseUnitTest(TestSetUp):
             data=request_body,
         )
         validate_success_201_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_get_question_attempt_response_list(self):
         print_test_header("get_question_attempt_response_list")
         url = "/api/question-attempt-response/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data["results"]
+        return response.data["results"]  # type: ignore
 
     def do_get_one_question_attempt_response(self, question_attempt_response_id):
         print_test_header("get_one_question_attempt_response")
         url = f"/api/question-attempt-response/{question_attempt_response_id}/"
         response = self.client.get(url, headers=self.headers)
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
-    def do_update_one_question_attempt_response(
-        self, question_attempt_response_id, request_body
-    ):
+    def do_update_one_question_attempt_response(self, question_attempt_response_id, request_body):
         print_test_header("update_question_attempt_response")
         url = f"/api/question-attempt-response/{question_attempt_response_id}/"
         response = self.client.patch(
@@ -55,7 +55,7 @@ class QuestionAttemptResponseUnitTest(TestSetUp):
             data=request_body,
         )
         validate_success_200_test_response(self, response)
-        return response.data
+        return response.data  # type: ignore
 
     def do_delete_one_question_attempt_response(self, question_attempt_response_id):
         print_test_header("delete_question_attempt_response")
@@ -95,9 +95,7 @@ class QuestionAttemptResponseTest(QuestionAttemptResponseUnitTest):
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_question_attempt_response(
-            self.reuseable_request_body
-        )
+        json_data = self.do_create_question_attempt_response(self.reuseable_request_body)
         for key in self.reuseable_request_body:
             self.assertEqual(json_data[key], self.reuseable_request_body[key])
         for one_field in self.list_of_fields_of_question_attempt_response_model:
@@ -107,9 +105,7 @@ class QuestionAttemptResponseTest(QuestionAttemptResponseUnitTest):
         json_data = self.do_get_question_attempt_response_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
-            for (
-                one_value_from_list_of_fields_of_question_attempt_response_model
-            ) in self.list_of_fields_of_question_attempt_response_model:
+            for one_value_from_list_of_fields_of_question_attempt_response_model in self.list_of_fields_of_question_attempt_response_model:
                 self.assertIn(
                     one_value_from_list_of_fields_of_question_attempt_response_model,
                     test_dict,
@@ -118,12 +114,8 @@ class QuestionAttemptResponseTest(QuestionAttemptResponseUnitTest):
         return json_data
 
     def successsfull_fetching_of_one_record_test(self, list_of_records):
-        test_question_attempt_response_id = list_of_records[len(list_of_records) - 1][
-            "id"
-        ]
-        json_data = self.do_get_one_question_attempt_response(
-            test_question_attempt_response_id
-        )
+        test_question_attempt_response_id = list_of_records[len(list_of_records) - 1]["id"]
+        json_data = self.do_get_one_question_attempt_response(test_question_attempt_response_id)
         self.assertEqual(
             json_data["id"],
             test_question_attempt_response_id,
@@ -135,9 +127,7 @@ class QuestionAttemptResponseTest(QuestionAttemptResponseUnitTest):
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["type"] = "wrong"
         updated_request_body["text"] = "wrong answer"
-        updated_response_json_data = self.do_update_one_question_attempt_response(
-            test_record_id, updated_request_body
-        )
+        updated_response_json_data = self.do_update_one_question_attempt_response(test_record_id, updated_request_body)
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             self.assertEqual(updated_response_json_data[key], updated_request_body[key])

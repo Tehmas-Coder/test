@@ -1,7 +1,8 @@
 import django_filters
-from django_filters import rest_framework as filters
 from django.db import models
-from apps.user.models import BaseUser
+from django_filters import rest_framework as filters
+
+from apps.user.models.user_models import BaseUser
 
 
 class UserFilter(filters.FilterSet):
@@ -17,7 +18,6 @@ class UserFilter(filters.FilterSet):
         fields = [
             "emails",
             "is_active",
-            "is_staff",
             "is_superuser",
             "min_age",
             "max_age",
@@ -43,8 +43,4 @@ class UserFilter(filters.FilterSet):
         return queryset.filter(email__in=email_list)
 
     def filter_by_search(self, queryset, name, value):
-        return queryset.filter(
-            models.Q(first_name__icontains=value)
-            | models.Q(last_name__icontains=value)
-            | models.Q(email__icontains=value)
-        )
+        return queryset.filter(models.Q(first_name__icontains=value) | models.Q(last_name__icontains=value) | models.Q(email__icontains=value))
