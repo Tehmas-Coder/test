@@ -17,7 +17,7 @@ from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response
 
 
-def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, queryset):
+def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, queryset, set_attempted=False):
     """
     Get detailed candidate exam with country based questions
     :param candidate_exam_id: Candidate exam id, queryset: Queryset
@@ -54,8 +54,11 @@ def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, 
             total_score=Sum("total_marks")
         )["total_score"]
         CandidateExam.objects.filter(id=candidate_exam_id).update(
-            total_obtainable_marks=question_instances_total_marks if question_instances_total_marks != None else 0, exam_status="attempted"
+            total_obtainable_marks=question_instances_total_marks if question_instances_total_marks != None else 0
         )
+
+    if set_attempted:
+        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
 
     candidate_exam_backlog_question_instance = queryset.filter(id=candidate_exam_id).prefetch_related(
         Prefetch(

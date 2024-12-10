@@ -777,7 +777,7 @@ class AttemptCandidateExamAPI(views.APIView):
             if candidate_exam_instance.exam_status != "assigned":
                 return make_error_response(message="Exam has already been attempted")
 
-            candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, self.queryset)
+            candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, self.queryset, set_attempted=True)
             all_questions = []
             if isinstance(candidate_exam_data, dict):
                 all_questions = candidate_exam_data["exam_backlog"].pop("questions")
