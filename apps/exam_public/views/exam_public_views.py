@@ -68,6 +68,8 @@ from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     color_print,
     debug_print,
+    decrypt_message,
+    encrypt_message,
     get_encryption_key,
     make_error_response,
     remove_extra_underscore_from_key_names,
@@ -766,13 +768,20 @@ class AttemptCandidateExamAPI(views.APIView):
         if "key" not in request_data:
             candidate_exam_id = request_data.get("candidate_exam_id")
             if not candidate_exam_id:
-                return make_error_response(message="Candidate Exam ID required")
+                return make_error_response(message="Candidate Exam ID is required")
+
+            candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
+            if not candidate_exam_instance:
+                return make_error_response(message="Candidate Exam not found")
+
+            if candidate_exam_instance.exam_status != "assigned":
+                return make_error_response(message="Exam has already been attempted")
 
             candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, self.queryset)
             all_questions = []
             if isinstance(candidate_exam_data, dict):
-                all_questions = candidate_exam_data["exam_backlog"]["questions"]
-                sections = candidate_exam_data["exam_backlog"]["sections"]
+                all_questions = candidate_exam_data["exam_backlog"].pop("questions")
+                sections = candidate_exam_data["exam_backlog"].pop("sections")
                 if len(sections):
                     for one_section in sections:
                         all_questions.extend(one_section["questions"])
@@ -781,17 +790,17 @@ class AttemptCandidateExamAPI(views.APIView):
                             for one_subsection in subsections:
                                 all_questions.extend(one_subsection["questions"])
 
-            encypted_questions_data = json.dumps(all_questions)
+            encyption_data = json.dumps({"all_questions": all_questions, "candidate_exam": candidate_exam_data})
             key = get_encryption_key()
-            cipher = Fernet(key)
-            encrypted_data = cipher.encrypt(encypted_questions_data.encode()).decode()
+            encrypted_data = encrypt_message(encyption_data, key)
             response_data["key"] = encrypted_data
-            response_data["question"] = all_questions[1] if len(all_questions) else {}
+            response_data["question"] = all_questions[0] if len(all_questions) else {}
+            response_data["candidate_exam"] = candidate_exam_data
         else:
-            key = request_data.get("key")
+            encrypted_data = request_data.get("key")
+            decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
             previous_question_backlog_id = request_data.get("question_backlog_id")
-            cipher = Fernet(get_encryption_key())
-            all_questions = json.loads(cipher.decrypt(key.encode()).decode())
+            all_questions = decrypted_data["all_questions"]
             question_id_question_data_hashmap = {}
             for one_question in all_questions:
                 question_id_question_data_hashmap[one_question["id"]] = one_question
@@ -807,7 +816,9 @@ class AttemptCandidateExamAPI(views.APIView):
                 next_question_index = previous_question_index + 1
                 if next_question_index >= len(all_questions):
                     return make_error_response(message="No more questions")
+                response_data["key"] = encrypted_data
                 response_data["question"] = all_questions[next_question_index]
+                response_data["candidate_exam"] = decrypted_data["candidate_exam"]
 
         return Response(response_data, status=status.HTTP_200_OK)
 
