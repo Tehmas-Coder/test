@@ -761,23 +761,55 @@ class AttemptCandidateExamAPI(views.APIView):
 
     def post(self, request, *args, **kwargs):
         request_data = request.data
+        response_data = {}
+
         if "key" not in request_data:
             candidate_exam_id = request_data.get("candidate_exam_id")
             if not candidate_exam_id:
                 return make_error_response(message="Candidate Exam ID required")
+
             candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, self.queryset)
             all_questions = []
-            all_questions.extend(candidate_exam_data["exam_backlog"]["questions"])  # type: ignore
-            sections = candidate_exam_data["exam_backlog"]["sections"]  # type: ignore
-            if len(sections):  # type: ignore
-                for one_section in sections:  # type: ignore
-                    all_questions.extend(one_section["questions"])  # type: ignore
-                    subsections = one_section["subsections"]  # type: ignore
-                    if len(subsections):  # type: ignore
-                        for one_subsection in subsections:  # type: ignore
-                            all_questions.extend(one_subsection["questions"])  # type: ignore
-            debug_print(all_questions)
-        return Response(candidate_exam_data, status=status.HTTP_200_OK)
+            if isinstance(candidate_exam_data, dict):
+                all_questions = candidate_exam_data["exam_backlog"]["questions"]
+                sections = candidate_exam_data["exam_backlog"]["sections"]
+                if len(sections):
+                    for one_section in sections:
+                        all_questions.extend(one_section["questions"])
+                        subsections = one_section["subsections"]
+                        if len(subsections):
+                            for one_subsection in subsections:
+                                all_questions.extend(one_subsection["questions"])
+
+            encypted_questions_data = json.dumps(all_questions)
+            key = get_encryption_key()
+            cipher = Fernet(key)
+            encrypted_data = cipher.encrypt(encypted_questions_data.encode()).decode()
+            response_data["key"] = encrypted_data
+            response_data["question"] = all_questions[1] if len(all_questions) else {}
+        else:
+            key = request_data.get("key")
+            previous_question_backlog_id = request_data.get("question_backlog_id")
+            cipher = Fernet(get_encryption_key())
+            all_questions = json.loads(cipher.decrypt(key.encode()).decode())
+            question_id_question_data_hashmap = {}
+            for one_question in all_questions:
+                question_id_question_data_hashmap[one_question["id"]] = one_question
+
+            if previous_question_backlog_id:
+                previous_question_index = None
+                for index, one_question in enumerate(all_questions):
+                    if one_question["id"] == previous_question_backlog_id:
+                        previous_question_index = index
+                        break
+                if previous_question_index == None:
+                    return make_error_response(message="Invalid Question ID")
+                next_question_index = previous_question_index + 1
+                if next_question_index >= len(all_questions):
+                    return make_error_response(message="No more questions")
+                response_data["question"] = all_questions[next_question_index]
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 # ---------------------------------------------------------------------------- #
