@@ -13,6 +13,9 @@ from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
+from apps.exam_public.helpers.candidate_exam_helpers import (
+    get_detailed_candidate_exam_with_country_based_questions,
+)
 from apps.exam_public.helpers.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.helpers.exam_status_webhook import (
     send_exam_status_to_student_apply_webhook,
@@ -70,7 +73,9 @@ from utils.rna_utils import (
     remove_extra_underscore_from_key_names,
 )
 
-# --------------------------------- CANDIDATE -------------------------------- #
+# ---------------------------------------------------------------------------- #
+#                                   CANDIDATE                                  #
+# ---------------------------------------------------------------------------- #
 
 
 class CandidateViewSet(viewsets.ModelViewSet):
@@ -117,7 +122,9 @@ class CandidateViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# ------------------------------ CANDIDATE EXAM ------------------------------ #
+# ---------------------------------------------------------------------------- #
+#                                CANDIDATE EXAM                                #
+# ---------------------------------------------------------------------------- #
 
 
 class CandidateExamViewSet(viewsets.ModelViewSet):
@@ -724,7 +731,60 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response({"message": message}, status=response_status)
 
 
-# --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
+# ---------------------------------------------------------------------------- #
+#                            ATTEMPT CANDIDATE EXAM                            #
+# ---------------------------------------------------------------------------- #
+
+
+class AttemptCandidateExamAPI(views.APIView):
+    queryset = (
+        CandidateExam.objects.all()
+        .select_related(
+            "exam_backlog",
+            "schedule",
+            "candidate",
+            "candidate__user",
+            "candidate__user__country",
+            "candidate__user__profile_picture",
+            "candidate__organization",
+            "candidate__organization__country",
+        )
+        .prefetch_related(
+            Prefetch(
+                "candidate__user__roles",
+                queryset=Role.objects.all().prefetch_related(
+                    Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+                ),
+            ),
+        )
+    )
+
+    def post(self, request, *args, **kwargs):
+        request_data = request.data
+        if "key" not in request_data:
+            candidate_exam_id = request_data.get("candidate_exam_id")
+            if not candidate_exam_id:
+                return make_error_response(message="Candidate Exam ID required")
+            candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, self.queryset)
+            all_questions = []
+            all_questions.extend(candidate_exam_data["exam_backlog"]["questions"])  # type: ignore
+            sections = candidate_exam_data["exam_backlog"]["sections"]  # type: ignore
+            if len(sections):  # type: ignore
+                for one_section in sections:  # type: ignore
+                    all_questions.extend(one_section["questions"])  # type: ignore
+                    subsections = one_section["subsections"]  # type: ignore
+                    if len(subsections):  # type: ignore
+                        for one_subsection in subsections:  # type: ignore
+                            all_questions.extend(one_subsection["questions"])  # type: ignore
+            debug_print(all_questions)
+        return Response(candidate_exam_data, status=status.HTTP_200_OK)
+
+
+# ---------------------------------------------------------------------------- #
+#                             CANDIDATE EXAM ANSWER                            #
+# ---------------------------------------------------------------------------- #
+
+
 class CandidateExamAnswerViewset(viewsets.ModelViewSet):
     queryset = (
         CandidateExamAnswer.objects.all()
@@ -827,7 +887,9 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
 
-# ------------------------- EXAM BACKLOG ANSWERS KEY ------------------------- #
+# ---------------------------------------------------------------------------- #
+#                           EXAM BACKLOG ANSWERS KEY                           #
+# ---------------------------------------------------------------------------- #
 
 
 class ExamBacklogAnswerKeyAPI(views.APIView):
