@@ -804,7 +804,6 @@ class AttemptCandidateExamAPI(views.APIView):
             question_id_question_data_hashmap = {}
             for one_question in all_questions:
                 question_id_question_data_hashmap[one_question["id"]] = one_question
-
             if previous_question_backlog_id:
                 previous_question_index = None
                 for index, one_question in enumerate(all_questions):
@@ -847,7 +846,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         candidate_exam_id = request_data.pop("candidate_exam")
         request_data = request_data.pop("answers")
 
-        # * This is for the use case in which if the user haven't even attempted a single question and submitted that exam in that case the fron't end will request for the creation of candidate exama nswers but there will be none to store it will just pass the api.
+        # * This is for the use case in which if the user haven't even attempted a single question and submitted that exam in that case the front end will request for the creation of candidate exama nswers but there will be none to store it will just pass the api.
         if not len(request_data):
             return Response(status=status.HTTP_201_CREATED)
 
