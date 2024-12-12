@@ -6,6 +6,8 @@ from apps.exam_public.tests.test_candidate_exam import CandidateExamUnitTest
 from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
+    decrypt_message,
+    get_encryption_key,
     print_test_failed,
     print_test_header,
     print_test_passed,
@@ -49,39 +51,22 @@ class AttemptCandidateExamUnitTest(TestSetUp):
     # ?###################################################
     def do_attempt_one_candidate_exam(self, request_body):
         print_test_header("Attempt_candidate_exam")
-        url = "/api/candidate-exam/"
+        url = "/api/attempt-candidate-exam/"
         response = self.client.post(
             url,
             headers=self.headers,
             data=request_body,
-            content_type="application/json",
         )
-        validate_success_201_test_response(self, response)
-        return response.data[0]  # type: ignore
+        validate_success_200_test_response(self, response)
+        return response.data  # type: ignore
 
 
 class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
-    # * These are defined here so these can be accessed by all the functions
-    reuseable_request_body = {
-        "candidates": [
-            "cyberaxescandidate@gmail.com",
-        ],
-        "exam": 1,
-        "schedule": 2,
-        "exam_duration": 120,
-    }
-    list_of_fields_of_candidate_exam_model = [
-        "id",
-        "candidate",
-        "exam_backlog",
-        "schedule",
-        "is_preparatory",
-        "start_datetime",
-        "end_datetime",
-        "exam_duration",
-        "waiting_duration",
-        "extra_duration",
-    ]
+    """
+    Attempting a candidate exam
+    """
+
+    list_of_fields = ["question", "candidate_exam", "key"]
 
     # ?###################################################
     # ?              TESTS - CASES
@@ -90,11 +75,47 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         self.successfull_attemptation_of_an_exam_test()
 
     def successfull_attemptation_of_an_exam_test(self):
-        candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(self.reuseable_request_body))  # type: ignore
-        # debug_print(candidate_exam)
-        # json_data = self.do_attempt_one_candidate_exam(json.dumps(self.reuseable_request_body))
-        # for one_field in self.list_of_fields_of_candidate_exam_model:
-        #     self.assertIn(one_field, json_data)
+        candidate_exam_assignemt_request_body = {
+            "candidates": [
+                "cyberaxescandidate@gmail.com",
+            ],
+            "exam": 1,
+            "schedule": 2,
+            "exam_duration": 120,
+        }
+        candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_assignemt_request_body))  # type: ignore
+        request_body = {
+            "candidate_exam_id": candidate_exam["id"],
+            "exam_status": "attempted",
+        }
+        json_data = self.do_attempt_one_candidate_exam(request_body)
+        for one_field in self.list_of_fields:
+            self.assertIn(one_field, json_data)
+
+        # * -------------------- Test for sending the next question by sending the latest attempted question id -------------------- #
+        encrypted_data = json_data.get("key")
+        decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
+        all_questions = decrypted_data["all_questions"]
+        request_body = {
+            "key": encrypted_data,
+            "question_backlog_id": all_questions[0]["id"],
+        }
+        json_data = self.do_attempt_one_candidate_exam(request_body)
+        for one_field in self.list_of_fields:
+            self.assertIn(one_field, json_data)
+        self.assertEqual(json_data["question"]["id"], all_questions[1]["id"])
+
+        # * -------------------- Test for sending the next question with just the key-------------------- #
+        encrypted_data = json_data.get("key")
+        decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
+        all_questions = decrypted_data["all_questions"]
+        request_body = {
+            "key": encrypted_data,
+        }
+        json_data = self.do_attempt_one_candidate_exam(request_body)
+        for one_field in self.list_of_fields:
+            self.assertIn(one_field, json_data)
+        self.assertEqual(json_data["question"]["id"], all_questions[0]["id"])
 
 
 # ?###################################################
