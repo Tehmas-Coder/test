@@ -793,9 +793,9 @@ class AttemptCandidateExamAPI(views.APIView):
             encyption_data = json.dumps({"all_questions": all_questions, "candidate_exam": candidate_exam_data})
             key = get_encryption_key()
             encrypted_data = encrypt_message(encyption_data, key)
-            response_data["key"] = encrypted_data
             response_data["question"] = all_questions[0] if len(all_questions) else {}
             response_data["candidate_exam"] = candidate_exam_data
+            response_data["key"] = encrypted_data
         else:
             encrypted_data = request_data.get("key")
             decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
@@ -807,7 +807,7 @@ class AttemptCandidateExamAPI(views.APIView):
             if previous_question_backlog_id:
                 previous_question_index = None
                 for index, one_question in enumerate(all_questions):
-                    if one_question["id"] == previous_question_backlog_id:
+                    if str(one_question["id"]) == str(previous_question_backlog_id):
                         previous_question_index = index
                         break
                 if previous_question_index == None:
@@ -815,9 +815,9 @@ class AttemptCandidateExamAPI(views.APIView):
                 next_question_index = previous_question_index + 1
                 if next_question_index >= len(all_questions):
                     return make_error_response(message="No more questions")
-                response_data["key"] = encrypted_data
                 response_data["question"] = all_questions[next_question_index]
                 response_data["candidate_exam"] = decrypted_data["candidate_exam"]
+                response_data["key"] = encrypted_data
 
         return Response(response_data, status=status.HTTP_200_OK)
 
