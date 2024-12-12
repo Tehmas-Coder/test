@@ -1,5 +1,6 @@
 import json
 import random
+from pprint import pprint
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -804,6 +805,14 @@ class AttemptCandidateExamAPI(views.APIView):
             question_id_question_data_hashmap = {}
             for one_question in all_questions:
                 question_id_question_data_hashmap[one_question["id"]] = one_question
+            if not previous_question_backlog_id:
+                answered_questions_list = list(
+                    CandidateExamAnswer.objects.filter(candidate_exam_id=decrypted_data["candidate_exam"]["id"], is_attempted=True)
+                    .values_list("exam_backlog_question", flat=True)
+                    .distinct()
+                )
+                previous_question_backlog_id = answered_questions_list[-1] if len(answered_questions_list) else None
+
             if previous_question_backlog_id:
                 previous_question_index = None
                 for index, one_question in enumerate(all_questions):
@@ -816,8 +825,10 @@ class AttemptCandidateExamAPI(views.APIView):
                 if next_question_index >= len(all_questions):
                     return make_error_response(message="No more questions")
                 response_data["question"] = all_questions[next_question_index]
-                response_data["candidate_exam"] = decrypted_data["candidate_exam"]
-                response_data["key"] = encrypted_data
+            else:
+                response_data["question"] = all_questions[0]
+            response_data["candidate_exam"] = decrypted_data["candidate_exam"]
+            response_data["key"] = encrypted_data
 
         return Response(response_data, status=status.HTTP_200_OK)
 
