@@ -23,10 +23,7 @@ from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
-from apps.exam_admin.serializers.exam_subject_serializers import (
-    ExamSubjectDetailSerializer,
-    ExamSubjectSerializer,
-)
+from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
 from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
 from apps.exam_admin.serializers.section_serializers import SectionSerializer
 from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
@@ -42,6 +39,7 @@ from apps.organization.models.organization_models import (
 )
 from apps.user.utils.utils import get_current_user_organization
 from utils.rna_utils import (
+    debug_print,
     make_error_response,
     make_success_response,
     remove_extra_underscore_from_key_names,
@@ -177,20 +175,17 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 
 class ExamSubjectViewSet(viewsets.ModelViewSet):
-    queryset = ExamSubject.objects.all().select_related(
-        "exam", "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level"
+    queryset = (
+        ExamSubject.objects.all()
+        .prefetch_related("examsubjectquestion_set")
+        .select_related("exam", "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level")
     )
     serializer_class = ExamSubjectSerializer
     http_method_names = ["post", "delete"]
     pagination_class = None
 
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        exam_subject = serializer.save()
-        response = ExamSubjectDetailSerializer(exam_subject).data
-        return Response(response, status=status.HTTP_201_CREATED)
+    def get_serializer_context(self):
+        return {"selector": True, "include_questions": True}
 
 
 # ----------------------------- SUBJECT QUESTIONS ---------------------------- #
