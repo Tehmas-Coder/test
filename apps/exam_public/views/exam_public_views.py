@@ -802,9 +802,6 @@ class AttemptCandidateExamAPI(views.APIView):
             decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
             previous_question_backlog_id = request_data.get("question_backlog_id")
             all_questions = decrypted_data["all_questions"]
-            question_id_question_data_hashmap = {}
-            for one_question in all_questions:
-                question_id_question_data_hashmap[one_question["id"]] = one_question
             if not previous_question_backlog_id:
                 answered_questions_list = list(
                     CandidateExamAnswer.objects.filter(candidate_exam_id=decrypted_data["candidate_exam"]["id"], is_attempted=True)
