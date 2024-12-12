@@ -28,7 +28,7 @@ class ExamSubjectSerializer(BaseModelSerializer):
 
     def to_representation(self, instance):
         from apps.exam_admin.serializers.exam_subject_question_serializer import (
-            ExamSubjectQuestionEditSerializer,
+            ExamSubjectQuestionSerializer,
         )
 
         rep = super().to_representation(instance)
@@ -36,5 +36,5 @@ class ExamSubjectSerializer(BaseModelSerializer):
             rep["subject_education_level"] = SubjectEducationLevelSerializer(instance.subject_education_level).data
             rep.pop("exam")
         if self.context.get("include_questions", False):
-            rep["questions"] = ExamSubjectQuestionEditSerializer(instance.examsubjectquestion_set.all(), many=True).data
+            rep["questions"] = ExamSubjectQuestionSerializer(instance.examsubjectquestion_set.all(), many=True, context={"mutator": True}).data
         return rep

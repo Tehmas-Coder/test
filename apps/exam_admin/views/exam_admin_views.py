@@ -20,7 +20,6 @@ from apps.exam_admin.serializers.exam_serializers import (
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionBulkCreateSerializer,
     ExamSubjectQuestionBulkUpdateSerializer,
-    ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
 from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
@@ -197,10 +196,10 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
     http_method_names = ["post", "patch", "delete"]
     pagination_class = None
 
-    def get_serializer_class(self):
+    def get_serializer_context(self):
         if self.action == "partial_update":
-            return ExamSubjectQuestionEditSerializer
-        return super().get_serializer_class()
+            return {"mutator": True}
+        return super().get_serializer_context()
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
