@@ -2195,5 +2195,18 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 175,
+    "fields": {
+      "name": "Attempt Candidate Exam",
+      "description": "Attempt Candidate Exam",
+      "regex": "^/attempt-candidate-exam/$",
+      "method": "post",
+      "permission": 53,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

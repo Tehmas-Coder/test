@@ -1,5 +1,6 @@
 import json
 import random
+from pprint import pprint
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -13,6 +14,9 @@ from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
+from apps.exam_public.helpers.candidate_exam_helpers import (
+    get_detailed_candidate_exam_with_country_based_questions,
+)
 from apps.exam_public.helpers.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.helpers.exam_status_webhook import (
     send_exam_status_to_student_apply_webhook,
@@ -65,12 +69,16 @@ from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     color_print,
     debug_print,
+    decrypt_message,
+    encrypt_message,
     get_encryption_key,
     make_error_response,
     remove_extra_underscore_from_key_names,
 )
 
-# --------------------------------- CANDIDATE -------------------------------- #
+# ---------------------------------------------------------------------------- #
+#                                   CANDIDATE                                  #
+# ---------------------------------------------------------------------------- #
 
 
 class CandidateViewSet(viewsets.ModelViewSet):
@@ -117,7 +125,9 @@ class CandidateViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# ------------------------------ CANDIDATE EXAM ------------------------------ #
+# ---------------------------------------------------------------------------- #
+#                                CANDIDATE EXAM                                #
+# ---------------------------------------------------------------------------- #
 
 
 class CandidateExamViewSet(viewsets.ModelViewSet):
@@ -716,7 +726,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         # * Updating the exam status to submitted
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="submitted")
         candidate_exam_instance.refresh_from_db()
-        if candidate_exam_instance.candidate.organization.token:  # type: ignore
+        if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
                 message = message + " but failed to send exam status through webhook"
                 response_status = status.HTTP_307_TEMPORARY_REDIRECT
@@ -724,7 +734,107 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response({"message": message}, status=response_status)
 
 
-# --------------------------- CANDIDATE EXAM ANSWER -------------------------- #
+# ---------------------------------------------------------------------------- #
+#                            ATTEMPT CANDIDATE EXAM                            #
+# ---------------------------------------------------------------------------- #
+
+
+class AttemptCandidateExamAPI(views.APIView):
+    queryset = (
+        CandidateExam.objects.all()
+        .select_related(
+            "exam_backlog",
+            "schedule",
+            "candidate",
+            "candidate__user",
+            "candidate__user__country",
+            "candidate__user__profile_picture",
+            "candidate__organization",
+            "candidate__organization__country",
+        )
+        .prefetch_related(
+            Prefetch(
+                "candidate__user__roles",
+                queryset=Role.objects.all().prefetch_related(
+                    Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+                ),
+            ),
+        )
+    )
+
+    def post(self, request, *args, **kwargs):
+        request_data = request.data
+        response_data = {}
+
+        if "key" not in request_data:
+            candidate_exam_id = request_data.get("candidate_exam_id")
+            if not candidate_exam_id:
+                return make_error_response(message="Candidate Exam ID is required")
+
+            candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
+            if not candidate_exam_instance:
+                return make_error_response(message="Candidate Exam not found")
+
+            if candidate_exam_instance.exam_status != "assigned":
+                return make_error_response(message="Exam has already been attempted")
+
+            candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, self.queryset, set_attempted=True)
+            all_questions = []
+            if isinstance(candidate_exam_data, dict):
+                all_questions = candidate_exam_data["exam_backlog"].pop("questions")
+                sections = candidate_exam_data["exam_backlog"].pop("sections")
+                if len(sections):
+                    for one_section in sections:
+                        all_questions.extend(one_section["questions"])
+                        subsections = one_section["subsections"]
+                        if len(subsections):
+                            for one_subsection in subsections:
+                                all_questions.extend(one_subsection["questions"])
+
+            encyption_data = json.dumps({"all_questions": all_questions, "candidate_exam": candidate_exam_data})
+            key = get_encryption_key()
+            encrypted_data = encrypt_message(encyption_data, key)
+            response_data["question"] = all_questions[0] if len(all_questions) else {}
+            response_data["candidate_exam"] = candidate_exam_data
+            response_data["key"] = encrypted_data
+        else:
+            encrypted_data = request_data.get("key")
+            decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
+            previous_question_backlog_id = request_data.get("question_backlog_id")
+            all_questions = decrypted_data["all_questions"]
+            if not previous_question_backlog_id:
+                answered_questions_list = list(
+                    CandidateExamAnswer.objects.filter(candidate_exam_id=decrypted_data["candidate_exam"]["id"], is_attempted=True)
+                    .values_list("exam_backlog_question", flat=True)
+                    .distinct()
+                )
+                previous_question_backlog_id = answered_questions_list[-1] if len(answered_questions_list) else None
+
+            if previous_question_backlog_id:
+                previous_question_index = None
+                for index, one_question in enumerate(all_questions):
+                    if str(one_question["id"]) == str(previous_question_backlog_id):
+                        previous_question_index = index
+                        break
+                if previous_question_index == None:
+                    return make_error_response(message="Invalid Question ID")
+                next_question_index = previous_question_index + 1
+                if next_question_index >= len(all_questions):
+                    return make_error_response(message="No more questions")
+                response_data["question"] = all_questions[next_question_index]
+            else:
+                response_data["question"] = all_questions[0]
+            response_data["candidate_exam"] = decrypted_data["candidate_exam"]
+            response_data["key"] = encrypted_data
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+# ---------------------------------------------------------------------------- #
+#                             CANDIDATE EXAM ANSWER                            #
+# ---------------------------------------------------------------------------- #
+
+
 class CandidateExamAnswerViewset(viewsets.ModelViewSet):
     queryset = (
         CandidateExamAnswer.objects.all()
@@ -744,7 +854,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         candidate_exam_id = request_data.pop("candidate_exam")
         request_data = request_data.pop("answers")
 
-        # * This is for the use case in which if the user haven't even attempted a single question and submitted that exam in that case the fron't end will request for the creation of candidate exama nswers but there will be none to store it will just pass the api.
+        # * This is for the use case in which if the user haven't even attempted a single question and submitted that exam in that case the front end will request for the creation of candidate exama nswers but there will be none to store it will just pass the api.
         if not len(request_data):
             return Response(status=status.HTTP_201_CREATED)
 
@@ -797,7 +907,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
 
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
-        if candidate_exam_instance.candidate.organization.token:  # type: ignore
+        if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             send_exam_status_to_student_apply_webhook(candidate_exam_instance)
 
         for one_dict in newly_created_queryset:
@@ -827,7 +937,9 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
 
-# ------------------------- EXAM BACKLOG ANSWERS KEY ------------------------- #
+# ---------------------------------------------------------------------------- #
+#                           EXAM BACKLOG ANSWERS KEY                           #
+# ---------------------------------------------------------------------------- #
 
 
 class ExamBacklogAnswerKeyAPI(views.APIView):

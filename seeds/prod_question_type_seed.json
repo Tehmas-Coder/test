@@ -78,45 +78,5 @@
             "created_at": "1995-07-27T00:00:00Z",
             "updated_at": "1995-07-27T00:00:00Z"
         }
-    },
-    {
-        "model": "questionbank.QuestionType",
-        "pk": 9,
-        "fields": {
-            "name": "Date",
-            "slug": "date",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
-        }
-    },
-    {
-        "model": "questionbank.QuestionType",
-        "pk": 10,
-        "fields": {
-            "name": "Date Interval",
-            "slug": "date-interval",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
-        }
-    },
-    {
-        "model": "questionbank.QuestionType",
-        "pk": 11,
-        "fields": {
-            "name": "Number",
-            "slug": "number",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
-        }
-    },
-    {
-        "model": "questionbank.QuestionType",
-        "pk": 12,
-        "fields": {
-            "name": "Range",
-            "slug": "range",
-            "created_at": "1995-07-27T00:00:00Z",
-            "updated_at": "1995-07-27T00:00:00Z"
-        }
     }
 ]

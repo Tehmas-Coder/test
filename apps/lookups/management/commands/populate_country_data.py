@@ -1,5 +1,7 @@
 # management/commands/populate_models.py
 
+import json
+
 import pandas as pd
 import requests
 from django.core.management.base import BaseCommand
@@ -18,11 +20,13 @@ class Command(BaseCommand):
     help = "Populate Country, Currency, Region, Language, Timezone, and State models from an external API and CSV files"
 
     def handle(self, *args, **kwargs):
-        countries_api_url = "https://restcountries.com/v3.1/all"
+        # countries_api_url = "https://restcountries.com/v3.1/all"
 
-        response = requests.get(countries_api_url)
-        if response.status_code == 200:
-            countries_data = response.json()
+        # response = requests.get(countries_api_url)
+        # if response.status_code == 200:
+        #     countries_data = response.json()
+        with open("data/country_lookups_data.json", "r", encoding="utf-8") as file:
+            countries_data = json.load(file)
             currencies_cache = {}
             regions_cache = {}
             languages_cache = {}
