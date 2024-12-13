@@ -13,22 +13,6 @@ from apps.questionbank.serializers.subject_serializers import SubjectSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class ExamSubjectQuestionEditSerializer(BaseModelSerializer):
-    class Meta:
-        model = ExamSubjectQuestion
-        fields = [
-            "id",
-            "section",
-            "subsection",
-            "total_marks",
-            "sequence",
-        ] + get_base_model_fields()
-
-        read_only_fields = [
-            "id",
-        ]
-
-
 class ExamSubjectQuestionDetailSerializer(BaseModelSerializer):
     subject = SubjectSerializer(read_only=True, source="exam_subject.subject_education_level.subject")
     education_level = EducationLevelSerializer(read_only=True, source="exam_subject.subject_education_level.education_level")
@@ -90,6 +74,13 @@ class ExamSubjectQuestionSerializer(BaseModelSerializer):
         read_only_fields = [
             "id",
         ]
+
+    def __init__(self, *args, **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("mutator", False):
+            self.fields.pop("exam_subject")
+            self.fields.pop("question")
+        super().__init__(*args, **kwargs)
 
     def create(self, validated_data):
         exam_subject_data = validated_data.pop("exam_subject")

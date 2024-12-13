@@ -20,23 +20,17 @@ from apps.exam_admin.serializers.exam_serializers import (
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionBulkCreateSerializer,
     ExamSubjectQuestionBulkUpdateSerializer,
-    ExamSubjectQuestionEditSerializer,
     ExamSubjectQuestionSerializer,
 )
-from apps.exam_admin.serializers.exam_subject_serializers import (
-    ExamSubjectDetailSerializer,
-    ExamSubjectSerializer,
-)
+from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
 from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
-from apps.exam_admin.serializers.section_serializers import (
-    SectionEditSerializer,
-    SectionSerializer,
-)
-from apps.exam_admin.serializers.subsection_serializers import (
-    SubSectionEditSerializer,
-    SubSectionSerializer,
-)
+from apps.exam_admin.serializers.section_serializers import SectionSerializer
+from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
 from apps.exam_admin.utils.exam_utils import create_random_exam
+from apps.lookups.custom.lookups_classes import (
+    OrganizationResourceQuerysetMutator,
+    OrganizationResourceValidator,
+)
 from apps.lookups.models.lookup_models import Organization
 from apps.organization.models.organization_models import (
     OrganizationPackage,
@@ -44,6 +38,7 @@ from apps.organization.models.organization_models import (
 )
 from apps.user.utils.utils import get_current_user_organization
 from utils.rna_utils import (
+    debug_print,
     make_error_response,
     make_success_response,
     remove_extra_underscore_from_key_names,
@@ -60,75 +55,28 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
 
-    def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            self.queryset = self.queryset.filter(Q(organization_id=get_current_user_organization()) | Q(organization_id=None))
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset).get_queryset()
+        return super().get_queryset()
 
     def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not request.user.is_superuser:
-            if instance.organization_id != get_current_user_organization():
-                return make_error_response(message="Failed: This Schedule doesn't belong to your organization")
+        OrganizationResourceValidator(instance_organization_id=self.get_object().organization_id).validate()
         return super().partial_update(request, *args, **kwargs)
 
 
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all().select_related("measuring_unit")
-    serializer_class = SectionEditSerializer
+    serializer_class = SectionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
-
-    def get_serializer_class(self):
-        if self.action in ["retrieve", "list"]:
-            return SectionSerializer
-        return super().get_serializer_class()
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        section = serializer.save()
-        response = SectionSerializer(section).data
-        return Response(response, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        section = serializer.save()
-        response = SectionSerializer(section).data
-        return Response(response)
 
 
 class SubSectionViewSet(viewsets.ModelViewSet):
-    queryset = SubSection.objects.all().select_related("section", "measuring_unit")
-    serializer_class = SubSectionEditSerializer
+    queryset = SubSection.objects.all().select_related("measuring_unit")
+    serializer_class = SubSectionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None
-
-    def get_serializer_class(self):
-        if self.action in ["retrieve", "list"]:
-            return SubSectionSerializer
-        return super().get_serializer_class()
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        subsection = serializer.save()
-        response = SubSectionSerializer(subsection).data
-        return Response(response, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        subsection = serializer.save()
-        response = SubSectionSerializer(subsection).data
-        return Response(response)
 
 
 # ---------------------------------------------------------------------------- #
@@ -226,20 +174,17 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 
 class ExamSubjectViewSet(viewsets.ModelViewSet):
-    queryset = ExamSubject.objects.all().select_related(
-        "exam", "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level"
+    queryset = (
+        ExamSubject.objects.all()
+        .prefetch_related("examsubjectquestion_set")
+        .select_related("exam", "subject_education_level", "subject_education_level__subject", "subject_education_level__education_level")
     )
     serializer_class = ExamSubjectSerializer
     http_method_names = ["post", "delete"]
     pagination_class = None
 
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        exam_subject = serializer.save()
-        response = ExamSubjectDetailSerializer(exam_subject).data
-        return Response(response, status=status.HTTP_201_CREATED)
+    def get_serializer_context(self):
+        return {"selector": True, "include_questions": True}
 
 
 # ----------------------------- SUBJECT QUESTIONS ---------------------------- #
@@ -251,10 +196,10 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
     http_method_names = ["post", "patch", "delete"]
     pagination_class = None
 
-    def get_serializer_class(self):
+    def get_serializer_context(self):
         if self.action == "partial_update":
-            return ExamSubjectQuestionEditSerializer
-        return super().get_serializer_class()
+            return {"mutator": True}
+        return super().get_serializer_context()
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
