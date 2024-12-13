@@ -61,9 +61,9 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
     def validate(self) -> bool:
         return super().validate()
 
-    def validate_limit(self, current_count, total_limit) -> int:
-        if not (current_count <= total_limit):
-            raise ValueError("Package limit for this action has been reached")
+    def validate_limit(self, current_count: int, total_limit: int) -> int:
+        if not (current_count < total_limit):
+            raise ValueError("Your Organizational Package limit for this action has been reached")
         current_count += 1
         return current_count
 
