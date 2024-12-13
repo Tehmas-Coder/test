@@ -1,7 +1,16 @@
+from rest_framework import status
+from rest_framework.response import Response
+
+from apps.exam_admin.serializers.exam_serializers import ExamSerializer
 from apps.lookups.custom.lookups_classes import (
     OrganizationPackageLimitValidator,
+    OrganizationValidator,
     VisibilitySetter,
 )
+from apps.user.utils.utils import get_current_user_organization
+from middlewares.current_user_middleware import get_current_user
+from middlewares.response_middleware import ResponseMiddleware
+from utils.rna_utils import make_error_response
 
 
 class ExamVisibilitySetter(VisibilitySetter):
@@ -28,3 +37,40 @@ class OrganizationPackageExamLimitValidator(OrganizationPackageLimitValidator):
             return True
         except ValueError as e:
             raise ValueError(str(e))
+
+
+class ExamService:
+    """
+    This class is used to create the exam with the given data.
+    """
+
+    def __init__(
+        self,
+        exam_data: dict,
+        visibility_setter: VisibilitySetter,
+        organization_validator: OrganizationValidator,
+        serializer_class,
+        queryset,
+    ) -> None:
+        self.exam_data = exam_data
+        self.visibility_setter = visibility_setter
+        self.organization_validator = organization_validator
+        self.serializer_class = serializer_class
+        self.queryset = queryset
+
+    def create_exam(self) -> Response:
+        request_data = self.visibility_setter.set_visibility(self.exam_data)
+
+        serializer = self.serializer_class(data=request_data, context={"mutator": True})
+        serializer.is_valid(raise_exception=True)
+
+        if not get_current_user().is_superuser:  # type: ignore
+            try:
+                self.organization_validator.validate()
+                request_data["organization"] = get_current_user_organization()
+            except ValueError as e:
+                ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))
+
+        exam = serializer.save()
+        response_data = ExamSerializer(self.queryset.filter(pk=exam.id).first(), context={"selector": True}).data  # type:ignore
+        return Response(response_data, status=status.HTTP_201_CREATED)

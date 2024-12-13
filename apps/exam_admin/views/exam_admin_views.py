@@ -4,6 +4,11 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.exam_admin.custom.exam_classes import (
+    ExamService,
+    ExamVisibilitySetter,
+    OrganizationPackageExamLimitValidator,
+)
 from apps.exam_admin.filters.exam_filters import ExamFilterBackend
 from apps.exam_admin.models.exam_admin_models import (
     Exam,
@@ -100,7 +105,7 @@ class ExamViewSet(viewsets.ModelViewSet):
             return {"mutator": True}
 
     @transaction.atomic
-    def create(self, request, *args, **kwargs):
+    def creates(self, request, *args, **kwargs):
         # * Checking Package limit to create Exam for an Organization if the requested user is not superuser
         if not request.user.is_superuser:
             request.data["is_public"] = 0
@@ -124,6 +129,19 @@ class ExamViewSet(viewsets.ModelViewSet):
 
         response = ExamSerializer(self.queryset.filter(pk=exam["id"]).first(), context={"selector": True}).data  # type:ignore
         return Response(response, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        visibility_setter = ExamVisibilitySetter()
+        organization_validator = OrganizationPackageExamLimitValidator()
+        exam_service = ExamService(
+            exam_data=request.data,
+            visibility_setter=visibility_setter,
+            organization_validator=organization_validator,
+            serializer_class=self.serializer_class,
+            queryset=self.queryset,
+        )
+        return exam_service.create_exam()
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
