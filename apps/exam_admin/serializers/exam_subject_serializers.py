@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from apps.exam_admin.models.exam_admin_models import ExamSubject
 from apps.questionbank.serializers.subject_education_level_serializers import (
     SubjectEducationLevelSerializer,
@@ -7,39 +5,7 @@ from apps.questionbank.serializers.subject_education_level_serializers import (
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class ExamSubjectDetailSerializer(BaseModelSerializer):
-    subject_education_level = SubjectEducationLevelSerializer()
-
-    class Meta:
-        model = ExamSubject
-        fields = [
-            "id",
-            "subject_education_level",
-        ] + get_base_model_fields()
-
-    def to_representation(self, instance):
-        from apps.exam_admin.serializers.exam_subject_question_serializer import (
-            ExamSubjectQuestionEditSerializer,
-        )
-
-        data = super().to_representation(instance)
-        data["questions"] = ExamSubjectQuestionEditSerializer(instance.examsubjectquestion_set.all(), many=True).data
-        return data
-
-
-class ExamSubjectListSerializer(serializers.ModelSerializer):
-    subject_education_level = SubjectEducationLevelSerializer()
-
-    class Meta:
-        model = ExamSubject
-        fields = [
-            "id",
-            "subject_education_level",
-        ]
-
-
 class ExamSubjectSerializer(BaseModelSerializer):
-
     class Meta:
         model = ExamSubject
         fields = [
@@ -58,5 +24,17 @@ class ExamSubjectSerializer(BaseModelSerializer):
             subject_education_level=validated_data["subject_education_level"],
             defaults=validated_data,
         )
-
         return instance
+
+    def to_representation(self, instance):
+        from apps.exam_admin.serializers.exam_subject_question_serializer import (
+            ExamSubjectQuestionSerializer,
+        )
+
+        rep = super().to_representation(instance)
+        if self.context.get("selector", False):
+            rep["subject_education_level"] = SubjectEducationLevelSerializer(instance.subject_education_level).data
+            rep.pop("exam")
+        if self.context.get("include_questions", False):
+            rep["questions"] = ExamSubjectQuestionSerializer(instance.examsubjectquestion_set.all(), many=True, context={"mutator": True}).data
+        return rep

@@ -5,14 +5,9 @@ from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionDetailSerializer,
 )
-from apps.exam_admin.serializers.exam_subject_serializers import (
-    ExamSubjectListSerializer,
-)
+from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSerializer
 from apps.exam_admin.serializers.section_serializers import SectionSerializer
-from apps.exam_admin.serializers.subsection_serializers import (
-    SubSectionEditSerializer,
-    SubSectionSerializer,
-)
+from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
 from apps.questionbank.serializers.education_level_serializers import (
     EducationLevelSerializer,
 )
@@ -76,7 +71,7 @@ class ExamDetailSerializer(BaseModelSerializer):
 
     def get_exam_subjects(self, obj):
         exam_subjects = obj.examsubject_set.all()
-        return ExamSubjectListSerializer(exam_subjects, many=True).data
+        return ExamSubjectSerializer(exam_subjects, many=True, context={"selector": True}).data
 
     def get_questions(self, obj):
         exam_questions = []
@@ -228,7 +223,7 @@ class ExamDetailSerializerForBacklogs(BaseModelSerializer):
 
     def get_exam_subjects(self, obj):
         self.exam_subjects = obj.examsubject_set.all()
-        return ExamSubjectListSerializer(self.exam_subjects, many=True).data
+        return ExamSubjectSerializer(self.exam_subjects, many=True, context={"selector": True}).data
 
     def get_questions(self, obj):
         exam_questions = []
@@ -236,7 +231,6 @@ class ExamDetailSerializerForBacklogs(BaseModelSerializer):
             exam_subject_questions = exam_subject.examsubjectquestion_set.all()
             if exam_subject_questions:
                 exam_questions.extend(ExamSubjectQuestionDetailSerializer(exam_subject_questions, many=True).data)
-
         return exam_questions
 
     def get_sections(self, obj):
@@ -248,6 +242,5 @@ class ExamDetailSerializerForBacklogs(BaseModelSerializer):
         for one_section in self.exam_sections:
             one_section_subsections = one_section.subsections.all()
             if one_section_subsections:
-                exam_subsections.extend((SubSectionEditSerializer(one_section_subsections, many=True).data))
-
+                exam_subsections.extend((SubSectionSerializer(one_section_subsections, many=True, context={"include_section": True}).data))
         return exam_subsections
