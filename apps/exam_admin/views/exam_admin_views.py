@@ -13,10 +13,7 @@ from apps.exam_admin.models.exam_admin_models import (
     Section,
     SubSection,
 )
-from apps.exam_admin.serializers.exam_serializers import (
-    ExamDetailSerializer,
-    ExamEditSerializer,
-)
+from apps.exam_admin.serializers.exam_serializers import ExamSerializer
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionBulkCreateSerializer,
     ExamSubjectQuestionBulkUpdateSerializer,
@@ -86,15 +83,21 @@ class SubSectionViewSet(viewsets.ModelViewSet):
 
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.get_detail_queryset(all=True)
-    serializer_class = ExamEditSerializer
+    serializer_class = ExamSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = [ExamFilterBackend]
     EXAM_NOT_AVAILABLE_MESSAGE = f"Failed: This Exam doesn't belong to your organization"
 
-    def get_serializer_class(self):
+    def get_queryset(self):
+        if self.action == "list":
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
+        return super().get_queryset()
+
+    def get_serializer_context(self):
         if self.action in ["retrieve", "list"]:
-            return ExamDetailSerializer
-        return super().get_serializer_class()
+            return {"selector": True}
+        if self.action in ["create", "partial_update"]:
+            return {"mutator": True}
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -119,32 +122,17 @@ class ExamViewSet(viewsets.ModelViewSet):
 
         exam = super().create(request, *args, **kwargs).data
 
-        response = ExamDetailSerializer(self.queryset.filter(pk=exam["id"]).first()).data  # type:ignore
+        response = ExamSerializer(self.queryset.filter(pk=exam["id"]).first(), context={"selector": True}).data  # type:ignore
         return Response(response, status=status.HTTP_201_CREATED)
-
-    def list(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            user_organization_id = get_current_user_organization()
-            self.queryset = self.queryset.filter(Q(organization_id=user_organization_id) | Q(is_public=True))
-        return super().list(request, *args, **kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        res = super().retrieve(request, *args, **kwargs)
-        if not request.user.is_superuser and (not res.data["is_public"]):  # type:ignore
-            if res.data["organization"] != get_current_user_organization():  # type:ignore
-                return make_error_response(message=self.EXAM_NOT_AVAILABLE_MESSAGE)
-        return res
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not request.user.is_superuser:
-            if instance.organization_id != get_current_user_organization():
-                return make_error_response(message=self.EXAM_NOT_AVAILABLE_MESSAGE)
+        OrganizationResourceValidator(instance_organization_id=instance.organization_id).validate()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        response = ExamDetailSerializer(self.get_object()).data
+        response = ExamSerializer(self.get_object(), context={"selector": True}).data
         return Response(response)
 
     @action(detail=False, methods=["post"], url_path="create-random")
@@ -200,23 +188,6 @@ class ExamSubjectQuestionViewSet(viewsets.ModelViewSet):
         if self.action == "partial_update":
             return {"mutator": True}
         return super().get_serializer_context()
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        exam_subject_question = serializer.save()
-        response = ExamSubjectQuestionSerializer(exam_subject_question).data
-        return Response(response, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        exam_subject_question = serializer.save()
-        response = ExamSubjectQuestionSerializer(exam_subject_question).data
-        return Response(response)
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
     def bulk_create_exam_subject_question(self, request):

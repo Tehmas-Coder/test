@@ -3,10 +3,7 @@ from typing import Any, Dict, List, Union
 from rest_framework.utils.serializer_helpers import ReturnList
 
 from apps.exam_admin.models.exam_admin_models import Exam
-from apps.exam_admin.serializers.exam_serializers import (
-    ExamDetailSerializer,
-    ExamEditSerializer,
-)
+from apps.exam_admin.serializers.exam_serializers import ExamSerializer
 from apps.exam_admin.serializers.exam_subject_question_serializer import (
     ExamSubjectQuestionSerializer,
 )
@@ -16,7 +13,7 @@ from utils.rna_utils import make_error_response, object_contains_all_values
 
 
 def create_exam_instance(exam_data):
-    exam = ExamEditSerializer(data=exam_data)
+    exam = ExamSerializer(data=exam_data, context={"mutator": True})
     exam.is_valid(raise_exception=True)
     return exam.save()
 
@@ -87,7 +84,7 @@ def create_random_exam(
 
     def create_exam_instance(exam_data: Dict[str, Any]) -> Any:
         # * Create Exam
-        exam = ExamEditSerializer(data=exam_data)
+        exam = ExamSerializer(data=exam_data, context={"mutator": True})
         exam.is_valid(raise_exception=True)
         return exam.save()
 
@@ -112,4 +109,4 @@ def create_random_exam(
 
     exam_qs = Exam.get_detail_queryset(all=True).filter(id=exam_instance.id)  # type: ignore
 
-    return ExamDetailSerializer(exam_qs.first()).data
+    return ExamSerializer(exam_qs.first(), context={"selector": True}).data

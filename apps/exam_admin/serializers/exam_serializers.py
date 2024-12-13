@@ -14,37 +14,8 @@ from apps.questionbank.serializers.education_level_serializers import (
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
-class ExamEditSerializer(BaseModelSerializer):
+class ExamSerializer(BaseModelSerializer):
     subjects = serializers.ListField(child=serializers.IntegerField())
-
-    class Meta:
-        model = Exam
-        fields = [
-            "id",
-            "name",
-            "code",
-            "abbreviation",
-            "instructions",
-            "education_level",
-            "organization",
-            "total_marks",
-            "pass_marks",
-            "exam_status",
-            "is_public",
-            "is_global",
-            "subjects",
-        ] + get_base_model_fields()
-
-    def create(self, validated_data):
-        self.fields.pop("subjects")
-        subjects = validated_data.pop("subjects")
-        exam = super().create(validated_data)
-        exam.subjects.set(subjects)
-        return exam
-
-
-class ExamDetailSerializer(BaseModelSerializer):
-    education_level = EducationLevelSerializer()
     questions = serializers.SerializerMethodField()
     sections = serializers.SerializerMethodField()
     exam_subjects = serializers.SerializerMethodField()
@@ -64,10 +35,22 @@ class ExamDetailSerializer(BaseModelSerializer):
             "exam_status",
             "is_public",
             "is_global",
+            "subjects",
             "exam_subjects",
             "questions",
             "sections",
         ] + get_base_model_fields()
+
+    def __init__(self, *args, **kwargs):
+        self._context = kwargs.get("context", {})
+        if self._context.get("selector", False):
+            self.fields.pop("subjects")
+            self.fields["education_level"] = EducationLevelSerializer()
+        if self._context.get("mutator", False):
+            self.fields.pop("exam_subjects")
+            self.fields.pop("questions")
+            self.fields.pop("sections")
+        super().__init__(*args, **kwargs)
 
     def get_exam_subjects(self, obj):
         exam_subjects = obj.examsubject_set.all()
@@ -192,6 +175,13 @@ class ExamDetailSerializer(BaseModelSerializer):
                         existing_subsections.add(one_subsection_in_hashmap_id)
 
         return exam_sections
+
+    def create(self, validated_data):
+        self.fields.pop("subjects")
+        subjects = validated_data.pop("subjects")
+        exam = super().create(validated_data)
+        exam.subjects.set(subjects)
+        return exam
 
 
 class ExamDetailSerializerForBacklogs(BaseModelSerializer):
