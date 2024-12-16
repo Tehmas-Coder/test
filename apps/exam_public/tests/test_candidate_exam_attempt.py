@@ -3,6 +3,9 @@ import json
 from rest_framework import status
 
 from apps.exam_public.tests.test_candidate_exam import CandidateExamUnitTest
+from apps.exam_public.tests.test_candidate_exam_answer import (
+    CandidateExamAnswerUnitTest,
+)
 from core.test_setup import TestSetUp
 from utils.rna_utils import (
     debug_print,
@@ -101,6 +104,23 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
 
+        # --------------------------- Submitting an Answer --------------------------- #
+
+        candidate_exam = CandidateExamUnitTest.do_get_one_candidate_exam(self, candidate_exam["id"])  # type: ignore
+
+        request_body = {
+            "candidate_exam": candidate_exam["id"],
+            "answers": [
+                {
+                    "exam_backlog_question": candidate_exam["exam_backlog"]["questions"][0]["id"],
+                    "exam_backlog_question_choice": candidate_exam["exam_backlog"]["questions"][0]["choices"][0]["id"],
+                    "answer_text": None,
+                    "answer_files": [],
+                },
+            ],
+        }
+        CandidateExamAnswerUnitTest.do_create_candidate_exam_answer(self, request_body={"data": json.dumps(request_body)})  # type: ignore
+
         # * -------------------- Test for sending the next question by sending the latest attempted question id -------------------- #
         encrypted_data = json_data.get("key")
         decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
@@ -116,6 +136,19 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             self.assertIn(one_field, json_data)
         self.assertEqual(json_data["question"]["id"], all_questions[1]["id"])
 
+        request_body = {
+            "candidate_exam": candidate_exam["id"],
+            "answers": [
+                {
+                    "exam_backlog_question": candidate_exam["exam_backlog"]["questions"][1]["id"],
+                    "exam_backlog_question_choice": None,
+                    "answer_text": "Hello Answer",
+                    "answer_files": [],
+                },
+            ],
+        }
+        CandidateExamAnswerUnitTest.do_create_candidate_exam_answer(self, request_body={"data": json.dumps(request_body)})  # type: ignore
+
         # * -------------------- Test for sending the next question with just the key-------------------- #
         encrypted_data = json_data.get("key")
         decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
@@ -128,7 +161,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         json_data = response.data  # type: ignore
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
-        self.assertEqual(json_data["question"]["id"], all_questions[0]["id"])
+        self.assertEqual(json_data["question"]["id"], all_questions[2]["id"])
 
 
 # ?###################################################

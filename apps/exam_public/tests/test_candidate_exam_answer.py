@@ -117,9 +117,9 @@ class CandidateExamAnswerTest(CandidateExamAnswerUnitTest):
             "candidate_exam": candidate_exam["id"],
             "answers": [
                 {
-                    "exam_backlog_question": candidate_exam["exam_backlog"]["questions"][1]["id"],
-                    "exam_backlog_question_choice": None,
-                    "answer_text": "answer 123",
+                    "exam_backlog_question": candidate_exam["exam_backlog"]["questions"][0]["id"],
+                    "exam_backlog_question_choice": candidate_exam["exam_backlog"]["questions"][0]["choices"][0]["id"],
+                    "answer_text": None,
                     "answer_files": ["file_1", "file_2"],
                 },
             ],
