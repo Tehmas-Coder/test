@@ -57,8 +57,7 @@ class AttemptCandidateExamUnitTest(TestSetUp):
             headers=self.headers,
             data=request_body,
         )
-        validate_success_200_test_response(self, response)
-        return response.data  # type: ignore
+        return response
 
 
 class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
@@ -72,7 +71,15 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
     # ?              TESTS - CASES
     # ?###################################################
     def test_cases_candidate_exam(self):
+        self.failed_attemptation_of_an_exam_test_missing_candidate_exam_id()
         self.successfull_attemptation_of_an_exam_test()
+
+    def failed_attemptation_of_an_exam_test_missing_candidate_exam_id(self):
+        request_body = {
+            "exam_status": "attempted",
+        }
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_failed_400_test_response(self, response)
 
     def successfull_attemptation_of_an_exam_test(self):
         candidate_exam_assignemt_request_body = {
@@ -88,7 +95,9 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             "candidate_exam_id": candidate_exam["id"],
             "exam_status": "attempted",
         }
-        json_data = self.do_attempt_one_sequential_candidate_exam(request_body)
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_success_200_test_response(self, response)
+        json_data = response.data  # type: ignore
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
 
@@ -100,7 +109,9 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             "key": encrypted_data,
             "question_backlog_id": all_questions[0]["id"],
         }
-        json_data = self.do_attempt_one_sequential_candidate_exam(request_body)
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_success_200_test_response(self, response)
+        json_data = response.data  # type: ignore
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
         self.assertEqual(json_data["question"]["id"], all_questions[1]["id"])
@@ -112,7 +123,9 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         request_body = {
             "key": encrypted_data,
         }
-        json_data = self.do_attempt_one_sequential_candidate_exam(request_body)
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_success_200_test_response(self, response)
+        json_data = response.data  # type: ignore
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
         self.assertEqual(json_data["question"]["id"], all_questions[0]["id"])
@@ -175,4 +188,18 @@ def validate_failed_404_test_response(self, response):
         response_status_code,
         status.HTTP_404_NOT_FOUND,
         f" 'status_code' 404 was expected, but received 'status_code' ({response_status_code})",
+    )
+
+
+def validate_failed_400_test_response(self, response):
+    response_status_code = response.status_code
+    if response_status_code == status.HTTP_400_BAD_REQUEST:
+        print_test_passed()
+    else:
+        print_test_failed()
+        print(response.content)
+    self.assertEqual(
+        response_status_code,
+        status.HTTP_400_BAD_REQUEST,
+        f" 'status_code' 400 was expected, but received 'status_code' ({response_status_code})",
     )
