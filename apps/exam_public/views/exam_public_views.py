@@ -888,13 +888,13 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
                 CandidateExamAnswer(
                     candidate_exam_id=candidate_exam_id,
                     exam_backlog_question_id=one_dict["exam_backlog_question"],
-                    exam_backlog_question_choice_id=one_dict["exam_backlog_question_choice"],
+                    exam_backlog_question_choice_id=one_dict.get("exam_backlog_question_choice"),
                     exam_backlog_question_choice_title=(
-                        exam_backlog_question_choices_hashmap[one_dict["exam_backlog_question_choice"]]
-                        if one_dict["exam_backlog_question_choice"] != None
+                        exam_backlog_question_choices_hashmap[one_dict.get("exam_backlog_question_choice")]
+                        if one_dict.get("exam_backlog_question_choice") != None
                         else None
                     ),
-                    answer_text=one_dict.get("answer_text", None),
+                    answer_text=one_dict.get("answer_text"),
                     is_attempted=True,
                 )
                 for one_dict in request_data
