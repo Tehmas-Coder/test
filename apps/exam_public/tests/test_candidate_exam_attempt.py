@@ -49,8 +49,8 @@ class AttemptCandidateExamUnitTest(TestSetUp):
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_attempt_one_candidate_exam(self, request_body):
-        print_test_header("Attempt_candidate_exam")
+    def do_attempt_one_sequential_candidate_exam(self, request_body):
+        print_test_header("Attempt_sequential_candidate_exam")
         url = "/api/attempt-candidate-exam/"
         response = self.client.post(
             url,
@@ -88,7 +88,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             "candidate_exam_id": candidate_exam["id"],
             "exam_status": "attempted",
         }
-        json_data = self.do_attempt_one_candidate_exam(request_body)
+        json_data = self.do_attempt_one_sequential_candidate_exam(request_body)
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
 
@@ -100,7 +100,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             "key": encrypted_data,
             "question_backlog_id": all_questions[0]["id"],
         }
-        json_data = self.do_attempt_one_candidate_exam(request_body)
+        json_data = self.do_attempt_one_sequential_candidate_exam(request_body)
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
         self.assertEqual(json_data["question"]["id"], all_questions[1]["id"])
@@ -112,7 +112,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         request_body = {
             "key": encrypted_data,
         }
-        json_data = self.do_attempt_one_candidate_exam(request_body)
+        json_data = self.do_attempt_one_sequential_candidate_exam(request_body)
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
         self.assertEqual(json_data["question"]["id"], all_questions[0]["id"])
