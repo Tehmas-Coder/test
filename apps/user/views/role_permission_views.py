@@ -64,8 +64,11 @@ class RoleViewSet(viewsets.ModelViewSet):
         try:
             temp_ref = self.kwargs["pk"]
             is_id = temp_ref.isdigit()
-            requested_user_organization_id = get_current_user_organization()
-            role_slug = slugify(f"{requested_user_organization_id}-{temp_ref}")
+            if not get_current_user().is_superuser:  # type: ignore
+                requested_user_organization_id = get_current_user_organization()
+                role_slug = slugify(f"{requested_user_organization_id}-{temp_ref}")
+            else:
+                role_slug = temp_ref
             self.kwargs["pk"] = Role.objects.get(slug=role_slug).pk if not is_id else temp_ref
             response_data = super().retrieve(request, *args, **kwargs).data
             if (not get_current_user().is_superuser) and response_data["organization"]:  # type: ignore

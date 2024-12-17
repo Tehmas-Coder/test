@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import QuerySet
 
+from apps.lookups.helpers.queryset_functions import get_organization_detailed_queryset
 from core.models import BaseUserModel
 
 
@@ -193,3 +195,7 @@ class Organization(BaseUserModel):
 
     class Meta:
         app_label = "lookups"
+
+    @classmethod
+    def get_detailed_queryset(cls, country=False, organization_users=False, organization_candidates=False) -> QuerySet:
+        return get_organization_detailed_queryset(cls, country, organization_users, organization_candidates)

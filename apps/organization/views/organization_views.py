@@ -18,41 +18,22 @@ from apps.user.models.user_models import BaseUser
 class OrganizationRelatedViewset(viewsets.ViewSet):
 
     def get_organization_users_list(self, request, *args, **kwargs):
-        logged_in_user = request.user
         organization_id = kwargs.get("id", None)
-
-        filtered_organization_queryset = Organization.objects.filter(id=organization_id)
-        organization_with_users_list = OrganizationWithUsersListSerializer(
-            filtered_organization_queryset.prefetch_related(
-                Prefetch(
-                    "organization_users",
-                    OrganizationUser.objects.all()
-                    .select_related(
-                        "user",
-                        "user__country",
-                        "user__profile_picture",
-                    )
-                    .prefetch_related(
-                        "user__roles",
-                        "user__roles__role_permissions",
-                        "user__roles__role_permissions__permission",
-                    ),
-                )
-            ),
-            many=True,
-        ).data
-
-        if len(organization_with_users_list):
-            response_data = organization_with_users_list[0]
-        else:
-            response_data = organization_with_users_list
-
+        filtered_organization = Organization.get_detailed_queryset(organization_users=True).filter(id=organization_id).first()
+        response_data = (
+            OrganizationWithUsersListSerializer(
+                filtered_organization,
+            ).data
+            if filtered_organization
+            else {}
+        )
         return Response(response_data, status=status.HTTP_200_OK)
 
     def get_organization_candidates_list(self, request, *args, **kwargs):
         logged_in_user = request.user
         organization_id = kwargs.get("id", None)
 
+        # TODO: Need to fix this API, fix the organization check here
         organization_queryset = Organization.objects.filter(id=organization_id)
 
         filtered_organization_queryset = []
