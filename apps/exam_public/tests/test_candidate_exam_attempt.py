@@ -2,6 +2,7 @@ import json
 
 from rest_framework import status
 
+from apps.exam_public.models.exam_public_models import CandidateExamAnswer
 from apps.exam_public.tests.test_candidate_exam import CandidateExamUnitTest
 from apps.exam_public.tests.test_candidate_exam_answer import (
     CandidateExamAnswerUnitTest,
@@ -53,13 +54,46 @@ class AttemptCandidateExamUnitTest(TestSetUp):
     # ?                  UNIT - TESTS
     # ?###################################################
     def do_attempt_one_sequential_candidate_exam(self, request_body):
-        print_test_header("Attempt_sequential_candidate_exam")
+        print_test_header("attempt_sequential_candidate_exam")
         url = "/api/attempt-candidate-exam/"
         response = self.client.post(
             url,
             headers=self.headers,
             data=request_body,
         )
+        return response
+
+    def do_submit_candidate_exam(self, candidate_exam_id):
+        print_test_header("submit_candidate_exam")
+        url = f"/api/candidate-exam/{candidate_exam_id}/submit/"
+        response = self.client.post(
+            url,
+            headers=self.headers,
+            data=None,
+        )
+        validate_success_200_test_response(self, response)
+        return response
+
+    def do_mark_candidate_exam(self, request_body):
+        print_test_header("mark_candidate_exam")
+        url = f"/api/mark-candidate-exam/"
+        response = self.client.post(
+            url,
+            headers=self.headers,
+            data=request_body,
+            content_type="application/json",
+        )
+        validate_success_200_test_response(self, response)
+        return response
+
+    def do_show_scoresheet_of_candidate_exam(self, candidate_exam_id):
+        print_test_header("show_scoresheet_of_candidate_exam")
+        url = f"/api/candidate-exam-scoresheet/{candidate_exam_id}/"
+        response = self.client.get(
+            url,
+            headers=self.headers,
+        )
+        validate_success_200_test_response(self, response)
         return response
 
 
@@ -104,7 +138,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
 
-        # --------------------------- Submitting an Answer --------------------------- #
+        # * --------------------------- Submitting an Answer --------------------------- #
 
         candidate_exam = CandidateExamUnitTest.do_get_one_candidate_exam(self, candidate_exam["id"])  # type: ignore
 
@@ -121,7 +155,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         }
         CandidateExamAnswerUnitTest.do_create_candidate_exam_answer(self, request_body={"data": json.dumps(request_body)})  # type: ignore
 
-        # * -------------------- Test for sending the next question by sending the latest attempted question id -------------------- #
+        # -------------------- Test for sending the next question by sending the latest attempted question id -------------------- #
         encrypted_data = json_data.get("key")
         decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
         all_questions = decrypted_data["all_questions"]
@@ -136,6 +170,8 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             self.assertIn(one_field, json_data)
         self.assertEqual(json_data["question"]["id"], all_questions[1]["id"])
 
+        # * --------------------------- Submitting an Answer --------------------------- #
+
         request_body = {
             "candidate_exam": candidate_exam["id"],
             "answers": [
@@ -149,7 +185,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         }
         CandidateExamAnswerUnitTest.do_create_candidate_exam_answer(self, request_body={"data": json.dumps(request_body)})  # type: ignore
 
-        # * -------------------- Test for sending the next question with just the key-------------------- #
+        # -------------------- Test for sending the next question with just the key-------------------- #
         encrypted_data = json_data.get("key")
         decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
         all_questions = decrypted_data["all_questions"]
@@ -162,6 +198,29 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         for one_field in self.list_of_fields:
             self.assertIn(one_field, json_data)
         self.assertEqual(json_data["question"]["id"], all_questions[2]["id"])
+
+        # * ------------------------------ Exam Submission ----------------------------- #
+
+        self.do_submit_candidate_exam(candidate_exam_id=candidate_exam["id"])
+
+        # * ------------------------------- Exam Marking ------------------------------- #
+
+        candidate_exam_answer_id = list(CandidateExamAnswer.objects.filter(candidate_exam=candidate_exam["id"]).values_list("id", flat=True))[1]
+        request_body = {
+            "candidate_exam_id": candidate_exam["id"],
+            "questions_scores": [
+                {
+                    "candidate_exam_answer": candidate_exam_answer_id,
+                    "score": 10,
+                }
+            ],
+        }
+        response = self.do_mark_candidate_exam(json.dumps(request_body))
+
+        # * ------------------------------ Exam Scoresheet ----------------------------- #
+
+        response = self.do_show_scoresheet_of_candidate_exam(candidate_exam_id=candidate_exam["id"])
+        self.assertNotEqual(response.data["obtained_marks"], None)  # type: ignore
 
 
 # ?###################################################
