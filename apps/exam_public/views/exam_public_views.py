@@ -136,18 +136,25 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         .select_related(
             "exam_backlog",
             "schedule",
-            "candidate",
-            "candidate__user",
-            "candidate__user__country",
-            "candidate__user__profile_picture",
-            "candidate__organization",
-            "candidate__organization__country",
         )
         .prefetch_related(
             Prefetch(
-                "candidate__user__roles",
-                queryset=Role.objects.all().prefetch_related(
-                    Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+                "candidate",
+                queryset=Candidate.objects.all()
+                .select_related(
+                    "organization",
+                    "organization__country",
+                    "user",
+                    "user__country",
+                    "user__profile_picture",
+                )
+                .prefetch_related(
+                    Prefetch(
+                        "user__roles",
+                        queryset=Role.objects.all().prefetch_related(
+                            Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+                        ),
+                    )
                 ),
             ),
         )
@@ -853,10 +860,6 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
         request_data = json.loads(request.data["data"])
         candidate_exam_id = request_data.pop("candidate_exam")
         request_data = request_data.pop("answers")
-
-        # * This is for the use case in which if the user haven't even attempted a single question and submitted that exam in that case the front end will request for the creation of candidate exama nswers but there will be none to store it will just pass the api.
-        if not len(request_data):
-            return Response(status=status.HTTP_201_CREATED)
 
         # * Extract media for answers
         answer_media_hashmap = {}
