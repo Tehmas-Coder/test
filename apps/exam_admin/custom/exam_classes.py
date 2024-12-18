@@ -71,6 +71,8 @@ class ExamService:
             except ValueError as e:
                 ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))
 
+        serializer = self.serializer_class(data=request_data, context={"mutator": True})
+        serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         response_data = ExamSerializer(self.queryset.filter(pk=exam.id).first(), context={"selector": True}).data  # type:ignore
         return Response(response_data, status=status.HTTP_201_CREATED)
