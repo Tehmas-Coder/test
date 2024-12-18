@@ -776,7 +776,15 @@ class AttemptCandidateExamAPI(views.APIView):
         response_data = {}
 
         if "key" not in request_data:
-            candidate_exam_id = request_data.get("candidate_exam_id")
+            if "token" in request_data:
+                try:
+                    token = request_data["token"]
+                    decrypted_data = json.loads(decrypt_message(token, get_encryption_key()))
+                    candidate_exam_id = decrypted_data["candidate_exam_id"]
+                except:
+                    return make_error_response(message="Invalid token")
+            else:
+                candidate_exam_id = request_data.get("candidate_exam_id")
             if not candidate_exam_id:
                 return make_error_response(message="Candidate Exam ID is required")
 
