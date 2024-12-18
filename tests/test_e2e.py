@@ -44,6 +44,7 @@ from apps.user.tests.test_login import LoginUnitTest
 from apps.user.tests.test_user import UserUnitTest
 from core.test_setup import TestSetUp
 from utils.rna_utils import (
+    color_print,
     debug_print,
     print_test_failed,
     print_test_header,
@@ -95,6 +96,11 @@ class AdminEndToEndTest(TestSetUp):
     ]
 
     def test_admin_e2e(self):
+        color_print("*****************************************************************************************", "yellow")
+        color_print("*****************************************************************************************", "yellow")
+        color_print("*****************************************************************************************", "yellow")
+        print_test_header("End to End Test")
+
         # ---------------------------- Organization Creation --------------------------- #
         organization_request_body = {
             "name": "Test Org",
