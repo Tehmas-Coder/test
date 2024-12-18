@@ -3,6 +3,11 @@ import json
 from rest_framework import status
 from rest_framework.response import Response
 
+from apps.exam_admin.tests.test_exam import ExamUnitTest
+from apps.exam_admin.tests.test_schedule import ScheduleUnitTest
+from apps.exam_admin.tests.test_section import SectionUnitTest
+from apps.exam_admin.tests.test_subsection import SubSectionUnitTest
+from apps.exam_public.tests.test_candidate_exam import CandidateExamUnitTest
 from apps.lookups.tests.test_tag import TagUnitTest
 from apps.organization.tests.test_organization import OrganizationUnitTest
 from apps.questionbank.tests.test_education_level import EducationLevelUnitTest
@@ -28,7 +33,12 @@ from apps.user.models.user_models import BaseUser
 from apps.user.tests.test_login import LoginUnitTest
 from apps.user.tests.test_user import UserUnitTest
 from core.test_setup import TestSetUp
-from utils.rna_utils import debug_print, print_test_failed, print_test_passed
+from utils.rna_utils import (
+    debug_print,
+    print_test_failed,
+    print_test_header,
+    print_test_passed,
+)
 
 
 class AdminEndToEndTest(TestSetUp):
@@ -236,6 +246,90 @@ class AdminEndToEndTest(TestSetUp):
         }
         question_attempt_response_response: dict = QuestionAttemptResponseUnitTest.do_create_question_attempt_response(self, question_attempt_response_request_body)  # type: ignore
         request_response_values_asserter(self, question_attempt_response_request_body, question_attempt_response_response)
+
+        # ------------------------------- Exam Creation ------------------------------ #
+        exam_request_body = {
+            "name": "Test Exam",
+            "code": "TE-1",
+            "abbreviation": "TE",
+            "instructions": "asd",
+            "education_level": education_level_response["id"],
+            "total_marks": 15,
+            "pass_marks": 5,
+            "exam_status": "draft",
+            "is_global": 0,
+            "subjects": [subject_education_level_response["id"]],
+        }
+        exam_response: dict = ExamUnitTest.do_create_exam(self, json.dumps(exam_request_body))  # type: ignore
+        del exam_request_body["subjects"]
+        request_response_values_asserter(self, exam_request_body, exam_response)
+
+        # ---------------------------- Exam Section Creation --------------------------- #
+        exam_section_request_body = {
+            "exam": exam_response["id"],
+            "measuring_unit": 2,
+            "title": "Test Section",
+            "sequence": 1,
+            "time_limit": 10,
+        }
+        exam_section_response: dict = SectionUnitTest.do_create_section(self, json.dumps(exam_section_request_body))  # type: ignore
+        request_response_values_asserter(self, exam_section_request_body, exam_section_response)
+
+        # ------------------------- Exam Subsection Creation ------------------------- #
+        exam_subsection_request_body = {
+            "section": exam_section_response["id"],
+            "measuring_unit": 2,
+            "title": "Test Subsection",
+            "sequence": 1,
+            "time_limit": 10,
+        }
+        exam_subsection_response: dict = SubSectionUnitTest.do_create_subsection(self, json.dumps(exam_subsection_request_body))  # type: ignore
+        request_response_values_asserter(self, exam_subsection_request_body, exam_subsection_response)
+
+        # ----------------------------- Schedule Creation ---------------------------- #
+        schedule_request_body = {
+            "title": "Test Schedule",
+            "start_datetime": "2022-10-10 10:00:00",
+            "end_datetime": "2025-10-10 11:00:00",
+            "waiting_duration": 10,
+            "extra_duration": 10,
+            "description": "Test Schedule Description",
+        }
+        schedule_response: dict = ScheduleUnitTest.do_create_schedule(self, json.dumps(schedule_request_body))  # type: ignore
+        del schedule_request_body["start_datetime"]
+        del schedule_request_body["end_datetime"]
+        request_response_values_asserter(self, schedule_request_body, schedule_response)
+
+        # ---------------------------- Candidate Creation --------------------------- #
+        candidate_request_body = {
+            "email": "test_candidate@gmail.com",
+            "first_name": "Test",
+            "last_name": "Candidate",
+            "password": "12345678",
+            "phone": "+9323346489529",
+            "roles": [4],
+        }
+        print_test_header("create_candidate")
+        candidate_response: dict = UserUnitTest.do_create_user(self, json.dumps(candidate_request_body))  # type: ignore
+        validate_success_201_test_response(self, candidate_response)
+        request_response_values_asserter(self, candidate_request_body, candidate_response)
+
+        # ----------------------------- Verify Candidate ----------------------------- #
+        candidate_instance: BaseUser = BaseUser.objects.last()  # type: ignore
+        candidate_instance.is_verified = True
+        candidate_instance.save()
+
+        # ---------------------------- Candidate Exam Creation --------------------------- #
+        candidate_exam_request_body = {
+            "candidates": [
+                "test_candidate@gmail.com",
+            ],
+            "exam": exam_response["id"],
+            "schedule": schedule_response["id"],
+            "exam_duration": 120,
+        }
+        candidate_exam_response: dict = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_request_body))  # type: ignore
+        request_response_values_asserter(self, candidate_exam_request_body, candidate_exam_response)
 
 
 # ?###################################################
