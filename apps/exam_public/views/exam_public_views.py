@@ -537,7 +537,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         candidate_exam_retryhints_ids = CandidateExamRetryhint.objects.filter(
             candidate_exam_id=candidate_exam_id, exam_backlog_question_id=question_backlog_id
         ).values_list("exam_backlog_question_retry_hint", flat=True)
-        exam_backlog_question = ExamBacklogQuestion.objects.get(id=question_backlog_id)
+        exam_backlog_question = ExamBacklogQuestion.objects.filter(id=question_backlog_id).first()
+        if not exam_backlog_question:
+            return make_error_response(message="Question not found")
         if len(candidate_exam_retryhints_ids) >= exam_backlog_question.max_retries:
             return make_error_response(message="Max retries limit reached.")
         else:
