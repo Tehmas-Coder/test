@@ -86,7 +86,7 @@ class AttemptCandidateExamUnitTest(TestSetUp):
         validate_success_200_test_response(self, response)
         return response
 
-    def do_show_scoresheet_of_candidate_exam(self, candidate_exam_id):
+    def do_get_scoresheet_of_candidate_exam(self, candidate_exam_id):
         print_test_header("show_scoresheet_of_candidate_exam")
         url = f"/api/candidate-exam-scoresheet/{candidate_exam_id}/"
         response = self.client.get(
@@ -219,7 +219,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
 
         # * ------------------------------ Exam Scoresheet ----------------------------- #
 
-        response = self.do_show_scoresheet_of_candidate_exam(candidate_exam_id=candidate_exam["id"])
+        response = self.do_get_scoresheet_of_candidate_exam(candidate_exam_id=candidate_exam["id"])
         self.assertNotEqual(response.data["obtained_marks"], None)  # type: ignore
 
 
