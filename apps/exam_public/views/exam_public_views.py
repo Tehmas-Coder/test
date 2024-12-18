@@ -829,7 +829,7 @@ class AttemptCandidateExamAPI(views.APIView):
                     return make_error_response(message="Invalid Question ID")
                 next_question_index = previous_question_index + 1
                 if next_question_index >= len(all_questions):
-                    return make_error_response(message="No more questions")
+                    return Response(status=status.HTTP_204_NO_CONTENT)
                 response_data["question"] = all_questions[next_question_index]
             else:
                 response_data["question"] = all_questions[0]
