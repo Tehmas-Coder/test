@@ -3,11 +3,20 @@ import json
 from rest_framework import status
 from rest_framework.response import Response
 
+from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.tests.test_exam import ExamUnitTest
+from apps.exam_admin.tests.test_exam_subject_question import ExamSubjectQuestionUnitTest
 from apps.exam_admin.tests.test_schedule import ScheduleUnitTest
 from apps.exam_admin.tests.test_section import SectionUnitTest
 from apps.exam_admin.tests.test_subsection import SubSectionUnitTest
+from apps.exam_public.models.exam_public_models import CandidateExam
 from apps.exam_public.tests.test_candidate_exam import CandidateExamUnitTest
+from apps.exam_public.tests.test_candidate_exam_answer import (
+    CandidateExamAnswerUnitTest,
+)
+from apps.exam_public.tests.test_candidate_exam_attempt import (
+    AttemptCandidateExamUnitTest,
+)
 from apps.lookups.tests.test_tag import TagUnitTest
 from apps.organization.tests.test_organization import OrganizationUnitTest
 from apps.questionbank.tests.test_education_level import EducationLevelUnitTest
@@ -254,8 +263,8 @@ class AdminEndToEndTest(TestSetUp):
             "abbreviation": "TE",
             "instructions": "asd",
             "education_level": education_level_response["id"],
-            "total_marks": 15,
-            "pass_marks": 5,
+            "total_marks": 20,
+            "pass_marks": 20,
             "exam_status": "draft",
             "is_global": 0,
             "subjects": [subject_education_level_response["id"]],
@@ -285,6 +294,25 @@ class AdminEndToEndTest(TestSetUp):
         }
         exam_subsection_response: dict = SubSectionUnitTest.do_create_subsection(self, json.dumps(exam_subsection_request_body))  # type: ignore
         request_response_values_asserter(self, exam_subsection_request_body, exam_subsection_response)
+
+        # ---------------------- Exam Subject Question Creation ---------------------- #
+        exam_subject_question_request_body = {
+            "exam_subject": {
+                "subject_education_level": subject_education_level_response["id"],
+                "exam": exam_response["id"],
+            },
+            "question": question_response["id"],
+            "section": exam_section_response["id"],
+            "subsection": exam_subsection_response["id"],
+            "sequence": 1,
+            "total_marks": 20,
+        }
+        exam_subject_question_response: dict = ExamSubjectQuestionUnitTest.do_create_exam_subject_question(self, json.dumps(exam_subject_question_request_body))  # type: ignore
+        del exam_subject_question_request_body["exam_subject"]
+        request_response_values_asserter(self, exam_subject_question_request_body, exam_subject_question_response)
+        exam_instance: Exam = Exam.objects.last()  # type: ignore
+        exam_instance.exam_status = "active"
+        exam_instance.save()
 
         # ----------------------------- Schedule Creation ---------------------------- #
         schedule_request_body = {
@@ -330,6 +358,55 @@ class AdminEndToEndTest(TestSetUp):
         }
         candidate_exam_response: dict = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_request_body))  # type: ignore
         request_response_values_asserter(self, candidate_exam_request_body, candidate_exam_response)
+
+        # --------------------------- Candidate Logging In --------------------------- #
+        self.custom_login(email="test_candidate@gmail.com", password="12345678")
+
+        # ---------------------------- Candidate Exam Attemptation --------------------------- #
+        candidate_exam_attemptation_request_body = {
+            "candidate_exam_id": candidate_exam_response["id"],
+            "exam_status": "attempted",
+        }
+        candidate_exam_attemptation_response: Response = AttemptCandidateExamUnitTest.do_attempt_one_sequential_candidate_exam(self, candidate_exam_attemptation_request_body)  # type: ignore
+        validate_success_200_test_response(self, candidate_exam_attemptation_response)
+        candidate_exam_attemptation_response = candidate_exam_attemptation_response.data  # type: ignore
+        candidate_exam_attemptation_list_of_fields = ["question", "candidate_exam", "key"]
+        for field in candidate_exam_attemptation_list_of_fields:
+            self.assertIn(field, candidate_exam_attemptation_response)
+        candidate_exam_detailed_response = CandidateExamUnitTest.do_get_one_candidate_exam(self, candidate_exam_response["id"])  # type: ignore
+        self.assertEqual(candidate_exam_detailed_response["exam_status"], "attempted")
+
+        # ---------------------- Candidate Exam Answer Creation ---------------------- #
+        candidate_exam_answer_request_body = {
+            "candidate_exam": candidate_exam_detailed_response["id"],
+            "answers": [
+                {
+                    "exam_backlog_question": candidate_exam_detailed_response["exam_backlog"]["sections"][0]["subsections"][0]["questions"][0]["id"],
+                    "exam_backlog_question_choice": candidate_exam_detailed_response["exam_backlog"]["sections"][0]["subsections"][0]["questions"][0][
+                        "choices"
+                    ][0]["id"],
+                    "answer_text": None,
+                    "answer_files": [],
+                },
+            ],
+        }
+        candidate_exam_answer_response: dict = CandidateExamAnswerUnitTest.do_create_candidate_exam_answer(self, {"data": json.dumps(candidate_exam_answer_request_body)})  # type: ignore
+
+        # ------------------------- Candidate Exam Submission ------------------------ #
+        AttemptCandidateExamUnitTest.do_submit_candidate_exam(self, candidate_exam_detailed_response["id"])  # type: ignore
+        candidate_exam_instance: CandidateExam = CandidateExam.objects.last()  # type: ignore
+        self.assertEqual(candidate_exam_instance.exam_status, "submitted")
+
+        # -------------------------- Candidate Exam Marking -------------------------- #
+        candidate_exam_marking_request_body = {"candidate_exam_id": candidate_exam_detailed_response["id"], "questions_scores": []}
+        AttemptCandidateExamUnitTest.do_mark_candidate_exam(self, json.dumps(candidate_exam_marking_request_body))  # type: ignore
+        candidate_exam_instance.refresh_from_db()
+        self.assertEqual(candidate_exam_instance.exam_status, "scored")
+
+        # -------------------------- Candidate Exam Scoresheet -------------------------- #
+        candidate_exam_scoresheet_response: Response = AttemptCandidateExamUnitTest.do_get_scoresheet_of_candidate_exam(self, candidate_exam_detailed_response["id"])  # type: ignore
+        self.assertEqual(candidate_exam_scoresheet_response.data["obtained_marks"], 20)  # type: ignore
+        self.assertEqual(candidate_exam_scoresheet_response.data["exam_status"], "scored")  # type: ignore
 
 
 # ?###################################################
