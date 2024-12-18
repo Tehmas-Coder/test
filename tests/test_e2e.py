@@ -17,6 +17,7 @@ from apps.exam_public.tests.test_candidate_exam_answer import (
 from apps.exam_public.tests.test_candidate_exam_attempt import (
     AttemptCandidateExamUnitTest,
 )
+from apps.exam_public.tests.test_fetch_retry_hint import CandidateExamRetryHintUnitTest
 from apps.lookups.tests.test_tag import TagUnitTest
 from apps.organization.tests.test_organization import OrganizationUnitTest
 from apps.questionbank.tests.test_education_level import EducationLevelUnitTest
@@ -188,7 +189,7 @@ class AdminEndToEndTest(TestSetUp):
                 },
             ],
             "max_retries": 2,
-            "retry_penalty": 1,
+            "retry_penalty": 50,
             "can_shuffle": 1,
             "has_media": 0,
         }
@@ -376,6 +377,23 @@ class AdminEndToEndTest(TestSetUp):
         candidate_exam_detailed_response = CandidateExamUnitTest.do_get_one_candidate_exam(self, candidate_exam_response["id"])  # type: ignore
         self.assertEqual(candidate_exam_detailed_response["exam_status"], "attempted")
 
+        # -------------------- Fetching Candidate Exam Retry Hint -------------------- #
+        question_backlog_id = candidate_exam_detailed_response["exam_backlog"]["sections"][0]["subsections"][0]["questions"][0]["id"]
+        candidate_exam_retry_hint_response: dict = CandidateExamRetryHintUnitTest.do_get_one_candidate_exam_retry_hint(self, candidate_exam_detailed_response["id"], question_backlog_id)  # type: ignore
+        list_of_fields_of_candidate_exam_retry_hint_response = [
+            "id",
+            "text",
+            "sequence",
+            "has_media",
+            "medias",
+        ]
+        for one_field in list_of_fields_of_candidate_exam_retry_hint_response:
+            self.assertIn(
+                one_field,
+                candidate_exam_retry_hint_response,
+                f"The field {one_field} is not present in the response",
+            )
+
         # ---------------------- Candidate Exam Answer Creation ---------------------- #
         candidate_exam_answer_request_body = {
             "candidate_exam": candidate_exam_detailed_response["id"],
@@ -405,7 +423,7 @@ class AdminEndToEndTest(TestSetUp):
 
         # -------------------------- Candidate Exam Scoresheet -------------------------- #
         candidate_exam_scoresheet_response: Response = AttemptCandidateExamUnitTest.do_get_scoresheet_of_candidate_exam(self, candidate_exam_detailed_response["id"])  # type: ignore
-        self.assertEqual(candidate_exam_scoresheet_response.data["obtained_marks"], 20)  # type: ignore
+        self.assertEqual(candidate_exam_scoresheet_response.data["obtained_marks"], 10)  # type: ignore
         self.assertEqual(candidate_exam_scoresheet_response.data["exam_status"], "scored")  # type: ignore
 
 
