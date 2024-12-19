@@ -7,6 +7,7 @@ from apps.lookups.custom.lookups_classes import (
     OrganizationValidator,
     VisibilitySetter,
 )
+from apps.lookups.models.lookup_models import Organization
 from apps.user.utils.utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
@@ -67,12 +68,10 @@ class ExamService:
         if not get_current_user().is_superuser:  # type: ignore
             try:
                 self.organization_validator.validate()
-                request_data["organization"] = get_current_user_organization()
+                serializer.validated_data["organization"] = Organization.objects.filter(id=get_current_user_organization()).first()
             except ValueError as e:
                 ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))
 
-        serializer = self.serializer_class(data=request_data, context={"mutator": True})
-        serializer.is_valid(raise_exception=True)
         exam = serializer.save()
         response_data = ExamSerializer(self.queryset.filter(pk=exam.id).first(), context={"selector": True}).data  # type:ignore
         return Response(response_data, status=status.HTTP_201_CREATED)
