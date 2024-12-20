@@ -13,6 +13,7 @@ from apps.organization.serializers.organization_serializers import (
     OrganizationWithUsersListSerializer,
 )
 from apps.user.models.user_models import BaseUser
+from utils.rna_utils import make_error_response
 
 
 class OrganizationRelatedViewset(viewsets.ViewSet):
@@ -30,43 +31,11 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
         return Response(response_data, status=status.HTTP_200_OK)
 
     def get_organization_candidates_list(self, request, *args, **kwargs):
-        logged_in_user = request.user
-        organization_id = kwargs.get("id", None)
-
-        # TODO: Need to fix this API, fix the organization check here
-        organization_queryset = Organization.objects.filter(id=organization_id)
-
-        filtered_organization_queryset = []
-        if logged_in_user.is_superuser:  # type: ignore
-            filtered_organization_queryset = organization_queryset
-        else:
-            filtered_organization_queryset = organization_queryset.filter(id=organization_id)
-
-        organization_with_candidates_list = OrganizationWithCandidateListSerializer(
-            filtered_organization_queryset.prefetch_related(
-                Prefetch(
-                    "organization_candidates",
-                    Candidate.objects.all()
-                    .select_related(
-                        "user",
-                        "user__country",
-                        "user__profile_picture",
-                    )
-                    .prefetch_related(
-                        "user__roles",
-                        "user__roles__role_permissions",
-                        "user__roles__role_permissions__permission",
-                    ),
-                )
-            ),
-            many=True,
-        ).data
-
-        if logged_in_user.is_superuser == None:  # type: ignore
-            if not len(organization_with_candidates_list):
-                return Response([], status=status.HTTP_200_OK)
-            return Response(organization_with_candidates_list[0], status=status.HTTP_200_OK)
-
+        organization_id = kwargs.get("id")
+        if not organization_id:
+            return make_error_response(message="Organization ID is required.")
+        organization = Organization.get_detailed_queryset(organization_candidates=True).filter(id=organization_id).first()
+        organization_with_candidates_list = OrganizationWithCandidateListSerializer(organization).data if organization else {}
         return Response(organization_with_candidates_list, status=status.HTTP_200_OK)
 
     def get_candidate_organizations_list(self, request, *args, **kwargs):
