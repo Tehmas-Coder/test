@@ -10,4 +10,5 @@ my_lab.py
 *.prof
 profiling
 prod.env
+media
 # migrations

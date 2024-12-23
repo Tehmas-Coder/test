@@ -44,7 +44,15 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 EMAIL_BACKEND = "django_ses.SESBackend"
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+MOCK_FILE_UPLOAD = config("MOCK_FILE_UPLOAD", default=False, cast=bool)
+
+if MOCK_FILE_UPLOAD:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_ROOT = BASE_DIR / "media"
+    MEDIA_URL = "/media/"
+else:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 #! SECURITY WARNING: keep the secret key used in production secret!
 try:
