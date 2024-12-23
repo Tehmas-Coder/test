@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.lookups.models.lookup_models import Organization
+from apps.lookups.models.lookup_models import Organization, Package
 from apps.lookups.serializers.country_serializers import CountrySerializer
 from apps.lookups.serializers.package_serializers import PackageSerializer
 from apps.organization.models.organization_models import OrganizationPackage
@@ -54,7 +54,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class OrganizationEditSerializer(serializers.ModelSerializer):
-    package = serializers.IntegerField(required=False)
+    package = serializers.PrimaryKeyRelatedField(queryset=Package.objects.all(), required=False)
 
     class Meta:
         model = Organization
@@ -70,16 +70,20 @@ class OrganizationEditSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        package = validated_data.pop("package")
+        package = validated_data.pop("package", None)
         organization = super().create(validated_data)
-        OrganizationPackage.objects.create(organization=organization, package_id=package)
+        if package:
+            package_id = package.id
+        else:
+            package_id = 1  # type: ignore
+        OrganizationPackage.objects.create(organization=organization, package_id=package_id)
         return organization
 
     def update(self, instance, validated_data):
         package = validated_data.pop("package", None)
-        if package is not None:
+        if package:
             OrganizationPackage.objects.get(organization=instance).delete()
-            OrganizationPackage.objects.create(organization=instance, package_id=package)
+            OrganizationPackage.objects.create(organization=instance, package_id=package.id)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
