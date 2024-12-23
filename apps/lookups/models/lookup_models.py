@@ -197,5 +197,5 @@ class Organization(BaseUserModel):
         app_label = "lookups"
 
     @classmethod
-    def get_detailed_queryset(cls, country=False, organization_users=False, organization_candidates=False) -> QuerySet:
-        return get_organization_detailed_queryset(cls, country, organization_users, organization_candidates)
+    def get_detailed_queryset(cls, country=False, organization_users=False, organization_candidates=False, organization_packages=False) -> QuerySet:
+        return get_organization_detailed_queryset(cls, country, organization_users, organization_candidates, organization_packages)

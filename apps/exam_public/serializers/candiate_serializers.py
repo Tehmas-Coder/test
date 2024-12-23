@@ -11,7 +11,6 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
 class CandidateSerializer(BaseModelSerializer):
-
     class Meta:
         model = Candidate
         fields = [
@@ -56,8 +55,6 @@ class CandidateWithOrganizationDetailSerializer(BaseModelSerializer):
 
 
 class CandidateWithOrganizationsSerializer(BaseModelSerializer):
-
-    roles = RoleSerializer(many=True, read_only=True, context={"mutator": True})
     country = CountrySerializer(read_only=True)
     user_candidates = CandidateWithOrganizationDetailSerializer(many=True)
 
@@ -70,8 +67,17 @@ class CandidateWithOrganizationsSerializer(BaseModelSerializer):
             "last_name",
             "full_name",
             "date_of_birth",
-            "roles",
             "country",
             "phone",
             "user_candidates",
-        ] + get_base_model_fields()
+            "description",
+            "created_at",
+            "updated_at",
+            "meta_status",
+        ]
+
+        read_only_fields = [
+            "id",
+            "created_at",
+            "updated_at",
+        ]

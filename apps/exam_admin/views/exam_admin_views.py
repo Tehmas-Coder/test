@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import F
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -33,15 +33,8 @@ from apps.lookups.custom.lookups_classes import (
     OrganizationResourceQuerysetMutator,
     OrganizationResourceValidator,
 )
-from apps.lookups.models.lookup_models import Organization
-from apps.organization.models.organization_models import (
-    OrganizationPackage,
-    OrganizationUser,
-)
-from apps.user.utils.utils import get_current_user_organization
 from utils.rna_utils import (
     debug_print,
-    make_error_response,
     make_success_response,
     remove_extra_underscore_from_key_names,
 )
@@ -103,32 +96,6 @@ class ExamViewSet(viewsets.ModelViewSet):
             return {"selector": True}
         if self.action in ["create", "partial_update"]:
             return {"mutator": True}
-
-    @transaction.atomic
-    def creates(self, request, *args, **kwargs):
-        # * Checking Package limit to create Exam for an Organization if the requested user is not superuser
-        if not request.user.is_superuser:
-            request.data["is_public"] = 0
-            organization_id = OrganizationUser.objects.filter(user_id=request.user.id).values_list("organization", flat=True).first()
-            if not organization_id:
-                return make_error_response(message=f"Failed: User doesn't belong to any organization")
-            organization = Organization.objects.get(id=organization_id)
-            # * Checking the usage of exams of Organization package
-            organization_package = OrganizationPackage.objects.filter(organization=organization).annotate(total_exams=F("package__exams")).last()
-            if not (organization_package.exams <= organization_package.total_exams):  # type:ignore
-                return make_error_response(message=f"Failed: Your limit to create exams is reached")
-            # * Assigning Exam to Organization if the requested user is not superuser
-            organization_package.exams = organization_package.exams + 1  # type:ignore
-            organization_package.save()  # type:ignore
-            request.data["organization"] = organization_id
-
-        else:
-            request.data["is_public"] = 1
-
-        exam = super().create(request, *args, **kwargs).data
-
-        response = ExamSerializer(self.queryset.filter(pk=exam["id"]).first(), context={"selector": True}).data  # type:ignore
-        return Response(response, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
