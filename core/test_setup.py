@@ -11,7 +11,7 @@ from apps.user.serializers.user_serializers import UserSerializer
 
 from . import settings
 
-media_test_dir = getattr(settings, "MEDIA_ROOT", None)
+MEDIA_TEST_DIR = getattr(settings, "MEDIA_ROOT", None)
 
 
 class TestSetUp(APITestCase):
@@ -64,8 +64,8 @@ class TestSetUp(APITestCase):
     def tearDown(self):
         super().tearDown()
         if not "--keepdb" in sys.argv:
-            for filename in os.listdir(media_test_dir):
-                file_path = os.path.join(media_test_dir, filename)  # type: ignore
+            for filename in os.listdir(MEDIA_TEST_DIR):
+                file_path = os.path.join(MEDIA_TEST_DIR, filename)  # type: ignore
                 try:
                     if os.path.isfile(file_path) or os.path.islink(file_path):
                         os.unlink(file_path)
