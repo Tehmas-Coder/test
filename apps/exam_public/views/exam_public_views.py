@@ -44,10 +44,6 @@ from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choic
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retryhint_serializer import (
     ExamBacklogQuestionRetryHintSerializer,
 )
-from apps.exam_public.serializers.candiate_serializers import (
-    CandidateDetailSerializer,
-    CandidateSerializer,
-)
 from apps.exam_public.serializers.candidate_exam_answer_serializers import (
     CandidateExamAnswerSerializer,
 )
@@ -57,6 +53,10 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamListSerializer,
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
+)
+from apps.exam_public.serializers.candidate_serializers import (
+    CandidateDetailSerializer,
+    CandidateSerializer,
 )
 from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
@@ -333,22 +333,22 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         if start_date and not end_date:
             start_date = str(start_date)
-            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__date=start_date)
+            q_filter &= Q(candidate_exam_examsbacklog__start_datetime__date=start_date)
 
         if end_date and not start_date:
             end_date = str(end_date)
-            q_filter &= Q(candiate_exam_examsbacklog__end_datetime__date=end_date)
+            q_filter &= Q(candidate_exam_examsbacklog__end_datetime__date=end_date)
 
         if start_date and end_date:
             start_date = str(start_date)
             end_date = str(end_date)
-            q_filter &= Q(candiate_exam_examsbacklog__start_datetime__date__range=[start_date, end_date])
+            q_filter &= Q(candidate_exam_examsbacklog__start_datetime__date__range=[start_date, end_date])
 
         exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
             ExamBacklog.objects.filter(q_filter)
             .prefetch_related(
                 Prefetch(
-                    "candiate_exam_examsbacklog",
+                    "candidate_exam_examsbacklog",
                     queryset=CandidateExam.objects.all()
                     .select_related(
                         "exam_backlog",
@@ -579,7 +579,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             .annotate(penalty_score=Sum("exam_backlog_question__question_fetched_retry_hints__penalty_score"))
         )
 
-        # * Scoring objective type questions answers if the choice is correct then answer is also marked as correct and scored as positive, if the choice is incorrect and weight is 0 then answer is marked as 0 and if the wheigt is negative then marked as negative socre and at the end if user took any retry hints while solving then it minus the sum of penalty scores from the obtained score
+        # * Scoring objective type questions answers if the choice is correct then answer is also marked as correct and scored as positive, if the choice is incorrect and weight is 0 then answer is marked as 0 and if the weight is negative then marked as negative score and at the end if user took any retry hints while solving then it minus the sum of penalty scores from the obtained score
         CandidateExamAnswer.objects.bulk_update(
             [
                 CandidateExamAnswer(
@@ -800,9 +800,9 @@ class AttemptCandidateExamAPI(views.APIView):
                             for one_subsection in subsections:
                                 all_questions.extend(one_subsection["questions"])
 
-            encyption_data = json.dumps({"all_questions": all_questions, "candidate_exam": candidate_exam_data})
+            encryption_data = json.dumps({"all_questions": all_questions, "candidate_exam": candidate_exam_data})
             key = get_encryption_key()
-            encrypted_data = encrypt_message(encyption_data, key)
+            encrypted_data = encrypt_message(encryption_data, key)
             response_data["question"] = all_questions[0] if len(all_questions) else {}
             response_data["candidate_exam"] = candidate_exam_data
             response_data["key"] = encrypted_data

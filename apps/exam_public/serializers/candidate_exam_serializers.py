@@ -8,7 +8,7 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
     ExamBacklogEditSerializer,
     ExamBacklogQuestionScoresheetSerializer,
 )
-from apps.exam_public.serializers.candiate_serializers import CandidateDetailSerializer
+from apps.exam_public.serializers.candidate_serializers import CandidateDetailSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
@@ -114,7 +114,7 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
 
 
 class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
-    candiate_exam_examsbacklog = CandidateExamListSerializer(many=True)
+    candidate_exam_examsbacklog = CandidateExamListSerializer(many=True)
 
     class Meta:
         model = ExamBacklog
@@ -130,7 +130,7 @@ class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
             "total_marks",
             "pass_marks",
             "is_global",
-            "candiate_exam_examsbacklog",
+            "candidate_exam_examsbacklog",
         ] + get_base_model_fields()
 
 

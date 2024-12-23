@@ -3,7 +3,7 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from apps.exam_public.models.exam_public_models import Candidate
-from apps.exam_public.serializers.candiate_serializers import (
+from apps.exam_public.serializers.candidate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
 from apps.lookups.models.lookup_models import Organization

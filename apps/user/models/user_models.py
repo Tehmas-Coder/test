@@ -1,8 +1,7 @@
 from datetime import date, datetime
 from typing import Any
 
-from django.apps import apps
-from django.contrib.auth.models import AbstractUser, AnonymousUser, UserManager
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import IntegrityError, models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -56,7 +55,7 @@ class CustomUserManager(UserManager):
 
 class BaseUser(BaseUserModel, AbstractUser):
     """
-    Custom user model where email is the unique identifier, inhertied from abstract user provided by auth
+    Custom user model where email is the unique identifier, inherited from abstract user provided by auth
     """
 
     country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
@@ -134,10 +133,10 @@ class BaseUser(BaseUserModel, AbstractUser):
             "email": self.email,
             "OTP": otp,
         }
-        emai_notification_ninja = EmailNotification(send_email_data_dict)
-        if not emai_notification_ninja.send_otp():
+        email_notification_ninja = EmailNotification(send_email_data_dict)
+        if not email_notification_ninja.send_otp():
             return False
-        del emai_notification_ninja
+        del email_notification_ninja
 
         self.otp = otp
         self.save()

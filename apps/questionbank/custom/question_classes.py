@@ -118,7 +118,7 @@ class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidato
 
 class QuestionService:
     """
-    This class is used to perfrom question CRUD operations.
+    This class is used to perform question CRUD operations.
     """
 
     def __init__(
