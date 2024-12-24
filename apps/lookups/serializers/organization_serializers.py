@@ -28,6 +28,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
     users_count = serializers.IntegerField(read_only=True)
     candidates_count = serializers.IntegerField(read_only=True)
     organization_packages = OrganizationPackageSerializer(many=True)
+    package = serializers.PrimaryKeyRelatedField(queryset=Package.objects.all(), required=False)
 
     class Meta:
         model = Organization
@@ -38,36 +39,22 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "candidates_count",
             "country",
             "organization_packages",
-            "description",
-            "created_at",
-            "updated_at",
-            "meta_status",
-        ]
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        country = instance.country
-        if country:
-            representation["country"] = CountrySerializer(country).data
-
-        return representation
-
-
-class OrganizationEditSerializer(serializers.ModelSerializer):
-    package = serializers.PrimaryKeyRelatedField(queryset=Package.objects.all(), required=False)
-
-    class Meta:
-        model = Organization
-        fields = [
-            "id",
-            "name",
-            "country",
             "package",
             "description",
             "created_at",
             "updated_at",
             "meta_status",
         ]
+
+    def __init__(self, *args, **kwargs):
+        self._context: dict = kwargs.get("context", {})
+        if self._context.get("mutator"):
+            self.fields.pop("users_count")
+            self.fields.pop("candidates_count")
+            self.fields.pop("organization_packages")
+        else:
+            self.fields.pop("package")
+        super().__init__(*args, **kwargs)
 
     def create(self, validated_data):
         package = validated_data.pop("package", None)
@@ -91,5 +78,4 @@ class OrganizationEditSerializer(serializers.ModelSerializer):
         country = instance.country
         if country:
             representation["country"] = CountrySerializer(country).data
-
         return representation

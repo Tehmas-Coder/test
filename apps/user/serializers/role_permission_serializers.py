@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.lookups.serializers.organization_serializers import OrganizationEditSerializer
+from apps.lookups.serializers.organization_serializers import OrganizationSerializer
 from apps.user.models.user_models import Permission, Role, RolePermission
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
@@ -59,5 +59,5 @@ class RoleSerializer(BaseModelSerializer):
     def to_representation(self, instance):
         res = super().to_representation(instance)
         if not self._context.get("mutator", False) and res.get("organization"):
-            res["organization"] = OrganizationEditSerializer(instance.organization).data
+            res["organization"] = OrganizationSerializer(instance.organization, context={"mutator": True}).data
         return res

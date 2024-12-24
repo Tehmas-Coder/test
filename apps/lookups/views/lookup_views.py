@@ -28,10 +28,7 @@ from apps.lookups.serializers.currency_serializers import CurrencySerializer
 from apps.lookups.serializers.language_serializers import LanguageSerializer
 from apps.lookups.serializers.measuring_unit_serializers import MeasuringUnitSerializer
 from apps.lookups.serializers.media_type_serializers import MediaTypeSerializer
-from apps.lookups.serializers.organization_serializers import (
-    OrganizationEditSerializer,
-    OrganizationSerializer,
-)
+from apps.lookups.serializers.organization_serializers import OrganizationSerializer
 from apps.lookups.serializers.package_serializers import PackageSerializer
 from apps.lookups.serializers.region_serializers import RegionDetailSerializer
 from apps.lookups.serializers.state_serializers import StateSerializer
@@ -134,26 +131,18 @@ class PackageViewset(viewsets.ModelViewSet):
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
-    queryset = (
-        Organization.objects.all()
-        .select_related("country")
-        .prefetch_related(
-            "organization_packages",
-            "organization_packages__package",
-        )
-        .annotate(
-            users_count=Count("organization_users", distinct=True),
-            candidates_count=Count("organization_candidates", distinct=True),
-        )
+    queryset = Organization.get_detailed_queryset(country=True, organization_packages=True).annotate(
+        users_count=Count("organization_users", distinct=True),
+        candidates_count=Count("organization_candidates", distinct=True),
     )
     serializer_class = OrganizationSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = [OrganizationFilterBackend]
 
-    def get_serializer_class(self):
+    def get_serializer_context(self):
         if self.action in ["create", "partial_update"]:
-            return OrganizationEditSerializer
-        return super().get_serializer_class()
+            return {"mutator": True}
+        return super().get_serializer_context()
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -168,9 +157,8 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        organization = serializer.save()
-        organization.refresh_from_db()
-        response = OrganizationSerializer(organization).data
+        serializer.save()
+        response = OrganizationSerializer(instance).data
         return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
@@ -178,8 +166,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         if OrganizationUser.objects.filter(
             user_id=request.data["user"],
         ).exists():
-            return make_error_response(data=request.data, message="This user already exists with an organization.")
-
+            return make_error_response(data=request.data, message="This user already exists with another organization.")
         serializer = OrganizationUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

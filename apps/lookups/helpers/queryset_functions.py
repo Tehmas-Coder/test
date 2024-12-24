@@ -1,6 +1,9 @@
 from django.db.models import Prefetch, QuerySet
 
-from apps.organization.models.organization_models import OrganizationUser
+from apps.organization.models.organization_models import (
+    OrganizationPackage,
+    OrganizationUser,
+)
 from apps.user.models.user_models import BaseUser
 
 
@@ -13,7 +16,9 @@ def get_organization_detailed_queryset(
         organization_queryset = organization_queryset.select_related("country")
 
     if organization_packages:
-        organization_queryset = organization_queryset.prefetch_related("organization_packages", "organization_packages__package")
+        organization_queryset = organization_queryset.prefetch_related(
+            Prefetch("organization_packages", queryset=OrganizationPackage.objects.all().select_related("package"))
+        )
 
     if organization_users:
         organization_queryset = organization_queryset.prefetch_related(
