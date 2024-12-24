@@ -1,10 +1,22 @@
 from django.db.models import Prefetch
 
 
-def get_user_detailed_queryset(model, country=False, roles=False, role_permissions=False, role_permissions_permission=False):
+def get_user_detailed_queryset(model, country=False, roles=False, role_permissions=False, role_permissions_permission=False, user_candidates=False):
     user_queryset = model.objects.get_queryset().select_related("profile_picture")
     if country:
         user_queryset = user_queryset.select_related("country")
+    if user_candidates:
+        from apps.exam_public.models.exam_public_models import Candidate
+        from apps.lookups.models.lookup_models import Organization
+
+        user_queryset = user_queryset.prefetch_related(
+            Prefetch(
+                "user_candidates",
+                queryset=Candidate.objects.all().prefetch_related(
+                    Prefetch("organization", queryset=Organization.get_detailed_queryset(country=True, organization_packages=True))
+                ),
+            )
+        )
     if roles:
         from apps.user.models.user_models import Role
 
