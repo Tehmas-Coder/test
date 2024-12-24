@@ -1,5 +1,6 @@
 from django.db import models
 
+from apps.exam_public.helpers.queryset_functions import get_candidate_detailed_queryset
 from core.models import BaseModel
 
 MEDIA_MODEL = "user.Media"
@@ -12,6 +13,10 @@ class Candidate(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidate"
+
+    @classmethod
+    def get_detail_queryset(cls, organization=False, user=False) -> models.QuerySet:
+        return get_candidate_detailed_queryset(cls, organization, user)
 
 
 class CandidateExam(BaseModel):

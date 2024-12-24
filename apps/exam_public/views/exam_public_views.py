@@ -1,6 +1,5 @@
 import json
 import random
-from pprint import pprint
 
 from cryptography.fernet import Fernet
 from decouple import config
@@ -82,33 +81,11 @@ from utils.rna_utils import (
 
 
 class CandidateViewSet(viewsets.ModelViewSet):
-    queryset = (
-        Candidate.objects.all()
-        .select_related(
-            "user",
-            "user__country",
-            "user__profile_picture",
-            "organization",
-            "organization__country",
-        )
-        .prefetch_related(
-            Prefetch(
-                "user__roles",
-                queryset=Role.objects.all().prefetch_related(
-                    Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
-                ),
-            ),
-        )
-    )
+    queryset = Candidate.get_detail_queryset(organization=True, user=True)
     serializer_class = CandidateSerializer
     filter_backends = [CandidateFilterBackend]
     pagination_class = None
     http_method_names = ["get", "post", "patch"]
-
-    def get_serializer_class(self):
-        if self.action in ["retrieve", "list"]:
-            return CandidateDetailSerializer
-        return super().get_serializer_class()
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -117,12 +94,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
             organization_id=request.data.get("organization", None),
         ).exists():
             return make_error_response(data=request.data, message="Candidate with this organization already exists.")
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        response = serializer.save()
-        serializer = CandidateDetailSerializer(response)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        super().create(request, *args, **kwargs)
 
 
 # ---------------------------------------------------------------------------- #

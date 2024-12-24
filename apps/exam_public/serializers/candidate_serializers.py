@@ -21,8 +21,13 @@ class CandidateSerializer(BaseModelSerializer):
             organization=validated_data["organization"],
             defaults=validated_data,
         )
-
         return instance
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["user"] = UserSerializer(instance.user).data
+        rep["organization"] = OrganizationSerializer(instance.organization).data
+        return rep
 
 
 class CandidateDetailSerializer(BaseModelSerializer):
