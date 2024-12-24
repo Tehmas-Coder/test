@@ -8,7 +8,7 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
     ExamBacklogEditSerializer,
     ExamBacklogQuestionScoresheetSerializer,
 )
-from apps.exam_public.serializers.candidate_serializers import CandidateDetailSerializer
+from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
 from core.serializers import BaseModelSerializer, get_base_model_fields
 
 
@@ -57,7 +57,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
 
 
 class CandidateExamListSerializer(BaseModelSerializer):
-    candidate = CandidateDetailSerializer(required=False)
+    candidate = CandidateSerializer(required=False, context={"selector": True})
     exam_backlog = ExamBacklogEditSerializer()
 
     class Meta:
@@ -81,7 +81,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
 
 
 class CandidateExamDetailSerializer(BaseModelSerializer):
-    candidate = CandidateDetailSerializer(required=False)
+    candidate = CandidateSerializer(required=False, context={"selector": True})
     exam_backlog = serializers.SerializerMethodField()
 
     class Meta:
@@ -135,7 +135,7 @@ class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
 
 
 class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
-    candidate = CandidateDetailSerializer(required=False)
+    candidate = CandidateSerializer(required=False, context={"selector": True})
     exam_backlog = serializers.SerializerMethodField()
 
     class Meta:

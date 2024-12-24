@@ -53,10 +53,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamWithAnswersDetailSerializer,
     ExamBacklogWithCandidateDetailsSerializer,
 )
-from apps.exam_public.serializers.candidate_serializers import (
-    CandidateDetailSerializer,
-    CandidateSerializer,
-)
+from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
 from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
@@ -87,14 +84,23 @@ class CandidateViewSet(viewsets.ModelViewSet):
     pagination_class = None
     http_method_names = ["get", "post", "patch"]
 
+    def get_serializer_context(self):
+        if self.action in ["list", "retrieve"]:
+            return {"selector": True}
+        return super().get_serializer_context()
+
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         if Candidate.objects.filter(
             user_id=request.data["user"],
-            organization_id=request.data.get("organization", None),
+            organization_id=request.data.get("organization"),
         ).exists():
             return make_error_response(data=request.data, message="Candidate with this organization already exists.")
-        super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        response = serializer.save()
+        serializer = CandidateSerializer(response, context={"selector": True})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # ---------------------------------------------------------------------------- #

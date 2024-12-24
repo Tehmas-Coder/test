@@ -15,6 +15,13 @@ class CandidateSerializer(BaseModelSerializer):
             "organization",
         ] + get_base_model_fields()
 
+    def __init__(self, *args, **kwargs):
+        self._context: dict = kwargs.get("context", {})
+        if self._context.get("selector"):
+            self.fields["user"] = UserSerializer(required=True)
+            self.fields["organization"] = OrganizationSerializer(context={"mutator": True})
+        super().__init__(*args, **kwargs)
+
     def create(self, validated_data):
         instance, _ = Candidate.objects.get_or_create(
             user=validated_data["user"],
@@ -22,25 +29,6 @@ class CandidateSerializer(BaseModelSerializer):
             defaults=validated_data,
         )
         return instance
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep["user"] = UserSerializer(instance.user).data
-        rep["organization"] = OrganizationSerializer(instance.organization).data
-        return rep
-
-
-class CandidateDetailSerializer(BaseModelSerializer):
-    user = UserSerializer(required=True)
-    organization = OrganizationSerializer(context={"mutator": True})
-
-    class Meta:
-        model = Candidate
-        fields = [
-            "id",
-            "user",
-            "organization",
-        ] + get_base_model_fields()
 
 
 class CandidateWithOrganizationDetailSerializer(BaseModelSerializer):
