@@ -91,10 +91,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        if Candidate.objects.filter(
-            user_id=request.data["user"],
-            organization_id=request.data.get("organization"),
-        ).exists():
+        if Candidate.objects.filter(user_id=request.data["user"], organization_id=request.data.get("organization")).exists():
             return make_error_response(data=request.data, message="Candidate with this organization already exists.")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -109,35 +106,35 @@ class CandidateViewSet(viewsets.ModelViewSet):
 
 
 class CandidateExamViewSet(viewsets.ModelViewSet):
-    queryset = (
-        CandidateExam.objects.all()
-        .select_related(
-            "exam_backlog",
-            "schedule",
-        )
-        .prefetch_related(
-            Prefetch(
-                "candidate",
-                queryset=Candidate.objects.all()
-                .select_related(
-                    "organization",
-                    "organization__country",
-                    "user",
-                    "user__country",
-                    "user__profile_picture",
-                )
-                .prefetch_related(
-                    Prefetch(
-                        "user__roles",
-                        queryset=Role.objects.all().prefetch_related(
-                            Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
-                        ),
-                    )
-                ),
-            ),
-        )
-    )
-
+    # queryset = (
+    #     CandidateExam.objects.all()
+    #     .select_related(
+    #         "exam_backlog",
+    #         "schedule",
+    #     )
+    #     .prefetch_related(
+    #         Prefetch(
+    #             "candidate",
+    #             queryset=Candidate.objects.all()
+    #             .select_related(
+    #                 "organization",
+    #                 "organization__country",
+    #                 "user",
+    #                 "user__country",
+    #                 "user__profile_picture",
+    #             )
+    #             .prefetch_related(
+    #                 Prefetch(
+    #                     "user__roles",
+    #                     queryset=Role.objects.all().prefetch_related(
+    #                         Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
+    #                     ),
+    #                 )
+    #             ),
+    #         ),
+    #     )
+    # )
+    queryset = CandidateExam.get_detail_queryset(schedule=True, exam_backlog=True, candidate=True)
     serializer_class = CandidateExamEditSerializer
     http_method_names = ["get", "post", "patch"]
     filter_backends = [CandidateExamFilterBackend]
@@ -169,6 +166,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
 
+        transaction.set_rollback(True)
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
