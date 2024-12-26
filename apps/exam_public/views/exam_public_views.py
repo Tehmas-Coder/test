@@ -166,7 +166,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
 
-        transaction.set_rollback(True)
+        # transaction.set_rollback(True)
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
