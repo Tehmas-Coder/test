@@ -1,13 +1,8 @@
-from django.db.models import F, Prefetch, Sum
+from django.db.models import F, Q, Sum
 
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestion,
-    ExamBacklogQuestionChoice,
-    ExamBacklogQuestionChoiceMedia,
     ExamBacklogQuestionCountry,
-    ExamBacklogQuestionMedia,
-    ExamBacklogQuestionRetryHint,
-    ExamBacklogQuestionRetryHintMedia,
 )
 from apps.exam_public.models.exam_public_models import CandidateExam
 from apps.exam_public.serializers.candidate_exam_serializers import (
@@ -17,7 +12,7 @@ from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response
 
 
-def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, queryset, set_attempted=False):
+def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=False):
     """
     Get detailed candidate exam with country based questions
     :param candidate_exam_id: Candidate exam id, queryset: Queryset
@@ -60,49 +55,15 @@ def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, 
     if set_attempted:
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
 
-    candidate_exam_backlog_question_instance = queryset.filter(id=candidate_exam_id).prefetch_related(
-        Prefetch(
-            "exam_backlog__backlog_questions",
-            queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
-            .select_related(
-                "type",
-                "measuring_unit",
-                "difficulty_level",
-                "section_backlog",
-                "section_backlog__measuring_unit",
-                "subsection_backlog",
-                "subsection_backlog__measuring_unit",
-            )
-            .prefetch_related(
-                "backlog_tags",
-                "backlog_attempt_responses",
-                Prefetch(
-                    "exambacklogquestioncountry_set",
-                    queryset=ExamBacklogQuestionCountry.objects.all().select_related("country"),
-                ),
-                Prefetch(
-                    "exambacklogquestionmedia_set",
-                    queryset=ExamBacklogQuestionMedia.objects.all().select_related("media"),
-                ),
-                Prefetch(
-                    "backlog_choices",
-                    queryset=ExamBacklogQuestionChoice.objects.all().prefetch_related(
-                        Prefetch("exambacklogquestionchoicemedia_set", queryset=ExamBacklogQuestionChoiceMedia.objects.all().select_related("media"))
-                    ),
-                ),
-                Prefetch(
-                    "backlog_retry_hints",
-                    queryset=ExamBacklogQuestionRetryHint.objects.all().prefetch_related(
-                        Prefetch(
-                            "exambacklogquestionretryhintmedia_set",
-                            queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"),
-                        )
-                    ),
-                ),
-            ),
-        )
-    )[0]
+    candidate_exam_backlog_question_instance = CandidateExam.get_detail_queryset(
+        schedule=True,
+        exam_backlog=True,
+        candidate=True,
+        q_filter=Q(id=candidate_exam_id),
+        exam_backlog_question=True,
+        exam_backlog_question_filter=Q(id__in=final_user_backlog_question_ids_list),
+    ).first()
 
     return CandidateExamDetailSerializer(
-        candidate_exam_backlog_question_instance, context={"get_retry_hints": candidate_exam_backlog_question_instance.is_preparatory}
+        candidate_exam_backlog_question_instance, context={"get_retry_hints": candidate_exam_backlog_question_instance.is_preparatory}  # type: ignore
     ).data
