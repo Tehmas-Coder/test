@@ -49,6 +49,7 @@ from apps.exam_public.serializers.candidate_exam_answer_serializers import (
     CandidateExamAnswerSerializer,
 )
 from apps.exam_public.serializers.candidate_exam_serializers import (
+    CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
     CandidateExamWithAnswersDetailSerializer,
@@ -141,7 +142,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
-        data = CandidateExamNinja().get_candidate_exam(candidate_exam_id)
+        candidate_exam_backlog_question_instance = CandidateExamNinja().get_candidate_exam(candidate_exam_id)
+        data = CandidateExamDetailSerializer(
+            candidate_exam_backlog_question_instance, context={"get_retry_hints": candidate_exam_backlog_question_instance.is_preparatory}  # type: ignore
+        ).data
         return Response(data, status=status.HTTP_200_OK)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
@@ -547,7 +551,10 @@ class AttemptCandidateExamAPI(views.APIView):
             if candidate_exam_instance.exam_status != "assigned":
                 return make_error_response(message="Exam has already been attempted")
 
-            candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
+            candidate_exam_instance = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
+            candidate_exam_data = CandidateExamDetailSerializer(
+                candidate_exam_instance, context={"get_retry_hints": candidate_exam_instance.is_preparatory}  # type: ignore
+            ).data
             all_questions = []
             if isinstance(candidate_exam_data, dict):
                 all_questions = candidate_exam_data["exam_backlog"].pop("questions")

@@ -5,9 +5,6 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklogQuestionCountry,
 )
 from apps.exam_public.models.exam_public_models import CandidateExam
-from apps.exam_public.serializers.candidate_exam_serializers import (
-    CandidateExamDetailSerializer,
-)
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response
 
@@ -55,7 +52,7 @@ def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, 
     if set_attempted:
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
 
-    candidate_exam_backlog_question_instance = CandidateExam.get_detail_queryset(
+    return CandidateExam.get_detail_queryset(
         schedule=True,
         exam_backlog=True,
         candidate=True,
@@ -63,7 +60,3 @@ def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, 
         exam_backlog_question=True,
         exam_backlog_question_filter=Q(id__in=final_user_backlog_question_ids_list),
     ).first()
-
-    return CandidateExamDetailSerializer(
-        candidate_exam_backlog_question_instance, context={"get_retry_hints": candidate_exam_backlog_question_instance.is_preparatory}  # type: ignore
-    ).data
