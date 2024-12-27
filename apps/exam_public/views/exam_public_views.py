@@ -14,6 +14,7 @@ from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerFor
 from apps.exam_public.custom.candidate_exam_classes import CandidateExamNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
+from apps.exam_public.filters.exam_backlog_filters import get_exambacklog_q_filter
 from apps.exam_public.helpers.candidate_exam_helpers import (
     get_detailed_candidate_exam_with_country_based_questions,
 )
@@ -144,60 +145,11 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
-        name = request.query_params.get("name")
-        education_levels = request.query_params.get("education_levels")
-        start_date = request.query_params.get("start_date")
-        end_date = request.query_params.get("end_date")
-
-        q_filter = Q()
-
-        if name:
-            name = str(name)
-            q_filter &= Q(name__icontains=name)
-
-        if education_levels:
-            education_levels = json.loads(education_levels)
-            education_levels = [int(id) for id in education_levels]
-            q_filter &= Q(education_level_id__in=education_levels)
-
-        if start_date and not end_date:
-            start_date = str(start_date)
-            q_filter &= Q(candidate_exam_examsbacklog__start_datetime__date=start_date)
-
-        if end_date and not start_date:
-            end_date = str(end_date)
-            q_filter &= Q(candidate_exam_examsbacklog__end_datetime__date=end_date)
-
-        if start_date and end_date:
-            start_date = str(start_date)
-            end_date = str(end_date)
-            q_filter &= Q(candidate_exam_examsbacklog__start_datetime__date__range=[start_date, end_date])
-
+        q_filter = get_exambacklog_q_filter(request)
         exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
             ExamBacklog.objects.filter(q_filter)
             .prefetch_related(
-                Prefetch(
-                    "candidate_exam_examsbacklog",
-                    queryset=CandidateExam.objects.all()
-                    .select_related(
-                        "exam_backlog",
-                        "schedule",
-                        "candidate",
-                        "candidate__user",
-                        "candidate__user__country",
-                        "candidate__user__profile_picture",
-                        "candidate__organization",
-                        "candidate__organization__country",
-                    )
-                    .prefetch_related(
-                        Prefetch(
-                            "candidate__user__roles",
-                            queryset=Role.objects.all().prefetch_related(
-                                Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
-                            ),
-                        ),
-                    ),
-                )
+                Prefetch("candidate_exam_examsbacklog", queryset=CandidateExam.get_detail_queryset(schedule=True, exam_backlog=True, candidate=True))
             )
             .distinct(),
             many=True,
