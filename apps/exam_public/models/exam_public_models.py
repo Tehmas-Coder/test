@@ -54,8 +54,18 @@ class CandidateExam(BaseModel):
         app_label = "exam_public"
 
     @classmethod
-    def get_detail_queryset(cls, exam_backlog=False, schedule=False, candidate=False) -> models.QuerySet:
-        return get_candidate_exam_detailed_queryset(cls, exam_backlog, schedule, candidate)
+    def get_detail_queryset(
+        cls,
+        exam_backlog=False,
+        schedule=False,
+        candidate=False,
+        q_filter=models.Q(),
+        exam_backlog_question=False,
+        exam_backlog_question_filter=models.Q(),
+    ) -> models.QuerySet:
+        return get_candidate_exam_detailed_queryset(
+            cls, exam_backlog, schedule, candidate, q_filter, exam_backlog_question, exam_backlog_question_filter
+        )
 
 
 class CandidateExamStatusLog(BaseModel):

@@ -1,5 +1,8 @@
 from django.db import models
 
+from apps.exam_public.helpers.queryset_functions import (
+    get_exambacklogquestion_detailed_queryset,
+)
 from core.models import BaseModel
 
 # ---------------------------------------------------------------------------- #
@@ -64,6 +67,10 @@ class ExamBacklogQuestion(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_exambacklog_question"
+
+    @classmethod
+    def get_detail_queryset(cls, all=False, q_filter=models.Q()):
+        return get_exambacklogquestion_detailed_queryset(cls, all=all, q_filter=q_filter)
 
 
 # -------------------------- QUESTION MEDIA BACKLOG -------------------------- #
