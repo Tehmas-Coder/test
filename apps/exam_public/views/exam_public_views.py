@@ -148,7 +148,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request_data = request.data
         exam_id = request_data.pop("exam")
-        exam_instance = Exam.get_detail_queryset(all=True).get(pk=exam_id)
+        exam_instance = Exam.get_detail_queryset(all=True, q_filter=Q(id=exam_id)).first()
 
         # * Creating Backlogs for Exam
         exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
@@ -166,7 +166,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
 
-        # transaction.set_rollback(True)
+        transaction.set_rollback(True)
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):

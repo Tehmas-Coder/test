@@ -2,12 +2,11 @@ from django.db.models import Prefetch, Q
 
 
 def get_exam_detailed_queryset(
-    model, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False
+    model, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False, q_filter=Q()
 ):
     from apps.exam_admin.models.exam_admin_models import ExamSubject
 
-    exam_queryset = model.objects.all().select_related("education_level")
-
+    exam_queryset = model.objects.filter(q_filter).select_related("education_level")
     if sections or all:
         from apps.exam_admin.models.exam_admin_models import Section
 
