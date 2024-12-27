@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
+from apps.exam_public.custom.candidate_exam_classes import CandidateExamNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.helpers.candidate_exam_helpers import (
@@ -47,7 +48,6 @@ from apps.exam_public.serializers.candidate_exam_answer_serializers import (
     CandidateExamAnswerSerializer,
 )
 from apps.exam_public.serializers.candidate_exam_serializers import (
-    CandidateExamDetailSerializer,
     CandidateExamEditSerializer,
     CandidateExamListSerializer,
     CandidateExamWithAnswersDetailSerializer,
@@ -60,11 +60,9 @@ from apps.exam_scoring.models.exam_scoring_models import (
 )
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.user.models.user_models import BaseUser, Role, RolePermission
+from apps.user.models.user_models import Role, RolePermission
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
-    color_print,
-    debug_print,
     decrypt_message,
     encrypt_message,
     get_encryption_key,
@@ -106,34 +104,6 @@ class CandidateViewSet(viewsets.ModelViewSet):
 
 
 class CandidateExamViewSet(viewsets.ModelViewSet):
-    # queryset = (
-    #     CandidateExam.objects.all()
-    #     .select_related(
-    #         "exam_backlog",
-    #         "schedule",
-    #     )
-    #     .prefetch_related(
-    #         Prefetch(
-    #             "candidate",
-    #             queryset=Candidate.objects.all()
-    #             .select_related(
-    #                 "organization",
-    #                 "organization__country",
-    #                 "user",
-    #                 "user__country",
-    #                 "user__profile_picture",
-    #             )
-    #             .prefetch_related(
-    #                 Prefetch(
-    #                     "user__roles",
-    #                     queryset=Role.objects.all().prefetch_related(
-    #                         Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
-    #                     ),
-    #                 )
-    #             ),
-    #         ),
-    #     )
-    # )
     queryset = CandidateExam.get_detail_queryset(schedule=True, exam_backlog=True, candidate=True)
     serializer_class = CandidateExamEditSerializer
     http_method_names = ["get", "post", "patch"]
@@ -170,123 +140,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
-        logged_in_user: BaseUser = self.request.user  # type:ignore
-        logged_in_user_id = logged_in_user.id  # type:ignore
-
-        candidate_exam_id = self.kwargs["pk"]
-        try:
-            candidate_exam_id = int(candidate_exam_id)
-        except:
-            try:
-                token = candidate_exam_id[len("token=") :]
-                key = get_encryption_key()
-                cipher = Fernet(key)
-                decrypted_data = json.loads(cipher.decrypt(token).decode())
-                candidate_exam_id = decrypted_data["candidate_exam_id"]
-            except:
-                return make_error_response(message="Invalid token")
-
-        # * IF ROLES ARE ( Organization Roles and Candidate )
-        logged_in_user_roles = logged_in_user.get_user_role_slugs  # type:ignore
-        if len(logged_in_user_roles):
-            if "candidate" in logged_in_user_roles:
-                candidate_exam_filter_data = {
-                    "id": candidate_exam_id,
-                    "candidate__user__id": logged_in_user_id,
-                }
-
-                if not CandidateExam.objects.filter(**candidate_exam_filter_data).exists():
-                    return Response(
-                        data={
-                            "Status": "failed",
-                            "message": f"Exam not allowed to this candidate",
-                        },
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-        candidate_exam_data = (
-            CandidateExam.objects.filter(id=candidate_exam_id)
-            .annotate(country_id=F("candidate__user__country_id"))
-            .values(
-                "country_id",
-                "exam_backlog",
-            )
-            .first()
-        )
-
-        if not candidate_exam_data:
-            return make_error_response(message="The requested candidate exam data is not present")
-
-        exam_question_backlog = list(
-            ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
-        )
-        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
-
-        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
-        is_not_global_exam_question_backlog_ids_list: list = list(
-            ExamBacklogQuestionCountry.objects.filter(
-                exam_backlog_question_id__in=exam_question_backlog_ids,
-                country_id=candidate_exam_data["country_id"],
-            ).values_list("exam_backlog_question", flat=True)
-        )
-        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
-
-        question_instances_total_marks = ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list).aggregate(
-            total_score=Sum("total_marks")
-        )["total_score"]
-        CandidateExam.objects.filter(id=candidate_exam_id).update(
-            total_obtainable_marks=question_instances_total_marks if question_instances_total_marks != None else 0
-        )
-
-        candidate_exam_backlog_question_instance = self.queryset.filter(id=candidate_exam_id).prefetch_related(
-            Prefetch(
-                "exam_backlog__backlog_questions",
-                queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
-                .select_related(
-                    "type",
-                    "measuring_unit",
-                    "difficulty_level",
-                    "section_backlog",
-                    "section_backlog__measuring_unit",
-                    "subsection_backlog",
-                    "subsection_backlog__measuring_unit",
-                )
-                .prefetch_related(
-                    "backlog_tags",
-                    "backlog_attempt_responses",
-                    Prefetch(
-                        "exambacklogquestioncountry_set",
-                        queryset=ExamBacklogQuestionCountry.objects.all().select_related("country"),
-                    ),
-                    Prefetch(
-                        "exambacklogquestionmedia_set",
-                        queryset=ExamBacklogQuestionMedia.objects.all().select_related("media"),
-                    ),
-                    Prefetch(
-                        "backlog_choices",
-                        queryset=ExamBacklogQuestionChoice.objects.all().prefetch_related(
-                            Prefetch(
-                                "exambacklogquestionchoicemedia_set", queryset=ExamBacklogQuestionChoiceMedia.objects.all().select_related("media")
-                            )
-                        ),
-                    ),
-                    Prefetch(
-                        "backlog_retry_hints",
-                        queryset=ExamBacklogQuestionRetryHint.objects.all().prefetch_related(
-                            Prefetch(
-                                "exambacklogquestionretryhintmedia_set",
-                                queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"),
-                            )
-                        ),
-                    ),
-                ),
-            )
-        )[0]
-
-        data = CandidateExamDetailSerializer(
-            candidate_exam_backlog_question_instance, context={"get_retry_hints": candidate_exam_backlog_question_instance.is_preparatory}
-        ).data
-
+        data = CandidateExamNinja().get_candidate_exam(candidate_exam_id)
         return Response(data, status=status.HTTP_200_OK)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
@@ -724,27 +578,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
 
 class AttemptCandidateExamAPI(views.APIView):
-    queryset = (
-        CandidateExam.objects.all()
-        .select_related(
-            "exam_backlog",
-            "schedule",
-            "candidate",
-            "candidate__user",
-            "candidate__user__country",
-            "candidate__user__profile_picture",
-            "candidate__organization",
-            "candidate__organization__country",
-        )
-        .prefetch_related(
-            Prefetch(
-                "candidate__user__roles",
-                queryset=Role.objects.all().prefetch_related(
-                    Prefetch("role_permissions", queryset=RolePermission.objects.all().select_related("permission"))
-                ),
-            ),
-        )
-    )
 
     def post(self, request, *args, **kwargs):
         request_data = request.data
@@ -762,7 +595,7 @@ class AttemptCandidateExamAPI(views.APIView):
             if candidate_exam_instance.exam_status != "assigned":
                 return make_error_response(message="Exam has already been attempted")
 
-            candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, self.queryset, set_attempted=True)
+            candidate_exam_data = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
             all_questions = []
             if isinstance(candidate_exam_data, dict):
                 all_questions = candidate_exam_data["exam_backlog"].pop("questions")
