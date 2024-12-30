@@ -168,6 +168,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "eb_sqs",
     # * System
+    "apps.emails",
     "apps.ping",
     "apps.lookups",
     "apps.user",
