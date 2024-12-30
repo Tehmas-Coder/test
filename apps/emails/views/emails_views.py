@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 
 import boto3
 from botocore.exceptions import ClientError
+from decouple import config
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django_q.tasks import async_task
@@ -54,7 +55,7 @@ def send_email_task(
     subject: str,
     html_content: str,
     attachments: list = [],
-    from_email: str = "haiderjuttearner@gmail.com",
+    from_email: str = str(config("SYSTEM_EMAIL")),
     to_email_list: list[str] | None = None,
     cc_list: list[str] | None = None,
     bcc_list: list[str] | None = None,

@@ -35,6 +35,10 @@ class EmailLog(BaseModel):
         """Return a list of BCC recipients from the bcc_list."""
         return self.bcc_list.split(",") if self.bcc_list else []
 
+    class Meta:
+        app_label = "emails"
+        db_table = "emails_emaillog"
+
 
 class EmailLogAttachment(BaseModel):
     """Model for logging email attachments."""
@@ -47,3 +51,7 @@ class EmailLogAttachment(BaseModel):
 
     def __str__(self):
         return f"Attachment for {self.email_log.subject}"
+
+    class Meta:
+        app_label = "emails"
+        db_table = "emails_emaillog_attachment"
