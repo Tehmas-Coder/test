@@ -69,8 +69,8 @@ class ExamBacklogQuestion(BaseModel):
         db_table = "exam_public_exambacklog_question"
 
     @classmethod
-    def get_detail_queryset(cls, all=False, q_filter=models.Q()):
-        return get_exambacklogquestion_detailed_queryset(cls, all=all, q_filter=q_filter)
+    def get_detail_queryset(cls, all=False, get_answers=False, q_filter=models.Q()):
+        return get_exambacklogquestion_detailed_queryset(cls, all, get_answers, q_filter)
 
 
 # -------------------------- QUESTION MEDIA BACKLOG -------------------------- #

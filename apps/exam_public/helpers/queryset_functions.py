@@ -15,7 +15,14 @@ def get_candidate_detailed_queryset(model, organization=False, user=False) -> Qu
 
 
 def get_candidate_exam_detailed_queryset(
-    model, exam_backlog=False, schedule=False, candidate=False, q_filter=Q(), exam_backlog_question=False, exam_backlog_question_filter=Q()
+    model,
+    exam_backlog: bool = False,
+    schedule: bool = False,
+    candidate: bool = False,
+    q_filter: Q = Q(),
+    exam_backlog_question: bool = False,
+    get_answers: bool = False,
+    exam_backlog_question_filter=Q(),
 ) -> QuerySet:
     from apps.exam_public.models.exam_public_models import Candidate
 
@@ -30,7 +37,7 @@ def get_candidate_exam_detailed_queryset(
             candidate_exam_queryset = candidate_exam_queryset.prefetch_related(
                 Prefetch(
                     "exam_backlog__backlog_questions",
-                    queryset=ExamBacklogQuestion.get_detail_queryset(all=True, q_filter=exam_backlog_question_filter),
+                    queryset=ExamBacklogQuestion.get_detail_queryset(all=True, get_answers=get_answers, q_filter=exam_backlog_question_filter),
                 )
             )
     if schedule:
@@ -42,7 +49,7 @@ def get_candidate_exam_detailed_queryset(
     return candidate_exam_queryset
 
 
-def get_exambacklogquestion_detailed_queryset(model, all=False, q_filter=Q()) -> QuerySet:
+def get_exambacklogquestion_detailed_queryset(model, all=False, get_answers=False, q_filter=Q()) -> QuerySet:
     from apps.exam_public.models.exam_public_backlog_models import (
         ExamBacklogQuestionChoice,
         ExamBacklogQuestionChoiceMedia,
@@ -53,6 +60,7 @@ def get_exambacklogquestion_detailed_queryset(model, all=False, q_filter=Q()) ->
     )
 
     exam_backlog_question_queryset = model.objects.filter(q_filter)
+
     if all:
         exam_backlog_question_queryset = exam_backlog_question_queryset.select_related(
             "type",
@@ -88,6 +96,26 @@ def get_exambacklogquestion_detailed_queryset(model, all=False, q_filter=Q()) ->
                     )
                 ),
             ),
+        )
+
+    if get_answers:
+        from apps.exam_public.models.exam_public_models import CandidateExamAnswer
+
+        exam_backlog_question_queryset = exam_backlog_question_queryset.prefetch_related(
+            Prefetch(
+                "question_answers",
+                CandidateExamAnswer.objects.all()
+                .select_related(
+                    "exam_backlog_question_choice",
+                )
+                .prefetch_related(
+                    "answer_files",
+                    Prefetch(
+                        "exam_backlog_question_choice__exambacklogquestionchoicemedia_set",
+                        queryset=ExamBacklogQuestionChoiceMedia.objects.all().select_related("media"),
+                    ),
+                ),
+            )
         )
 
     return exam_backlog_question_queryset

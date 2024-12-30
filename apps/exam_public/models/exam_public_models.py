@@ -56,15 +56,16 @@ class CandidateExam(BaseModel):
     @classmethod
     def get_detail_queryset(
         cls,
-        exam_backlog=False,
-        schedule=False,
-        candidate=False,
-        q_filter=models.Q(),
-        exam_backlog_question=False,
+        exam_backlog: bool = False,
+        schedule: bool = False,
+        candidate: bool = False,
+        q_filter: models.Q = models.Q(),
+        exam_backlog_question: bool = False,
+        get_answers: bool = False,
         exam_backlog_question_filter=models.Q(),
     ) -> models.QuerySet:
         return get_candidate_exam_detailed_queryset(
-            cls, exam_backlog, schedule, candidate, q_filter, exam_backlog_question, exam_backlog_question_filter
+            cls, exam_backlog, schedule, candidate, q_filter, exam_backlog_question, get_answers, exam_backlog_question_filter
         )
 
 
