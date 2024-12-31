@@ -9,7 +9,9 @@ from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response
 
 
-def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted: bool = False, get_answers: bool = False):
+def get_detailed_candidate_exam_with_country_based_questions(
+    candidate_exam_id, set_attempted: bool = False, get_answers: bool = False, fetch_only_question_ids: bool = False
+):
     """
     Get detailed candidate exam with country based questions
     :param candidate_exam_id: Candidate exam id, queryset: Queryset
@@ -51,6 +53,9 @@ def get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, 
 
     if set_attempted:
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
+
+    if fetch_only_question_ids:
+        return final_user_backlog_question_ids_list
 
     return CandidateExam.get_detail_queryset(
         schedule=True,
