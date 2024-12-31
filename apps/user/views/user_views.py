@@ -53,10 +53,10 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({"message": "Roles set successfully"}, status=status.HTTP_200_OK)
 
 
-class UserInvitaionLinkAPI(viewsets.ViewSet):
+class UserInvitationLinkAPI(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
-    def invitaion_link(self, request):
+    def invitation_link(self, request):
         encrypted_email_token = request.query_params["token"]
         verification_ninja_instance = VerificationEmailNinja()
         verification_ninja_instance.send(encrypted_email_token)
