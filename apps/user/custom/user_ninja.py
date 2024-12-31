@@ -140,6 +140,6 @@ class UserNinja:
 
     def __create_profile_picture_media(self, profile_picture) -> int:
         media_serializer = MediaSerializer(data={"file": profile_picture})
-        media_serializer.is_valid()
+        media_serializer.is_valid(raise_exception=True)
         media_serializer.save()
         return media_serializer.data["id"]  # type: ignore
