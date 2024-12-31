@@ -190,6 +190,7 @@ class Organization(BaseUserModel):
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE, null=True, blank=True)
 
     name = models.CharField(max_length=255)
+    url = models.URLField(max_length=255, null=True, blank=True)
     encryption_key = models.CharField(max_length=255, null=True, blank=True)
     token = models.CharField(max_length=255, null=True, blank=True)
 
