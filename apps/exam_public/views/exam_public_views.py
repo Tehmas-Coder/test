@@ -1,8 +1,7 @@
 import json
-import random
 
 from django.db import transaction
-from django.db.models import F, Prefetch, Q, Sum
+from django.db.models import Prefetch, Q
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -24,21 +23,15 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
     ExamBacklogQuestionChoice,
-    ExamBacklogQuestionCountry,
-    ExamBacklogQuestionRetryHint,
 )
 from apps.exam_public.models.exam_public_models import (
     Candidate,
     CandidateExam,
     CandidateExamAnswer,
     CandidateExamAnswerMedia,
-    CandidateExamRetryhint,
 )
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choice_serializer import (
     ExamBacklogQuestionChoiceForKeySerializer,
-)
-from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retryhint_serializer import (
-    ExamBacklogQuestionRetryHintSerializer,
 )
 from apps.exam_public.serializers.candidate_exam_answer_serializers import (
     CandidateExamAnswerSerializer,
@@ -51,10 +44,6 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
-from apps.exam_scoring.models.exam_scoring_models import (
-    CandidateExamSectionScore,
-    CandidateExamSubSectionScore,
-)
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from utils.rna_utils import (
     decrypt_message,
@@ -166,7 +155,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         CandidateExamNinja().send_exam_invitation_link(candidate_exam_ids)
         return Response({"message": "Exam invitation emails sent successfully"}, status=status.HTTP_200_OK)
 
-    @transaction.atomic
     @action(detail=True, methods=["get"], url_path="retry-hint")
     def candidate_exam_retry_hint(self, request, *args, **kwargs):
         question_backlog_id = request.query_params.get("question_backlog_id", None)
@@ -186,183 +174,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="submit")
     def candidate_exam_submission(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
-        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
-        if not candidate_exam_instance:
-            return make_error_response(message="Candidate Exam not found")
-        if candidate_exam_instance.exam_status == "submitted":
-            return make_error_response(message="Exam already submitted")
-
-        candidate_exam_answers_queryset = (
-            CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id)
-            .select_related(
-                "exam_backlog_question_choice",
-                "exam_backlog_question",
-            )
-            .annotate(penalty_score=Sum("exam_backlog_question__question_fetched_retry_hints__penalty_score"))
-        )
-
-        # * Scoring objective type questions answers if the choice is correct then answer is also marked as correct and scored as positive, if the choice is incorrect and weight is 0 then answer is marked as 0 and if the weight is negative then marked as negative score and at the end if user took any retry hints while solving then it minus the sum of penalty scores from the obtained score
-        CandidateExamAnswer.objects.bulk_update(
-            [
-                CandidateExamAnswer(
-                    id=one_candidate_exam_answer.id,  # type:ignore
-                    is_correct=one_candidate_exam_answer.exam_backlog_question_choice.is_correct,
-                    score=(
-                        (
-                            float(
-                                (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
-                                * one_candidate_exam_answer.exam_backlog_question.total_marks
-                            )
-                            if one_candidate_exam_answer.exam_backlog_question_choice.is_correct
-                            else (
-                                -float(
-                                    (one_candidate_exam_answer.exam_backlog_question_choice.weight / 100)
-                                    * one_candidate_exam_answer.exam_backlog_question.total_marks
-                                )
-                                if one_candidate_exam_answer.exam_backlog_question_choice.is_negative_weight
-                                else 0
-                            )
-                        )
-                        - float((one_candidate_exam_answer.penalty_score or 0))  # type: ignore
-                    ),
-                )
-                for one_candidate_exam_answer in candidate_exam_answers_queryset
-                if one_candidate_exam_answer.exam_backlog_question_choice
-            ],
-            fields=["is_correct", "score"],
-        )
-
-        # * Creating Candidate Exam Answer transactions with score set to 0 for questions which are not even attempted.
-
-        # Fetching the total questions assigned to the candidate according to his country and global questions
-        candidate_exam_data = (
-            CandidateExam.objects.filter(id=candidate_exam_id)
-            .annotate(country_id=F("candidate__user__country_id"))
-            .values(
-                "country_id",
-                "exam_backlog",
-            )
-            .first()
-        )
-
-        exam_question_backlog = list(
-            ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")  # type:ignore
-        )
-        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
-
-        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
-        is_not_global_exam_question_backlog_ids_list: list = list(
-            ExamBacklogQuestionCountry.objects.filter(
-                exam_backlog_question_id__in=exam_question_backlog_ids,
-                country_id=candidate_exam_data["country_id"],  # type:ignore
-            ).values_list("exam_backlog_question", flat=True)
-        )
-        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
-
-        candidate_exam_answers_question_ids_list = list(
-            CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id).values_list("exam_backlog_question", flat=True)
-        )
-
-        unattempted_question_ids_list = list(set(set(final_user_backlog_question_ids_list) - set(candidate_exam_answers_question_ids_list)))
-
-        # * Creating instances for unattempted questions
-        CandidateExamAnswer.objects.bulk_create(
-            [
-                CandidateExamAnswer(
-                    candidate_exam_id=candidate_exam_id,
-                    exam_backlog_question_id=one_question_id,
-                    is_attempted=False,
-                    score=0,
-                )
-                for one_question_id in unattempted_question_ids_list
-            ]
-        )
-
-        # * Creating Section and Subsection score models instances to store the sections and subsections scores of this Candidate Exam
-        candidate_exam_questions_with_sections_and_subsections = ExamBacklogQuestion.objects.filter(
-            id__in=final_user_backlog_question_ids_list, section_backlog__isnull=False
-        )
-        candidate_exam_questions_with_subsections = candidate_exam_questions_with_sections_and_subsections.filter(subsection_backlog__isnull=False)
-
-        section_backlog_questions_details_hashmap = {}
-        for one_candidate_exam_questions_with_section in candidate_exam_questions_with_sections_and_subsections:
-            section_id = one_candidate_exam_questions_with_section.section_backlog_id  # type: ignore
-            if section_id not in section_backlog_questions_details_hashmap:
-                section_backlog_questions_details_hashmap[section_id] = {}
-                section_backlog_questions_details_hashmap[section_id]["question_count"] = 0
-                section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = 0
-                section_backlog_questions_details_hashmap[section_id]["subsection_count"] = 0
-            if one_candidate_exam_questions_with_section.subsection_backlog_id == None:  # type: ignore
-                section_backlog_questions_details_hashmap[section_id]["question_count"] = (
-                    section_backlog_questions_details_hashmap[section_id]["question_count"] + 1
-                )
-                section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = (
-                    section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"]
-                    + one_candidate_exam_questions_with_section.total_marks
-                )
-
-        subsection_backlog_questions_details_hashmap = {}
-        for one_candidate_exam_questions_with_subsection in candidate_exam_questions_with_subsections:
-            section_id = one_candidate_exam_questions_with_subsection.section_backlog_id  # type: ignore
-            subsection_id = one_candidate_exam_questions_with_subsection.subsection_backlog_id  # type: ignore
-            if subsection_id not in subsection_backlog_questions_details_hashmap:
-                subsection_backlog_questions_details_hashmap[subsection_id] = {}
-                subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] = 0
-                subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"] = 0
-                section_backlog_questions_details_hashmap[section_id]["subsection_count"] = (
-                    section_backlog_questions_details_hashmap[section_id]["subsection_count"] + 1
-                )
-
-            subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] = (
-                subsection_backlog_questions_details_hashmap[subsection_id]["question_count"] + 1
-            )
-            subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"] = (
-                subsection_backlog_questions_details_hashmap[subsection_id]["total_obtainable_marks"]
-                + one_candidate_exam_questions_with_subsection.total_marks
-            )
-            section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"] = (
-                section_backlog_questions_details_hashmap[section_id]["total_obtainable_marks"]
-                + one_candidate_exam_questions_with_subsection.total_marks
-            )
-
-        # * Now Creating the section_score instances
-        CandidateExamSectionScore.objects.bulk_create(
-            [
-                CandidateExamSectionScore(
-                    candidate_exam_id=candidate_exam_id,
-                    section_backlog_id=one_section_backlog_id,
-                    question_count=question_data_dict["question_count"],
-                    total_obtainable_marks=question_data_dict["total_obtainable_marks"],
-                    subsection_count=question_data_dict["subsection_count"],
-                )
-                for one_section_backlog_id, question_data_dict in section_backlog_questions_details_hashmap.items()  # type:ignore
-            ]
-        )
-
-        # * Now Creating the subsection_score instances
-        CandidateExamSubSectionScore.objects.bulk_create(
-            [
-                CandidateExamSubSectionScore(
-                    candidate_exam_id=candidate_exam_id,
-                    subsection_backlog_id=one_subsection_backlog_id,
-                    question_count=question_data_dict["question_count"],
-                    total_obtainable_marks=question_data_dict["total_obtainable_marks"],
-                )
-                for one_subsection_backlog_id, question_data_dict in subsection_backlog_questions_details_hashmap.items()  # type:ignore
-            ]
-        )
-        message = "Exam Submitted Successfully"
-        response_status = status.HTTP_200_OK
-
-        # * Updating the exam status to submitted
-        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="submitted")
-        candidate_exam_instance.refresh_from_db()
-        if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
-            if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
-                message = message + " but failed to send exam status through webhook"
-                response_status = status.HTTP_307_TEMPORARY_REDIRECT
-
-        return Response({"message": message}, status=response_status)
+        data = CandidateExamNinja().submit_candidate_exam(candidate_exam_id)
+        return Response({"message": data["message"]}, status=data["status"])
 
 
 # ---------------------------------------------------------------------------- #
