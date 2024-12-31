@@ -1,8 +1,6 @@
 import json
 import random
 
-from cryptography.fernet import Fernet
-from decouple import config
 from django.db import transaction
 from django.db.models import F, Prefetch, Q, Sum
 from rest_framework import status, views, viewsets
@@ -26,11 +24,8 @@ from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
     ExamBacklogQuestionChoice,
-    ExamBacklogQuestionChoiceMedia,
     ExamBacklogQuestionCountry,
-    ExamBacklogQuestionMedia,
     ExamBacklogQuestionRetryHint,
-    ExamBacklogQuestionRetryHintMedia,
 )
 from apps.exam_public.models.exam_public_models import (
     Candidate,
@@ -60,16 +55,12 @@ from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
-from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from apps.user.models.user_models import Role, RolePermission
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     decrypt_message,
     encrypt_message,
     get_encryption_key,
     make_error_response,
-    remove_extra_underscore_from_key_names,
 )
 
 # ---------------------------------------------------------------------------- #
@@ -169,97 +160,27 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     def send_exam_link_to_users(self, request, *args, **kwargs):
-        logged_in_user = request.user
         candidate_exam_ids = request.data["candidate_exam_ids"]
         if not len(candidate_exam_ids):
-            return Response({"message": "Candidate Exam ID's required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
-            list(
-                CandidateExam.objects.filter(id__in=candidate_exam_ids)
-                .annotate(
-                    first_name=F("candidate__user__first_name"),
-                    last_name=F("candidate__user__last_name"),
-                    exam=F("exam_backlog__name"),
-                )
-                .values()
-            )
-        )
-        organization_id = None
-        if not request.user.is_superuser:
-            organization_id = OrganizationUser.objects.filter(user_id=logged_in_user.id).values("organization").first()["organization"]  # type:ignore
-        for one_candidate_detail in candidate_exam_detail_queryset:
-            key = get_encryption_key()
-            cipher = Fernet(key)
-            candidate_exam_id = one_candidate_detail["id"]
-
-            data_to_encrypt = {
-                "email": one_candidate_detail["candidate_email"],
-                "candidate_exam_id": candidate_exam_id,
-                "organization_id": organization_id,
-            }
-            encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
-
-            token_data = encrypted_data.decode("utf-8")
-            token_data = f"{token_data}"
-            url = config("QB_PUBLIC_FE_URL")
-            final_url = f"{url}exam/get?token={token_data}"
-            send_email_data_dict = send_email_data_dict = {
-                "first_name": one_candidate_detail["first_name"] or "",
-                "last_name": one_candidate_detail["last_name"] or "",
-                "email": one_candidate_detail["candidate_email"],
-                "exam": one_candidate_detail["exam"],
-                "exam_duration": one_candidate_detail.get("exam_duration", ""),
-                "start_datetime": one_candidate_detail.get("start_datetime", "").strftime("%Y-%m-%d %H:%M:%S"),
-                "end_datetime": one_candidate_detail.get("end_datetime", "").strftime("%Y-%m-%d %H:%M:%S"),
-                "url": final_url,
-            }
-            email_notification_ninja = EmailNotification(send_email_data_dict)
-            if not email_notification_ninja.send_exam_link():
-                return Response(
-                    data={
-                        "Status": "failed",
-                        "message": f"Unable to send exam link to user: {one_candidate_detail['candidate_email']}",
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            del email_notification_ninja
-
+            return make_error_response(message="Candidate Exam ID's are required.")
+        CandidateExamNinja().send_exam_invitation_link(candidate_exam_ids)
         return Response({"message": "Exam invitation emails sent successfully"}, status=status.HTTP_200_OK)
 
+    @transaction.atomic
     @action(detail=True, methods=["get"], url_path="retry-hint")
     def candidate_exam_retry_hint(self, request, *args, **kwargs):
         question_backlog_id = request.query_params.get("question_backlog_id", None)
         if question_backlog_id is None:
             return make_error_response(message="Question Backlog id is required")
-
-        question_backlog_id = int(question_backlog_id)
         candidate_exam_id = int(self.kwargs["pk"])
-        candidate_exam_retryhints_ids = CandidateExamRetryhint.objects.filter(
-            candidate_exam_id=candidate_exam_id, exam_backlog_question_id=question_backlog_id
-        ).values_list("exam_backlog_question_retry_hint", flat=True)
-        exam_backlog_question = ExamBacklogQuestion.objects.filter(id=question_backlog_id).first()
-        if not exam_backlog_question:
-            return make_error_response(message="Question not found")
-        if len(candidate_exam_retryhints_ids) >= exam_backlog_question.max_retries:
-            return make_error_response(message="Max retries limit reached.")
-        else:
-            exam_backlog_question_retryhints_instances = list(
-                ExamBacklogQuestionRetryHint.objects.filter(exam_backlog_question=exam_backlog_question)
-                .prefetch_related(
-                    "exambacklogquestionretryhintmedia_set",
-                    "exambacklogquestionretryhintmedia_set__media",
-                )
-                .exclude(id__in=candidate_exam_retryhints_ids)
-            )
-            if not len(exam_backlog_question_retryhints_instances):
-                return make_error_response(message="No More Retries.")
-            random.shuffle(exam_backlog_question_retryhints_instances)
-            retry_hint_instance = exam_backlog_question_retryhints_instances[0]
-            CandidateExamRetryhint.objects.create(
-                candidate_exam_id=candidate_exam_id, exam_backlog_question=exam_backlog_question, exam_backlog_question_retry_hint=retry_hint_instance
-            )
-            data = ExamBacklogQuestionRetryHintSerializer(retry_hint_instance).data
+
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
+        if not candidate_exam_instance:
+            return make_error_response(message="Candidate Exam not found")
+
+        data = CandidateExamNinja().get_retry_hint_for_candidate_exam(
+            question_backlog_id=int(question_backlog_id), candidate_exam_id=candidate_exam_id
+        )
         return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="submit")
