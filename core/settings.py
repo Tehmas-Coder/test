@@ -18,6 +18,10 @@ from pathlib import Path
 import sentry_sdk
 from decouple import config
 
+# ---------------------------------------------------------------------------- #
+#                                SENTRY SETTINGS                               #
+# ---------------------------------------------------------------------------- #
+
 if int(config("ENABLE_SENTRY")):
     sentry_sdk.init(
         dsn=config("SENTRY_DSN"),  # type: ignore
@@ -40,22 +44,10 @@ STATIC_URL = "/static/"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if config("ENV") != "production" else False  #! SECURITY WARNING: don't run with debug turned on in production!
 
-
 DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 EMAIL_BACKEND = "django_ses.SESBackend"
-
-MOCK_FILE_UPLOAD = config("MOCK_FILE_UPLOAD", default=False, cast=bool)
-
-if MOCK_FILE_UPLOAD:
-    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-    MEDIA_ROOT = BASE_DIR / "media"
-    MEDIA_URL = "/media/"
-    if "test" in sys.argv:
-        MEDIA_ROOT = BASE_DIR / "media" / "test_files"
-else:
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 #! SECURITY WARNING: keep the secret key used in production secret!
 try:
@@ -68,6 +60,20 @@ try:
 except:
     print("### >> Please specify 'APP_KEY' variable in '.env' before proceeding forward!!")
     exit(0)
+
+# ---------------------------------------------------------------------------- #
+#                                MEDIA SETTINGS                                #
+# ---------------------------------------------------------------------------- #
+# Based on the mock file upload status, decides whether to use local storage or S3
+MOCK_FILE_UPLOAD = config("MOCK_FILE_UPLOAD", default=False, cast=bool)
+if MOCK_FILE_UPLOAD:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_ROOT = BASE_DIR / "media"
+    MEDIA_URL = "/media/"
+    if "test" in sys.argv:
+        MEDIA_ROOT = BASE_DIR / "media" / "test_files"
+else:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # ---------------------------------------------------------------------------- #
 #                                     AUTH                                     #
@@ -153,7 +159,6 @@ USE_TZ = 1
 #                                     APPS                                     #
 # ---------------------------------------------------------------------------- #
 
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -185,9 +190,9 @@ if DEBUG:
     ]
 
 
-##******************************************##
-# ?          DJANGO Q SETTINGS
-##******************************************##
+# ---------------------------------------------------------------------------- #
+#                               DJANGO Q SETTINGS                              #
+# ---------------------------------------------------------------------------- #
 Q_CLUSTER = {
     "name": "default",
     "workers": 2,  # 2 workers for a bit of concurrency
@@ -202,7 +207,6 @@ Q_CLUSTER = {
 # ---------------------------------------------------------------------------- #
 #                                REST FRAMEWORK                                #
 # ---------------------------------------------------------------------------- #
-
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -303,6 +307,7 @@ DATABASES = {
 # ---------------------------------------------------------------------------- #
 #                                   FIXTURES                                   #
 # ---------------------------------------------------------------------------- #
+
 FIXTURE_DIRS = [
     BASE_DIR / "apps" / "lookups" / "seeds",
     BASE_DIR / "apps" / "lookups" / "tests" / "seeds",
