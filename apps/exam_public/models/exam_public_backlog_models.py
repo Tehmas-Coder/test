@@ -166,6 +166,12 @@ class ExamBacklogQuestionRetryHint(BaseModel):
         app_label = "exam_public"
         db_table = "exam_public_exambacklog_question_retryhint"
 
+    @classmethod
+    def get_detail_queryset(cls, media=True, q_filter=models.Q()):
+        return cls.objects.filter(q_filter).prefetch_related(
+            models.Prefetch("exambacklogquestionretryhintmedia_set", queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"))
+        )
+
 
 class ExamBacklogQuestionRetryHintMedia(BaseModel):
     exam_backlog_question_retry_hint = models.ForeignKey(ExamBacklogQuestionRetryHint, on_delete=models.CASCADE)
