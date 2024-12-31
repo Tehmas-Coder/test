@@ -167,6 +167,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "eb_sqs",
+    "django_q",
     # * System
     "apps.emails",
     "apps.ping",
@@ -182,6 +183,21 @@ if DEBUG:
     INSTALLED_APPS += [
         "silk",
     ]
+
+
+##******************************************##
+# ?          DJANGO Q SETTINGS
+##******************************************##
+Q_CLUSTER = {
+    "name": "default",
+    "workers": 2,  # 2 workers for a bit of concurrency
+    "timeout": 30,  # Shorter timeout (assuming tasks are small)
+    "retry": 120,  # Retry after 2 minutes if a task fails
+    "queue_limit": 50,  # Reasonable limit for queued tasks
+    "bulk": 4,  # Fetch up to 4 tasks from the queue at once
+    "orm": "default",  # Using Django ORM as the broker
+    "cpu_affinity": 1,  # (Optional) Keep CPU usage predictable
+}
 
 # ---------------------------------------------------------------------------- #
 #                                REST FRAMEWORK                                #
