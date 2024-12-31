@@ -48,7 +48,7 @@ def email_send_hook(task, *args, **kwargs):
 
     except Exception as e:
         color_print(f"Exception in email_send_hook: {e}", "red")
-        raise
+        raise e
 
 
 def send_email_task(
@@ -103,7 +103,7 @@ def send_email_task(
     # Queue the email sending task asynchronously
     try:
         color_print(f"Queuing email sending task for log ID: {email_log.id}", color="yellow")  # type: ignore
-        async_task(
+        return async_task(
             send_email_with_attachment_task,
             email_log_id=email_log.id,  # type: ignore
             hook="apps.emails.views.emails_views.email_send_hook",

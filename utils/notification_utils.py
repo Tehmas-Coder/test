@@ -12,6 +12,9 @@ from botocore.exceptions import ClientError
 from decouple import config
 from django.core.mail import send_mail
 
+from apps.emails.views.emails_views import send_email_task
+from utils.rna_utils import debug_print
+
 # ------------------------------------------------------
 # *                  SMS Utils
 # ------------------------------------------------------
@@ -92,16 +95,26 @@ def send_email_notification_to_list(
 
 
 def add_to_email_queue(message: dict):
-    sqs_client = boto3.client("sqs")
-    if config("MOCK_SEND_EMAIL") == "1":
+    # sqs_client = boto3.client("sqs")
+    # if config("MOCK_SEND_EMAIL") == "1":
+    #     return 200
+    # else:
+    #     try:
+    #         response = sqs_client.send_message(QueueUrl=config("EMAIL_QUEUE_NAME"), MessageBody=json.dumps(message))
+    #         return response["ResponseMetadata"]["HTTPStatusCode"]
+    #     except ClientError as error:
+    #         print(error)
+    #         return error
+    if config("MOCK_SEND_EMAIL") == "0":
         return 200
     else:
-        try:
-            response = sqs_client.send_message(QueueUrl=config("EMAIL_QUEUE_NAME"), MessageBody=json.dumps(message))
-            return response["ResponseMetadata"]["HTTPStatusCode"]
-        except ClientError as error:
-            print(error)
-            return error
+        result = send_email_task(
+            subject=message["subject"],
+            html_content=message["email_body_html"],
+            from_email=message["from_email"],
+            to_email_list=message["to_email_list"],
+        )
+        return 200 if type(result) == str else 400
 
 
 def send_email_with_attachment(
