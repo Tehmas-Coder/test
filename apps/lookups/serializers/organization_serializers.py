@@ -35,6 +35,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "url",
             "users_count",
             "candidates_count",
             "country",
