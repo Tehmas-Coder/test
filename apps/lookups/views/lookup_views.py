@@ -150,7 +150,6 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         organization = serializer.save()
         response = OrganizationSerializer(organization).data
-        transaction.set_rollback(True)
         return Response(response, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
