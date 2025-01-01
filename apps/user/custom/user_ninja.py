@@ -12,7 +12,7 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.models.user_models import BaseUser
-from apps.user.utils.utils import get_roles_names
+from apps.user.utils.utils import get_current_user_organization, get_roles_names
 from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import get_encryption_key, make_error_response
@@ -40,6 +40,9 @@ class UserNinja:
         self.request_data_role_ids: list = self.data_dict.pop("roles", [])
         self.is_requested_role_candidate: bool = "candidate" in get_roles_names(self.request_data_role_ids)
         organization = self.data_dict.get("organization", None)
+
+        if "candidate" in self.logged_in_user_roles:
+            ResponseMiddleware.return_now(make_error_response(message="Candidate is not allowed to create a user"))
 
         self.created_user_data = self.__validate_and_save_user()
         self.__create_candidate_or_organization_user(organization)
@@ -90,16 +93,13 @@ class UserNinja:
 
     def __create_candidate_or_organization_user(self, organization):
         if not self.is_super_user:
-            organization = OrganizationUser.objects.filter(user_id=self.logged_in_user.id).values("organization_id").first()["organization_id"]  # type: ignore
-            if "candidate" in self.logged_in_user_roles:
-                transaction.set_rollback(True)
-                ResponseMiddleware.return_now(make_error_response(message="Candidate is not allowed to create a user"))
+            organization = get_current_user_organization()
         if self.is_requested_role_candidate:
             self.__create_candidate(organization, self.created_user_data["id"])  # type: ignore
-        elif organization is None:
-            transaction.set_rollback(True)
-            ResponseMiddleware.return_now(make_error_response(message="Organization is required for creating organization user"))
         else:
+            if not organization:
+                transaction.set_rollback(True)
+                ResponseMiddleware.return_now(make_error_response(message="Organization is required for creating organization user"))
             self.__create_organization_user(organization, self.created_user_data["id"])  # type: ignore
 
     def __create_candidate(self, organization, user_id):
