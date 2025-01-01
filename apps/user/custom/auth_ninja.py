@@ -49,24 +49,31 @@ class AuthNinja:
         # * Adding role to user
         role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
         user_instance.roles.add(role_id["id"])  # type:ignore
+        # * Creating candidate instance
+        if self.exam_token:
+            decrypted_data = AuthNinja.decrypt_exam_token(self.exam_token)
+            self.create_candidate_with_exam_token(user_instance, decrypted_data)
+        else:
+            Candidate.objects.create(user=user_instance)
         # * Sending OTP to user
         if not user_instance.send_otp():  # type:ignore
             transaction.set_rollback(True)
-            ResponseMiddleware.return_now(make_error_response(message="Failed to send email, please try again"))
-
-        if not self.exam_token:
-            Candidate.objects.create(user=user_instance)
-        else:
-            self.create_candidate_with_exam_token(user_instance, self.exam_token)
+            ResponseMiddleware.return_now(make_error_response(message="Failed to send OTP, please try again"))
         return response_data
 
     @staticmethod
-    def create_candidate_with_exam_token(user_instance, token):
-        key = get_encryption_key()
-        cipher = Fernet(key)
-        decrypted_data = json.loads(cipher.decrypt(token).decode())
+    def create_candidate_with_exam_token(user_instance, decrypted_data):
         organization_id = decrypted_data["organization_id"]
         candidate_exam_id = decrypted_data["candidate_exam_id"]
         candidate_instance, _ = Candidate.objects.get_or_create(user=user_instance, organization_id=organization_id)
         CandidateExam.objects.filter(id=candidate_exam_id).update(candidate=candidate_instance)
-        return candidate_instance
+
+    @staticmethod
+    def decrypt_exam_token(token):
+        key = get_encryption_key()
+        cipher = Fernet(key)
+        try:
+            decrypted_data = json.loads(cipher.decrypt(token).decode())
+        except:
+            ResponseMiddleware.return_now(make_error_response(message="Invalid Token"))
+        return decrypted_data
