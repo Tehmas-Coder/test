@@ -1,8 +1,7 @@
-from django.db.models import Count, F, Prefetch
+from django.db.models import F
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from apps.exam_public.models.exam_public_models import Candidate
 from apps.exam_public.serializers.candidate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
@@ -33,20 +32,7 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
 
     def get_candidate_organizations_list(self, request, *args, **kwargs):
         candidate_with_organizations_instance = (
-            BaseUser.objects.filter(id=get_current_user().id)  # type: ignore
-            .select_related("country")
-            .prefetch_related(
-                Prefetch(
-                    "user_candidates",
-                    queryset=Candidate.objects.select_related("organization", "organization__country")
-                    .prefetch_related(
-                        "organization__organization_packages",
-                        "organization__organization_packages__package",
-                    )
-                    .all(),
-                )
-            )
-            .first()
+            BaseUser.get_detail_queryset(country=True, user_candidates=True).filter(id=get_current_user().id).first()  # type: ignore
         )
         if not candidate_with_organizations_instance:
             return make_error_response(message="Candidate not found")

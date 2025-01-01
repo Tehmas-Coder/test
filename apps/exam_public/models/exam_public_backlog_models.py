@@ -1,5 +1,8 @@
 from django.db import models
 
+from apps.exam_public.helpers.queryset_functions import (
+    get_exambacklogquestion_detailed_queryset,
+)
 from core.models import BaseModel
 
 # ---------------------------------------------------------------------------- #
@@ -64,6 +67,10 @@ class ExamBacklogQuestion(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_exambacklog_question"
+
+    @classmethod
+    def get_detail_queryset(cls, all=False, get_answers=False, q_filter=models.Q()):
+        return get_exambacklogquestion_detailed_queryset(cls, all, get_answers, q_filter)
 
 
 # -------------------------- QUESTION MEDIA BACKLOG -------------------------- #
@@ -158,6 +165,12 @@ class ExamBacklogQuestionRetryHint(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_exambacklog_question_retryhint"
+
+    @classmethod
+    def get_detail_queryset(cls, media=True, q_filter=models.Q()):
+        return cls.objects.filter(q_filter).prefetch_related(
+            models.Prefetch("exambacklogquestionretryhintmedia_set", queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"))
+        )
 
 
 class ExamBacklogQuestionRetryHintMedia(BaseModel):

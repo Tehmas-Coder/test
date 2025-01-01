@@ -108,8 +108,8 @@ class BaseUser(BaseUserModel, AbstractUser):
         return cls.objects.filter(email=email).first()
 
     @classmethod
-    def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False):
-        return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission)
+    def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False, user_candidates=False):
+        return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission, user_candidates)
 
     def verify_otp(self, otp: str) -> bool:
         if self.otp != otp:

@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 
 from apps.exam_admin.helpers.queryset_functions import get_exam_detailed_queryset
 from apps.user.utils.utils import get_current_user_organization
@@ -92,9 +92,9 @@ class Exam(BaseModel):
 
     @classmethod
     def get_detail_queryset(
-        cls, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False
+        cls, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False, q_filter=Q()
     ) -> QuerySet:
-        return get_exam_detailed_queryset(cls, sections, exam_subject, exam_subject_questions, exam_subject_questions_question, all)
+        return get_exam_detailed_queryset(cls, sections, exam_subject, exam_subject_questions, exam_subject_questions_question, all, q_filter)
 
 
 # ---------------------------------------------------------------------------- #

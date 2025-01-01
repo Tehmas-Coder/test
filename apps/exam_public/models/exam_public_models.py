@@ -1,5 +1,9 @@
 from django.db import models
 
+from apps.exam_public.helpers.queryset_functions import (
+    get_candidate_detailed_queryset,
+    get_candidate_exam_detailed_queryset,
+)
 from core.models import BaseModel
 
 MEDIA_MODEL = "user.Media"
@@ -12,6 +16,10 @@ class Candidate(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidate"
+
+    @classmethod
+    def get_detail_queryset(cls, organization=False, user=False) -> models.QuerySet:
+        return get_candidate_detailed_queryset(cls, organization, user)
 
 
 class CandidateExam(BaseModel):
@@ -44,6 +52,21 @@ class CandidateExam(BaseModel):
 
     class Meta:
         app_label = "exam_public"
+
+    @classmethod
+    def get_detail_queryset(
+        cls,
+        exam_backlog: bool = False,
+        schedule: bool = False,
+        candidate: bool = False,
+        q_filter: models.Q = models.Q(),
+        exam_backlog_question: bool = False,
+        get_answers: bool = False,
+        exam_backlog_question_filter=models.Q(),
+    ) -> models.QuerySet:
+        return get_candidate_exam_detailed_queryset(
+            cls, exam_backlog, schedule, candidate, q_filter, exam_backlog_question, get_answers, exam_backlog_question_filter
+        )
 
 
 class CandidateExamStatusLog(BaseModel):
