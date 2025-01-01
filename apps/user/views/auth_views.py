@@ -1,10 +1,7 @@
-import json
-
-from cryptography.fernet import Fernet
 from django.contrib.auth import login
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status, views, viewsets
+from rest_framework import status, views, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,17 +12,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
+from apps.user.custom.auth_ninja import AuthNinja
 from apps.user.serializers.auth_serializers import LoginSerializer
-from apps.user.serializers.user_serializers import UserSerializer
-from utils.rna_utils import (
-    debug_print,
-    get_encryption_key,
-    make_error_response,
-    make_success_response,
-)
+from utils.rna_utils import make_error_response, make_success_response
 
-from ..models.user_models import BaseUser, Role
+from ..models.user_models import BaseUser
 
 
 class RegisterApiView(views.APIView):
@@ -33,49 +24,10 @@ class RegisterApiView(views.APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        token_data = request.query_params.get("token", None)
-        if "is_superuser" in request.data:
-            try:
-                request.data["is_verified"] = True
-                super_user_instance = BaseUser.objects.create_superuser(
-                    email=request.data.pop("email"),
-                    password=request.data.pop("password"),
-                    **request.data,
-                )
-                serializer = UserSerializer(super_user_instance, context={"mutator": True})
-                return Response(serializer.data, status=201)
-            except Exception as e:
-                return make_error_response(message=f"{str(e)}")
-
-        else:
-            serializer = UserSerializer(data=request.data, context={"mutator": False})
-            if serializer.is_valid():
-                user_instance = serializer.save()
-                role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
-                user_instance.roles.add(role_id["id"])  # type:ignore
-                if not user_instance.send_otp():  # type:ignore
-                    transaction.set_rollback(True)
-                    raise serializers.ValidationError({"error": "Failed to send email, please try again"})
-
-                # * This if block code is for user registration on exam attempt and this token is generated from exam API
-                if token_data is not None:
-                    key = get_encryption_key()
-                    cipher = Fernet(key)
-                    decrypted_data = json.loads(cipher.decrypt(token_data).decode())
-                    organization_id = decrypted_data["organization_id"]
-                    candidate_exam_id = decrypted_data["candidate_exam_id"]
-                    if organization_id:
-                        candidate_instance = Candidate.objects.create(user=user_instance, organization_id=organization_id)
-                    else:
-                        candidate_instance = Candidate.objects.create(user=user_instance)
-
-                    CandidateExam.objects.filter(id=candidate_exam_id).update(candidate=candidate_instance)
-                else:
-                    Candidate.objects.create(user=user_instance)
-                return Response(serializer.data, status=201)
-            if "email" in serializer.errors:
-                return Response({"error": "User with this email already exists"}, status=400)
-            return Response(serializer.errors, status=400)
+        token = request.query_params.get("token")
+        auth_ninja_instance = AuthNinja(token, request.data)
+        response_data = auth_ninja_instance.register()
+        return Response(response_data, status=201)
 
 
 class LoginApiView(TokenObtainPairView):
@@ -83,30 +35,21 @@ class LoginApiView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        email = request.data.get("email", None)  # type: ignore
-        token_data = request.query_params.get("token", None)
-        if not email:
-            return make_error_response(message="Email is required!")
+        request_data = request.data
+        email: str = request_data["email"]  # type: ignore
+        exam_token = request.query_params.get("token")
         user = BaseUser.get_user_by_email(email)
         if not user:
             return make_error_response(message="User not found!")
-
-        # * This token data is for candidate user creation on exam attempt and is generated from exam API
-        if token_data is not None:
-            key = get_encryption_key()
-            cipher = Fernet(key)
-            decrypted_data = json.loads(cipher.decrypt(token_data).decode())
-            organization_id = decrypted_data["organization_id"]
-            candidate_exam_id = decrypted_data["candidate_exam_id"]
-            candidate_instance, _ = Candidate.objects.get_or_create(user=user, organization_id=organization_id)
-            CandidateExam.objects.filter(id=candidate_exam_id).update(candidate=candidate_instance)
+        if exam_token:
+            AuthNinja.create_candidate_with_exam_token(exam_token, user)
 
         user_role_name = None
-        if "is_system_user" in request.data:  # type: ignore
+        if "is_system_user" in request_data:  # type: ignore
             user_role_name = user.roles.all().values().first()
 
         if user_role_name == None:
-            if not user.is_verified:  # type: ignore
+            if not user.is_verified:
                 return make_error_response(message="User is not verified!")
 
         return super().post(request, *args, **kwargs)
@@ -149,8 +92,7 @@ class OTPViewSet(viewsets.ViewSet):
             return Response(self.USER_NOT_FOUND, status=404)
         if user.is_verified:
             return make_error_response(message="User is already verified!")
-        otp_sent = user.send_otp()
-        if not otp_sent:
+        if not user.send_otp():
             return make_error_response(message="Failed to send OTP, please try again")
         return Response({"status": "sent", "message": "OTP sent!"})
 
