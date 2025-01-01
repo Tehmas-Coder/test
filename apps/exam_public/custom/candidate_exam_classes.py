@@ -102,6 +102,7 @@ class CandidateExamNinja:
                 "email": one_candidate_detail["candidate_email"],
                 "candidate_exam_id": candidate_exam_id,
                 "organization_id": organization_id,
+                "is_public": one_candidate_detail["is_public"],
             }
             encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
 

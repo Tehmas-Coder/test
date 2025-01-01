@@ -45,12 +45,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from utils.rna_utils import (
-    decrypt_message,
-    encrypt_message,
-    get_encryption_key,
-    make_error_response,
-)
+from utils.rna_utils import make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
