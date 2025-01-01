@@ -31,8 +31,8 @@ class AuthNinja:
         try:
             self.request_data["is_verified"] = True
             super_user_instance = BaseUser.objects.create_superuser(
-                username="", email=self.request_data.pop("email"), password=self.request_data.pop("password"), **self.request_data
-            )
+                email=self.request_data.pop("email"), password=self.request_data.pop("password"), **self.request_data
+            )  # type:ignore
             serializer = UserSerializer(super_user_instance, context={"mutator": True})
             return serializer.data
         except Exception as e:

@@ -36,7 +36,7 @@ class LoginApiView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         request_data = request.data
-        email: str = request_data["email"]  # type: ignore
+        email: str = request_data.get("email")  # type: ignore
         exam_token = request.query_params.get("token")
         user = BaseUser.get_user_by_email(email)
         if not user:
