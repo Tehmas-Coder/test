@@ -13,6 +13,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from apps.user.custom.auth_ninja import AuthNinja
+from apps.user.custom.otp_ninja import OTPNinja
 from apps.user.serializers.auth_serializers import LoginSerializer
 from utils.rna_utils import make_error_response, make_success_response
 
@@ -74,26 +75,16 @@ class OTPViewSet(viewsets.ViewSet):
     USER_NOT_FOUND = {"error": "User not found!"}
 
     def verify_otp(self, request, *args, **kwargs):
-        user = get_object_or_404(BaseUser, email=request.data.get("email", None))
-        if not user:
-            return Response(self.USER_NOT_FOUND, status=404)
-        if user.is_verified:
-            return make_error_response(message="User is already verified!")
+        email = request.data.get("email")
         otp = request.data.get("otp")
         if not otp:
             return Response({"error": "OTP is required"}, status=400)
-        if not user.verify_otp(otp):
-            return make_error_response(message="Invalid OTP")
+        OTPNinja(email).verify_otp(otp)
         return make_success_response(message="User verified!")
 
     def resend_otp(self, request, *args, **kwargs):
-        user = get_object_or_404(BaseUser, email=request.data.get("email", None))
-        if not user:
-            return Response(self.USER_NOT_FOUND, status=404)
-        if user.is_verified:
-            return make_error_response(message="User is already verified!")
-        if not user.send_otp():
-            return make_error_response(message="Failed to send OTP, please try again")
+        email = request.data.get("email")
+        OTPNinja(email).resend_otp()
         return Response({"status": "sent", "message": "OTP sent!"})
 
 
