@@ -5,6 +5,7 @@ from cryptography.fernet import Fernet
 from decouple import config
 from django.db.models import F, Q, Sum
 from rest_framework import status
+from rest_framework.response import Response
 
 from apps.exam_public.helpers.candidate_exam_helpers import (
     get_detailed_candidate_exam_with_country_based_questions,
@@ -24,6 +25,9 @@ from apps.exam_public.models.exam_public_models import (
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retryhint_serializer import (
     ExamBacklogQuestionRetryHintSerializer,
 )
+from apps.exam_public.serializers.candidate_exam_serializers import (
+    CandidateExamDetailSerializer,
+)
 from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
@@ -33,6 +37,8 @@ from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
+    decrypt_message,
+    encrypt_message,
     get_encryption_key,
     make_error_response,
     remove_extra_underscore_from_key_names,
@@ -128,20 +134,19 @@ class CandidateExamNinja:
             ResponseMiddleware.return_now(make_error_response(message="Question not found"))
         if len(candidate_exam_retryhints_ids) >= exam_backlog_question.max_retries:  # type:ignore
             ResponseMiddleware.return_now(make_error_response(message="Max retries limit reached."))
-        else:
-            exam_backlog_question_retryhints_instances = list(
-                ExamBacklogQuestionRetryHint.get_detail_queryset(media=True, q_filter=Q(exam_backlog_question=exam_backlog_question)).exclude(
-                    id__in=candidate_exam_retryhints_ids
-                )
+        exam_backlog_question_retryhints_instances = list(
+            ExamBacklogQuestionRetryHint.get_detail_queryset(media=True, q_filter=Q(exam_backlog_question=exam_backlog_question)).exclude(
+                id__in=candidate_exam_retryhints_ids
             )
-            if not len(exam_backlog_question_retryhints_instances):
-                ResponseMiddleware.return_now(make_error_response(message="No More Retries."))
-            random.shuffle(exam_backlog_question_retryhints_instances)
-            retry_hint_instance = exam_backlog_question_retryhints_instances[0]
-            CandidateExamRetryhint.objects.create(
-                candidate_exam_id=candidate_exam_id, exam_backlog_question=exam_backlog_question, exam_backlog_question_retry_hint=retry_hint_instance
-            )
-            return ExamBacklogQuestionRetryHintSerializer(retry_hint_instance).data
+        )
+        if not len(exam_backlog_question_retryhints_instances):
+            ResponseMiddleware.return_now(make_error_response(message="No More Retries."))
+        random.shuffle(exam_backlog_question_retryhints_instances)
+        retry_hint_instance = exam_backlog_question_retryhints_instances[0]
+        CandidateExamRetryhint.objects.create(
+            candidate_exam_id=candidate_exam_id, exam_backlog_question=exam_backlog_question, exam_backlog_question_retry_hint=retry_hint_instance
+        )
+        return ExamBacklogQuestionRetryHintSerializer(retry_hint_instance).data
 
     def submit_candidate_exam(self, candidate_exam_id: int) -> dict:
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
@@ -167,6 +172,16 @@ class CandidateExamNinja:
                 response_status = status.HTTP_307_TEMPORARY_REDIRECT
 
         return {"message": message, "status": response_status}
+
+    def attempt_candidate_exam(self, request_data: dict) -> dict:
+        response_data = {}
+
+        if "key" not in request_data:
+            response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_not_present(request_data, response_data)
+        else:
+            response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_present(request_data, response_data)
+
+        return response_data
 
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #
@@ -353,3 +368,81 @@ class CandidateExamNinja:
                 + one_candidate_exam_questions_with_subsection.total_marks
             )
         return subsection_backlog_questions_details_hashmap
+
+    def __set_response_data_for_attempt_candidate_exam_when_key_not_present(self, request_data: dict, response_data: dict) -> dict:
+        """
+        - This function sets the response data for attempt candidate exam when key is not present in request data
+        """
+        candidate_exam_id = request_data.get("candidate_exam_id")
+        if not candidate_exam_id:
+            ResponseMiddleware.return_now(make_error_response(message="Candidate Exam ID is required"))
+
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
+        if not candidate_exam_instance:
+            ResponseMiddleware.return_now(make_error_response(message="Candidate Exam not found"))
+
+        if candidate_exam_instance.exam_status != "assigned":  # type:ignore
+            ResponseMiddleware.return_now(make_error_response(message="Exam has already been attempted"))
+
+        candidate_exam_instance = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
+        self.candidate_exam_data = CandidateExamDetailSerializer(
+            candidate_exam_instance, context={"get_retry_hints": candidate_exam_instance.is_preparatory}  # type: ignore
+        ).data
+
+        all_questions = self.__get_candidate_exam_all_questions()
+        encryption_data = json.dumps({"all_questions": all_questions, "candidate_exam": self.candidate_exam_data})
+        key = get_encryption_key()
+        encrypted_data = encrypt_message(encryption_data, key)
+        response_data["question"] = all_questions[0] if len(all_questions) else {}
+        response_data["candidate_exam"] = self.candidate_exam_data
+        response_data["key"] = encrypted_data
+        return response_data
+
+    def __get_candidate_exam_all_questions(self) -> list:
+        """
+        - This function gets all the questions from the candidate exam data
+        """
+        all_questions = self.candidate_exam_data["exam_backlog"].pop("questions")  # type:ignore
+        sections = self.candidate_exam_data["exam_backlog"].pop("sections")  # type:ignore
+        if len(sections):
+            for one_section in sections:
+                all_questions.extend(one_section["questions"])
+                subsections = one_section["subsections"]
+                if len(subsections):
+                    for one_subsection in subsections:
+                        all_questions.extend(one_subsection["questions"])
+        return all_questions
+
+    def __set_response_data_for_attempt_candidate_exam_when_key_present(self, request_data: dict, response_data: dict) -> dict:
+        """
+        - This function sets the response data for attempt candidate exam when key is present in request data it response with the next question in the exam sequence
+        """
+        encrypted_data = request_data.get("key")
+        decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))  # type:ignore
+        previous_question_backlog_id = request_data.get("question_backlog_id")
+        all_questions = decrypted_data["all_questions"]
+        if not previous_question_backlog_id:
+            answered_questions_list = list(
+                CandidateExamAnswer.objects.filter(candidate_exam_id=decrypted_data["candidate_exam"]["id"], is_attempted=True)
+                .values_list("exam_backlog_question", flat=True)
+                .distinct()
+            )
+            previous_question_backlog_id = answered_questions_list[-1] if len(answered_questions_list) else None
+
+        if previous_question_backlog_id:
+            previous_question_index = None
+            for index, one_question in enumerate(all_questions):
+                if str(one_question["id"]) == str(previous_question_backlog_id):
+                    previous_question_index = index
+                    break
+            if previous_question_index == None:
+                ResponseMiddleware.return_now(make_error_response(message="Invalid Question ID"))
+            next_question_index = previous_question_index + 1  # type:ignore
+            if next_question_index >= len(all_questions):
+                ResponseMiddleware.return_now(Response(status=status.HTTP_204_NO_CONTENT))
+            response_data["question"] = all_questions[next_question_index]
+        else:
+            response_data["question"] = all_questions[0]
+        response_data["candidate_exam"] = decrypted_data["candidate_exam"]
+        response_data["key"] = encrypted_data
+        return response_data

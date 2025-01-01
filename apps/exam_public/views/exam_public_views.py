@@ -187,72 +187,7 @@ class AttemptCandidateExamAPI(views.APIView):
 
     def post(self, request, *args, **kwargs):
         request_data = request.data
-        response_data = {}
-
-        if "key" not in request_data:
-            candidate_exam_id = request_data.get("candidate_exam_id")
-            if not candidate_exam_id:
-                return make_error_response(message="Candidate Exam ID is required")
-
-            candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
-            if not candidate_exam_instance:
-                return make_error_response(message="Candidate Exam not found")
-
-            if candidate_exam_instance.exam_status != "assigned":
-                return make_error_response(message="Exam has already been attempted")
-
-            candidate_exam_instance = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
-            candidate_exam_data = CandidateExamDetailSerializer(
-                candidate_exam_instance, context={"get_retry_hints": candidate_exam_instance.is_preparatory}  # type: ignore
-            ).data
-            all_questions = []
-            if isinstance(candidate_exam_data, dict):
-                all_questions = candidate_exam_data["exam_backlog"].pop("questions")
-                sections = candidate_exam_data["exam_backlog"].pop("sections")
-                if len(sections):
-                    for one_section in sections:
-                        all_questions.extend(one_section["questions"])
-                        subsections = one_section["subsections"]
-                        if len(subsections):
-                            for one_subsection in subsections:
-                                all_questions.extend(one_subsection["questions"])
-
-            encryption_data = json.dumps({"all_questions": all_questions, "candidate_exam": candidate_exam_data})
-            key = get_encryption_key()
-            encrypted_data = encrypt_message(encryption_data, key)
-            response_data["question"] = all_questions[0] if len(all_questions) else {}
-            response_data["candidate_exam"] = candidate_exam_data
-            response_data["key"] = encrypted_data
-        else:
-            encrypted_data = request_data.get("key")
-            decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
-            previous_question_backlog_id = request_data.get("question_backlog_id")
-            all_questions = decrypted_data["all_questions"]
-            if not previous_question_backlog_id:
-                answered_questions_list = list(
-                    CandidateExamAnswer.objects.filter(candidate_exam_id=decrypted_data["candidate_exam"]["id"], is_attempted=True)
-                    .values_list("exam_backlog_question", flat=True)
-                    .distinct()
-                )
-                previous_question_backlog_id = answered_questions_list[-1] if len(answered_questions_list) else None
-
-            if previous_question_backlog_id:
-                previous_question_index = None
-                for index, one_question in enumerate(all_questions):
-                    if str(one_question["id"]) == str(previous_question_backlog_id):
-                        previous_question_index = index
-                        break
-                if previous_question_index == None:
-                    return make_error_response(message="Invalid Question ID")
-                next_question_index = previous_question_index + 1
-                if next_question_index >= len(all_questions):
-                    return Response(status=status.HTTP_204_NO_CONTENT)
-                response_data["question"] = all_questions[next_question_index]
-            else:
-                response_data["question"] = all_questions[0]
-            response_data["candidate_exam"] = decrypted_data["candidate_exam"]
-            response_data["key"] = encrypted_data
-
+        response_data = CandidateExamNinja().attempt_candidate_exam(request_data)
         return Response(response_data, status=status.HTTP_200_OK)
 
 
