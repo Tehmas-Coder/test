@@ -14,7 +14,7 @@ from rest_framework_simplejwt.views import (
 from apps.user.custom.auth_ninja import AuthNinja
 from apps.user.custom.otp_ninja import OTPNinja
 from apps.user.serializers.auth_serializers import LoginSerializer
-from utils.rna_utils import make_error_response, make_success_response
+from utils.rna_utils import color_print, make_error_response, make_success_response
 
 from ..models.user_models import BaseUser
 
@@ -42,7 +42,8 @@ class LoginApiView(TokenObtainPairView):
         if not user:
             return make_error_response(message="User not found!")
         if exam_token:
-            AuthNinja.create_candidate_with_exam_token(exam_token, user)
+            decrypted_data = AuthNinja.decrypt_exam_token(exam_token)
+            AuthNinja.create_candidate_with_exam_token(user, decrypted_data)
 
         user_role_name = None
         if "is_system_user" in request_data:  # type: ignore
@@ -71,7 +72,6 @@ class TokenRefreshApiView(TokenRefreshView):
 
 class OTPViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
-    USER_NOT_FOUND = {"error": "User not found!"}
 
     def verify_otp(self, request, *args, **kwargs):
         email = request.data.get("email")
@@ -90,10 +90,8 @@ class OTPViewSet(viewsets.ViewSet):
 class SaToQBLoginApiView(TokenObtainPairView):
 
     def post(self, request):
-
         if "is_system_user" not in request.data:
             return Response({"error": "Invalid request"}, status=status.HTTP_401_UNAUTHORIZED)
-
         email = request.data.get("email", None)
         if not email:
             return make_error_response(message="Email is required!")
@@ -104,3 +102,31 @@ class SaToQBLoginApiView(TokenObtainPairView):
         refresh = RefreshToken.for_user(user)
         auth_data = {"refresh": str(refresh), "access": str(refresh.access_token)}  # type: ignore
         return Response(auth_data, status=status.HTTP_200_OK)
+
+
+class ExamTokenHandlerAPIView(views.APIView):
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        token = request.data.get("token")
+        decrypted_data = AuthNinja.decrypt_exam_token(token)
+        color_print(decrypted_data)
+        user = BaseUser.objects.filter(email=decrypted_data["email"]).first()
+        if not decrypted_data["is_public"]:
+            if user:
+                data["route"] = "login"
+            else:
+                data["route"] = "register"
+        else:
+            if not user:
+                user = BaseUser.objects.create(email=decrypted_data["email"])
+                user.set_password("12345678")
+                user.save()
+            AuthNinja.create_candidate_with_exam_token(user, decrypted_data)
+            login(request, user)
+            refresh = RefreshToken.for_user(user)
+            data["refresh"] = str(refresh)
+            data["access"] = str(refresh.access_token)  # type: ignore
+            data["route"] = "exam"
+        return Response(data, status=status.HTTP_200_OK)

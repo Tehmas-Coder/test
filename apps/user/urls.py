@@ -21,6 +21,7 @@ urlpatterns = [
     path("system-to-qb-login/", SaToQBLoginApiView.as_view()),
     path("update-role-permissions-from-sa-be/", RolePermissionViewSet.as_view({"put": "update_role_permissions_from_sa_be"})),
     path("create-system-user/", CreateSystemUserAPI.as_view({"post": "user_creation_by_system_user"})),
+    path("exam-token-handler/", ExamTokenHandlerAPIView.as_view()),
 ]
 # ----------------------------------- USERS ---------------------------------- #
 router.register(r"users", UserViewSet)
