@@ -1,6 +1,5 @@
 from django.contrib.auth import login
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from rest_framework import status, views, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
