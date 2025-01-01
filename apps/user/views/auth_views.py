@@ -91,23 +91,16 @@ class SaToQBLoginApiView(TokenObtainPairView):
 
     def post(self, request):
 
-        if "is_system_user" in request.data:
-            email = request.data.get("email", None)
-
-            if not email:
-                return make_error_response(message="Email is required!")
-            user = BaseUser.get_user_by_email(email)
-            if not user:
-                return make_error_response(message="User not found!")
-
-            login(request, user)
-            refresh = RefreshToken.for_user(user)
-            auth_data = {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),  # type: ignore
-            }
-
-            return Response(auth_data, status=status.HTTP_200_OK)
-
-        else:
+        if "is_system_user" not in request.data:
             return Response({"error": "Invalid request"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        email = request.data.get("email", None)
+        if not email:
+            return make_error_response(message="Email is required!")
+        user = BaseUser.get_user_by_email(email)
+        if not user:
+            return make_error_response(message="User not found!")
+        login(request, user)
+        refresh = RefreshToken.for_user(user)
+        auth_data = {"refresh": str(refresh), "access": str(refresh.access_token)}  # type: ignore
+        return Response(auth_data, status=status.HTTP_200_OK)
