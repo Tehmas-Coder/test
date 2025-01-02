@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from django.contrib.auth.models import AbstractUser, UserManager
@@ -69,6 +69,7 @@ class BaseUser(BaseUserModel, AbstractUser):
     phone = models.CharField(_("phone"), max_length=15, blank=True)
     date_of_birth = models.DateField(_("date of birth"), blank=True, null=True)
     otp = models.CharField(_("otp"), max_length=6, blank=True)
+    otp_expiry = models.DateTimeField(_("otp expiry"), blank=True, null=True)
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
@@ -93,6 +94,12 @@ class BaseUser(BaseUserModel, AbstractUser):
         return f"{self.first_name} {self.last_name}"
 
     @property
+    def is_otp_expired(self):
+        if self.otp_expiry:
+            return self.otp_expiry < datetime.now(tz=self.otp_expiry.tzinfo)
+        return True
+
+    @property
     def age(self):
         if self.date_of_birth:
             today = date.today()
@@ -112,16 +119,16 @@ class BaseUser(BaseUserModel, AbstractUser):
         return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission, user_candidates)
 
     def verify_otp(self, otp: str) -> bool:
+        if self.is_otp_expired:
+            return False
         if self.otp != otp:
             return False
 
         self.is_verified = True
-        self.otp = ""
         self.save()
         return True
 
     def send_otp(self, otp: str | None = None) -> bool:
-
         if self.is_verified:
             return False
         if not otp:
@@ -139,6 +146,7 @@ class BaseUser(BaseUserModel, AbstractUser):
         del email_notification_ninja
 
         self.otp = otp
+        self.otp_expiry = datetime.now() + timedelta(minutes=5)
         self.save()
         return True
 
