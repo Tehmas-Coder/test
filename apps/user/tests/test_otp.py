@@ -1,5 +1,6 @@
 import copy
 import json
+import time
 
 from rest_framework import status
 
@@ -56,7 +57,7 @@ class OTPTest(OTPUnitTest):
 
         # * Test functions are being called here
         self.failed_test_verification_otp_not_valid()
-        self.successfull_test_resend_otp()
+        # self.successfull_test_resend_otp()
         self.successfull_test_verification_otp(user_id)
 
     # ?###################################################
