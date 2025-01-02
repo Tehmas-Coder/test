@@ -95,7 +95,7 @@ class AuthNinja:
         user_creation_required_data = {
             "first_name": self.request_data.get("first_name"),
             "last_name": self.request_data.get("last_name"),
-            "country": self.request_data.get("country"),
+            "country_id": self.request_data.get("country"),
         }
         return user_creation_required_data
 
