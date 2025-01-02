@@ -83,6 +83,8 @@ class AuthNinja:
                 ResponseMiddleware.return_now(Response({"route": "get-details"}, status=status.HTTP_200_OK))
             self.user = BaseUser.objects.create(email=decrypted_data["email"], **user_creation_required_data)
             self.user.set_password(generate_random_password())
+            role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
+            self.user.roles.add(role_id["id"])  # type:ignore
             self.user.save()
         AuthNinja.create_candidate_with_exam_token(self.user, decrypted_data)
         login(request, self.user)
