@@ -7,8 +7,9 @@ from rest_framework.response import Response
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.user.models.user_models import BaseUser, Role
 from apps.user.serializers.user_serializers import UserSerializer
+from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import get_encryption_key, make_error_response
+from utils.rna_utils import make_error_response
 
 
 class AuthNinja:

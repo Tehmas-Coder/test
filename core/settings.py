@@ -48,6 +48,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 EMAIL_BACKEND = "django_ses.SESBackend"
+ENCRYPTION_KEY = str(config("ENCRYPTION_KEY"))
 
 #! SECURITY WARNING: keep the secret key used in production secret!
 try:

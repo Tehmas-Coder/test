@@ -1,8 +1,8 @@
 from cryptography.fernet import Fernet
 from decouple import config
 
+from helpers.helper_functions import get_encryption_key
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import get_encryption_key
 
 
 class ExamScoringNinja:

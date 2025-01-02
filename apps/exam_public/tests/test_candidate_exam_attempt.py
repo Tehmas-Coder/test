@@ -8,10 +8,10 @@ from apps.exam_public.tests.test_candidate_exam_answer import (
     CandidateExamAnswerUnitTest,
 )
 from core.test_setup import TestSetUp
+from helpers.helper_functions import get_encryption_key
 from utils.rna_utils import (
     debug_print,
     decrypt_message,
-    get_encryption_key,
     print_test_failed,
     print_test_header,
     print_test_passed,

@@ -6,13 +6,8 @@ from rest_framework import status
 from apps.user.models.user_models import BaseUser
 from apps.user.tests.test_user import UserUnitTest
 from core.test_setup import TestSetUp
-from utils.rna_utils import (
-    debug_print,
-    get_encryption_key,
-    print_test_failed,
-    print_test_header,
-    print_test_passed,
-)
+from helpers.helper_functions import get_encryption_key
+from utils.rna_utils import print_test_failed, print_test_header, print_test_passed
 
 
 class UserVerificationUnitTest(TestSetUp):

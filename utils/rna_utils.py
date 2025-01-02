@@ -6,6 +6,7 @@ import threading
 from typing import Any, Type
 
 from cryptography.fernet import Fernet
+from decouple import config
 from django.db.models.base import Model
 from rest_framework import status
 from rest_framework.response import Response
@@ -275,10 +276,6 @@ def remove_extra_underscore_from_key_names(replace_list):
                 new_one_dict = rename_keys(new_one_dict, one_key, one_key.replace("_id", ""))
         new_formatted_list.append(new_one_dict)
     return new_formatted_list
-
-
-def get_encryption_key():
-    return "Ym3gHm4W9NrGredVTR8_rF-MdFyvGG4GfTffgP-tSeU="
 
 
 def generate_random_password():
