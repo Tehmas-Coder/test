@@ -1,15 +1,18 @@
 import json
 
 from cryptography.fernet import Fernet
+from django.contrib.auth import login
 from django.db import transaction
+from rest_framework import status
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.user.models.user_models import BaseUser, Role
 from apps.user.serializers.user_serializers import UserSerializer
 from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import make_error_response
+from utils.rna_utils import generate_random_password, make_error_response
 
 
 class AuthNinja:
@@ -24,6 +27,16 @@ class AuthNinja:
         else:
             response_data = self.__register_candidate()
         return response_data
+
+    def exam_token_handler(self, request):
+        self.response_data = {}
+        decrypted_data = AuthNinja.decrypt_exam_token(self.exam_token)
+        self.user = BaseUser.objects.filter(email=decrypted_data["email"]).first()
+        if decrypted_data["is_public"]:
+            self.__public_exam_token_handler(request, decrypted_data)
+        else:
+            self.response_data["route"] = "login" if self.user else "register"
+        return self.response_data
 
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #
@@ -62,6 +75,33 @@ class AuthNinja:
             ResponseMiddleware.return_now(make_error_response(message="Failed to send OTP, please try again"))
         return response_data
 
+    def __public_exam_token_handler(self, request, decrypted_data):
+        if not self.user:
+            user_creation_required_data = self.__fetch_user_data_from_request()
+            # * If any of the required data is missing, return the route to get the details
+            if any(value is None for value in user_creation_required_data.values()):
+                ResponseMiddleware.return_now(Response({"route": "get-details"}, status=status.HTTP_200_OK))
+            self.user = BaseUser.objects.create(email=decrypted_data["email"], **user_creation_required_data)
+            self.user.set_password(generate_random_password())
+            self.user.save()
+        AuthNinja.create_candidate_with_exam_token(self.user, decrypted_data)
+        login(request, self.user)
+        refresh = RefreshToken.for_user(self.user)
+        self.response_data["refresh"] = str(refresh)
+        self.response_data["access"] = str(refresh.access_token)  # type: ignore
+        self.response_data["route"] = "exam"
+
+    def __fetch_user_data_from_request(self) -> dict:
+        user_creation_required_data = {
+            "first_name": self.request_data.get("first_name"),
+            "last_name": self.request_data.get("last_name"),
+            "country": self.request_data.get("country"),
+        }
+        return user_creation_required_data
+
+    # ---------------------------------------------------------------------------- #
+    #                                STATIC METHODS                               #
+    # ---------------------------------------------------------------------------- #
     @staticmethod
     def create_candidate_with_exam_token(user_instance, decrypted_data):
         organization_id = decrypted_data["organization_id"]

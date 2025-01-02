@@ -14,7 +14,7 @@ from rest_framework_simplejwt.views import (
 from apps.user.custom.auth_ninja import AuthNinja
 from apps.user.custom.otp_ninja import OTPNinja
 from apps.user.serializers.auth_serializers import LoginSerializer
-from utils.rna_utils import color_print, make_error_response, make_success_response
+from utils.rna_utils import make_error_response, make_success_response
 
 from ..models.user_models import BaseUser
 
@@ -105,28 +105,10 @@ class SaToQBLoginApiView(TokenObtainPairView):
 
 
 class ExamTokenHandlerAPIView(views.APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
 
-    def post(self, request, *args, **kwargs):
-        data = {}
-        token = request.data.get("token")
-        decrypted_data = AuthNinja.decrypt_exam_token(token)
-        color_print(decrypted_data)
-        user = BaseUser.objects.filter(email=decrypted_data["email"]).first()
-        if not decrypted_data["is_public"]:
-            if user:
-                data["route"] = "login"
-            else:
-                data["route"] = "register"
-        else:
-            if not user:
-                user = BaseUser.objects.create(email=decrypted_data["email"])
-                user.set_password("12345678")
-                user.save()
-            AuthNinja.create_candidate_with_exam_token(user, decrypted_data)
-            login(request, user)
-            refresh = RefreshToken.for_user(user)
-            data["refresh"] = str(refresh)
-            data["access"] = str(refresh.access_token)  # type: ignore
-            data["route"] = "exam"
-        return Response(data, status=status.HTTP_200_OK)
+    def post(self, request):
+        request_data = request.data
+        token = request_data.get("token")
+        response_data = AuthNinja(token, request_data).exam_token_handler(request)
+        return Response(response_data, status=status.HTTP_200_OK)
