@@ -41,8 +41,8 @@ class CandidateExam(BaseModel):
     exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
 
     # ? To be filled from schedule
-    start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
-    end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
+    start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     waiting_duration = models.PositiveIntegerField(null=True, blank=True)
     extra_duration = models.PositiveIntegerField(null=True, blank=True)
 

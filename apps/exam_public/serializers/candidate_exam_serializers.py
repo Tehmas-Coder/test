@@ -23,6 +23,8 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             "exam_backlog",
             "exam_duration",
             "schedule",
+            "start_datetime",
+            "end_datetime",
             "is_public",
             "is_preparatory",
         ] + get_base_model_fields()
@@ -35,13 +37,14 @@ class CandidateExamEditSerializer(BaseModelSerializer):
 
         # * Setting up data to be fetched from schedule model
         schedule = validated_data.get("schedule")
-        related_data_for_creation = {
-            "start_datetime": schedule.start_datetime,
-            "end_datetime": schedule.end_datetime,
-            "waiting_duration": schedule.waiting_duration,
-            "extra_duration": schedule.extra_duration,
-        }
-        validated_data.update(related_data_for_creation)
+        if schedule:
+            validated_data["start_datetime"] = schedule.start_datetime
+            validated_data["end_datetime"] = schedule.end_datetime
+            related_data_for_creation = {
+                "waiting_duration": schedule.waiting_duration,
+                "extra_duration": schedule.extra_duration,
+            }
+            validated_data.update(related_data_for_creation)
 
         # * CandidateExam bulk create
         bulk_create_instances_list = []
