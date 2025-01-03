@@ -24,8 +24,20 @@ class ExamBacklog(BaseModel):
 
     is_global = models.BooleanField(default=True)
 
+    examiners = models.ManyToManyField("user.BaseUser", through="ExamBacklogExaminer", through_fields=("exam_backlog", "examiner"))
+
     class Meta:
         app_label = "exam_public"
+
+
+# --------------------------- EXAM BACKLOG EXAMINER -------------------------- #
+class ExamBacklogExaminer(BaseModel):
+    exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE)
+    examiner = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "exam_public"
+        db_table = "exam_public_exambacklog_examiner"
 
 
 # ---------------------------------------------------------------------------- #

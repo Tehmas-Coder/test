@@ -9,13 +9,13 @@ from rest_framework.response import Response
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_public.custom.candidate_exam_classes import CandidateExamNinja
+from apps.exam_public.custom.exam_backlogs_classes import ExamBacklogsNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
 from apps.exam_public.filters.candidate_filters import CandidateFilterBackend
 from apps.exam_public.filters.exam_backlog_filters import get_exambacklog_q_filter
 from apps.exam_public.helpers.candidate_exam_helpers import (
     get_detailed_candidate_exam_with_country_based_questions,
 )
-from apps.exam_public.helpers.exam_backlogs_helper import ExamBacklogsNinja
 from apps.exam_public.helpers.exam_status_webhook import (
     send_exam_status_to_student_apply_webhook,
 )
@@ -45,7 +45,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from utils.rna_utils import make_error_response
+from utils.rna_utils import debug_print, make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -156,11 +156,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         if question_backlog_id is None:
             return make_error_response(message="Question Backlog id is required")
         candidate_exam_id = int(self.kwargs["pk"])
-
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
         if not candidate_exam_instance:
             return make_error_response(message="Candidate Exam not found")
-
         data = CandidateExamNinja().get_retry_hint_for_candidate_exam(
             question_backlog_id=int(question_backlog_id), candidate_exam_id=candidate_exam_id
         )
@@ -294,7 +292,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------- #
 
 
-class ExamBacklogAPIView(views.APIView):
+class ExamBacklogAPI(views.APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
@@ -337,3 +335,18 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
         ]
 
         return Response(data=response_list, status=status.HTTP_200_OK)
+
+
+class AssignExaminersAPI(views.APIView):
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        request_data = request.data
+        exam_backlog_id = request_data.get("exam_backlog_id")
+        examiners_details_list = request_data.get("examiners")
+        if not exam_backlog_id:
+            return make_error_response(message="Exam Backlog ID is required.")
+        if not examiners_details_list:
+            return make_error_response(message="Examiners are required.")
+        CandidateExamNinja().assign_examiners_to_exam_backlog(exam_backlog_id, examiners_details_list)
+        return Response({"message": "Examiners Assigned Successfully"})

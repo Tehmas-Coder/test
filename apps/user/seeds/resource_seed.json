@@ -2234,5 +2234,18 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 178,
+    "fields": {
+      "name": "Assign Examiners",
+      "description": "Assign examiners to an exam",
+      "regex": "^/assign-examiners/$",
+      "method": "post",
+      "permission": 23,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
