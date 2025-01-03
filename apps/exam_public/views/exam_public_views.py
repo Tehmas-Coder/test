@@ -44,8 +44,12 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
+from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from utils.rna_utils import make_error_response, make_success_response
+from apps.user.models.user_models import BaseUser, Role, UserRole
+from apps.user.utils.utils import get_current_user_organization
+from middlewares.current_user_middleware import get_current_user
+from utils.rna_utils import debug_print, make_error_response, make_success_response
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -337,3 +341,37 @@ class ExamBacklogAnswerKeyAPI(views.APIView):
         ]
 
         return Response(data=response_list, status=status.HTTP_200_OK)
+
+
+class AssignExaminersAPI(views.APIView):
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        request_data = request.data
+        exam_backlog_id = request_data.get("exam_backlog_id")
+        examiners_details = request_data.get("examiners")
+        if not exam_backlog_id:
+            return make_error_response(message="Exam Backlog ID is required.")
+        if not examiners_details:
+            return make_error_response(message="Examiners are required.")
+        exam_backlog_instance = ExamBacklog.objects.filter(id=exam_backlog_id).first()
+        if not exam_backlog_instance:
+            return make_error_response(message="Exam Backlog not found.")
+        examiner_emails = list(set([examiner["email"] for examiner in examiners_details]))
+        existing_users_email = list(BaseUser.objects.filter(email__in=examiner_emails).distinct().values_list("email", flat=True))
+        non_existing_users_emails = list(set(examiner_emails) - set(existing_users_email))
+        examiner_email_detail_hashmap = {}
+        for examiner in examiners_details:
+            if examiner["email"] not in examiner_email_detail_hashmap:
+                examiner_email_detail_hashmap[examiner["email"]] = examiner
+        BaseUser.objects.bulk_create([BaseUser(**examiner_email_detail_hashmap[examiner_email]) for examiner_email in non_existing_users_emails])
+        examiner_users = BaseUser.objects.filter(email__in=examiner_emails)
+        worker_role_id = Role.objects.filter(name__icontains="Worker").first().id  # type:ignore
+        UserRole.objects.bulk_create([UserRole(user=examiner, role_id=worker_role_id) for examiner in examiner_users])
+        organization_id = None
+        if not get_current_user().is_superuser:  # type:ignore
+            organization_id = get_current_user_organization()
+        OrganizationUser.objects.bulk_create([OrganizationUser(user=examiner, organization_id=organization_id) for examiner in examiner_users])
+        examiner_ids = [examiner.id for examiner in examiner_users]  # type:ignore
+        exam_backlog_instance.examiners.set(examiner_ids)
+        return Response({"message": "Examiners Assigned Successfully"})
