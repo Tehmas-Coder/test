@@ -7,7 +7,7 @@ from apps.exam_public.views.exam_public_views import (
     CandidateExamViewSet,
     CandidateViewSet,
     ExamBacklogAnswerKeyAPI,
-    ExamBacklogAPIView,
+    ExamBacklogAPI,
 )
 
 router = routers.DefaultRouter()
@@ -28,7 +28,7 @@ urlpatterns = [
     path("get-exams-backlogs-with-candidates/", CandidateExamViewSet.as_view({"get": "get_exam_backlogs_with_candidate_detail"})),
     path("send-exam-link-to-users/", CandidateExamViewSet.as_view({"post": "send_exam_link_to_users"})),
     path("attempt-candidate-exam/", AttemptCandidateExamAPI.as_view()),
-    path("create-exam-backlog/", ExamBacklogAPIView.as_view()),
+    path("create-exam-backlog/", ExamBacklogAPI.as_view()),
 ]
 
 

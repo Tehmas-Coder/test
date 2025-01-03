@@ -45,7 +45,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from utils.rna_utils import make_error_response
+from utils.rna_utils import make_error_response, make_success_response
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -294,7 +294,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------- #
 
 
-class ExamBacklogAPIView(views.APIView):
+class ExamBacklogAPI(views.APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
