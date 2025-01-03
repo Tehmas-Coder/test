@@ -94,13 +94,16 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data
-        exam_id = request_data.pop("exam")
-        exam_instance = Exam.get_detail_queryset(all=True, q_filter=Q(id=exam_id)).first()
-
-        # * Creating Backlogs for Exam
-        exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
-        exam_backlogs = ExamBacklogsNinja(exam_data=exam_data)  # type:ignore
-        exambacklog_id = exam_backlogs.create_backlogs()
+        exam_id = request_data.get("exam")
+        if exam_id:
+            request_data.pop("exam")
+            exam_instance = Exam.get_detail_queryset(all=True, q_filter=Q(id=exam_id)).first()
+            # * Creating Backlogs for Exam
+            exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
+            exam_backlogs = ExamBacklogsNinja(exam_data=exam_data)  # type:ignore
+            exambacklog_id = exam_backlogs.create_backlogs()
+        else:
+            exambacklog_id = request_data.get("exam_backlog")
 
         # * Assigning Exam to Candidates
         request_data["exam_backlog"] = exambacklog_id
