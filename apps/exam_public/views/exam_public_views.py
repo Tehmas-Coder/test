@@ -290,8 +290,24 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
 
 
 # ---------------------------------------------------------------------------- #
-#                           EXAM BACKLOG ANSWERS KEY                           #
+#                                 EXAM BACKLOGS                                #
 # ---------------------------------------------------------------------------- #
+
+
+class ExamBacklogAPIView(views.APIView):
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        exam_id = request.data.get("exam")
+        if not exam_id:
+            return make_error_response(message="Exam ID is required.")
+        exam_instance = Exam.get_detail_queryset(all=True, q_filter=Q(id=exam_id)).first()
+        if not exam_instance:
+            return make_error_response(message="Exam not found.")
+        exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
+        exam_backlogs = ExamBacklogsNinja(exam_data=exam_data)  # type:ignore
+        exam_backlog_id = exam_backlogs.create_backlogs()
+        return Response({"exam_backlog_id": exam_backlog_id}, status=status.HTTP_200_OK)
 
 
 class ExamBacklogAnswerKeyAPI(views.APIView):
