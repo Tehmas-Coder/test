@@ -1,4 +1,4 @@
-from webhooks.generic_webhook import GenericWebhook
+from hooks.webhooks import GenericWebhook
 
 
 def send_exam_result_to_student_apply_webhook(candidate_exam_instance):

@@ -14,6 +14,7 @@ from apps.exam_public.helpers.exam_status_webhook import (
     send_exam_status_to_student_apply_webhook,
 )
 from apps.exam_public.models.exam_public_backlog_models import (
+    ExamBacklog,
     ExamBacklogQuestion,
     ExamBacklogQuestionRetryHint,
 )
@@ -32,6 +33,8 @@ from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
+from apps.organization.models.organization_models import OrganizationUser
+from apps.user.models.user_models import BaseUser, Role, UserRole
 from apps.user.utils.utils import get_current_user_organization
 from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
@@ -183,6 +186,17 @@ class CandidateExamNinja:
             response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_present(request_data, response_data)
 
         return response_data
+
+    def assign_examiners_to_exam_backlog(self, exam_backlog_id: int, examiners_details_list: list) -> None:
+        exam_backlog_instance = ExamBacklog.objects.filter(id=exam_backlog_id).first()
+        if not exam_backlog_instance:
+            ResponseMiddleware.return_now(make_error_response(message="Exam Backlog not found."))
+        examiner_emails = list(set([examiner["email"] for examiner in examiners_details_list]))
+        self.__create_non_existing_users(examiner_emails, examiners_details_list)
+        examiner_users = BaseUser.objects.filter(email__in=examiner_emails)
+        self.__assign_roles_and_organizations_to_examiners(examiner_users)
+        examiner_ids = [examiner.id for examiner in examiner_users]  # type:ignore
+        exam_backlog_instance.examiners.set(examiner_ids)  # type:ignore
 
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #
@@ -447,3 +461,21 @@ class CandidateExamNinja:
         response_data["candidate_exam"] = decrypted_data["candidate_exam"]
         response_data["key"] = encrypted_data
         return response_data
+
+    def __create_non_existing_users(self, examiner_emails: list, examiners_details_list: list) -> None:
+        existing_users_email = list(BaseUser.objects.filter(email__in=examiner_emails).distinct().values_list("email", flat=True))
+        non_existing_users_emails = list(set(examiner_emails) - set(existing_users_email))
+        examiner_email_detail_hashmap = {}
+        for examiner in examiners_details_list:
+            if examiner["email"] not in examiner_email_detail_hashmap:
+                examiner_email_detail_hashmap[examiner["email"]] = examiner
+        BaseUser.objects.bulk_create([BaseUser(**examiner_email_detail_hashmap[examiner_email]) for examiner_email in non_existing_users_emails])
+
+    def __assign_roles_and_organizations_to_examiners(self, examiner_users) -> None:
+        worker_role_id = Role.objects.filter(name__icontains="Worker").first().id  # type:ignore
+        UserRole.objects.bulk_create([UserRole(user=examiner, role_id=worker_role_id) for examiner in examiner_users])
+        # * Assigning the organization to the examiner
+        organization_id = None
+        if not get_current_user().is_superuser:  # type:ignore
+            organization_id = get_current_user_organization()
+        OrganizationUser.objects.bulk_create([OrganizationUser(user=examiner, organization_id=organization_id) for examiner in examiner_users])
