@@ -11,10 +11,9 @@ from apps.user.helpers.queryset_functions import (
     get_user_detailed_queryset,
 )
 from core.models import BaseModel, BaseUserModel
-from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import generate_otp, make_error_response
+from utils.rna_utils import color_print, generate_otp, make_error_response
 
 
 def upload_to(instance, filename):
@@ -72,6 +71,13 @@ class BaseUser(BaseUserModel, AbstractUser):
     otp_expiry = models.DateTimeField(_("otp expiry"), blank=True, null=True)
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
+    CREATION_CONTEXT_CHOICES = [
+        ("self", "Self"),
+        ("facebook", "Facebook"),
+        ("google", "Google"),
+        ("public_exam", "Public Exam"),
+    ]
+    creation_context = models.CharField(_("creation context"), max_length=20, choices=CREATION_CONTEXT_CHOICES, default="self")
 
     is_verified = models.BooleanField(_("verified"), default=False)
     is_superuser = models.BooleanField(_("superuser"), default=False)
