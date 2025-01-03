@@ -1,6 +1,6 @@
 import copy
 import json
-import time
+from datetime import datetime, timedelta
 
 from rest_framework import status
 
@@ -57,7 +57,9 @@ class OTPTest(OTPUnitTest):
 
         # * Test functions are being called here
         self.failed_test_verification_otp_not_valid()
-        # self.successfull_test_resend_otp()
+        self.failed_test_resend_otp_due_to_token_not_expired_yet()
+        # TODO: Fix it
+        # self.successfull_test_resend_otp(user_id)
         self.successfull_test_verification_otp(user_id)
 
     # ?###################################################
@@ -72,7 +74,19 @@ class OTPTest(OTPUnitTest):
         response = self.do_verify_otp(request_data)
         validate_failed_400_test_response(self, response)
 
-    def successfull_test_resend_otp(self):
+    def failed_test_resend_otp_due_to_token_not_expired_yet(self):
+        request_data = {
+            "email": "register_test@gmail.com",
+        }
+        response = self.do_resend_otp(request_data)
+        validate_failed_307_test_response(self, response)
+
+    def successfull_test_resend_otp(self, user_id):
+        user = BaseUser.objects.get(id=user_id)
+        user.otp_expiry = datetime.now() - timedelta(minutes=1)
+        user.save()
+        print(user)
+        print(user.is_otp_expired)
         request_data = {
             "email": "register_test@gmail.com",
         }
@@ -117,4 +131,18 @@ def validate_failed_400_test_response(self, response):
         response_status_code,
         status.HTTP_400_BAD_REQUEST,
         f" 'status_code' 400 was expected, but received 'status_code' ({response_status_code})",
+    )
+
+
+def validate_failed_307_test_response(self, response):
+    response_status_code = response.status_code
+    if response_status_code == status.HTTP_307_TEMPORARY_REDIRECT:
+        print_test_passed()
+    else:
+        print_test_failed()
+        print(response.content)
+    self.assertEqual(
+        response_status_code,
+        status.HTTP_307_TEMPORARY_REDIRECT,
+        f" 'status_code' 307 was expected, but received 'status_code' ({response_status_code})",
     )
