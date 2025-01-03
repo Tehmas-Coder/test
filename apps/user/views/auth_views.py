@@ -27,7 +27,7 @@ class RegisterApiView(views.APIView):
         token = request.query_params.get("token")
         auth_ninja_instance = AuthNinja(token, request.data)
         response_data = auth_ninja_instance.register()
-        return Response(response_data, status=201)
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class LoginApiView(TokenObtainPairView):

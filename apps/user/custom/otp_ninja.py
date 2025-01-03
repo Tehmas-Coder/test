@@ -1,6 +1,6 @@
 from apps.user.models.user_models import BaseUser
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import make_error_response, make_warning_response
+from utils.rna_utils import color_print, make_error_response, make_warning_response
 
 
 class OTPNinja:

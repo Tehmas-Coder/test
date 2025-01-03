@@ -55,9 +55,13 @@ class AuthNinja:
     def __register_candidate(self):
         serializer = UserSerializer(data=self.request_data, context={"mutator": False})
         if not serializer.is_valid():
-            if "email" in serializer.errors:
-                ResponseMiddleware.return_now(make_error_response(message="User with this email already exists"))
-            ResponseMiddleware.return_now(Response(serializer.errors, status=400))
+            if "email" not in serializer.errors:
+                ResponseMiddleware.return_now(Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST))
+            user_instance = BaseUser.get_user_by_email(self.request_data["email"])
+            if user_instance and user_instance.creation_context == "public_exam" and user_instance.otp:
+                response_data = self.__update_already_created_user_from_public_exam(user_instance)
+                ResponseMiddleware.return_now(Response(response_data, status=status.HTTP_201_CREATED))
+            ResponseMiddleware.return_now(make_error_response(message="User with this email already exists"))
         user_instance = serializer.save()
         response_data = serializer.data
         # * Adding role to user
@@ -69,11 +73,23 @@ class AuthNinja:
             self.create_candidate_with_exam_token(user_instance, decrypted_data)
         else:
             Candidate.objects.create(user=user_instance)
-        # * Sending OTP to user
-        if not user_instance.send_otp():  # type:ignore
+        self.__send_otp_to_user(user_instance)
+        return response_data
+
+    def __send_otp_to_user(self, user_instance):
+        if not user_instance.send_otp():
             transaction.set_rollback(True)
             ResponseMiddleware.return_now(make_error_response(message="Failed to send OTP, please try again"))
-        return response_data
+
+    def __update_already_created_user_from_public_exam(self, user_instance: BaseUser):
+        user_instance.first_name = self.request_data.get("first_name")
+        user_instance.last_name = self.request_data.get("last_name")
+        user_instance.phone = self.request_data.get("phone")
+        user_instance.set_password(self.request_data.get("password"))
+        user_instance.creation_context = "self"
+        user_instance.save()
+        self.__send_otp_to_user(user_instance)
+        return UserSerializer(user_instance).data
 
     def __public_exam_token_handler(self, request, decrypted_data):
         if not self.user:
@@ -81,7 +97,7 @@ class AuthNinja:
             # * If any of the required data is missing, return the route to get the details
             if any(value is None for value in user_creation_required_data.values()):
                 ResponseMiddleware.return_now(Response({"route": "get-details"}, status=status.HTTP_200_OK))
-            self.user = BaseUser.objects.create(email=decrypted_data["email"], **user_creation_required_data)
+            self.user = BaseUser.objects.create(email=decrypted_data["email"], creation_context="public_exam", **user_creation_required_data)
             self.user.set_password(generate_random_password())
             role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
             self.user.roles.add(role_id["id"])  # type:ignore
