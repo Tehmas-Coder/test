@@ -25,7 +25,7 @@ class Candidate(BaseModel):
 class CandidateExam(BaseModel):
     candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE, null=True, blank=True)
     exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candidate_exam_examsbacklog")
-    schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE)
+    schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE, null=True, blank=True)
 
     candidate_email = models.EmailField()
     total_obtainable_marks = models.FloatField(null=True, blank=True)
@@ -43,8 +43,8 @@ class CandidateExam(BaseModel):
     # ? To be filled from schedule
     start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
     end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
-    waiting_duration = models.PositiveIntegerField(null=True)
-    extra_duration = models.PositiveIntegerField(null=True)
+    waiting_duration = models.PositiveIntegerField(null=True, blank=True)
+    extra_duration = models.PositiveIntegerField(null=True, blank=True)
 
     is_public = models.BooleanField(default=False)
     is_preparatory = models.BooleanField(default=False)
