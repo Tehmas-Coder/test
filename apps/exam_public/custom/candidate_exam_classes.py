@@ -33,13 +33,13 @@ from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSubSectionScore,
 )
 from apps.user.utils.utils import get_current_user_organization
+from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     decrypt_message,
     encrypt_message,
-    get_encryption_key,
     make_error_response,
     remove_extra_underscore_from_key_names,
 )
@@ -102,6 +102,7 @@ class CandidateExamNinja:
                 "email": one_candidate_detail["candidate_email"],
                 "candidate_exam_id": candidate_exam_id,
                 "organization_id": organization_id,
+                "is_public": one_candidate_detail["is_public"],
             }
             encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
 

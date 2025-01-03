@@ -577,7 +577,7 @@
     "fields": {
       "name": "Attempt Candidate Exam",
       "context_value": "candidates",
-      "description": "Attempt a candiate exam (accessible to candidates only)",
+      "description": "Attempt a candidate exam (accessible to candidates only)",
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }

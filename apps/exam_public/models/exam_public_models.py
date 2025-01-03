@@ -31,7 +31,6 @@ class CandidateExam(BaseModel):
     total_obtainable_marks = models.FloatField(null=True, blank=True)
     obtained_marks = models.FloatField(null=True, blank=True)
     exam_duration = models.PositiveIntegerField(null=True)
-
     EXAM_STATUS_CHOICES = (
         ("assigned", "Assigned"),
         ("attempted", "Attempted"),
@@ -39,7 +38,6 @@ class CandidateExam(BaseModel):
         ("marked", "Marked"),
         ("scored", "Scored"),
     )
-
     exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
 
     # ? To be filled from schedule
@@ -48,6 +46,7 @@ class CandidateExam(BaseModel):
     waiting_duration = models.PositiveIntegerField(null=True)
     extra_duration = models.PositiveIntegerField(null=True)
 
+    is_public = models.BooleanField(default=False)
     is_preparatory = models.BooleanField(default=False)
 
     class Meta:

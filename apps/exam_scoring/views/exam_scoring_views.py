@@ -25,12 +25,8 @@ from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
-from utils.rna_utils import (
-    color_print,
-    debug_print,
-    get_encryption_key,
-    make_error_response,
-)
+from helpers.helper_functions import get_encryption_key
+from utils.rna_utils import color_print, debug_print, make_error_response
 
 
 class CandidateExamScoringViewset(viewsets.ViewSet):

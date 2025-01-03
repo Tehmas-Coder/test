@@ -56,6 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = BaseUser.objects.create(**validated_data)
         user.set_password(validated_data["password"])
+        user.creation_context = "self"
         user.save()
         return user
 

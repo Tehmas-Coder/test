@@ -105,7 +105,7 @@ def add_to_email_queue(message: dict):
     #     except ClientError as error:
     #         print(error)
     #         return error
-    if config("MOCK_SEND_EMAIL") == "0":
+    if config("MOCK_SEND_EMAIL") == "1":
         return 200
     else:
         result = send_email_task(
