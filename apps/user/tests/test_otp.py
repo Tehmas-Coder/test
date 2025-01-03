@@ -1,4 +1,3 @@
-import copy
 import json
 from datetime import datetime, timedelta
 
@@ -6,12 +5,7 @@ from rest_framework import status
 
 from apps.user.models.user_models import BaseUser
 from core.test_setup import TestSetUp
-from utils.rna_utils import (
-    debug_print,
-    print_test_failed,
-    print_test_header,
-    print_test_passed,
-)
+from utils.rna_utils import print_test_failed, print_test_header, print_test_passed
 
 from .test_register import RegisterUnitTest
 from .test_user import UserUnitTest
@@ -44,7 +38,7 @@ class OTPTest(OTPUnitTest):
     # ?###################################################
 
     def test_cases_otp(self):
-        # * User is regsitered here for all otp test functions
+        # * User is registered here for all otp test functions
         test_user = {
             "email": "register_test@gmail.com",
             "first_name": "test",
@@ -58,8 +52,7 @@ class OTPTest(OTPUnitTest):
         # * Test functions are being called here
         self.failed_test_verification_otp_not_valid()
         self.failed_test_resend_otp_due_to_token_not_expired_yet()
-        # TODO: Fix it
-        # self.successfull_test_resend_otp(user_id)
+        self.successfull_test_resend_otp(user_id)
         self.successfull_test_verification_otp(user_id)
 
     # ?###################################################
@@ -85,8 +78,6 @@ class OTPTest(OTPUnitTest):
         user = BaseUser.objects.get(id=user_id)
         user.otp_expiry = datetime.now() - timedelta(minutes=1)
         user.save()
-        print(user)
-        print(user.is_otp_expired)
         request_data = {
             "email": "register_test@gmail.com",
         }

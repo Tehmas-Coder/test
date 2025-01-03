@@ -102,7 +102,7 @@ class BaseUser(BaseUserModel, AbstractUser):
     @property
     def is_otp_expired(self):
         if self.otp_expiry:
-            return self.otp_expiry < datetime.now(tz=self.otp_expiry.tzinfo)
+            return self.otp_expiry < datetime.now().replace(tzinfo=self.otp_expiry.tzinfo)
         return True
 
     @property
