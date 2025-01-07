@@ -39,7 +39,12 @@ class CandidateExam(BaseModel):
         ("scored", "Scored"),
     )
     exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
-
+    EXAM_VISIBILITY_CHOICES = ()
+    EXAM_QUESTIONS_VISIBILITY_CHOICES = (
+        ("all_at_once", "All at Once"),
+        ("one_by_one", "One by One"),
+    )
+    exam_questions_visibility = models.CharField(max_length=100, choices=EXAM_QUESTIONS_VISIBILITY_CHOICES, default="all_at_once")
     # ? To be filled from schedule
     start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
@@ -56,7 +61,6 @@ class CandidateExam(BaseModel):
     def get_detail_queryset(
         cls,
         exam_backlog: bool = False,
-        schedule: bool = False,
         candidate: bool = False,
         q_filter: models.Q = models.Q(),
         exam_backlog_question: bool = False,
@@ -64,7 +68,7 @@ class CandidateExam(BaseModel):
         exam_backlog_question_filter=models.Q(),
     ) -> models.QuerySet:
         return get_candidate_exam_detailed_queryset(
-            cls, exam_backlog, schedule, candidate, q_filter, exam_backlog_question, get_answers, exam_backlog_question_filter
+            cls, exam_backlog, candidate, q_filter, exam_backlog_question, get_answers, exam_backlog_question_filter
         )
 
 
