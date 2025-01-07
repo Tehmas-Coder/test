@@ -362,6 +362,7 @@ class AdminEndToEndTest(TestSetUp):
             "exam": exam_response["id"],
             "schedule": schedule_response["id"],
             "exam_duration": 120,
+            "exam_questions_visibility": "one_by_one",
         }
         candidate_exam_response: dict = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_request_body))  # type: ignore
         request_response_values_asserter(self, candidate_exam_request_body, candidate_exam_response)
@@ -372,7 +373,6 @@ class AdminEndToEndTest(TestSetUp):
         # ---------------------------- Candidate Exam Attemptation --------------------------- #
         candidate_exam_attemptation_request_body = {
             "candidate_exam_id": candidate_exam_response["id"],
-            "exam_status": "attempted",
         }
         candidate_exam_attemptation_response: Response = AttemptCandidateExamUnitTest.do_attempt_one_sequential_candidate_exam(self, candidate_exam_attemptation_request_body)  # type: ignore
         validate_success_200_test_response(self, candidate_exam_attemptation_response)

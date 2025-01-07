@@ -112,9 +112,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         self.successfull_attemptation_of_an_exam_test()
 
     def failed_attemptation_of_an_exam_test_missing_candidate_exam_id(self):
-        request_body = {
-            "exam_status": "attempted",
-        }
+        request_body = {}
         response = self.do_attempt_one_sequential_candidate_exam(request_body)
         validate_failed_400_test_response(self, response)
 
@@ -126,11 +124,11 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             "exam": 1,
             "schedule": 2,
             "exam_duration": 120,
+            "exam_questions_visibility": "one_by_one",
         }
         candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_assignemt_request_body))  # type: ignore
         request_body = {
             "candidate_exam_id": candidate_exam["id"],
-            "exam_status": "attempted",
         }
         response = self.do_attempt_one_sequential_candidate_exam(request_body)
         validate_success_200_test_response(self, response)
