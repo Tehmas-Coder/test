@@ -58,7 +58,6 @@ def get_detailed_candidate_exam_with_country_based_questions(
         return final_user_backlog_question_ids_list
 
     return CandidateExam.get_detail_queryset(
-        schedule=True,
         exam_backlog=True,
         candidate=True,
         q_filter=Q(id=candidate_exam_id),

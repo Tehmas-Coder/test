@@ -81,7 +81,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
 
 
 class CandidateExamViewSet(viewsets.ModelViewSet):
-    queryset = CandidateExam.get_detail_queryset(schedule=True, exam_backlog=True, candidate=True)
+    queryset = CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True)
     serializer_class = CandidateExamEditSerializer
     http_method_names = ["get", "post", "patch"]
     filter_backends = [CandidateExamFilterBackend]
@@ -130,9 +130,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         q_filter = get_exambacklog_q_filter(request)
         exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
             ExamBacklog.objects.filter(q_filter)
-            .prefetch_related(
-                Prefetch("candidate_exam_examsbacklog", queryset=CandidateExam.get_detail_queryset(schedule=True, exam_backlog=True, candidate=True))
-            )
+            .prefetch_related(Prefetch("candidate_exam_examsbacklog", queryset=CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True)))
             .distinct(),
             many=True,
         ).data
@@ -181,6 +179,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
 class AttemptCandidateExamAPI(views.APIView):
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         request_data = request.data
         response_data = CandidateExamNinja().attempt_candidate_exam(request_data)
