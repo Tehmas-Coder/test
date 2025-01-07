@@ -17,7 +17,6 @@ def get_candidate_detailed_queryset(model, organization=False, user=False) -> Qu
 def get_candidate_exam_detailed_queryset(
     model,
     exam_backlog: bool = False,
-    schedule: bool = False,
     candidate: bool = False,
     q_filter: Q = Q(),
     exam_backlog_question: bool = False,
@@ -40,8 +39,6 @@ def get_candidate_exam_detailed_queryset(
                     queryset=ExamBacklogQuestion.get_detail_queryset(all=True, get_answers=get_answers, q_filter=exam_backlog_question_filter),
                 )
             )
-    if schedule:
-        candidate_exam_queryset = candidate_exam_queryset.select_related("schedule")
     if candidate:
         candidate_exam_queryset = candidate_exam_queryset.prefetch_related(
             Prefetch("candidate", queryset=Candidate.get_detail_queryset(organization=True, user=True))

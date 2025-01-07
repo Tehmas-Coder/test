@@ -3,11 +3,15 @@ import json
 from cryptography.fernet import Fernet
 from django.contrib.auth import login
 from django.db import transaction
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
+from apps.exam_public.serializers.candidate_exam_serializers import (
+    CandidateExamListSerializer,
+)
 from apps.user.models.user_models import BaseUser, Role
 from apps.user.serializers.user_serializers import UserSerializer
 from helpers.helper_functions import get_encryption_key
@@ -57,7 +61,7 @@ class AuthNinja:
         if not serializer.is_valid():
             if "email" not in serializer.errors:
                 ResponseMiddleware.return_now(Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST))
-            user_instance = BaseUser.get_user_by_email(self.request_data["email"])
+            user_instance = BaseUser.get_user_by_email(self.request_data.get("email"))
             if user_instance and user_instance.creation_context == "public_exam" and user_instance.otp:
                 response_data = self.__update_already_created_user_from_public_exam(user_instance)
                 ResponseMiddleware.return_now(Response(response_data, status=status.HTTP_201_CREATED))
@@ -102,12 +106,14 @@ class AuthNinja:
             role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
             self.user.roles.add(role_id["id"])  # type:ignore
             self.user.save()
-        AuthNinja.create_candidate_with_exam_token(self.user, decrypted_data)
+        candidate_exam_instance = AuthNinja.create_candidate_with_exam_token(self.user, decrypted_data)
+        candidate_exam_data = CandidateExamListSerializer(candidate_exam_instance).data
         login(request, self.user)
         refresh = RefreshToken.for_user(self.user)
         self.response_data["refresh"] = str(refresh)
         self.response_data["access"] = str(refresh.access_token)  # type: ignore
         self.response_data["route"] = "exam"
+        self.response_data["candidate_exam"] = candidate_exam_data
 
     def __fetch_user_data_from_request(self) -> dict:
         user_creation_required_data = {
@@ -122,10 +128,18 @@ class AuthNinja:
     # ---------------------------------------------------------------------------- #
     @staticmethod
     def create_candidate_with_exam_token(user_instance, decrypted_data):
+        """
+        Create candidate with exam token and return candidate exam instance
+        :param user_instance: User instance
+        :param decrypted_data: Decrypted data
+        :return: Candidate exam instance
+        """
         organization_id = decrypted_data["organization_id"]
         candidate_exam_id = decrypted_data["candidate_exam_id"]
         candidate_instance, _ = Candidate.objects.get_or_create(user=user_instance, organization_id=organization_id)
-        CandidateExam.objects.filter(id=candidate_exam_id).update(candidate=candidate_instance)
+        candidate_exam = CandidateExam.get_detail_queryset(candidate=True, exam_backlog=True, q_filter=Q(id=candidate_exam_id))
+        candidate_exam.update(candidate=candidate_instance)
+        return candidate_exam.first()
 
     @staticmethod
     def decrypt_exam_token(token):

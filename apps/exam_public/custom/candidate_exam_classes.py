@@ -180,10 +180,10 @@ class CandidateExamNinja:
     def attempt_candidate_exam(self, request_data: dict) -> dict:
         response_data = {}
 
-        if "key" not in request_data:
-            response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_not_present(request_data, response_data)
-        else:
+        if "key" in request_data:
             response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_present(request_data, response_data)
+        else:
+            response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_not_present(request_data, response_data)
 
         return response_data
 
@@ -202,6 +202,7 @@ class CandidateExamNinja:
     #                                PRIVATE METHODS                               #
     # ---------------------------------------------------------------------------- #
 
+    # -------------------------- EXAM SUBMISSION METHODS ------------------------- #
     def __mark_objective_type_questions(self, candidate_exam_id: int) -> None:
         """
         - This function scores objective type questions answers if the choice is correct then answer is also marked as correct and scored as positive,
@@ -384,6 +385,7 @@ class CandidateExamNinja:
             )
         return subsection_backlog_questions_details_hashmap
 
+    # -------------------------- ATTEMPT CANDIDATE EXAM METHODS ------------------------- #
     def __set_response_data_for_attempt_candidate_exam_when_key_not_present(self, request_data: dict, response_data: dict) -> dict:
         """
         - This function sets the response data for attempt candidate exam when key is not present in request data
@@ -404,13 +406,16 @@ class CandidateExamNinja:
             candidate_exam_instance, context={"get_retry_hints": candidate_exam_instance.is_preparatory}  # type: ignore
         ).data
 
-        all_questions = self.__get_candidate_exam_all_questions()
-        encryption_data = json.dumps({"all_questions": all_questions, "candidate_exam": self.candidate_exam_data})
-        key = get_encryption_key()
-        encrypted_data = encrypt_message(encryption_data, key)
-        response_data["question"] = all_questions[0] if len(all_questions) else {}
+        # * If the exam is one by one then it will return the first question, otherwise it will return all the questions
+        if candidate_exam_instance.exam_questions_visibility == "one_by_one":  # type:ignore
+            all_questions = self.__get_candidate_exam_all_questions()
+            encryption_data = json.dumps({"all_questions": all_questions, "candidate_exam": self.candidate_exam_data})
+            key = get_encryption_key()
+            encrypted_data = encrypt_message(encryption_data, key)
+            response_data["question"] = all_questions[0] if len(all_questions) else {}
+            response_data["key"] = encrypted_data
+
         response_data["candidate_exam"] = self.candidate_exam_data
-        response_data["key"] = encrypted_data
         return response_data
 
     def __get_candidate_exam_all_questions(self) -> list:
@@ -462,6 +467,7 @@ class CandidateExamNinja:
         response_data["key"] = encrypted_data
         return response_data
 
+    # -------------------------- EXAMINERS ASSIGNMENT METHODS ------------------------- #
     def __create_non_existing_users(self, examiner_emails: list, examiners_details_list: list) -> None:
         existing_users_email = list(BaseUser.objects.filter(email__in=examiner_emails).distinct().values_list("email", flat=True))
         non_existing_users_emails = list(set(examiner_emails) - set(existing_users_email))

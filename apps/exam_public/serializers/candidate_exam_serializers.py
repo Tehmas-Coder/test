@@ -25,6 +25,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             "schedule",
             "start_datetime",
             "end_datetime",
+            "exam_questions_visibility",
             "is_public",
             "is_preparatory",
         ] + get_base_model_fields()
@@ -68,6 +69,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
+            "exam_questions_visibility",
             "is_public",
             "is_preparatory",
             "total_obtainable_marks",
@@ -93,6 +95,7 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
+            "exam_questions_visibility",
             "is_public",
             "is_preparatory",
             "total_obtainable_marks",
@@ -148,6 +151,7 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
+            "exam_questions_visibility",
             "is_public",
             "is_preparatory",
             "total_obtainable_marks",
@@ -186,6 +190,7 @@ class CandidateExamScoresheetSerializer(BaseModelSerializer):
         model = CandidateExam
         fields = [
             "id",
+            "exam_questions_visibility",
             "is_public",
             "is_preparatory",
             "total_obtainable_marks",
