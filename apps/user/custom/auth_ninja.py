@@ -62,7 +62,7 @@ class AuthNinja:
             if "email" not in serializer.errors:
                 ResponseMiddleware.return_now(Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST))
             user_instance = BaseUser.get_user_by_email(self.request_data.get("email"))
-            if user_instance and user_instance.creation_context == "public_exam" and user_instance.otp:
+            if user_instance and user_instance.creation_context == "public_exam" and (not user_instance.otp):
                 response_data = self.__update_already_created_user_from_public_exam(user_instance)
                 ResponseMiddleware.return_now(Response(response_data, status=status.HTTP_201_CREATED))
             ResponseMiddleware.return_now(make_error_response(message="User with this email already exists"))
