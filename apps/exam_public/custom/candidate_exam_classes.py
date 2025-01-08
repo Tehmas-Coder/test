@@ -97,9 +97,9 @@ class CandidateExamNinja:
             )
         )
         organization_id = None if logged_in_user.is_superuser else get_current_user_organization()  # type:ignore
+        key = get_encryption_key()
+        cipher = Fernet(key)
         for one_candidate_detail in candidate_exam_detail_queryset:
-            key = get_encryption_key()
-            cipher = Fernet(key)
             candidate_exam_id = one_candidate_detail["id"]
 
             data_to_encrypt = {
