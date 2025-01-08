@@ -33,9 +33,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
     def create(self, validated_data):
-        organization_id = None
-        if not get_current_user().is_superuser:  # type: ignore
-            organization_id = get_current_user_organization()
+        organization_id = None if logged_in_user.is_superuser else get_current_user_organization()  # type:ignore
         # * Fetching candidates instances for candidates_ids in request data
         candidates = validated_data.pop("candidates")
         candidates_instances = list(
