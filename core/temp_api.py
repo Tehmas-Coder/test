@@ -19,8 +19,8 @@ class TempApi(APIView):
 
     def get(self, request, *args, **kwargs):
         # if request is not from localhost, return 404
-        if request.META["REMOTE_ADDR"] not in ["localhost", "127.0.0.1"]:
-            return Response(status=404)
+        # if request.META["REMOTE_ADDR"] not in ["localhost", "127.0.0.1"]:
+        #     return Response(status=404)
         # for i in range(1, 3):
         #     send_email_task(
         #         subject=f"Test Email {i} from Django",
