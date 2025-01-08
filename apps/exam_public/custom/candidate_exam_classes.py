@@ -56,6 +56,7 @@ class CandidateExamNinja:
     def get_candidate_exam(self, candidate_exam_id):
         logged_in_user_id = get_current_user().id  # type:ignore
 
+        # TODO: Remove this token logic after new exam attempt flow have been added by the front-end and remove the permission access from candidate to get the exam
         try:
             candidate_exam_id = int(candidate_exam_id)
         except:
@@ -96,9 +97,9 @@ class CandidateExamNinja:
             )
         )
         organization_id = None if logged_in_user.is_superuser else get_current_user_organization()  # type:ignore
+        key = get_encryption_key()
+        cipher = Fernet(key)
         for one_candidate_detail in candidate_exam_detail_queryset:
-            key = get_encryption_key()
-            cipher = Fernet(key)
             candidate_exam_id = one_candidate_detail["id"]
 
             data_to_encrypt = {
@@ -174,17 +175,14 @@ class CandidateExamNinja:
             if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
                 message = message + " but failed to send exam status through webhook"
                 response_status = status.HTTP_307_TEMPORARY_REDIRECT
-
         return {"message": message, "status": response_status}
 
     def attempt_candidate_exam(self, request_data: dict) -> dict:
         response_data = {}
-
         if "key" in request_data:
             response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_present(request_data, response_data)
         else:
             response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_not_present(request_data, response_data)
-
         return response_data
 
     def assign_examiners_to_exam_backlog(self, exam_backlog_id: int, examiners_details_list: list) -> None:
@@ -197,6 +195,9 @@ class CandidateExamNinja:
         self.__assign_roles_and_organizations_to_examiners(examiner_users)
         examiner_ids = [examiner.id for examiner in examiner_users]  # type:ignore
         exam_backlog_instance.examiners.set(examiner_ids)  # type:ignore
+
+    def create_candidate_exam_answer(self, request_data: dict):
+        pass
 
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #

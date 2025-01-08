@@ -44,15 +44,12 @@ class LoginApiView(TokenObtainPairView):
         if exam_token:
             decrypted_data = AuthNinja.decrypt_exam_token(exam_token)
             AuthNinja.create_candidate_with_exam_token(user, decrypted_data)
-
         user_role_name = None
         if "is_system_user" in request_data:  # type: ignore
             user_role_name = user.roles.all().values().first()
-
         if user_role_name == None:
             if not user.is_verified:
                 return make_error_response(message="User is not verified!")
-
         return super().post(request, *args, **kwargs)
 
 
