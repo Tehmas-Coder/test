@@ -113,6 +113,11 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
 
+        # * Sending Exam Invitation Emails
+        if request_data.get("is_send_invitation_emails"):
+            candidate_exam_ids = [one_candidate_exam["id"] for one_candidate_exam in response_data]
+            CandidateExamNinja().send_exam_invitation_link(candidate_exam_ids)
+
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
