@@ -196,6 +196,9 @@ class CandidateExamNinja:
         examiner_ids = [examiner.id for examiner in examiner_users]  # type:ignore
         exam_backlog_instance.examiners.set(examiner_ids)  # type:ignore
 
+    def create_candidate_exam_answer(self, request_data: dict):
+        pass
+
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #
     # ---------------------------------------------------------------------------- #

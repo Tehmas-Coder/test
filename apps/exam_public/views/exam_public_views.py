@@ -216,7 +216,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             if len(answer_files):
                 if exam_backlog_question_id not in answer_media_hashmap:
                     answer_media_hashmap[exam_backlog_question_id] = {}
-                answer_media_hashmap[exam_backlog_question_id] = {"exam_backlog_question_id": exam_backlog_question_id, "files": []}
+                answer_media_hashmap[exam_backlog_question_id] = {"files": []}
                 for key in answer_files:
                     file = request.FILES.get(key)
                     if file:
@@ -240,7 +240,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
                     exam_backlog_question_choice_id=one_dict.get("exam_backlog_question_choice"),
                     exam_backlog_question_choice_title=(
                         exam_backlog_question_choices_hashmap[one_dict.get("exam_backlog_question_choice")]
-                        if one_dict.get("exam_backlog_question_choice") != None
+                        if one_dict.get("exam_backlog_question_choice")
                         else None
                     ),
                     answer_text=one_dict.get("answer_text"),
@@ -254,7 +254,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
         )
 
-        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
+        # CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             send_exam_status_to_student_apply_webhook(candidate_exam_instance)
@@ -265,7 +265,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             if exam_backlog_question_id in answer_media_hashmap:
                 answer_media_hashmap[exam_backlog_question_id]["candidate_exam_answer"] = candidate_exam_answer_id
 
-        for key, value in answer_media_hashmap.items():
+        for value in answer_media_hashmap.values():
             media_data = {"files": value["files"]}
             media_serializer = MediaBulkCreateSerializer(data=media_data)
             media_serializer.is_valid(raise_exception=True)
@@ -279,7 +279,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
                     candidate_exam_answer_id=value["candidate_exam_answer"],
                     media_id=one_media_id,
                 )
-                for key, value in answer_media_hashmap.items()
+                for value in answer_media_hashmap.values()
                 for one_media_id in value["media_ids"]
             ]
         )
