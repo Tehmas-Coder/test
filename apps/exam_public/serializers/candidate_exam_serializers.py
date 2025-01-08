@@ -9,7 +9,9 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
     ExamBacklogQuestionScoresheetSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
+from apps.user.utils.utils import get_current_user_organization
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from middlewares.current_user_middleware import get_current_user
 
 
 class CandidateExamEditSerializer(BaseModelSerializer):
@@ -31,9 +33,16 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
     def create(self, validated_data):
+        organization_id = None
+        if not get_current_user().is_superuser:  # type: ignore
+            organization_id = get_current_user_organization()
         # * Fetching candidates instances for candidates_ids in request data
         candidates = validated_data.pop("candidates")
-        candidates_instances = list(Candidate.objects.filter(user__email__in=candidates).select_related("user").annotate(email=F("user__email")))
+        candidates_instances = list(
+            Candidate.objects.filter(user__email__in=candidates, organization_id=organization_id)
+            .select_related("user")
+            .annotate(email=F("user__email"))
+        )
         email_in_candidate_instances = [one_candidate.email for one_candidate in candidates_instances]  # type: ignore
 
         # * Setting up data to be fetched from schedule model
