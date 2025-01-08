@@ -80,6 +80,8 @@ def send_email_notification_to_list(
     queue: bool = False,
 ):
     if not queue:
+        # TODO: Remove it after testing
+        to_email_list = ["testdev.stap@gmail.com"]
         return send_mail(subject, email_body, from_email, to_email_list)
     else:
         # TODO: Remove it after testing
