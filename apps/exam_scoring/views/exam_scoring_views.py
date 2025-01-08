@@ -176,7 +176,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
                     response_status = status.HTTP_307_TEMPORARY_REDIRECT
         return Response({"message": message}, status=response_status)
 
-    # * -------------------------- Candidate Exam Scoresheet -------------------------- #
+    # -------------------------- Candidate Exam Scoresheet -------------------------- #
 
     def candidate_exam_scoresheet(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs.get("id", None)

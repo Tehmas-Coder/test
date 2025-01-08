@@ -101,12 +101,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             # * Creating Backlogs for Exam
             exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
             exam_backlogs = ExamBacklogsNinja(exam_data=exam_data)  # type:ignore
-            exambacklog_id = exam_backlogs.create_backlogs()
-        else:
-            exambacklog_id = request_data.get("exam_backlog")
+            request_data["exam_backlog"] = exam_backlogs.create_backlogs()
 
         # * Assigning Exam to Candidates
-        request_data["exam_backlog"] = exambacklog_id
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         candidate_exam_instances = serializer.save()
