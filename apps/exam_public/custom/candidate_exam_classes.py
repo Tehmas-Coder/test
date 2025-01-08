@@ -56,6 +56,7 @@ class CandidateExamNinja:
     def get_candidate_exam(self, candidate_exam_id):
         logged_in_user_id = get_current_user().id  # type:ignore
 
+        # TODO: Remove this token logic after new exam attempt flow have been added by the front-end and remove the permission access from candidate to get the exam
         try:
             candidate_exam_id = int(candidate_exam_id)
         except:
