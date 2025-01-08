@@ -175,17 +175,14 @@ class CandidateExamNinja:
             if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
                 message = message + " but failed to send exam status through webhook"
                 response_status = status.HTTP_307_TEMPORARY_REDIRECT
-
         return {"message": message, "status": response_status}
 
     def attempt_candidate_exam(self, request_data: dict) -> dict:
         response_data = {}
-
         if "key" in request_data:
             response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_present(request_data, response_data)
         else:
             response_data = self.__set_response_data_for_attempt_candidate_exam_when_key_not_present(request_data, response_data)
-
         return response_data
 
     def assign_examiners_to_exam_backlog(self, exam_backlog_id: int, examiners_details_list: list) -> None:
