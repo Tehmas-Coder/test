@@ -80,12 +80,8 @@ def send_email_notification_to_list(
     queue: bool = False,
 ):
     if not queue:
-        # TODO: Remove it after testing
-        to_email_list = ["testdev.stap@gmail.com"]
         return send_mail(subject, email_body, from_email, to_email_list)
     else:
-        # TODO: Remove it after testing
-        to_email_list = ["testdev.stap@gmail.com"]
         res = add_to_email_queue(
             message={
                 "subject": subject,
@@ -110,7 +106,7 @@ def add_to_email_queue(message: dict):
             print(error)
             return error
 
-    # TODO: UNcomment the below code block after setting up the email queue on production
+    # TODO: Uncomment the below code block after setting up the email queue on production
     # if config("MOCK_SEND_EMAIL") == "1":
     #     return 200
     # else:
