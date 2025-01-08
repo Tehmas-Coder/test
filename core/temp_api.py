@@ -19,6 +19,7 @@ class TempApi(APIView):
 
     def get(self, request, *args, **kwargs):
         # if request is not from localhost, return 404
+        # TODO: Uncomment the following code block to restrict the API to localhost after testing on production is done
         # if request.META["REMOTE_ADDR"] not in ["localhost", "127.0.0.1"]:
         #     return Response(status=404)
         # for i in range(1, 3):
