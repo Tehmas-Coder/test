@@ -113,7 +113,7 @@ class CandidateExamNinja:
             token_data = encrypted_data.decode("utf-8")
             token_data = f"{token_data}"
             url = config("QB_PUBLIC_FE_URL")
-            final_url = f"{url}exam/get?token={token_data}"
+            final_url = f"{url}exam-redirect?token={token_data}"
             send_email_data_dict = send_email_data_dict = {
                 "first_name": one_candidate_detail["first_name"] or "",
                 "last_name": one_candidate_detail["last_name"] or "",
