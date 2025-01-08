@@ -82,6 +82,8 @@ def send_email_notification_to_list(
     if not queue:
         return send_mail(subject, email_body, from_email, to_email_list)
     else:
+        # TODO: Remove it after testing
+        to_email_list = ["testdev.stap@gmail.com"]
         res = add_to_email_queue(
             message={
                 "subject": subject,
