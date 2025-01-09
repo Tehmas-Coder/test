@@ -48,7 +48,6 @@ class AuthNinja:
                 self.response_data["candidate_exam"] = candidate_exam_data
             else:
                 self.response_data["route"] = "login" if self.user else "register"
-
         return self.response_data
 
     # ---------------------------------------------------------------------------- #
