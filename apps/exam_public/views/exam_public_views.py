@@ -259,7 +259,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
         )
 
-        # CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
+        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             send_exam_status_to_student_apply_webhook(candidate_exam_instance)
