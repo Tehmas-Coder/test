@@ -81,6 +81,7 @@ class CandidateExamListSerializer(BaseModelSerializer):
             "is_preparatory",
             "total_obtainable_marks",
             "obtained_marks",
+            "exam_result",
             "exam_duration",
             "schedule",
             "start_datetime",
@@ -92,6 +93,8 @@ class CandidateExamListSerializer(BaseModelSerializer):
             "candidate",
             "exam_backlog",
         ] + get_base_model_fields()
+
+        read_only_fields = ["exam_result"]
 
 
 class CandidateExamDetailSerializer(BaseModelSerializer):
@@ -108,6 +111,7 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "total_obtainable_marks",
             "obtained_marks",
             "exam_duration",
+            "exam_result",
             "schedule",
             "start_datetime",
             "end_datetime",
@@ -118,6 +122,8 @@ class CandidateExamDetailSerializer(BaseModelSerializer):
             "candidate",
             "exam_backlog",
         ] + get_base_model_fields()
+
+        read_only_fields = ["exam_result"]
 
     def __init__(self, *args, **kwargs):
         context = kwargs.pop("context", False)
@@ -163,6 +169,7 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
             "is_preparatory",
             "total_obtainable_marks",
             "obtained_marks",
+            "exam_result",
             "exam_duration",
             "schedule",
             "start_datetime",
@@ -174,6 +181,8 @@ class CandidateExamWithAnswersDetailSerializer(BaseModelSerializer):
             "candidate",
             "exam_backlog",
         ] + get_base_model_fields()
+
+        read_only_fields = ["exam_result"]
 
     def __init__(self, *args, **kwargs):
         context = kwargs.pop("context", False)
@@ -202,6 +211,7 @@ class CandidateExamScoresheetSerializer(BaseModelSerializer):
             "is_preparatory",
             "total_obtainable_marks",
             "obtained_marks",
+            "exam_result",
             "exam_duration",
             "schedule",
             "start_datetime",
@@ -212,6 +222,8 @@ class CandidateExamScoresheetSerializer(BaseModelSerializer):
             "candidate_email",
             "exam_backlog",
         ] + get_base_model_fields()
+
+        read_only_fields = ["exam_result"]
 
     def get_exam_backlog(self, obj):
         return ExamBacklogQuestionScoresheetSerializer(obj.exam_backlog).data
