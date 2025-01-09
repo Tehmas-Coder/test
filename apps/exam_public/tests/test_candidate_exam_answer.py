@@ -104,7 +104,7 @@ class CandidateExamAnswerTest(CandidateExamAnswerUnitTest):
     def successfull_creation_of_a_record_test(self):
         candidate_exam_assignemt_request_body = {
             "candidates": [
-                "cyberaxescandidate@gmail.com",
+                "generalcandidate@gmail.com",
             ],
             "exam": 1,
             "schedule": 2,

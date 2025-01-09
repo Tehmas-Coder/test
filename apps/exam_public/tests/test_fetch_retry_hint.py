@@ -76,7 +76,7 @@ class CandidateExamRetryHintTest(CandidateExamRetryHintUnitTest):
     def successsfull_fetching_of_one_record_test(self):
         candidate_exam_assignemt_request_body = {
             "candidates": [
-                "cyberaxescandidate@gmail.com",
+                "generalcandidate@gmail.com",
             ],
             "exam": 1,
             "schedule": 2,
