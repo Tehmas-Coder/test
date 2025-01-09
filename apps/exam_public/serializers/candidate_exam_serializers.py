@@ -144,7 +144,7 @@ class ExamBacklogWithCandidateDetailsSerializer(BaseModelSerializer):
             "education_level",
             "education_level_name",
             "total_marks",
-            "pass_marks",
+            "passing_percentage",
             "is_global",
             "candidate_exam_examsbacklog",
         ] + get_base_model_fields()

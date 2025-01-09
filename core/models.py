@@ -19,15 +19,24 @@ class BaseManager(models.Manager):
 
 
 class BaseModel(models.Model):
+    """
+    Base model for all models in the project with common fields and methods.
+    The structure to be followed by all models in the project is as follows:
+    - Add a white space after every type of fields definition.
+    - Foreign key fields should be defined at the top of the model.
+    - Then the common fields except the boolean fields should be defined.
+    - Then the boolean fields (flags) should be defined.
+    - Then many-to-many fields should be defined.
+    - Then the Meta class should be defined.
+    - Then the methods should be defined.
+    """
 
-    description = models.TextField(blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey("user.BaseUser", on_delete=models.SET_NULL, null=True, related_name="%(class)s_created_by")
-
-    updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey("user.BaseUser", on_delete=models.SET_NULL, null=True, related_name="%(class)s_updated_by")
 
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     STATUS_CHOICES = (
         ("active", "Active"),
         ("inactive", "Inactive"),

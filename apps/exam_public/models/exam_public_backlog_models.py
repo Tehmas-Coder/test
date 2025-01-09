@@ -20,7 +20,7 @@ class ExamBacklog(BaseModel):
     instructions = models.TextField(null=True, blank=True)
     education_level_name = models.CharField(max_length=255)
     total_marks = models.PositiveIntegerField(default=0)
-    pass_marks = models.PositiveIntegerField(default=0)
+    passing_percentage = models.PositiveIntegerField(default=0)
 
     is_global = models.BooleanField(default=True)
 
