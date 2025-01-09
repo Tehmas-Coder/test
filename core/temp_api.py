@@ -50,10 +50,17 @@ class TempApi(APIView):
             )
             send_email_task(
                 subject=f"Test Email from Django with attachment",
-                html_content="<h1>This is a test email</h1>",
+                html_content="<h1>This is a test email with attachment</h1>",
                 from_email="haiderjuttearner@gmail.com",
                 attachments=[attachment],
                 to_email_list=["sheryarbaloch67@gmail.com"],
             )
+        send_email_task(
+            subject=f"Simple Test Email from Django",
+            html_content="<h1>This is a simple test email</h1>",
+            from_email="haiderjuttearner@gmail.com",
+            attachments=[],
+            to_email_list=["sheryarbaloch67@gmail.com"],
+        )
 
         return Response()
