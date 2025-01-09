@@ -79,6 +79,8 @@ def send_email_notification_to_list(
     from_email: str = "haiderjuttearner@gmail.com",
     queue: bool = False,
 ):
+    if config("IS_DIVERT_EMAIL"):
+        to_email_list = [str(config("DEFAULT_TO_EMAIL"))]
     if not queue:
         return send_mail(subject, email_body, from_email, to_email_list)
     else:
