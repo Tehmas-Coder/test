@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from cryptography.fernet import Fernet
 from django.contrib.auth import login
@@ -153,6 +154,9 @@ class AuthNinja:
         cipher = Fernet(key)
         try:
             decrypted_data = json.loads(cipher.decrypt(token).decode())
+            link_expiry_datetime = decrypted_data.get("end_datetime")
+            if link_expiry_datetime and link_expiry_datetime < datetime.now().replace(tzinfo=link_expiry_datetime.tzinfo):
+                ResponseMiddleware.return_now(make_error_response(message="Link has expired"))
         except:
             ResponseMiddleware.return_now(make_error_response(message="Invalid Token"))
         return decrypted_data
