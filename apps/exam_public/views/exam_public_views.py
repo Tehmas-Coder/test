@@ -168,6 +168,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="submit")
+    @transaction.atomic
     def candidate_exam_submission(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs["pk"]
         data = CandidateExamNinja().submit_candidate_exam(candidate_exam_id)

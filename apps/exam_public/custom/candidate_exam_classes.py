@@ -3,6 +3,7 @@ import random
 
 from cryptography.fernet import Fernet
 from decouple import config
+from django.db import transaction
 from django.db.models import F, Q, Sum
 from rest_framework import status
 from rest_framework.response import Response
@@ -175,6 +176,7 @@ class CandidateExamNinja:
             if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
                 message = message + " but failed to send exam status through webhook"
                 response_status = status.HTTP_307_TEMPORARY_REDIRECT
+                transaction.set_rollback(True)
         return {"message": message, "status": response_status}
 
     def attempt_candidate_exam(self, request_data: dict) -> dict:
@@ -403,7 +405,6 @@ class CandidateExamNinja:
             ResponseMiddleware.return_now(make_error_response(message="Exam has already been attempted"))
 
         candidate_exam_instance = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
-        # TODO: Call exam_status webhook here
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             send_exam_status_to_student_apply_webhook(candidate_exam_instance)
 
