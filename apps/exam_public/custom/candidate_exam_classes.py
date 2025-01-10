@@ -403,6 +403,10 @@ class CandidateExamNinja:
             ResponseMiddleware.return_now(make_error_response(message="Exam has already been attempted"))
 
         candidate_exam_instance = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
+        # TODO: Call exam_status webhook here
+        if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
+            send_exam_status_to_student_apply_webhook(candidate_exam_instance)
+
         self.candidate_exam_data = CandidateExamDetailSerializer(
             candidate_exam_instance, context={"get_retry_hints": candidate_exam_instance.is_preparatory}  # type: ignore
         ).data
