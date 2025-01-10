@@ -40,9 +40,7 @@ class AuthNinja:
             self.__public_exam_token_handler(request, decrypted_data)
         else:
             if request.data.get("authentication_completed"):
-                candidate_exam_instance = CandidateExam.get_detail_queryset(
-                    candidate=True, exam_backlog=True, q_filter=Q(id=decrypted_data["candidate_exam_id"])
-                ).first()
+                candidate_exam_instance = AuthNinja.create_candidate_with_exam_token(self.user, decrypted_data)
                 candidate_exam_data = CandidateExamListSerializer(candidate_exam_instance).data
                 self.response_data["route"] = "exam"
                 self.response_data["candidate_exam"] = candidate_exam_data
