@@ -37,13 +37,19 @@ class CandidateExam(BaseModel):
         ("submitted", "Submitted"),
         ("marked", "Marked"),
         ("scored", "Scored"),
+        ("expired", "Expired"),
     )
-    exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
-    EXAM_VISIBILITY_CHOICES = ()
+    EXAM_RESULT_CHOICES = (
+        ("pass", "Pass"),
+        ("fail", "Fail"),
+        ("pending", "Pending"),
+    )
     EXAM_QUESTIONS_VISIBILITY_CHOICES = (
         ("all_at_once", "All at Once"),
         ("one_by_one", "One by One"),
     )
+    exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
+    exam_result = models.CharField(max_length=100, choices=EXAM_RESULT_CHOICES, default="pending")
     exam_questions_visibility = models.CharField(max_length=100, choices=EXAM_QUESTIONS_VISIBILITY_CHOICES, default="all_at_once")
     # ? To be filled from schedule
     start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
@@ -56,6 +62,18 @@ class CandidateExam(BaseModel):
 
     class Meta:
         app_label = "exam_public"
+
+    def set_exam_result(self):
+        if self.total_obtainable_marks and self.obtained_marks and self.exam_status == "scored":
+            passing_percentage = self.exam_backlog.passing_percentage
+            passing_marks = (passing_percentage / 100) * self.total_obtainable_marks
+            if self.obtained_marks >= passing_marks:
+                self.exam_result = "pass"
+            else:
+                self.exam_result = "fail"
+        else:
+            self.exam_result = "pending"
+        self.save()
 
     @classmethod
     def get_detail_queryset(
@@ -124,10 +142,10 @@ class CandidateExamRetryhint(BaseModel):
 
     penalty_score = models.DecimalField(max_digits=10, decimal_places=1)
 
-    def save(self, *args, **kwargs):
-        self.penalty_score = (self.exam_backlog_question.retry_penalty / 100) * self.exam_backlog_question.total_marks
-        return super().save(*args, **kwargs)
-
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidateexam_retryhint"
+
+    def save(self, *args, **kwargs):
+        self.penalty_score = (self.exam_backlog_question.retry_penalty / 100) * self.exam_backlog_question.total_marks
+        return super().save(*args, **kwargs)

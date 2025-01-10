@@ -119,7 +119,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
     def successfull_attemptation_of_an_exam_test(self):
         candidate_exam_assignemt_request_body = {
             "candidates": [
-                "cyberaxescandidate@gmail.com",
+                "generalcandidate@gmail.com",
             ],
             "exam": 1,
             "schedule": 2,

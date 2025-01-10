@@ -154,6 +154,7 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
         if len(candidate_exam_answer_queryset) == length_of_scored_candidate_exam_answers:
             candidate_exam_instance_queryset.update(obtained_marks=all_scores_sum, exam_status="scored")
             candidate_exam_instance = candidate_exam_instance_queryset.first()
+            candidate_exam_instance.set_exam_result()  # type: ignore
             message = "Exam's all questions are marked and scored successfully"
             response_status = status.HTTP_200_OK
             if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore

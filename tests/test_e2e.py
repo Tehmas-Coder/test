@@ -271,7 +271,7 @@ class AdminEndToEndTest(TestSetUp):
             "instructions": "asd",
             "education_level": education_level_response["id"],
             "total_marks": 20,
-            "pass_marks": 20,
+            "passing_percentage": 20,
             "exam_status": "draft",
             "is_global": 0,
             "subjects": [subject_education_level_response["id"]],

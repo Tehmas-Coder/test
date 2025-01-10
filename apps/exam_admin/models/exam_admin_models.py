@@ -73,7 +73,7 @@ class Exam(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField(blank=True, null=True)
     total_marks = models.PositiveIntegerField(default=0)
-    pass_marks = models.PositiveIntegerField(default=0)
+    passing_percentage = models.PositiveIntegerField(default=0)
 
     TYPE_CHOICES = (
         ("draft", "Draft"),
