@@ -1,6 +1,6 @@
 from cryptography.fernet import Fernet
-from django.db.models import F, Prefetch, Sum
-from rest_framework import status, viewsets
+from django.db.models import F, Prefetch, Q, Sum
+from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 
 from apps.exam_public.helpers.exam_status_webhook import (
@@ -25,8 +25,9 @@ from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
 )
+from apps.exam_scoring.serializers.exam_report_serializers import ExamReportSerializer
 from helpers.helper_functions import get_encryption_key
-from utils.rna_utils import color_print, debug_print, make_error_response
+from utils.rna_utils import make_error_response
 
 
 class CandidateExamScoringViewset(viewsets.ViewSet):
@@ -257,3 +258,25 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 
         data = CandidateExamScoresheetSerializer(candidate_exam_backlog_question_instance).data
         return Response(data, status=status.HTTP_200_OK)
+
+
+class ExamReportAPIView(views.APIView):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Get the report of the candidate exams, based on exam_id and start and end datetime
+        """
+        start_datetime = request.data.get("start_datetime", None)
+        end_datetime = request.data.get("end_datetime", None)
+        exam_id = request.data.get("exam_id", None)
+        if start_datetime is None or end_datetime is None:
+            return make_error_response(message="Start datetime and end datetime are required")
+        if exam_id is None:
+            return make_error_response(message="Exam id is required")
+        candidate_exam_queryset = CandidateExam.get_detail_queryset(
+            exam_backlog=True,
+            candidate=True,
+            q_filter=Q(exam_backlog__exam_id=exam_id, start_datetime__gte=start_datetime, end_datetime__lte=end_datetime),
+        )
+        report_data = ExamReportSerializer(candidate_exam_queryset, many=True).data
+        return Response(report_data, status=status.HTTP_200_OK)
