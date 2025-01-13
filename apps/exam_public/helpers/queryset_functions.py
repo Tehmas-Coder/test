@@ -1,4 +1,9 @@
+from doctest import debug
+
 from django.db.models import Prefetch, Q, QuerySet
+
+from apps.user.utils.utils import get_current_user_organization
+from middlewares.current_user_middleware import get_current_user
 
 
 def get_candidate_detailed_queryset(model, organization=False, user=False) -> QuerySet:
@@ -25,6 +30,10 @@ def get_candidate_exam_detailed_queryset(
 ) -> QuerySet:
     from apps.exam_public.models.exam_public_models import Candidate
 
+    if get_current_user():
+        is_superuser = get_current_user().is_superuser  # type: ignore
+        organization = None if is_superuser else get_current_user_organization()
+        q_filter &= Q(organization_id=organization)
     candidate_exam_queryset = model.objects.filter(q_filter)
     if exam_backlog:
         candidate_exam_queryset = candidate_exam_queryset.select_related("exam_backlog")
