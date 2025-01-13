@@ -570,5 +570,27 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 53,
+    "fields": {
+      "name": "Attempt Candidate Exam",
+      "context_value": "candidates",
+      "description": "Attempt a candidate exam (accessible to candidates only)",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 54,
+    "fields": {
+      "name": "View Exam Report",
+      "context_value": "exams",
+      "description": "View the report of an exam",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

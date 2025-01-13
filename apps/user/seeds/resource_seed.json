@@ -2247,5 +2247,18 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 179,
+    "fields": {
+      "name": "Get Exam Report",
+      "description": "Get the report of an exam",
+      "regex": "^/exam-report/[0-9]+/$",
+      "method": "get",
+      "permission": 54,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

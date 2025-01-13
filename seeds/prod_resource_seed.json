@@ -2195,5 +2195,70 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 175,
+    "fields": {
+      "name": "Attempt Candidate Exam",
+      "description": "Attempt Candidate Exam",
+      "regex": "^/attempt-candidate-exam/$",
+      "method": "post",
+      "permission": 53,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 176,
+    "fields": {
+      "name": "Handle Exam Token",
+      "description": "Handle routes for an exam token",
+      "regex": "^/exam-token-handler/$",
+      "method": "post",
+      "permission": null,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 177,
+    "fields": {
+      "name": "Create Exam Backlog",
+      "description": "Create a backlog for an exam",
+      "regex": "^/create-exam-backlog/$",
+      "method": "post",
+      "permission": 23,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 178,
+    "fields": {
+      "name": "Assign Examiners",
+      "description": "Assign examiners to an exam",
+      "regex": "^/assign-examiners/$",
+      "method": "post",
+      "permission": 23,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 179,
+    "fields": {
+      "name": "Get Exam Report",
+      "description": "Get the report of an exam",
+      "regex": "^/exam-report/[0-9]+/$",
+      "method": "get",
+      "permission": 54,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
