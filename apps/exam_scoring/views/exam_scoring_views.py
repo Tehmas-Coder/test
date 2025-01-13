@@ -263,9 +263,6 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 class ExamReportAPIView(views.APIView):
 
     def post(self, request, *args, **kwargs):
-        """
-        Get the report of the candidate exams, based on exam_id and start and end datetime
-        """
         start_datetime = request.data.get("start_datetime", None)
         end_datetime = request.data.get("end_datetime", None)
         exam_id = request.data.get("exam_id", None)
