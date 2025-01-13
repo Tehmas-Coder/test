@@ -2254,8 +2254,8 @@
     "fields": {
       "name": "Get Exam Report",
       "description": "Get the report of an exam",
-      "regex": "^/exam-report/[0-9]+/$",
-      "method": "get",
+      "regex": "^/exam-report/$",
+      "method": "post",
       "permission": 54,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
