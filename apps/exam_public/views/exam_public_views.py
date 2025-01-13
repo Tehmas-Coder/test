@@ -260,6 +260,7 @@ class CandidateExamAnswerViewset(viewsets.ModelViewSet):
             CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
         )
 
+        # TODO: Remove this block of code after the attempt candidate exam API is fully implemented at front-end
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
         candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
