@@ -36,10 +36,9 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 
     def candidate_exam_marking(self, request, *args, **kwargs):
         candidate_exam_id = request.data.get("candidate_exam_id", None)
+        request_data = request.data.get("questions_scores", None)
         if candidate_exam_id is None:
             return make_error_response(message="Candidate Exam id is required")
-
-        request_data = request.data.get("questions_scores", None)
         if request_data is None:
             return make_error_response(message="Questions scores are required")
         candidate_exam_answer_queryset = (
