@@ -1,12 +1,19 @@
-from django.db.models import F, QuerySet, Sum
+from django.db.models import F, Prefetch, QuerySet, Sum
 from rest_framework import status
 
+from apps.exam_public.helpers.candidate_exam_helpers import (
+    get_detailed_candidate_exam_with_country_based_questions,
+)
 from apps.exam_public.helpers.exam_status_webhook import (
     send_exam_status_to_student_apply_webhook,
 )
+from apps.exam_public.models.exam_public_backlog_models import ExamBacklogQuestion
 from apps.exam_public.models.exam_public_models import (
     CandidateExam,
     CandidateExamAnswer,
+)
+from apps.exam_public.serializers.candidate_exam_serializers import (
+    CandidateExamScoresheetSerializer,
 )
 from apps.exam_scoring.helpers.exam_scoring_helper import ExamScoringNinja
 from apps.exam_scoring.helpers.scoring_webhook import (
@@ -78,6 +85,37 @@ class CandidateExamScoring:
 
         return {"message": message, "status": response_status}
 
+    def get_candidate_exam_scoresheet(self):
+        user_backlog_question_ids_list = get_detailed_candidate_exam_with_country_based_questions(
+            self.candidate_exam_id, fetch_only_question_ids=True, setting_score=True
+        )
+        candidate_exam_backlog_question_instance = (
+            CandidateExam.objects.filter(id=self.candidate_exam_id)
+            .select_related("exam_backlog")
+            .prefetch_related(
+                Prefetch(
+                    "exam_backlog__backlog_questions",
+                    queryset=ExamBacklogQuestion.objects.filter(id__in=user_backlog_question_ids_list)
+                    .select_related("section_backlog", "subsection_backlog")
+                    .prefetch_related(
+                        Prefetch(
+                            "section_backlog__section_scores",
+                            queryset=CandidateExamSectionScore.objects.filter(candidate_exam_id=self.candidate_exam_id),
+                        ),
+                        Prefetch(
+                            "subsection_backlog__subsection_scores",
+                            queryset=CandidateExamSubSectionScore.objects.filter(candidate_exam_id=self.candidate_exam_id),
+                        ),
+                        Prefetch("question_answers", queryset=CandidateExamAnswer.objects.all()),
+                    )
+                    .annotate(obtained_score=Sum("question_answers__score")),
+                )
+            )
+            .first()
+        )
+
+        return CandidateExamScoresheetSerializer(candidate_exam_backlog_question_instance).data
+
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #
     # ---------------------------------------------------------------------------- #
@@ -145,25 +183,26 @@ class CandidateExamScoring:
         """
         candidate_exam_section_score_queryset = CandidateExamSectionScore.objects.filter(candidate_exam_id=self.candidate_exam_id)
         candidate_exam_subsection_score_queryset = CandidateExamSubSectionScore.objects.filter(candidate_exam_id=self.candidate_exam_id)
-        CandidateExamSectionScore.objects.bulk_update(
-            [
-                CandidateExamSectionScore(
-                    id=candidate_exam_section_score_queryset.filter(section_backlog_id=one_section).first().id,  # type: ignore
-                    score=score,
-                )
-                for one_section, score in section_scores_hashmap.items()
-            ],
-            fields=["score"],
+        self.__bulk_update_section_or_subsection_scores(
+            candidate_exam_section_score_queryset, CandidateExamSectionScore, section_scores_hashmap, "section_backlog_id"
         )
-        CandidateExamSubSectionScore.objects.bulk_update(
-            [
-                CandidateExamSubSectionScore(
-                    id=candidate_exam_subsection_score_queryset.filter(subsection_backlog_id=one_subsection).first().id,  # type: ignore
-                    score=score,
-                )
-                for one_subsection, score in subsection_scores_hashmap.items()
-            ],
-            fields=["score"],
+        self.__bulk_update_section_or_subsection_scores(
+            candidate_exam_subsection_score_queryset, CandidateExamSubSectionScore, subsection_scores_hashmap, "subsection_backlog_id"
         )
         all_sections_score = candidate_exam_section_score_queryset.aggregate(total_score=Sum("score"))["total_score"] or 0
         return all_sections_score
+
+    def __bulk_update_section_or_subsection_scores(self, queryset: QuerySet, model, scores_hashmap: dict, filter_fieldname: str) -> None:
+        """
+        Bulk Update the scores instances with the scores from the scores_hashmap
+        """
+        model.objects.bulk_update(
+            [
+                model(
+                    id=queryset.filter(**{filter_fieldname: key}).first().id,  # type: ignore
+                    score=value,
+                )
+                for key, value in scores_hashmap.items()
+            ],
+            fields=["score"],
+        )

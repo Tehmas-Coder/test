@@ -1,24 +1,10 @@
 from cryptography.fernet import Fernet
-from django.db.models import F, Prefetch, Q, Sum
+from django.db.models import Q
 from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 
-from apps.exam_public.models.exam_public_backlog_models import (
-    ExamBacklogQuestion,
-    ExamBacklogQuestionCountry,
-)
-from apps.exam_public.models.exam_public_models import (
-    CandidateExam,
-    CandidateExamAnswer,
-)
-from apps.exam_public.serializers.candidate_exam_serializers import (
-    CandidateExamScoresheetSerializer,
-)
+from apps.exam_public.models.exam_public_models import CandidateExam
 from apps.exam_scoring.custom.scoring_classes import CandidateExamScoring
-from apps.exam_scoring.models.exam_scoring_models import (
-    CandidateExamSectionScore,
-    CandidateExamSubSectionScore,
-)
 from apps.exam_scoring.serializers.exam_report_serializers import ExamReportSerializer
 from helpers.helper_functions import get_encryption_key
 from utils.rna_utils import make_error_response
@@ -42,7 +28,6 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
 
     def candidate_exam_scoresheet(self, request, *args, **kwargs):
         candidate_exam_id = self.kwargs.get("id", None)
-
         try:
             candidate_exam_id = int(candidate_exam_id)
         except:
@@ -50,73 +35,10 @@ class CandidateExamScoringViewset(viewsets.ViewSet):
                 token = candidate_exam_id[len("token=") :]
                 key = get_encryption_key()
                 cipher = Fernet(key)
-                candidate_exam_id = cipher.decrypt(token).decode()
+                candidate_exam_id = int(cipher.decrypt(token).decode())
             except:
                 return make_error_response(message="Invalid token")
-
-        candidate_exam_data = (
-            CandidateExam.objects.filter(id=candidate_exam_id)
-            .annotate(country_id=F("candidate__user__country_id"))
-            .values(
-                "country_id",
-                "exam_backlog",
-                "exam_status",
-            )
-            .first()
-        )
-
-        if not candidate_exam_data:
-            return make_error_response(message="The requested candidate exam is not present")
-
-        if candidate_exam_data["exam_status"] != "scored":
-            return make_error_response(message="The requested candidate exam is not scored yet")
-
-        exam_question_backlog = list(
-            ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id")
-        )
-        is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
-
-        exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
-        is_not_global_exam_question_backlog_ids_list: list = list(
-            ExamBacklogQuestionCountry.objects.filter(
-                exam_backlog_question_id__in=exam_question_backlog_ids,
-                country_id=candidate_exam_data["country_id"],
-            ).values_list("exam_backlog_question", flat=True)
-        )
-        final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
-
-        candidate_exam_backlog_question_instance = (
-            CandidateExam.objects.filter(id=candidate_exam_id)
-            .select_related("exam_backlog")
-            .prefetch_related(
-                Prefetch(
-                    "exam_backlog__backlog_questions",
-                    queryset=ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list)
-                    .select_related(
-                        "section_backlog",
-                        "subsection_backlog",
-                    )
-                    .prefetch_related(
-                        Prefetch(
-                            "section_backlog__section_scores",
-                            queryset=CandidateExamSectionScore.objects.filter(candidate_exam_id=candidate_exam_id),
-                        ),
-                        Prefetch(
-                            "subsection_backlog__subsection_scores",
-                            queryset=CandidateExamSubSectionScore.objects.filter(candidate_exam_id=candidate_exam_id),
-                        ),
-                        Prefetch(
-                            "question_answers",
-                            queryset=CandidateExamAnswer.objects.all(),
-                        ),
-                    )
-                    .annotate(obtained_score=Sum("question_answers__score")),
-                ),
-            )
-            .first()
-        )
-
-        data = CandidateExamScoresheetSerializer(candidate_exam_backlog_question_instance).data
+        data = CandidateExamScoring(candidate_exam_id).get_candidate_exam_scoresheet()
         return Response(data, status=status.HTTP_200_OK)
 
 
