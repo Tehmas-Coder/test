@@ -202,52 +202,13 @@ class CandidateExamNinja:
         exam_backlog_instance.examiners.set(examiner_ids)  # type:ignore
 
     def save_candidate_exam_answers(self, candidate_exam_id: int, request_data: dict, request) -> None:
-        # * Extract media for answers
-        answer_media_hashmap = {}
-        for answer in request_data:
-            exam_backlog_question_id = answer["exam_backlog_question"]
-            answer_files = answer.pop("answer_files", [])
-
-            if len(answer_files):
-                if exam_backlog_question_id not in answer_media_hashmap:
-                    answer_media_hashmap[exam_backlog_question_id] = {}
-                answer_media_hashmap[exam_backlog_question_id] = {"files": []}
-                for key in answer_files:
-                    file = request.FILES.get(key)
-                    if file:
-                        answer_media_hashmap[exam_backlog_question_id]["files"].append(file)
-
-        exam_backlog_question_choices_ids = [
-            one_dict["exam_backlog_question_choice"] for one_dict in request_data if one_dict["exam_backlog_question_choice"] != None
-        ]
-
+        self.exam_backlog_question_choices_ids = []
+        answer_media_hashmap = self.__get_answer_media_hashmap(request_data, request)
         exam_backlog_question_choices_instances = list(
-            ExamBacklogQuestionChoice.objects.filter(id__in=exam_backlog_question_choices_ids).values("id", "title")
+            ExamBacklogQuestionChoice.objects.filter(id__in=self.exam_backlog_question_choices_ids).values("id", "title")
         )
-
-        exam_backlog_question_choices_hashmap = {one_dict["id"]: one_dict["title"] for one_dict in exam_backlog_question_choices_instances}
-
-        CandidateExamAnswer.objects.bulk_create(
-            [
-                CandidateExamAnswer(
-                    candidate_exam_id=candidate_exam_id,
-                    exam_backlog_question_id=one_dict["exam_backlog_question"],
-                    exam_backlog_question_choice_id=one_dict.get("exam_backlog_question_choice"),
-                    exam_backlog_question_choice_title=(
-                        exam_backlog_question_choices_hashmap[one_dict.get("exam_backlog_question_choice")]
-                        if one_dict.get("exam_backlog_question_choice")
-                        else None
-                    ),
-                    answer_text=one_dict.get("answer_text"),
-                    is_attempted=True,
-                )
-                for one_dict in request_data
-            ]
-        )
-
-        newly_created_queryset = list(
-            CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
-        )
+        exam_backlog_question_choices_id_title_hashmap = {one_dict["id"]: one_dict["title"] for one_dict in exam_backlog_question_choices_instances}
+        self.__create_candidate_exam_answers(candidate_exam_id, request_data, exam_backlog_question_choices_id_title_hashmap)
 
         # TODO: Remove this block of code after the attempt candidate exam API is fully implemented at front-end
         CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
@@ -255,7 +216,10 @@ class CandidateExamNinja:
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             send_exam_status_to_student_apply_webhook(candidate_exam_instance)
 
-        for one_dict in newly_created_queryset:
+        newly_created_instances_queryset = list(
+            CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
+        )
+        for one_dict in newly_created_instances_queryset:
             candidate_exam_answer_id = one_dict[0]
             exam_backlog_question_id = one_dict[1]
             if exam_backlog_question_id in answer_media_hashmap:
@@ -279,7 +243,6 @@ class CandidateExamNinja:
                 for one_media_id in value["media_ids"]
             ]
         )
-        return
 
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #
@@ -571,3 +534,51 @@ class CandidateExamNinja:
         if not get_current_user().is_superuser:  # type:ignore
             organization_id = get_current_user_organization()
         OrganizationUser.objects.bulk_create([OrganizationUser(user=examiner, organization_id=organization_id) for examiner in examiner_users])
+
+    # ---------------------- CANDIDATE EXAM ANSWERS METHODS ---------------------- #
+    def __get_answer_media_hashmap(self, request_data: dict, request) -> dict:
+        """
+        - This function extracts the media for answers
+        - It also collects the exam_backlog_question_choices_ids to avoid another loop on request data to collect those
+        """
+        answer_media_hashmap = {}
+        for answer in request_data:
+            exam_backlog_question_id = answer["exam_backlog_question"]
+            answer_files = answer.pop("answer_files", [])
+            if answer_files:
+                if exam_backlog_question_id not in answer_media_hashmap:
+                    answer_media_hashmap[exam_backlog_question_id] = {}
+                answer_media_hashmap[exam_backlog_question_id] = {"files": []}
+                for key in answer_files:
+                    file = request.FILES.get(key)
+                    if file:
+                        answer_media_hashmap[exam_backlog_question_id]["files"].append(file)
+            # Collecting the exam_backlog_question_choices_ids
+            exam_backlog_question_choice_id = answer.get("exam_backlog_question_choice")
+            if exam_backlog_question_choice_id:
+                self.exam_backlog_question_choices_ids.append(exam_backlog_question_choice_id)
+        return answer_media_hashmap
+
+    def __create_candidate_exam_answers(
+        self, candidate_exam_id: int, request_data: dict, exam_backlog_question_choices_id_title_hashmap: dict
+    ) -> None:
+        """
+        - This function creates the candidate exam answers
+        """
+        CandidateExamAnswer.objects.bulk_create(
+            [
+                CandidateExamAnswer(
+                    candidate_exam_id=candidate_exam_id,
+                    exam_backlog_question_id=one_dict["exam_backlog_question"],
+                    exam_backlog_question_choice_id=one_dict.get("exam_backlog_question_choice"),
+                    exam_backlog_question_choice_title=(
+                        exam_backlog_question_choices_id_title_hashmap[one_dict.get("exam_backlog_question_choice")]
+                        if one_dict.get("exam_backlog_question_choice")
+                        else None
+                    ),
+                    answer_text=one_dict.get("answer_text"),
+                    is_attempted=True,
+                )
+                for one_dict in request_data
+            ]
+        )
