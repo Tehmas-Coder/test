@@ -40,7 +40,7 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
         if is_marking:
             is_marking = bool(is_marking)
             if is_marking:
-                q_filter &= ~Q(exam_status="assigned")
+                q_filter &= ~Q(exam_status__in=["assigned", "expired"])
 
         if statuses:
             statuses = json.loads(statuses)

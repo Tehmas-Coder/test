@@ -20,10 +20,10 @@ def get_current_user_organization():
     current_user = get_current_user()
     if isinstance(current_user, AnonymousUser):
         current_user = None
-    if current_user is not None:
-        current_user_organization = current_user.user_organizations.first()
-        if current_user_organization:
-            return current_user_organization.organization_id
+    if current_user:
+        organization_user_or_candidate_user_instance = current_user.user_organizations.first() or current_user.user_candidates.first()
+        if organization_user_or_candidate_user_instance:
+            return organization_user_or_candidate_user_instance.organization_id
         else:
             ResponseMiddleware.return_now(make_error_response(message="User doesn't belong to any organization"))
     else:

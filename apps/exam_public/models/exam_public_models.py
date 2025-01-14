@@ -4,6 +4,7 @@ from apps.exam_public.helpers.queryset_functions import (
     get_candidate_detailed_queryset,
     get_candidate_exam_detailed_queryset,
 )
+from apps.user.utils.utils import get_current_user_organization
 from core.models import BaseModel
 
 MEDIA_MODEL = "user.Media"
@@ -26,6 +27,7 @@ class CandidateExam(BaseModel):
     candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE, null=True, blank=True)
     exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candidate_exam_examsbacklog")
     schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE, null=True, blank=True)
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
     candidate_email = models.EmailField()
     total_obtainable_marks = models.FloatField(null=True, blank=True)
@@ -59,6 +61,12 @@ class CandidateExam(BaseModel):
 
     is_public = models.BooleanField(default=False)
     is_preparatory = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            if not get_current_user().is_superuser:  # type: ignore
+                self.organization_id = get_current_user_organization()
+        return super().save(*args, **kwargs)
 
     class Meta:
         app_label = "exam_public"

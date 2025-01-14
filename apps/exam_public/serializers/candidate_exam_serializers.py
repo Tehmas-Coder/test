@@ -54,6 +54,9 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             }
             validated_data.update(related_data_for_creation)
 
+        # * Setting organization_id
+        validated_data["organization_id"] = organization_id
+
         # * CandidateExam bulk create
         bulk_create_instances_list = []
         for one_instance in candidates_instances:

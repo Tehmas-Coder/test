@@ -10,7 +10,7 @@ from utils.rna_utils import make_error_response
 
 
 def get_detailed_candidate_exam_with_country_based_questions(
-    candidate_exam_id, set_attempted: bool = False, get_answers: bool = False, fetch_only_question_ids: bool = False
+    candidate_exam_id, set_attempted: bool = False, get_answers: bool = False, fetch_only_question_ids: bool = False, setting_score: bool = False
 ):
     """
     Get detailed candidate exam with country based questions
@@ -20,30 +20,28 @@ def get_detailed_candidate_exam_with_country_based_questions(
     candidate_exam_data = (
         CandidateExam.objects.filter(id=candidate_exam_id)
         .annotate(country_id=F("candidate__user__country_id"))
-        .values(
-            "country_id",
-            "exam_backlog",
-            "total_obtainable_marks",
-        )
+        .values("country_id", "exam_backlog", "total_obtainable_marks", "exam_status")
         .first()
     )
 
     if not candidate_exam_data:
-        ResponseMiddleware.return_now(make_error_response(message="The requested candidate exam data is not present"))
+        return ResponseMiddleware.return_now(make_error_response(message="The requested candidate exam data is not present"))
+    if setting_score and candidate_exam_data["exam_status"] != "scored":
+        ResponseMiddleware.return_now(make_error_response(message="The requested candidate exam is not scored yet"))
 
-    exam_question_backlog = list(ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id"))  # type: ignore
-    is_global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
+    exam_question_backlog = list(ExamBacklogQuestion.objects.filter(exam_backlog_id=candidate_exam_data["exam_backlog"]).values("is_global", "id"))
+    global_exam_question_backlog_ids_list = [one_dict["id"] for one_dict in exam_question_backlog if one_dict["is_global"]]
 
     exam_question_backlog_ids = [one_dict["id"] for one_dict in exam_question_backlog if not one_dict["is_global"]]
-    is_not_global_exam_question_backlog_ids_list: list = list(
+    not_global_exam_question_backlog_ids_list: list = list(
         ExamBacklogQuestionCountry.objects.filter(
             exam_backlog_question_id__in=exam_question_backlog_ids,
-            country_id=candidate_exam_data["country_id"],  # type: ignore
+            country_id=candidate_exam_data["country_id"],
         ).values_list("exam_backlog_question", flat=True)
     )
-    final_user_backlog_question_ids_list = is_global_exam_question_backlog_ids_list + is_not_global_exam_question_backlog_ids_list
+    final_user_backlog_question_ids_list = global_exam_question_backlog_ids_list + not_global_exam_question_backlog_ids_list
 
-    if not candidate_exam_data["total_obtainable_marks"]:  # type: ignore
+    if not candidate_exam_data["total_obtainable_marks"]:
         question_instances_total_marks = ExamBacklogQuestion.objects.filter(id__in=final_user_backlog_question_ids_list).aggregate(
             total_score=Sum("total_marks")
         )["total_score"]
