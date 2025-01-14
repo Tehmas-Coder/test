@@ -17,11 +17,13 @@ from apps.exam_public.helpers.exam_status_webhook import (
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
+    ExamBacklogQuestionChoice,
     ExamBacklogQuestionRetryHint,
 )
 from apps.exam_public.models.exam_public_models import (
     CandidateExam,
     CandidateExamAnswer,
+    CandidateExamAnswerMedia,
     CandidateExamRetryhint,
 )
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retryhint_serializer import (
@@ -35,6 +37,7 @@ from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSubSectionScore,
 )
 from apps.organization.models.organization_models import OrganizationUser
+from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from apps.user.models.user_models import BaseUser, Role, UserRole
 from apps.user.utils.utils import get_current_user_organization
 from helpers.helper_functions import get_encryption_key
@@ -198,8 +201,85 @@ class CandidateExamNinja:
         examiner_ids = [examiner.id for examiner in examiner_users]  # type:ignore
         exam_backlog_instance.examiners.set(examiner_ids)  # type:ignore
 
-    def create_candidate_exam_answer(self, request_data: dict):
-        pass
+    def save_candidate_exam_answers(self, candidate_exam_id: int, request_data: dict, request) -> None:
+        # * Extract media for answers
+        answer_media_hashmap = {}
+        for answer in request_data:
+            exam_backlog_question_id = answer["exam_backlog_question"]
+            answer_files = answer.pop("answer_files", [])
+
+            if len(answer_files):
+                if exam_backlog_question_id not in answer_media_hashmap:
+                    answer_media_hashmap[exam_backlog_question_id] = {}
+                answer_media_hashmap[exam_backlog_question_id] = {"files": []}
+                for key in answer_files:
+                    file = request.FILES.get(key)
+                    if file:
+                        answer_media_hashmap[exam_backlog_question_id]["files"].append(file)
+
+        exam_backlog_question_choices_ids = [
+            one_dict["exam_backlog_question_choice"] for one_dict in request_data if one_dict["exam_backlog_question_choice"] != None
+        ]
+
+        exam_backlog_question_choices_instances = list(
+            ExamBacklogQuestionChoice.objects.filter(id__in=exam_backlog_question_choices_ids).values("id", "title")
+        )
+
+        exam_backlog_question_choices_hashmap = {one_dict["id"]: one_dict["title"] for one_dict in exam_backlog_question_choices_instances}
+
+        CandidateExamAnswer.objects.bulk_create(
+            [
+                CandidateExamAnswer(
+                    candidate_exam_id=candidate_exam_id,
+                    exam_backlog_question_id=one_dict["exam_backlog_question"],
+                    exam_backlog_question_choice_id=one_dict.get("exam_backlog_question_choice"),
+                    exam_backlog_question_choice_title=(
+                        exam_backlog_question_choices_hashmap[one_dict.get("exam_backlog_question_choice")]
+                        if one_dict.get("exam_backlog_question_choice")
+                        else None
+                    ),
+                    answer_text=one_dict.get("answer_text"),
+                    is_attempted=True,
+                )
+                for one_dict in request_data
+            ]
+        )
+
+        newly_created_queryset = list(
+            CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
+        )
+
+        # TODO: Remove this block of code after the attempt candidate exam API is fully implemented at front-end
+        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
+        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
+        if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
+            send_exam_status_to_student_apply_webhook(candidate_exam_instance)
+
+        for one_dict in newly_created_queryset:
+            candidate_exam_answer_id = one_dict[0]
+            exam_backlog_question_id = one_dict[1]
+            if exam_backlog_question_id in answer_media_hashmap:
+                answer_media_hashmap[exam_backlog_question_id]["candidate_exam_answer"] = candidate_exam_answer_id
+
+        for value in answer_media_hashmap.values():
+            media_data = {"files": value["files"]}
+            media_serializer = MediaBulkCreateSerializer(data=media_data)
+            media_serializer.is_valid(raise_exception=True)
+            media_instances = media_serializer.save()
+            value.pop("files")
+            value["media_ids"] = [one_instance.id for one_instance in media_instances]
+
+        CandidateExamAnswerMedia.objects.bulk_create(
+            [
+                CandidateExamAnswerMedia(
+                    candidate_exam_answer_id=value["candidate_exam_answer"],
+                    media_id=one_media_id,
+                )
+                for value in answer_media_hashmap.values()
+                for one_media_id in value["media_ids"]
+            ]
+        )
+        return
 
     # ---------------------------------------------------------------------------- #
     #                                PRIVATE METHODS                               #
