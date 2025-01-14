@@ -39,7 +39,6 @@ class CandidateExamScoring:
         # ---------------------------------- SCORING --------------------------------- #
 
         # * Sum up scores of questions without sections and subsections in exam
-        #  Length of all the scored candidate exam answers
         length_of_scored_candidate_exam_answers = len(candidate_exam_answer_queryset.filter(score__isnull=False))
         # * Answer Queryset of only question directly present in exam
         exam_general_questions_scores_sum = candidate_exam_answer_queryset.filter(
