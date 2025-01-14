@@ -16,9 +16,6 @@ from apps.exam_public.filters.exam_backlog_filters import get_exambacklog_q_filt
 from apps.exam_public.helpers.candidate_exam_helpers import (
     get_detailed_candidate_exam_with_country_based_questions,
 )
-from apps.exam_public.helpers.exam_status_webhook import (
-    send_exam_status_to_student_apply_webhook,
-)
 from apps.exam_public.models.exam_public_backlog_models import (
     ExamBacklog,
     ExamBacklogQuestion,
@@ -28,7 +25,6 @@ from apps.exam_public.models.exam_public_models import (
     Candidate,
     CandidateExam,
     CandidateExamAnswer,
-    CandidateExamAnswerMedia,
 )
 from apps.exam_public.serializers.backlog_serializers.exambacklog_question_choice_serializer import (
     ExamBacklogQuestionChoiceForKeySerializer,
@@ -44,8 +40,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
-from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
-from utils.rna_utils import debug_print, make_error_response
+from utils.rna_utils import make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
