@@ -41,6 +41,8 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "country",
             "organization_packages",
             "package",
+            "encryption_key",
+            "token",
             "description",
             "created_at",
             "updated_at",
