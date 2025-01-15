@@ -24,9 +24,11 @@ def get_organization_detailed_queryset(
         organization_queryset = organization_queryset.prefetch_related(
             Prefetch(
                 "organization_users",
-                OrganizationUser.objects.all().prefetch_related(
+                OrganizationUser.objects.all()
+                .prefetch_related(
                     Prefetch("user", BaseUser.get_detail_queryset(country=True, roles=True, role_permissions=True, role_permissions_permission=True))
-                ),
+                )
+                .distinct(),
             )
         )
 
