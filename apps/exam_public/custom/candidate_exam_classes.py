@@ -444,8 +444,14 @@ class CandidateExamNinja:
         if not candidate_exam_instance:
             ResponseMiddleware.return_now(make_error_response(message="Candidate Exam not found"))
 
+        if candidate_exam_instance.is_expired():  # type:ignore
+            ResponseMiddleware.return_now(make_error_response(message="Exam has expired"))
+
         if candidate_exam_instance.exam_status != "assigned":  # type:ignore
             ResponseMiddleware.return_now(make_error_response(message="Exam has already been attempted"))
+
+        if not candidate_exam_instance.candidate:  # type:ignore
+            ResponseMiddleware.return_now(make_error_response(message="Candidate assigned to this Exam was not found"))
 
         candidate_exam_instance = get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id, set_attempted=True)
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore

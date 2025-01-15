@@ -40,6 +40,8 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
+from apps.user.models.user_models import BaseUser
+from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import make_error_response
 
 # ---------------------------------------------------------------------------- #
@@ -76,7 +78,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
 
 
 class CandidateExamViewSet(viewsets.ModelViewSet):
-    queryset = CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True)
+    queryset = CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True, is_organization_filter=True)
     serializer_class = CandidateExamEditSerializer
     http_method_names = ["get", "post", "patch"]
     filter_backends = [CandidateExamFilterBackend]
@@ -179,6 +181,9 @@ class AttemptCandidateExamAPI(views.APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
+        user_roles = get_current_user().get_user_role_slugs  # type:ignore
+        if any(role != "candidate" for role in user_roles):
+            return make_error_response(message="Exam not allowed to the requested user.")
         request_data = request.data
         response_data = CandidateExamNinja().attempt_candidate_exam(request_data)
         return Response(response_data, status=status.HTTP_200_OK)
