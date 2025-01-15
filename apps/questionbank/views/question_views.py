@@ -219,7 +219,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
         cloned_question_instance = QuestionClone().clone_question(original_question)
         cloned_question = Question.get_detail_queryset(q_filter=Q(id=cloned_question_instance.id), all=True).first()  # type: ignore
         data = QuestionSerializer(cloned_question).data
-        transaction.set_rollback(True)
         return Response({"data": data}, status=status.HTTP_201_CREATED)
 
 
