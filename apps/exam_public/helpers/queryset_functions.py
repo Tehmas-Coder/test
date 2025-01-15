@@ -25,10 +25,11 @@ def get_candidate_exam_detailed_queryset(
     exam_backlog_question: bool = False,
     get_answers: bool = False,
     exam_backlog_question_filter=Q(),
+    is_organization_filter=False,
 ) -> QuerySet:
     from apps.exam_public.models.exam_public_models import Candidate
 
-    if get_current_user():
+    if get_current_user() and is_organization_filter:
         is_superuser = get_current_user().is_superuser  # type: ignore
         organization = None if is_superuser else get_current_user_organization()
         q_filter &= Q(organization_id=organization)

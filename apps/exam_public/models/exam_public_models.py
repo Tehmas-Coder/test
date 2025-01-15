@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from apps.exam_public.helpers.queryset_functions import (
@@ -83,6 +85,14 @@ class CandidateExam(BaseModel):
             self.exam_result = "pending"
         self.save()
 
+    def is_expired(self):
+        if self.end_datetime:
+            is_exam_expired = self.end_datetime < datetime.now().replace(tzinfo=self.end_datetime.tzinfo)
+            if is_exam_expired:
+                self.exam_status = "expired"
+                self.save()
+            return is_exam_expired
+
     @classmethod
     def get_detail_queryset(
         cls,
@@ -92,9 +102,10 @@ class CandidateExam(BaseModel):
         exam_backlog_question: bool = False,
         get_answers: bool = False,
         exam_backlog_question_filter=models.Q(),
+        is_organization_filter=False,
     ) -> models.QuerySet:
         return get_candidate_exam_detailed_queryset(
-            cls, exam_backlog, candidate, q_filter, exam_backlog_question, get_answers, exam_backlog_question_filter
+            cls, exam_backlog, candidate, q_filter, exam_backlog_question, get_answers, exam_backlog_question_filter, is_organization_filter
         )
 
 
