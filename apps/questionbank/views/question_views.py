@@ -221,7 +221,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         data = QuestionSerializer(cloned_question).data
         # TODO: Remove this transaction rollback when the response is fixed
         # transaction.set_rollback(True)
-        return Response({"data": data}, status=status.HTTP_201_CREATED)
+        return Response({"data": data}, status=status.HTTP_200_OK)
 
 
 # ----------------------------------- MEDIA ---------------------------------- #
