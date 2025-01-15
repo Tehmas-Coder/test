@@ -1,11 +1,13 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 
-def get_question_detailed_queryset(model, tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False):
+def get_question_detailed_queryset(
+    model, q_filter=Q(), tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False
+):
     from apps.questionbank.models.question_models import QuestionMedia
 
     question_queryset = (
-        model.objects.get_queryset()
+        model.objects.filter(q_filter)
         .select_related("type")
         .prefetch_related(
             Prefetch(

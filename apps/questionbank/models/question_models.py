@@ -171,8 +171,10 @@ class Question(BaseModel):
         return self.type.name
 
     @classmethod
-    def get_detail_queryset(cls, tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False) -> QuerySet:
-        return get_question_detailed_queryset(cls, tags, attempt_responses, choices, retry_hints, subjects, all)
+    def get_detail_queryset(
+        cls, q_filter=Q(), tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False
+    ) -> QuerySet:
+        return get_question_detailed_queryset(cls, q_filter, tags, attempt_responses, choices, retry_hints, subjects, all)
 
     @classmethod
     def get_questions_for_countries(cls, country_ids: list):
