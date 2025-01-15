@@ -2260,5 +2260,18 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 180,
+    "fields": {
+      "name": "Clone Question",
+      "description": "Clone an existing question",
+      "regex": "^/questions/clone/$",
+      "method": "post",
+      "permission": 10,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
