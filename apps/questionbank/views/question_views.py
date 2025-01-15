@@ -159,7 +159,7 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 #                                   QUESTION                                   #
 # ---------------------------------------------------------------------------- #
 class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.get_detail_queryset(all=True)
+    queryset = Question.get_detail_queryset(all=True).order_by("-created_at")
     filter_backends = [QuestionFilterBackend]
     serializer_class = QuestionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
