@@ -69,7 +69,7 @@ class UserNinja:
             ResponseMiddleware.return_now(make_error_response(message="User not found"))
         try:
             user.roles.set(roles)
-        except Exception as e:
+        except Exception:
             ResponseMiddleware.return_now(make_error_response(message=f"Invalid Role"))
 
     # ---------------------------------------------------------------------------- #
