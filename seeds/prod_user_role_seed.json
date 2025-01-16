@@ -18,15 +18,5 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
-  },
-  {
-    "model": "user.UserRole",
-    "pk": 3,
-    "fields": {
-      "user": 3,
-      "role": 3,
-      "created_at": "1995-07-27T00:00:00Z",
-      "updated_at": "1995-07-27T00:00:00Z"
-    }
   }
 ]
