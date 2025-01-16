@@ -86,12 +86,13 @@ class CandidateExam(BaseModel):
         self.save()
 
     def is_expired(self):
-        if self.end_datetime:
+        is_exam_expired = self.exam_status == "expired"
+        if (not is_exam_expired) and self.end_datetime:
             is_exam_expired = self.end_datetime < datetime.now().replace(tzinfo=self.end_datetime.tzinfo)
             if is_exam_expired:
                 self.exam_status = "expired"
                 self.save()
-            return is_exam_expired
+        return is_exam_expired
 
     @classmethod
     def get_detail_queryset(

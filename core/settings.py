@@ -236,6 +236,9 @@ if DEBUG:
         "rest_framework.renderers.BrowsableAPIRenderer",
     ]
 
+# ---------------------------------------------------------------------------- #
+#                                  MIDDLEWARES                                 #
+# ---------------------------------------------------------------------------- #
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
