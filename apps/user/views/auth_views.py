@@ -38,18 +38,21 @@ class LoginApiView(TokenObtainPairView):
         request_data = request.data
         email: str = request_data.get("email")  # type: ignore
         exam_token = request.query_params.get("token")
+        is_portal_public = bool(request_data.get("is_candidate"))  # type: ignore
+        is_system_user_request = request_data.get("is_system_user")  # type: ignore
         user = BaseUser.get_user_by_email(email)
         if not user:
             return make_error_response(message="User not found!")
         if exam_token:
             decrypted_data = AuthNinja.decrypt_exam_token(exam_token)
             AuthNinja.create_candidate_with_exam_token(user, decrypted_data)
-        user_role_name = None
-        if "is_system_user" in request_data:  # type: ignore
-            user_role_name = user.roles.all().values().first()
-        if user_role_name == None:
-            if not user.is_verified:
-                return make_error_response(message="User is not verified!")
+        user_role_slugs = user.get_user_role_slugs
+        is_user_candidate = "candidate" in user_role_slugs
+        is_system_user = "system" in user_role_slugs
+        if is_portal_public != is_user_candidate:
+            return make_error_response(message="User is not allowed!")
+        if not (is_system_user or user.is_verified):
+            return make_error_response(message="User is not verified!")
         return super().post(request, *args, **kwargs)
 
 
