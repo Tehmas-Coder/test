@@ -179,7 +179,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
 class AttemptCandidateExamAPI(views.APIView):
 
-    @transaction.atomic
     def post(self, request, *args, **kwargs):
         user_roles = get_current_user().get_user_role_slugs  # type:ignore
         if any(role != "candidate" for role in user_roles):
