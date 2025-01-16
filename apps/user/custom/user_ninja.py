@@ -104,10 +104,10 @@ class UserNinja:
             self.__create_organization_user(organization, self.created_user_data["id"])  # type: ignore
 
     def __create_candidate(self, organization, user_id):
-        Candidate.objects.create(user_id=user_id, organization_id=organization)
+        Candidate.objects.get_or_create(user_id=user_id, organization_id=organization)
 
     def __create_organization_user(self, organization, user_id):
-        OrganizationUser.objects.create(user_id=user_id, organization_id=organization)
+        OrganizationUser.objects.get_or_create(user_id=user_id, organization_id=organization)
 
     def __send_email_verification_link(self):
         key = get_encryption_key()

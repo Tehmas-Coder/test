@@ -195,8 +195,8 @@ class CandidateExamNinja:
         if not exam_backlog_instance:
             ResponseMiddleware.return_now(make_error_response(message="Exam Backlog not found."))
         examiner_emails = list(set([examiner["email"] for examiner in examiners_details_list]))
-        self.__create_non_existing_users(examiner_emails, examiners_details_list)
-        examiner_users = BaseUser.objects.filter(email__in=examiner_emails)
+        newly_created_users_emails = self.__create_non_existing_users(examiner_emails, examiners_details_list)
+        examiner_users = BaseUser.objects.filter(email__in=newly_created_users_emails)
         self.__assign_roles_and_organizations_to_examiners(examiner_users)
         examiner_ids = [examiner.id for examiner in examiner_users]  # type:ignore
         exam_backlog_instance.examiners.set(examiner_ids)  # type:ignore
@@ -523,7 +523,7 @@ class CandidateExamNinja:
         return response_data
 
     # -------------------------- EXAMINERS ASSIGNMENT METHODS ------------------------- #
-    def __create_non_existing_users(self, examiner_emails: list, examiners_details_list: list) -> None:
+    def __create_non_existing_users(self, examiner_emails: list, examiners_details_list: list) -> list:
         existing_users_email = list(BaseUser.objects.filter(email__in=examiner_emails).distinct().values_list("email", flat=True))
         non_existing_users_emails = list(set(examiner_emails) - set(existing_users_email))
         examiner_email_detail_hashmap = {}
@@ -531,8 +531,10 @@ class CandidateExamNinja:
             if examiner["email"] not in examiner_email_detail_hashmap:
                 examiner_email_detail_hashmap[examiner["email"]] = examiner
         BaseUser.objects.bulk_create([BaseUser(**examiner_email_detail_hashmap[examiner_email]) for examiner_email in non_existing_users_emails])
+        return non_existing_users_emails
 
     def __assign_roles_and_organizations_to_examiners(self, examiner_users) -> None:
+        # TODO: Here i am assigning  Worker role and organization to newly created user only, check it later if the scenario changes
         worker_role_id = Role.objects.filter(name__icontains="Worker").first().id  # type:ignore
         UserRole.objects.bulk_create([UserRole(user=examiner, role_id=worker_role_id) for examiner in examiner_users])
         # * Assigning the organization to the examiner
