@@ -444,6 +444,7 @@ class CandidateExamNinja:
         if not candidate_exam_instance:
             ResponseMiddleware.return_now(make_error_response(message="Candidate Exam not found"))
 
+        # TODO: Make this API atomic after the exam expiration logic is fixed and does not rollback the transaction on return_now
         if candidate_exam_instance.is_expired():  # type:ignore
             ResponseMiddleware.return_now(make_error_response(message="Exam has expired"))
 
