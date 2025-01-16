@@ -80,8 +80,8 @@ else:
 #                                     AUTH                                     #
 # ---------------------------------------------------------------------------- #
 
+ACCESS_TOKEN_VALIDITY = int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 60
 REFRESH_TOKEN_VALIDITY = int(config("REFRESH_TOKEN_VALIDITY")) if config("REFRESH_TOKEN_VALIDITY") else 1
-ACCESS_TOKEN_VALIDITY = int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 150
 AUTH_USER_MODEL = "user.BaseUser"
 
 SIMPLE_JWT = {
