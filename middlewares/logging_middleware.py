@@ -29,7 +29,6 @@ class LoggingMiddleware:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
-
         log_data = {
             "Time Taken (ms)": duration.__ceil__(),
             "Request": {
@@ -45,5 +44,7 @@ class LoggingMiddleware:
             },
         }
         logger.info(f"{log_data}")
+        logger.removeHandler(handler)
+        handler.close()
 
         return response
