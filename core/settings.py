@@ -255,6 +255,7 @@ MIDDLEWARE = [
 if DEBUG:
     MIDDLEWARE += [
         "silk.middleware.SilkyMiddleware",
+        "middlewares.logging_middleware.LoggingMiddleware",
     ]
 
 
@@ -307,6 +308,40 @@ DATABASES = {
         # "ATOMIC_REQUESTS": True,
     }
 }
+
+# ---------------------------------------------------------------------------- #
+#                                    LOGGERS                                   #
+# ---------------------------------------------------------------------------- #
+
+# user_id = get_current_user().id if get_current_user() else "anonymous_user"  # type: ignore
+# user_id = "system"
+# log_directory = BASE_DIR / "media" / "logs" / user_id / str(datetime.today().date())  # type: ignore
+# if not os.path.exists(log_directory):
+#     os.makedirs(log_directory)
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "file": {
+#             "level": "DEBUG",
+#             "class": "logging.FileHandler",
+#             "filename": log_directory / f"{datetime.now(timezone.utc).strftime('%Y-%m-%d_%H-%M')}.log",
+#             "formatter": "simple",
+#         },
+#     },
+#     "loggers": {
+#         "apps": {
+#             "handlers": ["file"],
+#             "level": "DEBUG",
+#         },
+#     },
+#     "formatters": {
+#         "simple": {
+#             "format": "%(asctime)s [%(levelname)s] %(message)s",
+#         },
+#     },
+# }
 
 # ---------------------------------------------------------------------------- #
 #                                   FIXTURES                                   #
