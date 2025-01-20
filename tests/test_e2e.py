@@ -368,7 +368,7 @@ class AdminEndToEndTest(TestSetUp):
         request_response_values_asserter(self, candidate_exam_request_body, candidate_exam_response)
 
         # --------------------------- Candidate Logging In --------------------------- #
-        self.custom_login(email="test_candidate@gmail.com", password="12345678")
+        self.custom_login(email="test_candidate@gmail.com", password="12345678", is_candidate=True)
 
         # ---------------------------- Candidate Exam Attemptation --------------------------- #
         candidate_exam_attemptation_request_body = {

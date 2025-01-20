@@ -36,7 +36,7 @@ class TestSetUp(APITestCase):
             self.custom_login()
         return super().setUp()
 
-    def custom_login(self, email=None, password=None, create_user=0, is_superuser=0):
+    def custom_login(self, email=None, password=None, create_user=0, is_superuser=0, is_candidate=False):
         if create_user:
             user_serializer = UserSerializer(data=self.admin_user, context={"mutator": True})
             user_serializer.is_valid(raise_exception=True)
@@ -54,6 +54,7 @@ class TestSetUp(APITestCase):
         login_request_data = {
             "email": self.admin_user["email"] if not email else email,
             "password": self.admin_user["password"] if not password else password,
+            "is_candidate": is_candidate,
         }
         response = self.client.post(url, data=json.dumps(login_request_data), content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
