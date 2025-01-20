@@ -16,7 +16,7 @@ class LoggingMiddleware:
 
         end_time = time.time()
         duration = (end_time - start_time) * 1000
-        user = request.user.id if request.user.is_authenticated else "anonymous"
+        user = request.user.pk if request.user.is_authenticated else "anonymous"
         log_directory = f"media/logs/{user}/{str(datetime.today().date())}"
         if not os.path.exists(log_directory):
             os.makedirs(log_directory)
