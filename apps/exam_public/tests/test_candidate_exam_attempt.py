@@ -20,6 +20,8 @@ from utils.rna_utils import (
 
 class AttemptCandidateExamUnitTest(TestSetUp):
     fixtures = [
+        "permission_seed",
+        "resource_seed",
         "question_type_seed",
         "measuring_unit_seed",
         "subject_seed",
@@ -47,6 +49,7 @@ class AttemptCandidateExamUnitTest(TestSetUp):
         "organization_seed",
         "role_seed",
         "user_seed",
+        "user_role_seed",
         "candidate_seed",
     ]
 
@@ -117,7 +120,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
         validate_failed_400_test_response(self, response)
 
     def successfull_attemptation_of_an_exam_test(self):
-        candidate_exam_assignemt_request_body = {
+        candidate_exam_assignment_request_body = {
             "candidates": [
                 "generalcandidate@gmail.com",
             ],
@@ -126,10 +129,11 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
             "exam_duration": 120,
             "exam_questions_visibility": "one_by_one",
         }
-        candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_assignemt_request_body))  # type: ignore
+        candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_assignment_request_body))  # type: ignore
         request_body = {
             "candidate_exam_id": candidate_exam["id"],
         }
+        self.custom_login(email="generalcandidate@gmail.com", password="12345678", is_candidate=True)
         response = self.do_attempt_one_sequential_candidate_exam(request_body)
         validate_success_200_test_response(self, response)
         json_data = response.data  # type: ignore
@@ -203,6 +207,7 @@ class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
 
         # * ------------------------------- Exam Marking ------------------------------- #
 
+        self.custom_login(email=self.admin_user["email"], password=self.admin_user["password"])
         candidate_exam_answer_id = list(CandidateExamAnswer.objects.filter(candidate_exam=candidate_exam["id"]).values_list("id", flat=True))[1]
         request_body = {
             "candidate_exam_id": candidate_exam["id"],

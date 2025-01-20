@@ -106,6 +106,7 @@ class LoginTest(LoginUnitTest):
         request_data = {
             "email": self.test_user["email"],
             "password": self.test_user["password"],
+            "is_candidate": True,
         }
         response = self.do_login(json.dumps(request_data))
         validate_success_login_response(self, response)
