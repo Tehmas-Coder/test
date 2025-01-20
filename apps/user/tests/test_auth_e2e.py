@@ -111,10 +111,10 @@ class AuthE2ETest(AuthE2EUnitTest):
         new_user_data.__dict__["is_verified"] = True
         new_user_data.save()
 
-        response = self.custom_login(self.test_user["email"], self.test_user["password"])
+        response = self.custom_login(self.test_user["email"], self.test_user["password"], is_candidate=True)
         self.successfull_refresh_token_test()
 
-        self.custom_login(self.test_user["email"], self.test_user["password"])
+        self.custom_login(self.test_user["email"], self.test_user["password"], is_candidate=True)
         self.logout_test()
 
 

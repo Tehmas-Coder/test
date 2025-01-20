@@ -77,7 +77,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
         test_record_id = self.successfull_assignment_of_an_organization_user_test()
         self.failed_assignment_of_an_existing_organization_user_test()
         self.successsfull_fetching_of_list_of_organization_users_test()
-        # self.successsfull_fetching_of_list_of_user_organizations_test()
+        self.successsfull_fetching_of_list_of_user_organizations_test()
         self.successfull_removal_of_one_organization_user_test(test_record_id)
 
     def successfull_assignment_of_an_organization_user_test(self):
@@ -107,7 +107,7 @@ class OrganizationUserTest(OrganizationUserUnitTest):
             self.assertIn(one_field, json_data)
 
     def successsfull_fetching_of_list_of_user_organizations_test(self):
-        self.custom_login(email="generalcandidate@gmail.com", password="12345678")
+        self.custom_login(email="haiderjutt@gmail.com", password="12345678")
         json_data = self.do_get_one_user_organizations_list()
         list_of_fields_of_user_organizations = [
             "id",
