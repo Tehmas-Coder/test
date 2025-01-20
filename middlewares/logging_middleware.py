@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 from datetime import datetime, timezone
 
@@ -10,6 +11,10 @@ class LoggingMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # Skip the logs in Test Environment
+        if "test" in sys.argv:
+            return self.get_response(request)
+
         start_time = time.time()
 
         request_data = {
