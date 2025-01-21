@@ -41,6 +41,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             .select_related("user")
             .annotate(email=F("user__email"))
         )
+
         email_in_candidate_instances = [one_candidate.email for one_candidate in candidates_instances]  # type: ignore
 
         # * Setting up data to be fetched from schedule model

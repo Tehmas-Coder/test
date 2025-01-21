@@ -40,9 +40,8 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
-from apps.user.models.user_models import BaseUser
 from middlewares.current_user_middleware import get_current_user
-from utils.rna_utils import make_error_response
+from utils.rna_utils import debug_print, make_error_response
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -127,12 +126,24 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
     def get_exam_backlogs_with_candidate_detail(self, request):
         q_filter = get_exambacklog_q_filter(request)
-        exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(
-            ExamBacklog.objects.filter(q_filter)
-            .prefetch_related(Prefetch("candidate_exam_examsbacklog", queryset=CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True)))
-            .distinct(),
-            many=True,
-        ).data
+        exam_backlog_queryset = (
+            ExamBacklog.objects.filter(q_filter & Q(candidate_exam_examsbacklog__isnull=False) & Q(candidate_exam_examsbacklog__meta_status="active"))
+            .prefetch_related(
+                Prefetch(
+                    "candidate_exam_examsbacklog",
+                    queryset=CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True, is_organization_filter=True),
+                )
+            )
+            .distinct()
+        )
+
+        exam_backlog_queryset = [
+            exam_backlog_instance
+            for exam_backlog_instance in exam_backlog_queryset
+            if exam_backlog_instance.candidate_exam_examsbacklog.exists()  # type:ignore
+        ]
+
+        exam_backlog_list = ExamBacklogWithCandidateDetailsSerializer(exam_backlog_queryset, many=True).data
 
         return Response(exam_backlog_list, status=status.HTTP_200_OK)
 
