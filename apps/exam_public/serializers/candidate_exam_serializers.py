@@ -12,6 +12,7 @@ from apps.exam_public.serializers.candidate_serializers import CandidateSerializ
 from apps.user.utils.utils import get_current_user_organization
 from core.serializers import BaseModelSerializer, get_base_model_fields
 from middlewares.current_user_middleware import get_current_user
+from utils.rna_utils import debug_print
 
 
 class CandidateExamEditSerializer(BaseModelSerializer):
@@ -34,14 +35,21 @@ class CandidateExamEditSerializer(BaseModelSerializer):
 
     def create(self, validated_data):
         organization_id = None if get_current_user().is_superuser else get_current_user_organization()  # type:ignore
-        # * Fetching candidates instances for candidates_ids in request data
+        # * Fetching candidates instances for candidates_ids in request data, creating new instances of candidates with this organization if those candidates already exist but with any other organization
         candidates = validated_data.pop("candidates")
-        candidates_instances = list(
-            Candidate.objects.filter(user__email__in=candidates, organization_id=organization_id)
-            .select_related("user")
-            .annotate(email=F("user__email"))
-        )
+        candidates_instances = list(Candidate.objects.filter(user__email__in=candidates))
+        list_of_user_ids_in_candidates_instances = list(set([one_candidate.user_id for one_candidate in candidates_instances]))  # type: ignore
 
+        for one_candidate in candidates_instances:
+            if one_candidate.organization_id == organization_id and (one_candidate.user_id in list_of_user_ids_in_candidates_instances):  # type: ignore
+                list_of_user_ids_in_candidates_instances.remove(one_candidate.user_id)  # type: ignore
+
+        Candidate.objects.bulk_create(
+            [Candidate(user_id=user_id, organization_id=organization_id) for user_id in list_of_user_ids_in_candidates_instances]
+        )
+        candidates_instances = list(
+            Candidate.objects.filter(user__email__in=candidates, organization_id=organization_id).annotate(email=F("user__email"))
+        )
         email_in_candidate_instances = [one_candidate.email for one_candidate in candidates_instances]  # type: ignore
 
         # * Setting up data to be fetched from schedule model

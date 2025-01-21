@@ -22,7 +22,7 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
 
         q_filter = Q()
 
-        if get_current_user():
+        if get_current_user() and ("candidate" not in get_current_user().get_user_role_slugs):  # type: ignore
             is_superuser = get_current_user().is_superuser  # type: ignore
             organization = None if is_superuser else get_current_user_organization()
             q_filter &= Q(organization_id=organization)
