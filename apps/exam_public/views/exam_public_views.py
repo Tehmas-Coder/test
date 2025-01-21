@@ -79,7 +79,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
 class CandidateExamViewSet(viewsets.ModelViewSet):
     queryset = CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True, is_organization_filter=True)
     serializer_class = CandidateExamEditSerializer
-    http_method_names = ["get", "post", "patch"]
+    http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = [CandidateExamFilterBackend]
 
     def get_serializer_class(self):

@@ -2273,5 +2273,18 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Resource",
+    "pk": 181,
+    "fields": {
+      "name": "Delete Candidate Exam",
+      "description": "Delete One Candidate Exam",
+      "regex": "^/candidate-exam/[0-9]+/$",
+      "method": "delete",
+      "permission": 55,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

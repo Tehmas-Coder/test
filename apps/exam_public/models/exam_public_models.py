@@ -74,7 +74,7 @@ class CandidateExam(BaseModel):
         app_label = "exam_public"
 
     def set_exam_result(self):
-        if self.total_obtainable_marks and self.obtained_marks and self.exam_status == "scored":
+        if self.exam_status == "scored":
             passing_percentage = self.exam_backlog.passing_percentage
             passing_marks = (passing_percentage / 100) * self.total_obtainable_marks
             if self.obtained_marks >= passing_marks:
