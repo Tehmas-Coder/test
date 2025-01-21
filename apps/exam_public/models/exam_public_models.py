@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 
 from apps.exam_public.helpers.queryset_functions import (
@@ -8,6 +6,7 @@ from apps.exam_public.helpers.queryset_functions import (
 )
 from apps.user.utils.utils import get_current_user_organization
 from core.models import BaseModel
+from django.utils import timezone
 
 MEDIA_MODEL = "user.Media"
 
@@ -88,7 +87,7 @@ class CandidateExam(BaseModel):
     def is_expired(self):
         is_exam_expired = self.exam_status == "expired"
         if (not is_exam_expired) and self.end_datetime:
-            is_exam_expired = self.end_datetime < datetime.now().replace(tzinfo=self.end_datetime.tzinfo)
+            is_exam_expired = self.end_datetime < timezone.now().replace(tzinfo=self.end_datetime.tzinfo)
             if is_exam_expired:
                 self.exam_status = "expired"
                 self.save()
