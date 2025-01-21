@@ -131,6 +131,38 @@ class CandidateExamNinja:
                     make_error_response(message=f"Unable to send exam link to user: {one_candidate_detail['candidate_email']}")
                 )
 
+    def get_candidate_exam_tokens(self, candidate_exam_ids: list) -> dict:
+        candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
+            list(
+                CandidateExam.objects.filter(id__in=candidate_exam_ids)
+                .annotate(
+                    first_name=F("candidate__user__first_name"),
+                    last_name=F("candidate__user__last_name"),
+                    exam=F("exam_backlog__name"),
+                )
+                .values()
+            )
+        )
+        key = get_encryption_key()
+        cipher = Fernet(key)
+        candidate_exam_id_token_hashmap = {}
+        for one_candidate_detail in candidate_exam_detail_queryset:
+            candidate_exam_id = one_candidate_detail["id"]
+
+            data_to_encrypt = {
+                "email": one_candidate_detail["candidate_email"],
+                "candidate_exam_id": candidate_exam_id,
+                "organization_id": one_candidate_detail["organization_id"],
+                "is_public": one_candidate_detail["is_public"],
+                "is_student_apply_candidate": True,
+            }
+            encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
+
+            token_data = encrypted_data.decode("utf-8")
+            token_data = f"{token_data}"
+            candidate_exam_id_token_hashmap[candidate_exam_id] = token_data
+        return candidate_exam_id_token_hashmap
+
     def get_retry_hint_for_candidate_exam(self, question_backlog_id: int, candidate_exam_id: int):
         candidate_exam_retryhints_ids = CandidateExamRetryhint.objects.filter(
             candidate_exam_id=candidate_exam_id, exam_backlog_question_id=question_backlog_id

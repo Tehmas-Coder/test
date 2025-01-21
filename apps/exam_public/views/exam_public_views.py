@@ -40,6 +40,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
     ExamBacklogWithCandidateDetailsSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
+from apps.user.utils.utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_error_response
 
@@ -90,6 +91,8 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data
+        organization = None if get_current_user().is_superuser else get_current_user_organization()  # type:ignore
+        request_data["organization_id"] = organization
         exam_id = request_data.get("exam")
         if exam_id:
             request_data.pop("exam")
@@ -108,11 +111,17 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         created_candidate_exam_instances = self.get_queryset().order_by("-created_at")[: len(candidate_exam_instances)]
         created_candidate_exam_instances = sorted(created_candidate_exam_instances, key=lambda instance: instance.id)
         response_data = CandidateExamListSerializer(created_candidate_exam_instances, many=True).data
+        candidate_exam_ids = [one_candidate_exam["id"] for one_candidate_exam in response_data]
 
         # * Sending Exam Invitation Emails
         if request_data.get("is_send_invitation_emails"):
-            candidate_exam_ids = [one_candidate_exam["id"] for one_candidate_exam in response_data]
             CandidateExamNinja().send_exam_invitation_link(candidate_exam_ids)
+
+        # * Appending Token to Candidate Exam Data if request is from Student Apply
+        if organization == 1:
+            candidate_exam_id_token_hashmap = CandidateExamNinja().get_candidate_exam_tokens(candidate_exam_ids)
+            for one_candidate_exam in response_data:
+                one_candidate_exam["token"] = candidate_exam_id_token_hashmap.get(one_candidate_exam["id"])
 
         return Response(response_data, status=status.HTTP_201_CREATED)
 
