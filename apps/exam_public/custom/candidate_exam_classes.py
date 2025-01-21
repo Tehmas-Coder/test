@@ -87,8 +87,6 @@ class CandidateExamNinja:
         return get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id)
 
     def send_exam_invitation_link(self, candidate_exam_ids: list):
-        logged_in_user = get_current_user()
-
         candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
             list(
                 CandidateExam.objects.filter(id__in=candidate_exam_ids)
@@ -100,7 +98,6 @@ class CandidateExamNinja:
                 .values()
             )
         )
-        organization_id = None if logged_in_user.is_superuser else get_current_user_organization()  # type:ignore
         key = get_encryption_key()
         cipher = Fernet(key)
         for one_candidate_detail in candidate_exam_detail_queryset:
@@ -109,7 +106,7 @@ class CandidateExamNinja:
             data_to_encrypt = {
                 "email": one_candidate_detail["candidate_email"],
                 "candidate_exam_id": candidate_exam_id,
-                "organization_id": organization_id,
+                "organization_id": one_candidate_detail["organization_id"],
                 "is_public": one_candidate_detail["is_public"],
             }
             encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
