@@ -3,6 +3,9 @@ import json
 from django.db.models import Q
 from rest_framework import filters
 
+from apps.user.utils.utils import get_current_user_organization
+from middlewares.current_user_middleware import get_current_user
+
 
 class CandidateExamFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
@@ -18,6 +21,11 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
         exam = request.query_params.get("exam")
 
         q_filter = Q()
+
+        if get_current_user() and ("candidate" not in get_current_user().get_user_role_slugs):  # type: ignore
+            is_superuser = get_current_user().is_superuser  # type: ignore
+            organization = None if is_superuser else get_current_user_organization()
+            q_filter &= Q(organization_id=organization)
 
         if user:
             user = int(user)

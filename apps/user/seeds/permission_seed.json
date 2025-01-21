@@ -592,5 +592,16 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 55,
+    "fields": {
+      "name": "Delete Scheduled Exam",
+      "context_value": "exams",
+      "description": "Delete a scheduled exam",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]
