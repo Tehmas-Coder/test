@@ -124,7 +124,6 @@ class AuthNinja:
         self.response_data["candidate_exam"] = candidate_exam_data
 
     def __fetch_user_data_from_request(self) -> dict:
-        print(self.request_data.get("country"))
         user_creation_required_data = {
             "first_name": self.request_data.get("first_name"),
             "last_name": self.request_data.get("last_name"),

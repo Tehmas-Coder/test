@@ -206,9 +206,11 @@ class CandidateExamNinja:
         candidate_exam_instance.refresh_from_db()  # type:ignore
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
-                message = message + " but failed to send exam status through webhook"
-                response_status = status.HTTP_307_TEMPORARY_REDIRECT
-                transaction.set_rollback(True)
+                # TODO: Fix this later when the decision is made whether to show this to candidate or not
+                # message = message + " but failed to send exam status through webhook"
+                # response_status = status.HTTP_307_TEMPORARY_REDIRECT
+                # transaction.set_rollback(True)
+                pass
         return {"message": message, "status": response_status}
 
     def attempt_candidate_exam(self, request_data: dict) -> dict:
