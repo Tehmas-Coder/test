@@ -41,4 +41,4 @@ class UserFilterBackend(filters.BaseFilterBackend):
             countries = [int(id) for id in countries]
             q_filter &= Q(country_id__in=countries)
 
-        return queryset.filter(q_filter).distinct()
+        return queryset.filter(q_filter).distinct().order_by("-id")

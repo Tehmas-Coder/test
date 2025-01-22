@@ -27,4 +27,4 @@ class OrganizationFilterBackend(filters.BaseFilterBackend):
             packages = [int(id) for id in packages]
             q_filter &= Q(organization_packages__package_id__in=packages)
 
-        return queryset.filter(q_filter).distinct()
+        return queryset.filter(q_filter).distinct().order_by("-id")

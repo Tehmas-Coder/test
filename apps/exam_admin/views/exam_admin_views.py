@@ -45,7 +45,7 @@ from utils.rna_utils import (
 
 
 class ScheduleViewSet(viewsets.ModelViewSet):
-    queryset = Schedule.objects.all()
+    queryset = Schedule.objects.all().order_by("-id")
     serializer_class = ScheduleSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     pagination_class = None

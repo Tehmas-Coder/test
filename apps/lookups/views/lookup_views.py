@@ -111,7 +111,7 @@ class TagViewset(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = TagSerializer
     pagination_class = None
-    queryset = Tag.objects.all()
+    queryset = Tag.objects.all().order_by("-id")
 
     def get_queryset(self):
         if self.action == "list":
