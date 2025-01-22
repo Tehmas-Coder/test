@@ -144,6 +144,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
                 )
             )
             .distinct()
+            .order_by("-id")
         )
 
         exam_backlog_queryset = [

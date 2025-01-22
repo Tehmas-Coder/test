@@ -88,7 +88,7 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == "list":
-            return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
+            return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset().order_by("-id")
         return super().get_queryset()
 
     def get_serializer_context(self):
@@ -138,7 +138,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
         exam_list_with_detail = remove_extra_underscore_from_key_names(
-            list(Exam.objects.filter(exam_status="active").annotate(education_level_name=F("education_level__name")).values())
+            list(Exam.objects.filter(exam_status="active").annotate(education_level_name=F("education_level__name")).values().order_by("-id"))
         )
         return make_success_response(data=exam_list_with_detail)
 

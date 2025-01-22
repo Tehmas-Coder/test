@@ -77,4 +77,4 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
             exam = str(exam)
             q_filter &= Q(exam_backlog__name__icontains=exam)
 
-        return queryset.filter(q_filter).distinct()
+        return queryset.filter(q_filter).distinct().order_by("-id")
