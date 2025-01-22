@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from apps.exam_public.helpers.queryset_functions import (
     get_candidate_detailed_queryset,
@@ -6,7 +7,6 @@ from apps.exam_public.helpers.queryset_functions import (
 )
 from apps.user.utils.utils import get_current_user_organization
 from core.models import BaseModel
-from django.utils import timezone
 
 MEDIA_MODEL = "user.Media"
 
@@ -73,15 +73,13 @@ class CandidateExam(BaseModel):
         app_label = "exam_public"
 
     def set_exam_result(self):
-        if self.exam_status == "scored":
+        if self.exam_status == "scored" and self.exam_result == "pending":
             passing_percentage = self.exam_backlog.passing_percentage
             passing_marks = (passing_percentage / 100) * self.total_obtainable_marks
             if self.obtained_marks >= passing_marks:
                 self.exam_result = "pass"
             else:
                 self.exam_result = "fail"
-        else:
-            self.exam_result = "pending"
         self.save()
 
     def is_expired(self):
