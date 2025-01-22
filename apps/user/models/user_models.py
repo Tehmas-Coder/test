@@ -12,13 +12,18 @@ from apps.user.helpers.queryset_functions import (
 )
 from core.models import BaseModel, BaseUserModel
 from middlewares.response_middleware import ResponseMiddleware
+from utils.datetime_utils import (
+    convert_any_datetime_to_utc,
+    get_current_utc_datetime,
+    get_current_utc_datetime_timestamp,
+)
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import color_print, generate_otp, make_error_response
 
 
 def upload_to(instance, filename):
     folder_name = instance.__class__.__name__.lower()
-    timestamp = int(datetime.now().timestamp())
+    timestamp = get_current_utc_datetime_timestamp()
     return f"{folder_name}/{timestamp}_{filename}"
 
 
@@ -102,7 +107,7 @@ class BaseUser(BaseUserModel, AbstractUser):
     @property
     def is_otp_expired(self):
         if self.otp_expiry:
-            return self.otp_expiry < datetime.now().replace(tzinfo=self.otp_expiry.tzinfo)
+            return convert_any_datetime_to_utc(self.otp_expiry) < get_current_utc_datetime()
         return True
 
     @property
@@ -152,7 +157,7 @@ class BaseUser(BaseUserModel, AbstractUser):
         del email_notification_ninja
 
         self.otp = otp
-        self.otp_expiry = datetime.now() + timedelta(minutes=5)
+        self.otp_expiry = get_current_utc_datetime() + timedelta(minutes=5)
         self.save()
         return True
 

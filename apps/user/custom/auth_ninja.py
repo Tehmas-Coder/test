@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from cryptography.fernet import Fernet
 from django.contrib.auth import login
@@ -13,11 +12,13 @@ from apps.exam_public.models.exam_public_models import Candidate, CandidateExam
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamListSerializer,
 )
+from apps.lookups.models.lookup_models import Country
 from apps.user.models.user_models import BaseUser, Role
 from apps.user.serializers.user_serializers import UserSerializer
 from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import generate_random_password, make_error_response
+from utils.datetime_utils import convert_any_datetime_to_utc, get_current_utc_datetime
+from utils.rna_utils import debug_print, generate_random_password, make_error_response
 
 
 class AuthNinja:
@@ -37,7 +38,7 @@ class AuthNinja:
         self.response_data = {}
         decrypted_data = AuthNinja.decrypt_exam_token(self.exam_token)
         self.user = BaseUser.objects.filter(email=decrypted_data["email"]).first()
-        if decrypted_data["is_public"]:
+        if decrypted_data["is_public"] or decrypted_data["is_student_apply_candidate"]:
             self.__public_exam_token_handler(request, decrypted_data)
         else:
             if request.data.get("authentication_completed"):
@@ -123,12 +124,19 @@ class AuthNinja:
         self.response_data["candidate_exam"] = candidate_exam_data
 
     def __fetch_user_data_from_request(self) -> dict:
+        print(self.request_data.get("country"))
         user_creation_required_data = {
             "first_name": self.request_data.get("first_name"),
             "last_name": self.request_data.get("last_name"),
-            "country_id": self.request_data.get("country"),
+            "country_id": self.__get_country_id(self.request_data.get("country")),
         }
         return user_creation_required_data
+
+    def __get_country_id(self, country):
+        try:
+            return int(country) if country.isdigit() else Country.objects.get(name__icontains=country).pk
+        except:
+            return None
 
     # ---------------------------------------------------------------------------- #
     #                                STATIC METHODS                               #
@@ -155,7 +163,7 @@ class AuthNinja:
         try:
             decrypted_data = json.loads(cipher.decrypt(token).decode())
             link_expiry_datetime = decrypted_data.get("end_datetime")
-            if link_expiry_datetime and link_expiry_datetime < datetime.now().replace(tzinfo=link_expiry_datetime.tzinfo):
+            if link_expiry_datetime and convert_any_datetime_to_utc(link_expiry_datetime) < get_current_utc_datetime():
                 ResponseMiddleware.return_now(make_error_response(message="Link has expired"))
         except:
             ResponseMiddleware.return_now(make_error_response(message="Invalid Token"))

@@ -1,10 +1,11 @@
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from rest_framework import status
 
 from apps.user.models.user_models import BaseUser
 from core.test_setup import TestSetUp
+from utils.datetime_utils import get_current_utc_datetime
 from utils.rna_utils import print_test_failed, print_test_header, print_test_passed
 
 from .test_register import RegisterUnitTest
@@ -76,7 +77,7 @@ class OTPTest(OTPUnitTest):
 
     def successfull_test_resend_otp(self, user_id):
         user = BaseUser.objects.get(id=user_id)
-        user.otp_expiry = datetime.now() - timedelta(minutes=1)
+        user.otp_expiry = get_current_utc_datetime() - timedelta(minutes=1)
         user.save()
         request_data = {
             "email": "register_test@gmail.com",
