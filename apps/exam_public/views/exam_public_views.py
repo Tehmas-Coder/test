@@ -118,7 +118,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             CandidateExamNinja().send_exam_invitation_link(candidate_exam_ids)
 
         # * Appending Token to Candidate Exam Data if request is from Student Apply
-        if organization == 1:
+        if request_data.get("append_tokens"):
             candidate_exam_id_token_hashmap = CandidateExamNinja().get_candidate_exam_tokens(candidate_exam_ids)
             for one_candidate_exam in response_data:
                 one_candidate_exam["token"] = candidate_exam_id_token_hashmap.get(one_candidate_exam["id"])

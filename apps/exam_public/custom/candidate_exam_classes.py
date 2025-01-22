@@ -106,7 +106,7 @@ class CandidateExamNinja:
             data_to_encrypt = {
                 "email": one_candidate_detail["candidate_email"],
                 "candidate_exam_id": candidate_exam_id,
-                "organization_id": one_candidate_detail["organization_id"],
+                "organization_id": one_candidate_detail["organization"],
                 "is_public": one_candidate_detail["is_public"],
             }
             encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
@@ -152,7 +152,7 @@ class CandidateExamNinja:
             data_to_encrypt = {
                 "email": one_candidate_detail["candidate_email"],
                 "candidate_exam_id": candidate_exam_id,
-                "organization_id": one_candidate_detail["organization_id"],
+                "organization_id": one_candidate_detail["organization"],
                 "is_public": one_candidate_detail["is_public"],
                 "is_student_apply_candidate": True,
             }

@@ -41,9 +41,10 @@ class CandidateExamEditSerializer(BaseModelSerializer):
             if one_candidate.organization_id == organization_id and (one_candidate.user_id in list_of_user_ids_in_candidates_instances):  # type: ignore
                 list_of_user_ids_in_candidates_instances.remove(one_candidate.user_id)  # type: ignore
 
-        Candidate.objects.bulk_create(
-            [Candidate(user_id=user_id, organization_id=organization_id) for user_id in list_of_user_ids_in_candidates_instances]
-        )
+        if list_of_user_ids_in_candidates_instances:
+            Candidate.objects.bulk_create(
+                [Candidate(user_id=user_id, organization_id=organization_id) for user_id in list_of_user_ids_in_candidates_instances]
+            )
         candidates_instances = list(
             Candidate.objects.filter(user__email__in=candidates, organization_id=organization_id).annotate(email=F("user__email"))
         )
