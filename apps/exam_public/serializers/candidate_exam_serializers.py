@@ -9,10 +9,7 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
     ExamBacklogQuestionScoresheetSerializer,
 )
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
-from apps.user.utils.utils import get_current_user_organization
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from middlewares.current_user_middleware import get_current_user
-from utils.rna_utils import debug_print
 
 
 class CandidateExamEditSerializer(BaseModelSerializer):
@@ -34,7 +31,7 @@ class CandidateExamEditSerializer(BaseModelSerializer):
         ] + get_base_model_fields()
 
     def create(self, validated_data):
-        organization_id = None if get_current_user().is_superuser else get_current_user_organization()  # type:ignore
+        organization_id = self.initial_data.get("organization_id")  # type: ignore
         # * Fetching candidates instances for candidates_ids in request data, creating new instances of candidates with this organization if those candidates already exist but with any other organization
         candidates = validated_data.pop("candidates")
         candidates_instances = list(Candidate.objects.filter(user__email__in=candidates))

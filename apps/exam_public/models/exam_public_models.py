@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from apps.exam_public.helpers.queryset_functions import (
     get_candidate_detailed_queryset,
@@ -6,7 +7,7 @@ from apps.exam_public.helpers.queryset_functions import (
 )
 from apps.user.utils.utils import get_current_user_organization
 from core.models import BaseModel
-from django.utils import timezone
+from utils.datetime_utils import convert_any_datetime_to_utc, get_current_utc_datetime
 
 MEDIA_MODEL = "user.Media"
 
@@ -73,21 +74,19 @@ class CandidateExam(BaseModel):
         app_label = "exam_public"
 
     def set_exam_result(self):
-        if self.exam_status == "scored":
+        if self.exam_status == "scored" and self.exam_result == "pending":
             passing_percentage = self.exam_backlog.passing_percentage
             passing_marks = (passing_percentage / 100) * self.total_obtainable_marks
             if self.obtained_marks >= passing_marks:
                 self.exam_result = "pass"
             else:
                 self.exam_result = "fail"
-        else:
-            self.exam_result = "pending"
         self.save()
 
     def is_expired(self):
         is_exam_expired = self.exam_status == "expired"
         if (not is_exam_expired) and self.end_datetime:
-            is_exam_expired = self.end_datetime < timezone.now().replace(tzinfo=self.end_datetime.tzinfo)
+            is_exam_expired = convert_any_datetime_to_utc(self.end_datetime) < get_current_utc_datetime()
             if is_exam_expired:
                 self.exam_status = "expired"
                 self.save()
