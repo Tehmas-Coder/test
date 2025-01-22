@@ -3,7 +3,6 @@ import random
 
 from cryptography.fernet import Fernet
 from decouple import config
-from django.db import transaction
 from django.db.models import F, Q, Sum
 from rest_framework import status
 from rest_framework.response import Response
