@@ -42,6 +42,8 @@ class AuthNinja:
             self.__public_exam_token_handler(request, decrypted_data)
         else:
             if request.data.get("authentication_completed"):
+                if not request.user.is_authenticated:
+                    ResponseMiddleware.return_now(make_error_response(message="User is not authenticated"))
                 candidate_exam_instance = AuthNinja.create_candidate_with_exam_token(self.user, decrypted_data)
                 candidate_exam_data = CandidateExamListSerializer(candidate_exam_instance).data
                 self.response_data["route"] = "exam"
