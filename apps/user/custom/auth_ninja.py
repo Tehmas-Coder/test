@@ -38,7 +38,7 @@ class AuthNinja:
         self.response_data = {}
         decrypted_data = AuthNinja.decrypt_exam_token(self.exam_token)
         self.user = BaseUser.objects.filter(email=decrypted_data["email"]).first()
-        if decrypted_data["is_public"] or decrypted_data["is_student_apply_candidate"]:
+        if decrypted_data["is_public"] or decrypted_data.get("is_student_apply_candidate"):
             self.__public_exam_token_handler(request, decrypted_data)
         else:
             if request.data.get("authentication_completed"):

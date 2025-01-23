@@ -77,7 +77,7 @@ class OrganizationResourceQuerysetMutator:
     """
 
     def __init__(self, organization_id: int | None = None, queryset=None, is_public=False) -> None:
-        if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
+        if (organization_id is None) and get_current_user() and (not get_current_user().is_superuser):  # type: ignore
             organization_id = get_current_user_organization()
         self.organization_id = organization_id
         self.queryset = queryset
