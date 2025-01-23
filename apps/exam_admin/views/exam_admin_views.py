@@ -137,8 +137,9 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
+        exam_queryset = Exam.objects.filter(exam_status="active").annotate(education_level_name=F("education_level__name")).values().order_by("-id")
         exam_list_with_detail = remove_extra_underscore_from_key_names(
-            list(Exam.objects.filter(exam_status="active").annotate(education_level_name=F("education_level__name")).values().order_by("-id"))
+            list(OrganizationResourceQuerysetMutator(queryset=exam_queryset, is_public=True).get_queryset())
         )
         return make_success_response(data=exam_list_with_detail)
 
