@@ -12,7 +12,7 @@ from apps.exam_public.models.exam_public_models import Candidate
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.models.user_models import BaseUser
-from apps.user.utils.utils import get_current_user_organization, get_roles_names
+from apps.user.utils.user_utils import get_current_user_organization, get_roles_names
 from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
 from utils.email_notifications import EmailNotification

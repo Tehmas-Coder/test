@@ -5,7 +5,7 @@ from apps.exam_public.helpers.queryset_functions import (
     get_candidate_detailed_queryset,
     get_candidate_exam_detailed_queryset,
 )
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from core.models import BaseModel
 from utils.datetime_utils import convert_any_datetime_to_utc, get_current_utc_datetime
 

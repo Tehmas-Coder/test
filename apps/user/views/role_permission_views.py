@@ -16,7 +16,7 @@ from apps.user.serializers.role_permission_serializers import (
     PermissionSerializer,
     RoleSerializer,
 )
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print, make_error_response
 

@@ -4,7 +4,7 @@ from django.db.models import Q
 from rest_framework.generics import QuerySet
 
 from apps.organization.models.organization_models import OrganizationPackage
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response

@@ -3,7 +3,7 @@ from django.db.models import Count, F, Q, QuerySet
 from django.utils.text import slugify
 
 from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from core.models import BaseModel
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware

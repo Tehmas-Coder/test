@@ -1,6 +1,6 @@
 from django.db.models import Prefetch, Q, QuerySet
 
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 
 

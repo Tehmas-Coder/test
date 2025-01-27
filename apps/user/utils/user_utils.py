@@ -1,11 +1,14 @@
+from threading import local
+
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import F
 
-from apps.organization.models.organization_models import OrganizationUser
-from apps.user.models.user_models import BaseUser, Role, UserRole
+from apps.user.models.user_models import Role, UserRole
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response, remove_extra_underscore_from_key_names
+
+_user_organization = local()
 
 
 def get_user_role_detail(user_id: int):
@@ -21,10 +24,14 @@ def get_current_user_organization():
     if isinstance(current_user, AnonymousUser):
         current_user = None
     if current_user:
-        organization_user_or_candidate_user_instance = current_user.user_organizations.first() or current_user.user_candidates.first()
-        if organization_user_or_candidate_user_instance:
-            return organization_user_or_candidate_user_instance.organization_id
-        else:
-            ResponseMiddleware.return_now(make_error_response(message="User doesn't belong to any organization"))
+        user_organization = getattr(_user_organization, "value", None)
+        if not user_organization:
+            organization_user_or_candidate_user_instance = current_user.user_organizations.first() or current_user.user_candidates.first()
+            if organization_user_or_candidate_user_instance:
+                _user_organization.value = organization_user_or_candidate_user_instance.organization_id
+                user_organization = getattr(_user_organization, "value", None)
+            else:
+                ResponseMiddleware.return_now(make_error_response(message="User doesn't belong to any organization"))
+        return user_organization
     else:
         ResponseMiddleware.return_now(make_error_response(message="User is not logged in"))

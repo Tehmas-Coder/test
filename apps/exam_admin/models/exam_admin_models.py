@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Q, QuerySet
 
 from apps.exam_admin.helpers.queryset_functions import get_exam_detailed_queryset
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from core.models import BaseModel
 from middlewares.current_user_middleware import get_current_user
 

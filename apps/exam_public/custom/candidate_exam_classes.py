@@ -38,7 +38,7 @@ from apps.exam_scoring.models.exam_scoring_models import (
 from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from apps.user.models.user_models import BaseUser, Role, UserRole
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware

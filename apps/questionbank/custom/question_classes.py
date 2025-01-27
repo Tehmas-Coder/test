@@ -13,7 +13,7 @@ from apps.lookups.models.lookup_models import Organization
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionSerializer,
 )
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import debug_print, make_error_response
