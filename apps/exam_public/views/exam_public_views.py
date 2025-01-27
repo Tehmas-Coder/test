@@ -42,6 +42,7 @@ from apps.exam_public.serializers.candidate_exam_serializers import (
 from apps.exam_public.serializers.candidate_serializers import CandidateSerializer
 from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
+from utils.datetime_utils import convert_any_datetime_to_utc
 from utils.rna_utils import debug_print, make_error_response
 
 # ---------------------------------------------------------------------------- #
@@ -103,6 +104,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             request_data["exam_backlog"] = exam_backlogs.create_backlogs()
 
         # * Assigning Exam to Candidates
+        if request_data.get("start_datetime") and request_data.get("end_datetime"):
+            request_data["start_datetime"] = convert_any_datetime_to_utc(request_data["start_datetime"])
+            request_data["end_datetime"] = convert_any_datetime_to_utc(request_data["end_datetime"])
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         candidate_exam_instances = serializer.save()
