@@ -30,7 +30,7 @@ class Candidate(BaseModel):
 class CandidateExam(BaseModel):
     candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE, null=True, blank=True)
     exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candidate_exam_examsbacklog")
-    schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE, null=True, blank=True)
+    schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.SET_NULL, null=True, blank=True)
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
     candidate_email = models.EmailField()
