@@ -26,6 +26,7 @@ def get_candidate_exam_detailed_queryset(
     get_answers: bool = False,
     exam_backlog_question_filter=Q(),
     is_organization_filter=False,
+    candidate_exam_id: int | None = None,
 ) -> QuerySet:
     from apps.exam_public.models.exam_public_models import Candidate
 
@@ -44,7 +45,9 @@ def get_candidate_exam_detailed_queryset(
             candidate_exam_queryset = candidate_exam_queryset.prefetch_related(
                 Prefetch(
                     "exam_backlog__backlog_questions",
-                    queryset=ExamBacklogQuestion.get_detail_queryset(all=True, get_answers=get_answers, q_filter=exam_backlog_question_filter),
+                    queryset=ExamBacklogQuestion.get_detail_queryset(
+                        all=True, get_answers=get_answers, q_filter=exam_backlog_question_filter, candidate_exam_id=candidate_exam_id
+                    ),
                 )
             )
     if candidate:
@@ -54,7 +57,7 @@ def get_candidate_exam_detailed_queryset(
     return candidate_exam_queryset
 
 
-def get_exambacklogquestion_detailed_queryset(model, all=False, get_answers=False, q_filter=Q()) -> QuerySet:
+def get_exambacklogquestion_detailed_queryset(model, all=False, get_answers=False, q_filter=Q(), candidate_exam_id: int | None = None) -> QuerySet:
     from apps.exam_public.models.exam_public_backlog_models import (
         ExamBacklogQuestionChoice,
         ExamBacklogQuestionChoiceMedia,
@@ -109,7 +112,7 @@ def get_exambacklogquestion_detailed_queryset(model, all=False, get_answers=Fals
         exam_backlog_question_queryset = exam_backlog_question_queryset.prefetch_related(
             Prefetch(
                 "question_answers",
-                CandidateExamAnswer.objects.all()
+                CandidateExamAnswer.objects.filter(candidate_exam_id=candidate_exam_id)
                 .select_related(
                     "exam_backlog_question_choice",
                 )

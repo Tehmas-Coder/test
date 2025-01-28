@@ -58,6 +58,7 @@ def get_detailed_candidate_exam_with_country_based_questions(
     return CandidateExam.get_detail_queryset(
         exam_backlog=True,
         candidate=True,
+        candidate_exam_id=candidate_exam_id,
         q_filter=Q(id=candidate_exam_id),
         exam_backlog_question=True,
         get_answers=get_answers,

@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import models
 from django.utils import timezone
 
@@ -97,6 +99,7 @@ class CandidateExam(BaseModel):
         cls,
         exam_backlog: bool = False,
         candidate: bool = False,
+        candidate_exam_id: int | None = None,
         q_filter: models.Q = models.Q(),
         exam_backlog_question: bool = False,
         get_answers: bool = False,
@@ -104,7 +107,15 @@ class CandidateExam(BaseModel):
         is_organization_filter=False,
     ) -> models.QuerySet:
         return get_candidate_exam_detailed_queryset(
-            cls, exam_backlog, candidate, q_filter, exam_backlog_question, get_answers, exam_backlog_question_filter, is_organization_filter
+            cls,
+            exam_backlog,
+            candidate,
+            q_filter,
+            exam_backlog_question,
+            get_answers,
+            exam_backlog_question_filter,
+            is_organization_filter,
+            candidate_exam_id,
         )
 
 
