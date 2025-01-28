@@ -84,7 +84,7 @@ class Subject(BaseModel):
         education_level_id: int | None = None,
     ) -> list[int]:
         """
-        Select random subjects which have atleast one question based on subject count and question count.
+        Select random subjects which have at least one question based on subject count and question count.
 
         Args:
             subject_question_count (dict[str, int]) | None: Dictionary containing subject id as key and question count as value.
@@ -150,7 +150,7 @@ class Question(BaseModel):
     type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_questions")
 
-    title = models.CharField(max_length=255)
+    title = models.TextField()
     text = models.TextField(null=True, blank=True)
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
