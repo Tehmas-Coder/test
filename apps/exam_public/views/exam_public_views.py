@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.db import transaction
@@ -105,8 +106,10 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         # * Assigning Exam to Candidates
         if request_data.get("start_datetime") and request_data.get("end_datetime"):
-            request_data["start_datetime"] = convert_any_datetime_to_utc(request_data["start_datetime"])
-            request_data["end_datetime"] = convert_any_datetime_to_utc(request_data["end_datetime"])
+            if isinstance(request_data["start_datetime"], datetime.datetime):
+                request_data["start_datetime"] = convert_any_datetime_to_utc(request_data["start_datetime"])
+            if isinstance(request_data["end_datetime"], datetime.datetime):
+                request_data["end_datetime"] = convert_any_datetime_to_utc(request_data["end_datetime"])
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         candidate_exam_instances = serializer.save()
