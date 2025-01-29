@@ -107,7 +107,7 @@ class AdminEndToEndTest(TestSetUp):
             "country": 1,
             "package": 1,
         }
-        organization_response: dict = OrganizationUnitTest.do_create_organization(self, json.dumps(organization_request_body))  # type: ignore
+        organization_response: dict = OrganizationUnitTest.do_create_organization(self, organization_request_body)  # type: ignore
         request_response_values_asserter(self, organization_request_body, organization_response)
 
         # ------------------------ Organization User Creation ------------------------ #
