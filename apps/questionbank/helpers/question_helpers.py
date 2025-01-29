@@ -36,3 +36,12 @@ def bulk_create_media_instances(medias: list, instance) -> None:
     for item in medias:
         media_instance = MediaSerializer().create(item)
         instance.medias.add(media_instance)
+
+
+def question_title_p_tag_stripper(question_title: str) -> str:
+    """
+    This function is used to strip the p tag from the question title start and end.
+    """
+    if question_title.startswith("<p>") and question_title.endswith("</p>"):
+        question_title = question_title[3:-4]
+    return question_title
