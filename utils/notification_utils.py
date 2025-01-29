@@ -1,4 +1,5 @@
 import json
+import sys
 from doctest import debug
 from email import encoders
 from email.mime.base import MIMEBase
@@ -98,7 +99,7 @@ def send_email_notification_to_list(
 
 def add_to_email_queue(message: dict):
     sqs_client = boto3.client("sqs")
-    if int(config("MOCK_SEND_EMAIL")):
+    if int(config("MOCK_SEND_EMAIL")) or "test" in sys.argv:
         return 200
     else:
         try:

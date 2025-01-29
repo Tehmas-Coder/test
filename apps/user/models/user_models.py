@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import Any
 
 from django.contrib.auth.models import AbstractUser, UserManager
@@ -18,7 +18,7 @@ from utils.datetime_utils import (
     get_current_utc_datetime_timestamp,
 )
 from utils.email_notifications import EmailNotification
-from utils.rna_utils import color_print, generate_otp, make_error_response
+from utils.rna_utils import generate_otp, make_error_response
 
 
 def upload_to(instance, filename):
