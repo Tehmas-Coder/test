@@ -3,6 +3,13 @@ from django.db.models import QuerySet
 
 from apps.lookups.helpers.queryset_functions import get_organization_detailed_queryset
 from core.models import BaseUserModel
+from utils.datetime_utils import get_current_utc_datetime_timestamp
+
+
+def upload_to(instance, filename):
+    folder_name = "media"
+    timestamp = get_current_utc_datetime_timestamp()
+    return f"{folder_name}/{timestamp}/{filename}"
 
 
 class Timezone(BaseUserModel):
@@ -188,6 +195,7 @@ class Package(BaseUserModel):
 
 class Organization(BaseUserModel):
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE, null=True, blank=True)
+    logo = models.ImageField(upload_to=upload_to, null=True, blank=True)
 
     name = models.CharField(max_length=255)
     url = models.URLField(max_length=255, null=True, blank=True)

@@ -36,6 +36,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "url",
+            "logo",
             "users_count",
             "candidates_count",
             "country",
