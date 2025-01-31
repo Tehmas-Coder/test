@@ -159,7 +159,6 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         response = OrganizationSerializer(instance).data
-        transaction.set_rollback(True)
         return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"], url_path="assign-organization-user")
