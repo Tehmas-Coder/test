@@ -4,6 +4,7 @@ from rest_framework import serializers
 from apps.questionbank.helpers.question_helpers import (
     bulk_create_media_instances,
     bulk_create_question_choices_or_retry_hints,
+    question_title_p_tag_stripper,
 )
 from apps.questionbank.models.question_models import (
     Question,
@@ -81,6 +82,7 @@ class QuestionSerializer(BaseModelSerializer):
             self.fields["medias"] = QuestionMediaSerializer(many=True, source="questionmedia_set")
         super().__init__(*args, **kwargs)
 
+    @transaction.atomic
     def create(self, validated_data):
         question_medias = validated_data.pop("medias", [])
         subjects_data = validated_data.pop("subjects", [])
@@ -88,6 +90,8 @@ class QuestionSerializer(BaseModelSerializer):
         choices_data = validated_data.pop("choices", [])
         attempt_responses_data = validated_data.pop("attempt_responses", [])
         retry_hints_data = validated_data.pop("retry_hints", [])
+        question_title = validated_data.get("title")
+        validated_data["title"] = question_title_p_tag_stripper(question_title)
 
         # * Create question
         question = Question.objects.create(**validated_data)
@@ -125,7 +129,7 @@ class QuestionSerializer(BaseModelSerializer):
         tags = validated_data.pop("tags", None)
 
         # * Update question
-        instance.title = validated_data.get("title", instance.title)
+        instance.title = question_title_p_tag_stripper(validated_data.get("title", instance.title))
         instance.type = validated_data.get("type", instance.type)
         instance.text = validated_data.get("text", instance.text)
         instance.max_retries = validated_data.get("max_retries", instance.max_retries)
@@ -135,7 +139,7 @@ class QuestionSerializer(BaseModelSerializer):
         instance.save()
 
         if subjects_data:
-            exisiting_question_subject_ids: list = list(QuestionSubject.objects.filter(question=instance).values_list("id", flat=True))
+            existing_question_subject_ids: list = list(QuestionSubject.objects.filter(question=instance).values_list("id", flat=True))
 
             # * Update or create question subjects
             for question_subject_data in subjects_data:
@@ -154,7 +158,7 @@ class QuestionSerializer(BaseModelSerializer):
 
                 #  Update Existing question subject
                 if id:
-                    exisiting_question_subject_ids.remove(id)
+                    existing_question_subject_ids.remove(id)
                     question_subject, _ = QuestionSubject.objects.update_or_create(pk=id, defaults=question_subject_data)
                 else:
                     #  Create question subject
@@ -167,7 +171,7 @@ class QuestionSerializer(BaseModelSerializer):
                     question_subject.countries.set(question_subject_countries)  # type: ignore
 
             # Deleting the objects which were not included in the request
-            QuestionSubject.objects.filter(pk__in=exisiting_question_subject_ids).update(meta_status="deleted")
+            QuestionSubject.objects.filter(pk__in=existing_question_subject_ids).update(meta_status="deleted")
 
         # * Update tags
         if tags is not None:

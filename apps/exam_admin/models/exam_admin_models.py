@@ -31,7 +31,7 @@ class Schedule(BaseModel):
 
 class Section(BaseModel):
     exam = models.ForeignKey("exam_admin.Exam", on_delete=models.CASCADE, related_name="sections")
-    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="sections_measuring_unit")
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.PROTECT, related_name="sections_measuring_unit")
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
@@ -46,7 +46,7 @@ class Section(BaseModel):
 
 class SubSection(BaseModel):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="subsections")
-    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="subsections_measuring_unit")
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.PROTECT, related_name="subsections_measuring_unit")
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
@@ -66,7 +66,7 @@ class SubSection(BaseModel):
 
 class Exam(BaseModel):
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_exams")
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.PROTECT)
 
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10, blank=True)
@@ -115,7 +115,7 @@ class ExamSubject(BaseModel):
 
 class ExamSubjectQuestion(BaseModel):
     exam_subject = models.ForeignKey(ExamSubject, on_delete=models.CASCADE)
-    question = models.ForeignKey("questionbank.Question", on_delete=models.CASCADE)
+    question = models.ForeignKey("questionbank.Question", on_delete=models.PROTECT)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, related_name="questions")
     subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True, related_name="questions")
 
