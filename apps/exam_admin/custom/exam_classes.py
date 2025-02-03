@@ -1,5 +1,4 @@
-from rest_framework import status
-from rest_framework.response import Response
+from django.db.models import Model
 
 from apps.exam_admin.serializers.exam_serializers import ExamSerializer
 from apps.lookups.custom.lookups_classes import (
@@ -51,15 +50,13 @@ class ExamService:
         visibility_setter: VisibilitySetter,
         organization_validator: OrganizationValidator,
         serializer_class,
-        queryset,
     ) -> None:
         self.exam_data = exam_data
         self.visibility_setter = visibility_setter
         self.organization_validator = organization_validator
         self.serializer_class = serializer_class
-        self.queryset = queryset
 
-    def create_exam(self) -> Response:
+    def create_exam(self) -> Model:
         request_data = self.visibility_setter.set_visibility(self.exam_data)
 
         serializer = self.serializer_class(data=request_data, context={"mutator": True})
@@ -73,5 +70,4 @@ class ExamService:
                 ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))
 
         exam = serializer.save()
-        response_data = ExamSerializer(self.queryset.filter(pk=exam.id).first(), context={"selector": True}).data  # type:ignore
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        return exam
