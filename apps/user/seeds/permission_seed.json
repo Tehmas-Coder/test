@@ -603,5 +603,16 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.Permission",
+    "pk": 56,
+    "fields": {
+      "name": "Create Random Exam",
+      "context_value": "exams",
+      "description": "Create a random exam",
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

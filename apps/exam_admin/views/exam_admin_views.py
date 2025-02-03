@@ -28,7 +28,7 @@ from apps.exam_admin.serializers.exam_subject_serializers import ExamSubjectSeri
 from apps.exam_admin.serializers.schedule_serializers import ScheduleSerializer
 from apps.exam_admin.serializers.section_serializers import SectionSerializer
 from apps.exam_admin.serializers.subsection_serializers import SubSectionSerializer
-from apps.exam_admin.utils.exam_utils import create_random_exam
+from apps.exam_admin.utils.exam_utils import RandomExamCreator
 from apps.lookups.custom.lookups_classes import (
     OrganizationResourceQuerysetMutator,
     OrganizationResourceValidator,
@@ -106,9 +106,10 @@ class ExamViewSet(viewsets.ModelViewSet):
             visibility_setter=visibility_setter,
             organization_validator=organization_validator,
             serializer_class=self.serializer_class,
-            queryset=self.queryset,
         )
-        return exam_service.create_exam()
+        exam_instance = exam_service.create_exam()
+        response_data = ExamSerializer(self.queryset.get(pk=exam_instance.pk), context={"selector": True}).data
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
@@ -120,20 +121,20 @@ class ExamViewSet(viewsets.ModelViewSet):
         response = ExamSerializer(self.get_object(), context={"selector": True}).data
         return Response(response)
 
+    @transaction.atomic
     @action(detail=False, methods=["post"], url_path="create-random")
     def create_random_exam(self, request):
-        exam_data = request.data.get("exam_data", {})
-        subject_question_count = request.data.get("subject_question_count", None)
-        subject_count = request.data.get("subject_count", 0)
-        education_level_id = exam_data.get("education_level", None)
-
-        exam = create_random_exam(
-            exam_data=exam_data,
-            subject_question_count=subject_question_count,
-            subject_count=subject_count,
-            education_level_id=education_level_id,
+        request_data = request.data
+        create_random_exam_instance = RandomExamCreator(
+            exam_data=request_data.get("exam_data"),
+            subject_education_levels=request_data.get("subject_education_levels"),
+            difficulty_levels=request_data.get("difficulty_levels"),
+            question_types=request_data.get("question_types"),
+            question_count=request_data.get("question_count"),
         )
-        return make_success_response(exam)
+        exam_instance = create_random_exam_instance.create_random_exam()
+        response_data = ExamSerializer(self.queryset.get(pk=exam_instance.pk), context={"selector": True}).data
+        return Response(response_data)
 
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
