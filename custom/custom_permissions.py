@@ -33,8 +33,7 @@ class IsAuthenticated(BasePermission):
         if "system" in user_roles_names:
             return True
 
-        # TODO: Fix it later after the resource seeds are added
-        return True
+        # return True
         if not validate_resources(request_method, request_path, user_role_ids):
             ResponseMiddleware.return_now(Response({"error": "Unauthorized access"}, status=status.HTTP_400_BAD_REQUEST))
         else:
