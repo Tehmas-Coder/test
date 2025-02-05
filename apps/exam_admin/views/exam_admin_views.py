@@ -131,6 +131,8 @@ class ExamViewSet(viewsets.ModelViewSet):
             difficulty_levels=request_data.get("difficulty_levels"),
             question_types=request_data.get("question_types"),
             question_count=request_data.get("question_count"),
+            is_candidate=None,
+            organization_id=None,
         )
         exam_instance = create_random_exam_instance.create_random_exam()
         response_data = ExamSerializer(self.queryset.get(pk=exam_instance.pk), context={"selector": True}).data
