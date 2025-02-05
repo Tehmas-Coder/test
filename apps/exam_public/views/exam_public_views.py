@@ -199,8 +199,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         ).first()
         response_data = CandidateExamListSerializer(candidate_exam_instance).data
         exam_instance.delete()  # type:ignore
-        # TODO: Remove this after the successful implementation of the API
-        transaction.set_rollback(True)
         return Response(response_data)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
