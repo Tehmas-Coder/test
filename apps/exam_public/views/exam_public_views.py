@@ -154,7 +154,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             candidate = Candidate.objects.get(
                 user_id=current_user.id, organization_id=organization_id, is_self_preparation_allowed=True  # type:ignore
             )
-        except Candidate.DoesNotExist:
+        except Exception:
             return make_error_response(message="You are not allowed to create self preparatory exams with requested organization.")
         if not candidate.is_exam_limit_remaining:
             return make_error_response(message="You have reached the limit of creating self preparatory exams with this organization.")
@@ -170,8 +170,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             difficulty_levels=request_data.get("difficulty_levels"),
             question_types=request_data.get("question_types"),
             question_count=request_data.get("question_count"),
+            is_candidate=True,
+            organization_id=organization_id,
         )
         exam_instance = create_random_exam_instance.create_random_exam()
+        candidate.self_exam_count += 1
+        candidate.save()
         exam_instance = Exam.get_detail_queryset(all=True, q_filter=Q(pk=exam_instance.pk)).first()
 
         # * Exam Backlog Creation
@@ -195,6 +199,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
         ).first()
         response_data = CandidateExamListSerializer(candidate_exam_instance).data
         exam_instance.delete()  # type:ignore
+        # TODO: Remove this after the successful implementation of the API
         transaction.set_rollback(True)
         return Response(response_data)
 
