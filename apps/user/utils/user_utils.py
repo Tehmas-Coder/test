@@ -35,3 +35,13 @@ def get_current_user_organization():
         return user_organization
     else:
         ResponseMiddleware.return_now(make_error_response(message="User is not logged in"))
+
+
+def get_current_user_candidates():
+    current_user = get_current_user()
+    if isinstance(current_user, AnonymousUser):
+        current_user = None
+    if current_user:
+        return list(current_user.user_candidates.all())
+    else:
+        ResponseMiddleware.return_now(make_error_response(message="User is not logged in"))
