@@ -59,6 +59,9 @@ class CandidateWithoutOrganizationDetailSerializer(BaseModelSerializer):
         model = Candidate
         fields = [
             "id",
+            "self_exam_creation_limit",
+            "self_exam_count",
+            "is_self_preparation_allowed",
             "user",
             "organization",
         ] + get_base_model_fields()
