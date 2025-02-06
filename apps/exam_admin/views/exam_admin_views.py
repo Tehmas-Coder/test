@@ -127,7 +127,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         request_data = request.data
         create_random_exam_instance = RandomExamCreator(
             exam_data=request_data.get("exam_data"),
-            subject_education_levels=request_data.get("subject_education_levels"),
+            subject_education_levels=request_data.get("subjects"),
             difficulty_levels=request_data.get("difficulty_levels"),
             question_types=request_data.get("question_types"),
             question_count=request_data.get("question_count"),
