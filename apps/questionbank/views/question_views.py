@@ -345,12 +345,12 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
-    def bulk_create_question_attempt_reponse(self, request):
+    def bulk_create_question_attempt_response(self, request):
         request_data = request.data
         serializer = QuestionAttemptResponseBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
-        question_attempt_reponse = serializer.save()
-        serializer = QuestionAttemptResponseSerializer(question_attempt_reponse, many=True)
+        question_attempt_response = serializer.save()
+        serializer = QuestionAttemptResponseSerializer(question_attempt_response, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
