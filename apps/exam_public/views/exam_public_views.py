@@ -157,14 +157,13 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             return make_error_response(message="You have reached the limit of creating self preparatory exams with this organization.")
         exam_duration = request_data.get("exam_duration")
         exam_questions_visibility = request_data.get("exam_questions_visibility")
-        request_data["question_types"] = [1, 2]
 
         # * Random Exam Creation
         create_random_exam_instance = RandomExamCreator(
             exam_data=request_data.get("exam_data"),
             subject_education_levels=request_data.get("subjects"),
             difficulty_levels=request_data.get("difficulty_levels"),
-            question_types=request_data.get("question_types"),
+            question_types=[1, 2],
             question_count=request_data.get("question_count"),
             is_candidate=True,
             organization_id=organization_id,
