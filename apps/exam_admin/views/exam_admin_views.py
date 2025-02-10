@@ -136,7 +136,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         )
         exam_instance = create_random_exam_instance.create_random_exam()
         response_data = ExamSerializer(self.queryset.get(pk=exam_instance.pk), context={"selector": True}).data
-        return Response(response_data)
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):
