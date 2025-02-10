@@ -6,7 +6,6 @@ from rest_framework import filters
 
 class QuestionFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-
         subjects = request.query_params.get("subjects")
         education_levels = request.query_params.get("education_levels")
         types = request.query_params.get("types")
@@ -16,8 +15,14 @@ class QuestionFilterBackend(filters.BaseFilterBackend):
         is_optional = request.query_params.get("is_optional")
         subject_education_levels = request.query_params.get("subject_education_levels")
         title = request.query_params.get("title")
+        organizations = request.query_params.get("organizations")
 
         q_filter = Q()
+
+        if organizations:
+            organizations = json.loads(organizations)
+            organizations = [int(id) for id in organizations]
+            q_filter &= Q(Q(organization_id__in=organizations) | Q(organization_id__isnull=True))
 
         if subjects:
             subjects = json.loads(subjects)
