@@ -8,10 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
-from apps.exam_admin.serializers.exam_serializers import (
-    ExamDetailSerializerForBacklogs,
-    ExamSerializer,
-)
+from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
 from apps.exam_admin.utils.exam_utils import RandomExamCreator
 from apps.exam_public.custom.candidate_exam_classes import CandidateExamNinja
 from apps.exam_public.custom.exam_backlogs_classes import ExamBacklogsNinja
