@@ -78,8 +78,6 @@ class CandidateViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------- #
 #                                CANDIDATE EXAM                                #
 # ---------------------------------------------------------------------------- #
-
-
 class CandidateExamViewSet(viewsets.ModelViewSet):
     queryset = CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True, is_organization_filter=True)
     serializer_class = CandidateExamEditSerializer
