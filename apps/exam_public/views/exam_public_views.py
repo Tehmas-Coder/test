@@ -155,7 +155,6 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             return make_error_response(message="You are not allowed to create self preparatory exams with requested organization.")
         if not candidate.is_exam_limit_remaining:
             return make_error_response(message="You have reached the limit of creating self preparatory exams with this organization.")
-        is_exam_preparatory = request_data.get("is_preparatory", "False")
         exam_duration = request_data.get("exam_duration")
         exam_questions_visibility = request_data.get("exam_questions_visibility")
         request_data["question_types"] = [1, 2]
@@ -185,7 +184,7 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             "candidate_id": candidate.id,  # type:ignore
             "candidate_email": current_user.email,  # type:ignore
             "exam_backlog_id": exam_backlog_id,
-            "is_preparatory": is_exam_preparatory,
+            "is_preparatory": True,
             "exam_duration": exam_duration,
             "exam_questions_visibility": exam_questions_visibility,
             "is_created_by_candidate": True,
