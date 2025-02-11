@@ -31,6 +31,7 @@ from apps.exam_public.serializers.backlog_serializers.exambacklog_question_retry
 from apps.exam_public.serializers.candidate_exam_serializers import (
     CandidateExamDetailSerializer,
 )
+from apps.exam_scoring.custom.scoring_classes import CandidateExamScoring
 from apps.exam_scoring.models.exam_scoring_models import (
     CandidateExamSectionScore,
     CandidateExamSubSectionScore,
@@ -205,11 +206,16 @@ class CandidateExamNinja:
         candidate_exam_instance.refresh_from_db()  # type:ignore
         if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
             if not send_exam_status_to_student_apply_webhook(candidate_exam_instance):
-                # TODO: Fix this later when the decision is made whether to show this to candidate or not
+                # TODO: Uncomment this later when the decision is made whether to show the webhook failed result to a candidate or not
                 # message = message + " but failed to send exam status through webhook"
                 # response_status = status.HTTP_307_TEMPORARY_REDIRECT
                 # transaction.set_rollback(True)
                 pass
+
+        # * This block of code is to mark the exam result on exam submission and is currently subjected only to self preparatory exams created by candidates themselves
+        if candidate_exam_instance.is_created_by_candidate:  # type:ignore
+            candidate_exam_scoring_class_instance = CandidateExamScoring(candidate_exam_id)
+            candidate_exam_scoring_class_instance.mark_candidate_exam([])
         return {"message": message, "status": response_status}
 
     def attempt_candidate_exam(self, request_data: dict) -> dict:

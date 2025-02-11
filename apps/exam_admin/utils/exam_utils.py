@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from django.db.models import Model, Prefetch, QuerySet
+from django.db.models import Model, Prefetch, Q, QuerySet
 
 from apps.exam_admin.custom.exam_classes import (
     ExamService,
@@ -23,6 +23,8 @@ class RandomExamCreator:
     difficulty_levels: Any
     question_types: Any
     question_count: Any
+    is_candidate: Any
+    organization_id: Any
 
     def __post_init__(self):
         self.created_exam_instance = None
@@ -50,6 +52,12 @@ class RandomExamCreator:
 
     def __create_exam_instance(self):
         self.exam_data["subjects"] = self.subject_education_levels
+        if self.is_candidate:
+            self.__create_exam_by_candidate()
+        else:
+            self.__create_exam_by_staff()
+
+    def __create_exam_by_staff(self):
         visibility_setter = ExamVisibilitySetter()
         organization_validator = OrganizationPackageExamLimitValidator()
         exam_service = ExamService(
@@ -59,6 +67,11 @@ class RandomExamCreator:
             serializer_class=ExamSerializer,
         )
         self.created_exam_instance = exam_service.create_exam()
+
+    def __create_exam_by_candidate(self):
+        exam_serializer = ExamSerializer(data=self.exam_data, context={"mutator": True})
+        exam_serializer.is_valid(raise_exception=True)
+        self.created_exam_instance = exam_serializer.save()
 
     def __create_exam_subjects_questions(self):
         exam_marks = 0
@@ -86,12 +99,17 @@ class RandomExamCreator:
         self.created_exam_instance.save()  # type:ignore
 
     def __get_questions(self) -> QuerySet:
+        q_filter = Q(
+            subjects__subject_education_level__in=self.subject_education_levels,
+        )
+        if self.difficulty_levels:
+            q_filter &= Q(subjects__difficulty_level__in=self.difficulty_levels)
+        if self.question_types:
+            q_filter &= Q(type__in=self.question_types)
+        if self.is_candidate:
+            q_filter &= Q(organization_id=self.organization_id) | Q(organization_id=None)
         question_queryset = (
-            Question.objects.filter(
-                type__in=self.question_types,
-                subjects__difficulty_level__in=self.difficulty_levels,
-                subjects__subject_education_level__in=self.subject_education_levels,
-            )
+            Question.objects.filter(q_filter)
             .prefetch_related(Prefetch("subjects", queryset=QuestionSubject.objects.select_related("subject_education_level")))
             .distinct()
             .order_by("?")

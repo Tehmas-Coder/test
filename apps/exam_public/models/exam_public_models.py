@@ -1,7 +1,4 @@
-from typing import Any
-
 from django.db import models
-from django.utils import timezone
 
 from apps.exam_public.helpers.queryset_functions import (
     get_candidate_detailed_queryset,
@@ -9,6 +6,7 @@ from apps.exam_public.helpers.queryset_functions import (
 )
 from apps.user.utils.user_utils import get_current_user_organization
 from core.models import BaseModel
+from middlewares.current_user_middleware import get_current_user
 from utils.datetime_utils import convert_any_datetime_to_utc, get_current_utc_datetime
 
 MEDIA_MODEL = "user.Media"
@@ -18,9 +16,18 @@ class Candidate(BaseModel):
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
+    self_exam_creation_limit = models.PositiveIntegerField(default=10)
+    self_exam_count = models.PositiveIntegerField(default=0)
+
+    is_self_preparation_allowed = models.BooleanField(default=False)
+
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidate"
+
+    @property
+    def is_exam_limit_remaining(self):
+        return self.self_exam_count < self.self_exam_creation_limit
 
     @classmethod
     def get_detail_queryset(cls, organization=False, user=False) -> models.QuerySet:
@@ -65,11 +72,16 @@ class CandidateExam(BaseModel):
 
     is_public = models.BooleanField(default=False)
     is_preparatory = models.BooleanField(default=False)
+    is_created_by_candidate = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
-                self.organization_id = get_current_user_organization()
+                current_user_roles = get_current_user().get_user_role_slugs  # type: ignore
+                if "candidate" not in current_user_roles:
+                    self.organization_id = get_current_user_organization()
+                else:
+                    self.is_created_by_candidate = True
         return super().save(*args, **kwargs)
 
     class Meta:

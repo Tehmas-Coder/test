@@ -12,8 +12,18 @@ class CandidateSerializer(BaseModelSerializer):
         fields = [
             "id",
             "user",
+            "self_exam_creation_limit",
+            "self_exam_count",
+            "is_self_preparation_allowed",
             "organization",
         ] + get_base_model_fields()
+
+        read_only_fields = [
+            "id",
+            "self_exam_creation_limit",
+            "self_exam_count",
+            "is_self_preparation_allowed",
+        ]
 
     def __init__(self, *args, **kwargs):
         self._context: dict = kwargs.get("context", {})
@@ -39,6 +49,9 @@ class CandidateWithOrganizationDetailSerializer(BaseModelSerializer):
         fields = [
             "id",
             "user",
+            "self_exam_creation_limit",
+            "self_exam_count",
+            "is_self_preparation_allowed",
             "organization",
         ] + get_base_model_fields()
 

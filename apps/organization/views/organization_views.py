@@ -31,14 +31,19 @@ class OrganizationRelatedViewset(viewsets.ViewSet):
         return Response(organization_with_candidates_list, status=status.HTTP_200_OK)
 
     def get_candidate_organizations_list(self, request, *args, **kwargs):
+        is_self_preparation = bool(request.query_params.get("is_self_preparation", False))
         candidate_with_organizations_instance = (
             BaseUser.get_detail_queryset(country=True, user_candidates=True).filter(id=get_current_user().id).first()  # type: ignore
         )
         if not candidate_with_organizations_instance:
             return make_error_response(message="Candidate not found")
         else:
-            candidate_organizations_data_response = CandidateWithOrganizationsSerializer(candidate_with_organizations_instance).data
-        return Response(candidate_organizations_data_response, status=status.HTTP_200_OK)
+            response_data = CandidateWithOrganizationsSerializer(candidate_with_organizations_instance).data
+
+        if is_self_preparation:
+            user_candidate__instances = response_data.get("user_candidates", [])
+            response_data = [candidate["organization"] for candidate in user_candidate__instances if candidate.get("is_self_preparation_allowed")]
+        return Response(response_data, status=status.HTTP_200_OK)
 
     def get_user_organizations_list(self, request, *args, **kwargs):
         user_organization_detail = list(

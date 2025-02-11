@@ -127,14 +127,16 @@ class ExamViewSet(viewsets.ModelViewSet):
         request_data = request.data
         create_random_exam_instance = RandomExamCreator(
             exam_data=request_data.get("exam_data"),
-            subject_education_levels=request_data.get("subject_education_levels"),
+            subject_education_levels=request_data.get("subjects"),
             difficulty_levels=request_data.get("difficulty_levels"),
             question_types=request_data.get("question_types"),
             question_count=request_data.get("question_count"),
+            is_candidate=None,
+            organization_id=None,
         )
         exam_instance = create_random_exam_instance.create_random_exam()
         response_data = ExamSerializer(self.queryset.get(pk=exam_instance.pk), context={"selector": True}).data
-        return Response(response_data)
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["get"], url_path="get-exams-lookup")
     def get_exams_lookup(self, request):

@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from apps.exam_admin.models.exam_admin_models import Exam
 from apps.exam_admin.serializers.exam_serializers import ExamDetailSerializerForBacklogs
+from apps.exam_admin.utils.exam_utils import RandomExamCreator
 from apps.exam_public.custom.candidate_exam_classes import CandidateExamNinja
 from apps.exam_public.custom.exam_backlogs_classes import ExamBacklogsNinja
 from apps.exam_public.filters.candidate_exam_filters import CandidateExamFilterBackend
@@ -77,8 +78,6 @@ class CandidateViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------------- #
 #                                CANDIDATE EXAM                                #
 # ---------------------------------------------------------------------------- #
-
-
 class CandidateExamViewSet(viewsets.ModelViewSet):
     queryset = CandidateExam.get_detail_queryset(exam_backlog=True, candidate=True, is_organization_filter=True)
     serializer_class = CandidateExamEditSerializer
@@ -139,6 +138,61 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             candidate_exam_backlog_question_instance, context={"get_retry_hints": candidate_exam_backlog_question_instance.is_preparatory}  # type: ignore
         ).data
         return Response(data, status=status.HTTP_200_OK)
+
+    @transaction.atomic
+    @action(detail=False, methods=["post"], url_path="candidate-self-preparatory-exam")
+    def candidate_self_preparatory_exam(self, request):
+        current_user = get_current_user()
+        request_data = request.data
+        organization_id = request_data.get("organization")
+        try:
+            candidate = Candidate.objects.get(
+                user_id=current_user.id, organization_id=organization_id, is_self_preparation_allowed=True  # type:ignore
+            )
+        except Exception:
+            return make_error_response(message="You are not allowed to create self preparatory exams with requested organization.")
+        if not candidate.is_exam_limit_remaining:
+            return make_error_response(message="You have reached the limit of creating self preparatory exams with this organization.")
+        exam_duration = request_data.get("exam_duration")
+        exam_questions_visibility = request_data.get("exam_questions_visibility")
+
+        # * Random Exam Creation
+        create_random_exam_instance = RandomExamCreator(
+            exam_data=request_data.get("exam_data"),
+            subject_education_levels=request_data.get("subjects"),
+            difficulty_levels=request_data.get("difficulty_levels"),
+            question_types=[1, 2],
+            question_count=request_data.get("question_count"),
+            is_candidate=True,
+            organization_id=organization_id,
+        )
+        exam_instance = create_random_exam_instance.create_random_exam()
+        candidate.self_exam_count += 1
+        candidate.save()
+        exam_instance = Exam.get_detail_queryset(all=True, q_filter=Q(pk=exam_instance.pk)).first()
+
+        # * Exam Backlog Creation
+        exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
+        exam_backlogs = ExamBacklogsNinja(exam_data=exam_data)  # type:ignore
+        exam_backlog_id = exam_backlogs.create_backlogs()
+
+        # * Candidate Exam Creation
+        candidate_exam_data = {
+            "candidate_id": candidate.id,  # type:ignore
+            "candidate_email": current_user.email,  # type:ignore
+            "exam_backlog_id": exam_backlog_id,
+            "is_preparatory": True,
+            "exam_duration": exam_duration,
+            "exam_questions_visibility": exam_questions_visibility,
+            "is_created_by_candidate": True,
+        }
+        candidate_exam_instance = CandidateExam.objects.create(**candidate_exam_data)
+        candidate_exam_instance = CandidateExam.get_detail_queryset(
+            exam_backlog=True, candidate=True, q_filter=Q(pk=candidate_exam_instance.pk)
+        ).first()
+        response_data = CandidateExamListSerializer(candidate_exam_instance).data
+        exam_instance.delete()  # type:ignore
+        return Response(response_data)
 
     def get_exam_backlogs_with_candidate_detail(self, request):
         q_filter = get_exambacklog_q_filter(request)

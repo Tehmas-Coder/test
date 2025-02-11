@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.db import transaction
 from django.db.models import Q
 from rest_framework import status, viewsets
@@ -80,6 +82,7 @@ from apps.questionbank.serializers.subject_education_level_serializers import (
     SubjectEducationLevelSerializer,
 )
 from apps.questionbank.serializers.subject_serializers import SubjectSerializer
+from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print
 
 
@@ -171,7 +174,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == "list":
-            return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
+            logged_in_user = get_current_user()
+            if not logged_in_user.is_superuser and "candidate" not in logged_in_user.get_user_role_slugs:  # type: ignore
+                return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
         return super().get_queryset()
 
     @transaction.atomic
@@ -340,12 +345,12 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
-    def bulk_create_question_attempt_reponse(self, request):
+    def bulk_create_question_attempt_response(self, request):
         request_data = request.data
         serializer = QuestionAttemptResponseBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
-        question_attempt_reponse = serializer.save()
-        serializer = QuestionAttemptResponseSerializer(question_attempt_reponse, many=True)
+        question_attempt_response = serializer.save()
+        serializer = QuestionAttemptResponseSerializer(question_attempt_response, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
