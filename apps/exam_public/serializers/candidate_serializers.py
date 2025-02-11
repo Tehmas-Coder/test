@@ -20,9 +20,7 @@ class CandidateSerializer(BaseModelSerializer):
 
         read_only_fields = [
             "id",
-            "self_exam_creation_limit",
             "self_exam_count",
-            "is_self_preparation_allowed",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -38,6 +36,12 @@ class CandidateSerializer(BaseModelSerializer):
             organization=validated_data["organization"],
             defaults=validated_data,
         )
+        return instance
+
+    def update(self, instance, validated_data):
+        instance.self_exam_creation_limit = validated_data.get("self_exam_creation_limit", instance.self_exam_creation_limit)
+        instance.is_self_preparation_allowed = validated_data.get("is_self_preparation_allowed", instance.is_self_preparation_allowed)
+        instance.save()
         return instance
 
 
