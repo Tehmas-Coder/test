@@ -2295,7 +2295,7 @@
       "description": "Create a self preparatory exam",
       "regex": "^/candidate-exam/candidate-self-preparatory-exam/$",
       "method": "post",
-      "permission": null,
+      "permission": 57,
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
