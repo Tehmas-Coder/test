@@ -100,10 +100,12 @@ class RandomExamCreator:
 
     def __get_questions(self) -> QuerySet:
         q_filter = Q(
-            type__in=self.question_types,
-            subjects__difficulty_level__in=self.difficulty_levels,
             subjects__subject_education_level__in=self.subject_education_levels,
         )
+        if self.difficulty_levels:
+            q_filter &= Q(difficulty_level__in=self.difficulty_levels)
+        if self.question_types:
+            q_filter &= Q(question_type__in=self.question_types)
         if self.is_candidate:
             q_filter &= Q(organization_id=self.organization_id) | Q(organization_id=None)
         question_queryset = (
