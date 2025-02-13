@@ -42,8 +42,8 @@ class TestSetUp(APITestCase):
             user_serializer.is_valid(raise_exception=True)
             new_user_email = user_serializer.save()
             new_user_instance = BaseUser.objects.get(email=new_user_email)
-            new_user_instance.__dict__["is_verified"] = True
-            new_user_instance.__dict__["is_superuser"] = bool(is_superuser)
+            new_user_instance.is_verified = True
+            new_user_instance.is_superuser = bool(is_superuser)
             new_user_instance.save()
             self.user = new_user_instance
 

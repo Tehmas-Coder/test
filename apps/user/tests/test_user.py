@@ -182,7 +182,7 @@ class UserTest(UserUnitTest):
         if json_data["roles"][0]["name"].lower() != "candidate":
             organization_user_instance = OrganizationUser.objects.filter(user_id=json_data["id"]).first()
             if not organization_user_instance:
-                color_print("Failed: User created but Organziation user not created", "red")
+                color_print("Failed: User created but Organization user not created", "red")
                 self.assertEqual(organization_user_instance.organization_id, request_body["organization"])  # type: ignore
 
         # -------------------- Candidate User Creation By Organization User -------------------- #
@@ -228,10 +228,10 @@ class UserTest(UserUnitTest):
         validate_success_201_test_response(self, response)
         if json_data["roles"][0]["name"].lower() != "candidate":
             user_organization = OrganizationUser.objects.filter(user_id=self.user.id).values("organization").first()  # type: ignore
-            orgainzation_user_instance = OrganizationUser.objects.filter(
+            organization_user_instance = OrganizationUser.objects.filter(
                 user_id=json_data["id"], organization_id=user_organization["organization"]  # type: ignore
             ).first()
-            if not orgainzation_user_instance:
+            if not organization_user_instance:
                 color_print("Failed: User created but OrganizationUser not created", "red")
 
     def failed_creation_of_a_duplicate_record_test(self):
