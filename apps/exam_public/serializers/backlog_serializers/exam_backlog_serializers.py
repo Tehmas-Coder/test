@@ -28,7 +28,7 @@ class ExamBacklogEditSerializer(BaseModelSerializer):
             "education_level",
             "education_level_name",
             "total_marks",
-            "pass_marks",
+            "passing_percentage",
             "is_global",
         ] + get_base_model_fields()
 
@@ -47,7 +47,7 @@ class ExamBacklogDetailSerializer(BaseModelSerializer):
             "instructions",
             "education_level_name",
             "total_marks",
-            "pass_marks",
+            "passing_percentage",
             "is_global",
             "questions",
             "sections",
@@ -130,7 +130,7 @@ class ExamBacklogQuestionScoresheetSerializer(BaseModelSerializer):
             "instructions",
             "education_level_name",
             "total_marks",
-            "pass_marks",
+            "passing_percentage",
             "is_global",
             "questions",
             "sections",

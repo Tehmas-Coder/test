@@ -52,20 +52,23 @@ class OrganizationWithUsersListSerializer(serializers.ModelSerializer):
         return obj.organization_users.count()
 
 
-class CandidateWthoutOrganizationDetailSerializer(BaseModelSerializer):
+class CandidateWithoutOrganizationDetailSerializer(BaseModelSerializer):
     user = UserSerializer(required=True)
 
     class Meta:
         model = Candidate
         fields = [
             "id",
+            "self_exam_creation_limit",
+            "self_exam_count",
+            "is_self_preparation_allowed",
             "user",
             "organization",
         ] + get_base_model_fields()
 
 
 class OrganizationWithCandidateListSerializer(serializers.ModelSerializer):
-    organization_candidates = CandidateWthoutOrganizationDetailSerializer(many=True)
+    organization_candidates = CandidateWithoutOrganizationDetailSerializer(many=True)
     organization_candidates_count = serializers.SerializerMethodField()
 
     class Meta:

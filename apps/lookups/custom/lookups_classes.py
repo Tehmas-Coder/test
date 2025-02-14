@@ -4,7 +4,7 @@ from django.db.models import Q
 from rest_framework.generics import QuerySet
 
 from apps.organization.models.organization_models import OrganizationPackage
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import make_error_response
@@ -61,9 +61,9 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
     def validate(self) -> bool:
         return super().validate()
 
-    def validate_limit(self, current_count, total_limit) -> int:
-        if not (current_count <= total_limit):
-            raise ValueError("Package limit for this action has been reached")
+    def validate_limit(self, current_count: int, total_limit: int) -> int:
+        if not (current_count < total_limit):
+            raise ValueError("Your Organizational Package limit for this action has been reached")
         current_count += 1
         return current_count
 
@@ -77,7 +77,7 @@ class OrganizationResourceQuerysetMutator:
     """
 
     def __init__(self, organization_id: int | None = None, queryset=None, is_public=False) -> None:
-        if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
+        if (organization_id is None) and get_current_user() and (not get_current_user().is_superuser):  # type: ignore
             organization_id = get_current_user_organization()
         self.organization_id = organization_id
         self.queryset = queryset

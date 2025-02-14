@@ -1,4 +1,5 @@
 import json
+import sys
 from doctest import debug
 from email import encoders
 from email.mime.base import MIMEBase
@@ -11,6 +12,9 @@ import boto3
 from botocore.exceptions import ClientError
 from decouple import config
 from django.core.mail import send_mail
+
+from apps.emails.views.emails_views import send_email_task
+from utils.rna_utils import debug_print
 
 # ------------------------------------------------------
 # *                  SMS Utils
@@ -76,6 +80,8 @@ def send_email_notification_to_list(
     from_email: str = "haiderjuttearner@gmail.com",
     queue: bool = False,
 ):
+    if int(config("IS_DIVERT_EMAIL")):
+        to_email_list = [str(config("DEFAULT_TO_EMAIL"))]
     if not queue:
         return send_mail(subject, email_body, from_email, to_email_list)
     else:
@@ -93,7 +99,7 @@ def send_email_notification_to_list(
 
 def add_to_email_queue(message: dict):
     sqs_client = boto3.client("sqs")
-    if config("MOCK_SEND_EMAIL") == "1":
+    if int(config("MOCK_SEND_EMAIL")) or "test" in sys.argv:
         return 200
     else:
         try:
@@ -102,6 +108,17 @@ def add_to_email_queue(message: dict):
         except ClientError as error:
             print(error)
             return error
+
+    # if config("MOCK_SEND_EMAIL") == "1":
+    #     return 200
+    # else:
+    #     result = send_email_task(
+    #         subject=message["subject"],
+    #         html_content=message["email_body_html"],
+    #         from_email=message["from_email"],
+    #         to_email_list=message["to_email_list"],
+    #     )
+    #     return 200 if type(result) == str else 400
 
 
 def send_email_with_attachment(

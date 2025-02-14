@@ -108,17 +108,17 @@ class UserTest(UserUnitTest):
     # ?              TESTS - CASES
     # ?###################################################
     def test_cases_user(self):
-        self.successfull_creation_of_a_record_test()
+        self.successful_creation_of_a_record_test()
         self.failed_creation_of_a_duplicate_record_test()
-        list_of_records = self.successsfull_fetching_of_list_of_records_test()
-        test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
-        self.successfull_updation_of_record_test(test_record_id)
+        list_of_records = self.successful_fetching_of_list_of_records_test()
+        test_record_id = self.successful_fetching_of_one_record_test(list_of_records)
+        self.successful_updation_of_record_test(test_record_id)
 
     # ?###################################################
     # ?              TESTS - FUNCTIONS
     # ?###################################################
 
-    def successfull_creation_of_a_record_test(self):
+    def successful_creation_of_a_record_test(self):
         # ------------------------ Candidate User Creation By SuperUser ------------------------ #
         response = self.do_create_user(json.dumps(self.reuseable_request_body))
         color_print("## => Testing Candidate User Creation by SuperUser")
@@ -182,7 +182,7 @@ class UserTest(UserUnitTest):
         if json_data["roles"][0]["name"].lower() != "candidate":
             organization_user_instance = OrganizationUser.objects.filter(user_id=json_data["id"]).first()
             if not organization_user_instance:
-                color_print("Failed: User created but Organziation user not created", "red")
+                color_print("Failed: User created but Organization user not created", "red")
                 self.assertEqual(organization_user_instance.organization_id, request_body["organization"])  # type: ignore
 
         # -------------------- Candidate User Creation By Organization User -------------------- #
@@ -228,17 +228,17 @@ class UserTest(UserUnitTest):
         validate_success_201_test_response(self, response)
         if json_data["roles"][0]["name"].lower() != "candidate":
             user_organization = OrganizationUser.objects.filter(user_id=self.user.id).values("organization").first()  # type: ignore
-            orgainzation_user_instance = OrganizationUser.objects.filter(
+            organization_user_instance = OrganizationUser.objects.filter(
                 user_id=json_data["id"], organization_id=user_organization["organization"]  # type: ignore
             ).first()
-            if not orgainzation_user_instance:
+            if not organization_user_instance:
                 color_print("Failed: User created but OrganizationUser not created", "red")
 
     def failed_creation_of_a_duplicate_record_test(self):
         response = self.do_create_user(self.reuseable_request_body)
         validate_failed_400_test_response(self, response)
 
-    def successsfull_fetching_of_list_of_records_test(self):
+    def successful_fetching_of_list_of_records_test(self):
         self.custom_login(email="test_user@gmail.com", password="12345678")
         json_data = self.do_get_user_list()
         self.assertGreater(len(json_data), 0)
@@ -251,7 +251,7 @@ class UserTest(UserUnitTest):
                 )
         return json_data["results"]
 
-    def successsfull_fetching_of_one_record_test(self, list_of_records):
+    def successful_fetching_of_one_record_test(self, list_of_records):
         test_user_id = list_of_records[len(list_of_records) - 5]["id"]
         json_data = self.do_get_one_user(test_user_id)
         self.assertEqual(
@@ -261,7 +261,7 @@ class UserTest(UserUnitTest):
         )
         return test_user_id
 
-    def successfull_updation_of_record_test(self, test_record_id):
+    def successful_updation_of_record_test(self, test_record_id):
         updated_request_body = {}
         updated_request_body["first_name"] = "first name edited"
         updated_request_body["last_name"] = "last name edited"

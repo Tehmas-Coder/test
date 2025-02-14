@@ -1,5 +1,8 @@
 from django.db import models
 
+from apps.exam_public.helpers.queryset_functions import (
+    get_exambacklogquestion_detailed_queryset,
+)
 from core.models import BaseModel
 
 # ---------------------------------------------------------------------------- #
@@ -17,12 +20,24 @@ class ExamBacklog(BaseModel):
     instructions = models.TextField(null=True, blank=True)
     education_level_name = models.CharField(max_length=255)
     total_marks = models.PositiveIntegerField(default=0)
-    pass_marks = models.PositiveIntegerField(default=0)
+    passing_percentage = models.PositiveIntegerField(default=0)
 
     is_global = models.BooleanField(default=True)
 
+    examiners = models.ManyToManyField("user.BaseUser", through="ExamBacklogExaminer", through_fields=("exam_backlog", "examiner"))
+
     class Meta:
         app_label = "exam_public"
+
+
+# --------------------------- EXAM BACKLOG EXAMINER -------------------------- #
+class ExamBacklogExaminer(BaseModel):
+    exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE)
+    examiner = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "exam_public"
+        db_table = "exam_public_exambacklog_examiner"
 
 
 # ---------------------------------------------------------------------------- #
@@ -44,7 +59,7 @@ class ExamBacklogQuestion(BaseModel):
     question = models.ForeignKey("questionbank.Question", on_delete=models.DO_NOTHING)
     type = models.ForeignKey("questionbank.QuestionType", on_delete=models.DO_NOTHING)
 
-    title = models.CharField(max_length=255)
+    title = models.TextField()
     text = models.TextField(null=True, blank=True)
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
@@ -64,6 +79,10 @@ class ExamBacklogQuestion(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_exambacklog_question"
+
+    @classmethod
+    def get_detail_queryset(cls, all=False, get_answers=False, q_filter=models.Q(), candidate_exam_id: int | None = None):
+        return get_exambacklogquestion_detailed_queryset(cls, all, get_answers, q_filter, candidate_exam_id)
 
 
 # -------------------------- QUESTION MEDIA BACKLOG -------------------------- #
@@ -158,6 +177,12 @@ class ExamBacklogQuestionRetryHint(BaseModel):
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_exambacklog_question_retryhint"
+
+    @classmethod
+    def get_detail_queryset(cls, media=True, q_filter=models.Q()):
+        return cls.objects.filter(q_filter).prefetch_related(
+            models.Prefetch("exambacklogquestionretryhintmedia_set", queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"))
+        )
 
 
 class ExamBacklogQuestionRetryHintMedia(BaseModel):

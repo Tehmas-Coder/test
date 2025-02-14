@@ -1,16 +1,12 @@
-import copy
 import json
+from datetime import timedelta
 
 from rest_framework import status
 
 from apps.user.models.user_models import BaseUser
 from core.test_setup import TestSetUp
-from utils.rna_utils import (
-    debug_print,
-    print_test_failed,
-    print_test_header,
-    print_test_passed,
-)
+from utils.datetime_utils import get_current_utc_datetime
+from utils.rna_utils import print_test_failed, print_test_header, print_test_passed
 
 from .test_register import RegisterUnitTest
 from .test_user import UserUnitTest
@@ -43,7 +39,7 @@ class OTPTest(OTPUnitTest):
     # ?###################################################
 
     def test_cases_otp(self):
-        # * User is regsitered here for all otp test functions
+        # * User is registered here for all otp test functions
         test_user = {
             "email": "register_test@gmail.com",
             "first_name": "test",
@@ -56,7 +52,8 @@ class OTPTest(OTPUnitTest):
 
         # * Test functions are being called here
         self.failed_test_verification_otp_not_valid()
-        self.successfull_test_resend_otp()
+        self.failed_test_resend_otp_due_to_token_not_expired_yet()
+        self.successfull_test_resend_otp(user_id)
         self.successfull_test_verification_otp(user_id)
 
     # ?###################################################
@@ -71,7 +68,17 @@ class OTPTest(OTPUnitTest):
         response = self.do_verify_otp(request_data)
         validate_failed_400_test_response(self, response)
 
-    def successfull_test_resend_otp(self):
+    def failed_test_resend_otp_due_to_token_not_expired_yet(self):
+        request_data = {
+            "email": "register_test@gmail.com",
+        }
+        response = self.do_resend_otp(request_data)
+        validate_failed_307_test_response(self, response)
+
+    def successfull_test_resend_otp(self, user_id):
+        user = BaseUser.objects.get(id=user_id)
+        user.otp_expiry = get_current_utc_datetime() - timedelta(minutes=1)
+        user.save()
         request_data = {
             "email": "register_test@gmail.com",
         }
@@ -116,4 +123,18 @@ def validate_failed_400_test_response(self, response):
         response_status_code,
         status.HTTP_400_BAD_REQUEST,
         f" 'status_code' 400 was expected, but received 'status_code' ({response_status_code})",
+    )
+
+
+def validate_failed_307_test_response(self, response):
+    response_status_code = response.status_code
+    if response_status_code == status.HTTP_307_TEMPORARY_REDIRECT:
+        print_test_passed()
+    else:
+        print_test_failed()
+        print(response.content)
+    self.assertEqual(
+        response_status_code,
+        status.HTTP_307_TEMPORARY_REDIRECT,
+        f" 'status_code' 307 was expected, but received 'status_code' ({response_status_code})",
     )

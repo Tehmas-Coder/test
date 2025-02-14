@@ -2,10 +2,16 @@ import json
 
 from rest_framework import status
 
+from apps.exam_public.models.exam_public_models import CandidateExamAnswer
 from apps.exam_public.tests.test_candidate_exam import CandidateExamUnitTest
+from apps.exam_public.tests.test_candidate_exam_answer import (
+    CandidateExamAnswerUnitTest,
+)
 from core.test_setup import TestSetUp
+from helpers.helper_functions import get_encryption_key
 from utils.rna_utils import (
     debug_print,
+    decrypt_message,
     print_test_failed,
     print_test_header,
     print_test_passed,
@@ -14,6 +20,8 @@ from utils.rna_utils import (
 
 class AttemptCandidateExamUnitTest(TestSetUp):
     fixtures = [
+        "permission_seed",
+        "resource_seed",
         "question_type_seed",
         "measuring_unit_seed",
         "subject_seed",
@@ -41,60 +49,181 @@ class AttemptCandidateExamUnitTest(TestSetUp):
         "organization_seed",
         "role_seed",
         "user_seed",
+        "user_role_seed",
         "candidate_seed",
     ]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_attempt_one_candidate_exam(self, request_body):
-        print_test_header("Attempt_candidate_exam")
-        url = "/api/candidate-exam/"
+    def do_attempt_one_sequential_candidate_exam(self, request_body):
+        print_test_header("attempt_sequential_candidate_exam")
+        url = "/api/attempt-candidate-exam/"
+        response = self.client.post(
+            url,
+            headers=self.headers,
+            data=request_body,
+        )
+        return response
+
+    def do_submit_candidate_exam(self, candidate_exam_id):
+        print_test_header("submit_candidate_exam")
+        url = f"/api/candidate-exam/{candidate_exam_id}/submit/"
+        response = self.client.post(
+            url,
+            headers=self.headers,
+            data=None,
+        )
+        validate_success_200_test_response(self, response)
+        return response
+
+    def do_mark_candidate_exam(self, request_body):
+        print_test_header("mark_candidate_exam")
+        url = f"/api/mark-candidate-exam/"
         response = self.client.post(
             url,
             headers=self.headers,
             data=request_body,
             content_type="application/json",
         )
-        validate_success_201_test_response(self, response)
-        return response.data[0]  # type: ignore
+        validate_success_200_test_response(self, response)
+        return response
+
+    def do_get_scoresheet_of_candidate_exam(self, candidate_exam_id):
+        print_test_header("show_scoresheet_of_candidate_exam")
+        url = f"/api/candidate-exam-scoresheet/{candidate_exam_id}/"
+        response = self.client.get(
+            url,
+            headers=self.headers,
+        )
+        validate_success_200_test_response(self, response)
+        return response
 
 
 class AttemptCandidateExamTest(AttemptCandidateExamUnitTest):
-    # * These are defined here so these can be accessed by all the functions
-    reuseable_request_body = {
-        "candidates": [
-            "cyberaxescandidate@gmail.com",
-        ],
-        "exam": 1,
-        "schedule": 2,
-        "exam_duration": 120,
-    }
-    list_of_fields_of_candidate_exam_model = [
-        "id",
-        "candidate",
-        "exam_backlog",
-        "schedule",
-        "is_preparatory",
-        "start_datetime",
-        "end_datetime",
-        "exam_duration",
-        "waiting_duration",
-        "extra_duration",
-    ]
+    """
+    Attempting a candidate exam
+    """
+
+    list_of_fields = ["question", "candidate_exam", "key"]
 
     # ?###################################################
     # ?              TESTS - CASES
     # ?###################################################
     def test_cases_candidate_exam(self):
+        self.failed_attemptation_of_an_exam_test_missing_candidate_exam_id()
         self.successfull_attemptation_of_an_exam_test()
 
+    def failed_attemptation_of_an_exam_test_missing_candidate_exam_id(self):
+        request_body = {}
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_failed_400_test_response(self, response)
+
     def successfull_attemptation_of_an_exam_test(self):
-        candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(self.reuseable_request_body))  # type: ignore
-        # debug_print(candidate_exam)
-        # json_data = self.do_attempt_one_candidate_exam(json.dumps(self.reuseable_request_body))
-        # for one_field in self.list_of_fields_of_candidate_exam_model:
-        #     self.assertIn(one_field, json_data)
+        candidate_exam_assignment_request_body = {
+            "candidates": [
+                "generalcandidate@gmail.com",
+            ],
+            "exam": 1,
+            "schedule": 2,
+            "exam_duration": 120,
+            "exam_questions_visibility": "one_by_one",
+        }
+        candidate_exam = CandidateExamUnitTest.do_create_candidate_exam(self, json.dumps(candidate_exam_assignment_request_body))  # type: ignore
+        request_body = {
+            "candidate_exam_id": candidate_exam["id"],
+        }
+        self.custom_login(email="generalcandidate@gmail.com", password="12345678", is_candidate=True)
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_success_200_test_response(self, response)
+        json_data = response.data  # type: ignore
+        for one_field in self.list_of_fields:
+            self.assertIn(one_field, json_data)
+
+        # * --------------------------- Submitting an Answer --------------------------- #
+
+        candidate_exam = CandidateExamUnitTest.do_get_one_candidate_exam(self, candidate_exam["id"])  # type: ignore
+
+        request_body = {
+            "candidate_exam": candidate_exam["id"],
+            "answers": [
+                {
+                    "exam_backlog_question": candidate_exam["exam_backlog"]["questions"][0]["id"],
+                    "exam_backlog_question_choice": candidate_exam["exam_backlog"]["questions"][0]["choices"][0]["id"],
+                    "answer_text": None,
+                    "answer_files": [],
+                },
+            ],
+        }
+        CandidateExamAnswerUnitTest.do_create_candidate_exam_answer(self, request_body={"data": json.dumps(request_body)})  # type: ignore
+
+        # -------------------- Test for sending the next question by sending the latest attempted question id -------------------- #
+        encrypted_data = json_data.get("key")
+        decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
+        all_questions = decrypted_data["all_questions"]
+        request_body = {
+            "key": encrypted_data,
+            "question_backlog_id": all_questions[0]["id"],
+        }
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_success_200_test_response(self, response)
+        json_data = response.data  # type: ignore
+        for one_field in self.list_of_fields:
+            self.assertIn(one_field, json_data)
+        self.assertEqual(json_data["question"]["id"], all_questions[1]["id"])
+
+        # * --------------------------- Submitting an Answer --------------------------- #
+
+        request_body = {
+            "candidate_exam": candidate_exam["id"],
+            "answers": [
+                {
+                    "exam_backlog_question": candidate_exam["exam_backlog"]["questions"][1]["id"],
+                    "exam_backlog_question_choice": None,
+                    "answer_text": "Hello Answer",
+                    "answer_files": [],
+                },
+            ],
+        }
+        CandidateExamAnswerUnitTest.do_create_candidate_exam_answer(self, request_body={"data": json.dumps(request_body)})  # type: ignore
+
+        # -------------------- Test for sending the next question with just the key-------------------- #
+        encrypted_data = json_data.get("key")
+        decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))
+        all_questions = decrypted_data["all_questions"]
+        request_body = {
+            "key": encrypted_data,
+        }
+        response = self.do_attempt_one_sequential_candidate_exam(request_body)
+        validate_success_200_test_response(self, response)
+        json_data = response.data  # type: ignore
+        for one_field in self.list_of_fields:
+            self.assertIn(one_field, json_data)
+        self.assertEqual(json_data["question"]["id"], all_questions[2]["id"])
+
+        # * ------------------------------ Exam Submission ----------------------------- #
+
+        self.do_submit_candidate_exam(candidate_exam_id=candidate_exam["id"])
+
+        # * ------------------------------- Exam Marking ------------------------------- #
+
+        self.custom_login(email=self.admin_user["email"], password=self.admin_user["password"])
+        candidate_exam_answer_id = list(CandidateExamAnswer.objects.filter(candidate_exam=candidate_exam["id"]).values_list("id", flat=True))[1]
+        request_body = {
+            "candidate_exam_id": candidate_exam["id"],
+            "questions_scores": [
+                {
+                    "candidate_exam_answer": candidate_exam_answer_id,
+                    "score": 10,
+                }
+            ],
+        }
+        response = self.do_mark_candidate_exam(json.dumps(request_body))
+
+        # * ------------------------------ Exam Scoresheet ----------------------------- #
+
+        response = self.do_get_scoresheet_of_candidate_exam(candidate_exam_id=candidate_exam["id"])
+        self.assertNotEqual(response.data["obtained_marks"], None)  # type: ignore
 
 
 # ?###################################################
@@ -154,4 +283,18 @@ def validate_failed_404_test_response(self, response):
         response_status_code,
         status.HTTP_404_NOT_FOUND,
         f" 'status_code' 404 was expected, but received 'status_code' ({response_status_code})",
+    )
+
+
+def validate_failed_400_test_response(self, response):
+    response_status_code = response.status_code
+    if response_status_code == status.HTTP_400_BAD_REQUEST:
+        print_test_passed()
+    else:
+        print_test_failed()
+        print(response.content)
+    self.assertEqual(
+        response_status_code,
+        status.HTTP_400_BAD_REQUEST,
+        f" 'status_code' 400 was expected, but received 'status_code' ({response_status_code})",
     )

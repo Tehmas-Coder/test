@@ -2,10 +2,13 @@ from django.urls import include, path
 from rest_framework import routers
 
 from apps.exam_public.views.exam_public_views import (
+    AssignExaminersAPI,
+    AttemptCandidateExamAPI,
     CandidateExamAnswerViewset,
     CandidateExamViewSet,
     CandidateViewSet,
     ExamBacklogAnswerKeyAPI,
+    ExamBacklogAPI,
 )
 
 router = routers.DefaultRouter()
@@ -25,6 +28,9 @@ urlpatterns = [
     path("exam-backlog-answers-key/<int:pk>/", ExamBacklogAnswerKeyAPI.as_view(), name="exam_backlog_answers_key"),
     path("get-exams-backlogs-with-candidates/", CandidateExamViewSet.as_view({"get": "get_exam_backlogs_with_candidate_detail"})),
     path("send-exam-link-to-users/", CandidateExamViewSet.as_view({"post": "send_exam_link_to_users"})),
+    path("attempt-candidate-exam/", AttemptCandidateExamAPI.as_view()),
+    path("create-exam-backlog/", ExamBacklogAPI.as_view()),
+    path("assign-examiners/", AssignExaminersAPI.as_view()),
 ]
 
 

@@ -1,6 +1,13 @@
 from django.db import models
 
+from apps.exam_public.helpers.queryset_functions import (
+    get_candidate_detailed_queryset,
+    get_candidate_exam_detailed_queryset,
+)
+from apps.user.utils.user_utils import get_current_user_organization
 from core.models import BaseModel
+from middlewares.current_user_middleware import get_current_user
+from utils.datetime_utils import convert_any_datetime_to_utc, get_current_utc_datetime
 
 MEDIA_MODEL = "user.Media"
 
@@ -9,41 +16,119 @@ class Candidate(BaseModel):
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
+    self_exam_creation_limit = models.PositiveIntegerField(default=10)
+    self_exam_count = models.PositiveIntegerField(default=0)
+
+    is_self_preparation_allowed = models.BooleanField(default=False)
+
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidate"
 
+    @property
+    def is_exam_limit_remaining(self):
+        return self.self_exam_count < self.self_exam_creation_limit
+
+    @classmethod
+    def get_detail_queryset(cls, organization=False, user=False) -> models.QuerySet:
+        return get_candidate_detailed_queryset(cls, organization, user)
+
 
 class CandidateExam(BaseModel):
     candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE, null=True, blank=True)
-    exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candiate_exam_examsbacklog")
-    schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.CASCADE)
+    exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candidate_exam_examsbacklog")
+    schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.SET_NULL, null=True, blank=True)
+    organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
     candidate_email = models.EmailField()
     total_obtainable_marks = models.FloatField(null=True, blank=True)
     obtained_marks = models.FloatField(null=True, blank=True)
     exam_duration = models.PositiveIntegerField(null=True)
-
     EXAM_STATUS_CHOICES = (
         ("assigned", "Assigned"),
         ("attempted", "Attempted"),
         ("submitted", "Submitted"),
         ("marked", "Marked"),
         ("scored", "Scored"),
+        ("expired", "Expired"),
     )
-
+    EXAM_RESULT_CHOICES = (
+        ("pass", "Pass"),
+        ("fail", "Fail"),
+        ("pending", "Pending"),
+    )
+    EXAM_QUESTIONS_VISIBILITY_CHOICES = (
+        ("all_at_once", "All at Once"),
+        ("one_by_one", "One by One"),
+    )
     exam_status = models.CharField(max_length=100, choices=EXAM_STATUS_CHOICES, default="assigned")
-
+    exam_result = models.CharField(max_length=100, choices=EXAM_RESULT_CHOICES, default="pending")
+    exam_questions_visibility = models.CharField(max_length=100, choices=EXAM_QUESTIONS_VISIBILITY_CHOICES, default="all_at_once")
     # ? To be filled from schedule
-    start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
-    end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
-    waiting_duration = models.PositiveIntegerField(null=True)
-    extra_duration = models.PositiveIntegerField(null=True)
+    start_datetime = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    end_datetime = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    waiting_duration = models.PositiveIntegerField(null=True, blank=True)
+    extra_duration = models.PositiveIntegerField(null=True, blank=True)
 
+    is_public = models.BooleanField(default=False)
     is_preparatory = models.BooleanField(default=False)
+    is_created_by_candidate = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            if not get_current_user().is_superuser:  # type: ignore
+                current_user_roles = get_current_user().get_user_role_slugs  # type: ignore
+                if "candidate" not in current_user_roles:
+                    self.organization_id = get_current_user_organization()
+                else:
+                    self.is_created_by_candidate = True
+        return super().save(*args, **kwargs)
 
     class Meta:
         app_label = "exam_public"
+
+    def set_exam_result(self):
+        if self.exam_status == "scored" and self.exam_result == "pending":
+            passing_percentage = self.exam_backlog.passing_percentage
+            passing_marks = (passing_percentage / 100) * self.total_obtainable_marks
+            if self.obtained_marks >= passing_marks:
+                self.exam_result = "pass"
+            else:
+                self.exam_result = "fail"
+        self.save()
+
+    def is_expired(self):
+        is_exam_expired = self.exam_status == "expired"
+        if (not is_exam_expired) and self.end_datetime:
+            is_exam_expired = convert_any_datetime_to_utc(self.end_datetime) < get_current_utc_datetime()
+            if is_exam_expired:
+                self.exam_status = "expired"
+                self.save()
+        return is_exam_expired
+
+    @classmethod
+    def get_detail_queryset(
+        cls,
+        exam_backlog: bool = False,
+        candidate: bool = False,
+        candidate_exam_id: int | None = None,
+        q_filter: models.Q = models.Q(),
+        exam_backlog_question: bool = False,
+        get_answers: bool = False,
+        exam_backlog_question_filter=models.Q(),
+        is_organization_filter=False,
+    ) -> models.QuerySet:
+        return get_candidate_exam_detailed_queryset(
+            cls,
+            exam_backlog,
+            candidate,
+            q_filter,
+            exam_backlog_question,
+            get_answers,
+            exam_backlog_question_filter,
+            is_organization_filter,
+            candidate_exam_id,
+        )
 
 
 class CandidateExamStatusLog(BaseModel):
@@ -98,10 +183,10 @@ class CandidateExamRetryhint(BaseModel):
 
     penalty_score = models.DecimalField(max_digits=10, decimal_places=1)
 
-    def save(self, *args, **kwargs):
-        self.penalty_score = (self.exam_backlog_question.retry_penalty / 100) * self.exam_backlog_question.total_marks
-        return super().save(*args, **kwargs)
-
     class Meta:
         app_label = "exam_public"
         db_table = "exam_public_candidateexam_retryhint"
+
+    def save(self, *args, **kwargs):
+        self.penalty_score = (self.exam_backlog_question.retry_penalty / 100) * self.exam_backlog_question.total_marks
+        return super().save(*args, **kwargs)

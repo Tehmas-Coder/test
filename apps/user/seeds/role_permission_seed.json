@@ -2286,5 +2286,225 @@
       "created_at": "1995-07-27T00:00:00Z",
       "updated_at": "1995-07-27T00:00:00Z"
     }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 209,
+    "fields": {
+      "role": 1,
+      "permission": 53,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 210,
+    "fields": {
+      "role": 2,
+      "permission": 53,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 211,
+    "fields": {
+      "role": 3,
+      "permission": 53,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 212,
+    "fields": {
+      "role": 4,
+      "permission": 53,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 213,
+    "fields": {
+      "role": 1,
+      "permission": 54,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 214,
+    "fields": {
+      "role": 2,
+      "permission": 54,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 215,
+    "fields": {
+      "role": 3,
+      "permission": 54,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 216,
+    "fields": {
+      "role": 4,
+      "permission": 54,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 217,
+    "fields": {
+      "role": 1,
+      "permission": 55,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 218,
+    "fields": {
+      "role": 2,
+      "permission": 55,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 219,
+    "fields": {
+      "role": 3,
+      "permission": 55,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 220,
+    "fields": {
+      "role": 4,
+      "permission": 55,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 221,
+    "fields": {
+      "role": 1,
+      "permission": 56,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 222,
+    "fields": {
+      "role": 2,
+      "permission": 56,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 223,
+    "fields": {
+      "role": 3,
+      "permission": 56,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 224,
+    "fields": {
+      "role": 4,
+      "permission": 56,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 225,
+    "fields": {
+      "role": 1,
+      "permission": 57,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 226,
+    "fields": {
+      "role": 2,
+      "permission": 57,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 227,
+    "fields": {
+      "role": 3,
+      "permission": 57,
+      "is_active": 0,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
+  },
+  {
+    "model": "user.RolePermission",
+    "pk": 228,
+    "fields": {
+      "role": 4,
+      "permission": 57,
+      "is_active": 1,
+      "created_at": "1995-07-27T00:00:00Z",
+      "updated_at": "1995-07-27T00:00:00Z"
+    }
   }
 ]

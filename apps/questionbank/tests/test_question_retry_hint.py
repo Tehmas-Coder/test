@@ -70,25 +70,31 @@ class QuestionRetryHintTest(QuestionRetryHintUnitTest):
     # ?              TESTS - CASES
     # ?###################################################
     def test_cases_question_retry_hint(self):
-        # test_record_id = self.successfull_creation_of_a_record_test()
-        # self.successfull_updation_of_record_test(test_record_id)
-        # self.successfull_deletion_of_a_record_test(test_record_id)
-        # TODO: Uncomment the above lines after fixes from frontend
-        pass
+        test_record_id = self.successfull_creation_of_a_record_test()
+        self.successfull_updation_of_record_test(test_record_id)
+        self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
         file_1 = open("./apps/questionbank/tests/test_data/images/test_image.jpeg", "rb")
         file_2 = open("./apps/questionbank/tests/test_data/images/test_image_2.jpeg", "rb")
 
+        # TODO: change the request body after fixes from frontend(bulk create api usage instead of this one)
+        # request_body = {
+        #     "data": json.dumps(
+        #         {
+        #             "question": 1,
+        #             "text": "This is hint number 1",
+        #             "has_media": 1,
+        #             "medias": ["file_1", "file_2"],
+        #         }
+        #     ),
+        #     "file_1": file_1,
+        #     "file_2": file_2,
+        # }
         request_body = {
-            "data": json.dumps(
-                {
-                    "question": 1,
-                    "text": "This is hint number 1",
-                    "has_media": 1,
-                    "medias": ["file_1", "file_2"],
-                }
-            ),
+            "question": 1,
+            "text": "This is hint number 1",
+            "has_media": 1,
             "file_1": file_1,
             "file_2": file_2,
         }

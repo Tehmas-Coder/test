@@ -17,7 +17,7 @@ class CurrentUserMiddleware:
             auth_result = None
         # If authentication is successful, set the user in _user local thread storage
         if auth_result is not None:
-            user, _ = auth_result
+            user, tokens = auth_result
             _user.value = user
         else:
             _user.value = None

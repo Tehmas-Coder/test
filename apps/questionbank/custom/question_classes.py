@@ -9,10 +9,11 @@ from apps.lookups.custom.lookups_classes import (
     OrganizationValidator,
     VisibilitySetter,
 )
+from apps.lookups.models.lookup_models import Organization
 from apps.questionbank.serializers.question_serializers.question_serializers import (
     QuestionSerializer,
 )
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
 from utils.rna_utils import debug_print, make_error_response
@@ -117,7 +118,7 @@ class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidato
 
 class QuestionService:
     """
-    This class is used to perfrom question CRUD operations.
+    This class is used to perform question CRUD operations.
     """
 
     def __init__(
@@ -148,7 +149,7 @@ class QuestionService:
         if not get_current_user().is_superuser:  # type: ignore
             try:
                 self.organization_validator.validate()
-                request_data["organization"] = get_current_user_organization()
+                serializer.validated_data["organization"] = Organization.objects.filter(id=get_current_user_organization()).first()
             except ValueError as e:
                 ResponseMiddleware.return_now(make_error_response(message=f"Failed: {str(e)}"))
 

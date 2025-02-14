@@ -1,8 +1,7 @@
-from datetime import date, datetime
+from datetime import date, timedelta
 from typing import Any
 
-from django.apps import apps
-from django.contrib.auth.models import AbstractUser, AnonymousUser, UserManager
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import IntegrityError, models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -12,15 +11,19 @@ from apps.user.helpers.queryset_functions import (
     get_user_detailed_queryset,
 )
 from core.models import BaseModel, BaseUserModel
-from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
+from utils.datetime_utils import (
+    convert_any_datetime_to_utc,
+    get_current_utc_datetime,
+    get_current_utc_datetime_timestamp,
+)
 from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp, make_error_response
 
 
 def upload_to(instance, filename):
     folder_name = instance.__class__.__name__.lower()
-    timestamp = int(datetime.now().timestamp())
+    timestamp = get_current_utc_datetime_timestamp()
     return f"{folder_name}/{timestamp}_{filename}"
 
 
@@ -56,7 +59,7 @@ class CustomUserManager(UserManager):
 
 class BaseUser(BaseUserModel, AbstractUser):
     """
-    Custom user model where email is the unique identifier, inhertied from abstract user provided by auth
+    Custom user model where email is the unique identifier, inherited from abstract user provided by auth
     """
 
     country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
@@ -70,8 +73,16 @@ class BaseUser(BaseUserModel, AbstractUser):
     phone = models.CharField(_("phone"), max_length=15, blank=True)
     date_of_birth = models.DateField(_("date of birth"), blank=True, null=True)
     otp = models.CharField(_("otp"), max_length=6, blank=True)
+    otp_expiry = models.DateTimeField(_("otp expiry"), blank=True, null=True)
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
+    CREATION_CONTEXT_CHOICES = [
+        ("self", "Self"),
+        ("facebook", "Facebook"),
+        ("google", "Google"),
+        ("public_exam", "Public Exam"),
+    ]
+    creation_context = models.CharField(_("creation context"), max_length=20, choices=CREATION_CONTEXT_CHOICES, default="self")
 
     is_verified = models.BooleanField(_("verified"), default=False)
     is_superuser = models.BooleanField(_("superuser"), default=False)
@@ -94,6 +105,12 @@ class BaseUser(BaseUserModel, AbstractUser):
         return f"{self.first_name} {self.last_name}"
 
     @property
+    def is_otp_expired(self):
+        if self.otp_expiry:
+            return convert_any_datetime_to_utc(self.otp_expiry) < get_current_utc_datetime()
+        return True
+
+    @property
     def age(self):
         if self.date_of_birth:
             today = date.today()
@@ -109,20 +126,20 @@ class BaseUser(BaseUserModel, AbstractUser):
         return cls.objects.filter(email=email).first()
 
     @classmethod
-    def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False):
-        return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission)
+    def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False, user_candidates=False):
+        return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission, user_candidates)
 
     def verify_otp(self, otp: str) -> bool:
+        if self.is_otp_expired:
+            return False
         if self.otp != otp:
             return False
 
         self.is_verified = True
-        self.otp = ""
         self.save()
         return True
 
     def send_otp(self, otp: str | None = None) -> bool:
-
         if self.is_verified:
             return False
         if not otp:
@@ -134,12 +151,13 @@ class BaseUser(BaseUserModel, AbstractUser):
             "email": self.email,
             "OTP": otp,
         }
-        emai_notification_ninja = EmailNotification(send_email_data_dict)
-        if not emai_notification_ninja.send_otp():
+        email_notification_ninja = EmailNotification(send_email_data_dict)
+        if not email_notification_ninja.send_otp():
             return False
-        del emai_notification_ninja
+        del email_notification_ninja
 
         self.otp = otp
+        self.otp_expiry = get_current_utc_datetime() + timedelta(minutes=5)
         self.save()
         return True
 

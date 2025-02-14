@@ -1,8 +1,13 @@
 from rest_framework import serializers
 
-from apps.lookups.serializers.organization_serializers import OrganizationEditSerializer
+from apps.lookups.serializers.organization_serializers import OrganizationSerializer
+from apps.user.helpers.role_permission_helpers import (
+    get_candidate_self_preparation_permission,
+)
 from apps.user.models.user_models import Permission, Role, RolePermission
+from apps.user.utils.user_utils import get_current_user_candidates
 from core.serializers import BaseModelSerializer, get_base_model_fields
+from utils.rna_utils import debug_print
 
 
 # -------------------------------- PERMISSIONS ------------------------------- #
@@ -58,6 +63,12 @@ class RoleSerializer(BaseModelSerializer):
 
     def to_representation(self, instance):
         res = super().to_representation(instance)
+        if res["slug"] == "candidate" and not self._context.get("mutator", False):
+            candidate_instances = get_current_user_candidates()
+            if candidate_instances and any(
+                candidate_instance for candidate_instance in candidate_instances if candidate_instance.is_self_preparation_allowed
+            ):
+                res["role_permissions"].append(get_candidate_self_preparation_permission())
         if not self._context.get("mutator", False) and res.get("organization"):
-            res["organization"] = OrganizationEditSerializer(instance.organization).data
+            res["organization"] = OrganizationSerializer(instance.organization, context={"mutator": True}).data
         return res

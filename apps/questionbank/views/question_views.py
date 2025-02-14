@@ -1,4 +1,7 @@
+from urllib import request
+
 from django.db import transaction
+from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,6 +19,7 @@ from apps.questionbank.custom.question_classes import (
     RetryHintMediaExtractor,
 )
 from apps.questionbank.filters.question_filters import QuestionFilterBackend
+from apps.questionbank.helpers.question_clone_helpers import QuestionClone
 from apps.questionbank.helpers.question_helpers import (
     check_subject_education_level_existence,
 )
@@ -78,6 +82,7 @@ from apps.questionbank.serializers.subject_education_level_serializers import (
     SubjectEducationLevelSerializer,
 )
 from apps.questionbank.serializers.subject_serializers import SubjectSerializer
+from middlewares.current_user_middleware import get_current_user
 from utils.rna_utils import debug_print
 
 
@@ -157,7 +162,7 @@ class QuestionTypeViewSet(viewsets.ModelViewSet):
 #                                   QUESTION                                   #
 # ---------------------------------------------------------------------------- #
 class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.get_detail_queryset(all=True)
+    queryset = Question.get_detail_queryset(all=True).order_by("-created_at")
     filter_backends = [QuestionFilterBackend]
     serializer_class = QuestionSerializer
     http_method_names = ["get", "post", "patch", "delete"]
@@ -169,7 +174,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == "list":
-            return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
+            logged_in_user = get_current_user()
+            if not logged_in_user.is_superuser and "candidate" not in logged_in_user.get_user_role_slugs:  # type: ignore
+                return OrganizationResourceQuerysetMutator(queryset=self.queryset, is_public=True).get_queryset()
         return super().get_queryset()
 
     @transaction.atomic
@@ -202,6 +209,22 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def delete_all(self, request):
         Question.objects.all().update(meta_status="deleted")
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=["post"], url_path="clone")
+    @transaction.atomic
+    def clone_question(self, request):
+        title = request.data.get("title")
+        question_id = request.data.get("question_id")
+
+        original_question = Question.get_detail_queryset(q_filter=Q(id=question_id), all=True).first()
+        if not original_question:
+            return Response({"detail": "Question not found."}, status=status.HTTP_404_NOT_FOUND)
+        original_question.title = title
+
+        cloned_question_instance = QuestionClone().clone_question(original_question)
+        cloned_question = Question.get_detail_queryset(q_filter=Q(id=cloned_question_instance.id), all=True).first()  # type: ignore
+        data = QuestionSerializer(cloned_question).data
+        return Response({"data": data}, status=status.HTTP_200_OK)
 
 
 # ----------------------------------- MEDIA ---------------------------------- #
@@ -322,12 +345,12 @@ class QuestionAttemptResponseViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
 
     @action(detail=False, methods=["post"], url_path="bulk-create")
-    def bulk_create_question_attempt_reponse(self, request):
+    def bulk_create_question_attempt_response(self, request):
         request_data = request.data
         serializer = QuestionAttemptResponseBulkCreateSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
-        question_attempt_reponse = serializer.save()
-        serializer = QuestionAttemptResponseSerializer(question_attempt_reponse, many=True)
+        question_attempt_response = serializer.save()
+        serializer = QuestionAttemptResponseSerializer(question_attempt_response, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

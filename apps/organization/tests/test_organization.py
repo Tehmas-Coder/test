@@ -1,6 +1,3 @@
-import copy
-import json
-
 from rest_framework import status
 
 from core.test_setup import TestSetUp
@@ -30,7 +27,8 @@ class OrganizationUnitTest(TestSetUp):
             url,
             headers=self.headers,
             data=request_body,
-            content_type="application/json",
+            # content_type="form-data/multipart",
+            format="multipart",
         )
         validate_success_201_test_response(self, response)
         return response.data  # type: ignore
@@ -56,7 +54,8 @@ class OrganizationUnitTest(TestSetUp):
             url,
             headers=self.headers,
             data=request_body,
-            content_type="application/json",
+            # content_type="application/json",
+            format="multipart",
         )
         validate_success_200_test_response(self, response)
         return response.data  # type: ignore
@@ -69,11 +68,14 @@ class OrganizationUnitTest(TestSetUp):
 
 
 class OrganizationTest(OrganizationUnitTest):
+    logo_file_1 = open("apps/organization/tests/test_files/sample_image_1.jpg", "rb")
+    logo_file_2 = open("apps/organization/tests/test_files/sample_image_2.png", "rb")
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "name": "Test Org",
         "country": 2,
         "package": 1,
+        "logo": logo_file_1,
     }
     list_of_fields_of_organization_model = [
         "id",
@@ -81,6 +83,7 @@ class OrganizationTest(OrganizationUnitTest):
         "users_count",
         "candidates_count",
         "country",
+        "logo",
     ]
 
     # ?###################################################
@@ -88,13 +91,13 @@ class OrganizationTest(OrganizationUnitTest):
     # ?###################################################
     def test_cases_organization(self):
         self.successfull_creation_of_a_record_test()
-        list_of_records = self.successsfull_fetching_of_list_of_records_test()
-        test_record_id = self.successsfull_fetching_of_one_record_test(list_of_records)
+        list_of_records = self.successfull_fetching_of_list_of_records_test()
+        test_record_id = self.successfull_fetching_of_one_record_test(list_of_records)
         self.successfull_updation_of_record_test(test_record_id)
         self.successfull_deletion_of_a_record_test(test_record_id)
 
     def successfull_creation_of_a_record_test(self):
-        json_data = self.do_create_organization(json.dumps(self.reuseable_request_body))
+        json_data = self.do_create_organization(self.reuseable_request_body)
         for key in self.reuseable_request_body:
             if key == "name":
                 self.assertEqual(json_data[key], self.reuseable_request_body[key])
@@ -105,7 +108,7 @@ class OrganizationTest(OrganizationUnitTest):
                 continue
             self.assertIn(one_field, json_data)
 
-    def successsfull_fetching_of_list_of_records_test(self):
+    def successfull_fetching_of_list_of_records_test(self):
         json_data = self.do_get_organization_list()
         self.assertGreater(len(json_data), 0)
         for test_dict in json_data:
@@ -117,7 +120,7 @@ class OrganizationTest(OrganizationUnitTest):
                 )
         return json_data
 
-    def successsfull_fetching_of_one_record_test(self, list_of_records):
+    def successfull_fetching_of_one_record_test(self, list_of_records):
         test_organization_id = list_of_records[len(list_of_records) - 1]["id"]
         json_data = self.do_get_one_organization(test_organization_id)
         self.assertEqual(
@@ -128,10 +131,13 @@ class OrganizationTest(OrganizationUnitTest):
         return test_organization_id
 
     def successfull_updation_of_record_test(self, test_record_id):
-        updated_request_body = copy.deepcopy(self.reuseable_request_body)
-        updated_request_body["name"] = "Test Org modified"
-        updated_request_body["country"] = 9
-        updated_response_json_data = self.do_update_one_organization(test_record_id, json.dumps(updated_request_body))
+        updated_request_body = {
+            "name": "Test Org Updated",
+            "country": 3,
+            "package": 2,
+            "logo": self.logo_file_2,
+        }
+        updated_response_json_data = self.do_update_one_organization(test_record_id, updated_request_body)
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
             if key == "name":

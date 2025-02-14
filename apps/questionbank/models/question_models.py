@@ -3,7 +3,7 @@ from django.db.models import Count, F, Q, QuerySet
 from django.utils.text import slugify
 
 from apps.questionbank.helpers.queryset_functions import get_question_detailed_queryset
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from core.models import BaseModel
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
@@ -84,7 +84,7 @@ class Subject(BaseModel):
         education_level_id: int | None = None,
     ) -> list[int]:
         """
-        Select random subjects which have atleast one question based on subject count and question count.
+        Select random subjects which have at least one question based on subject count and question count.
 
         Args:
             subject_question_count (dict[str, int]) | None: Dictionary containing subject id as key and question count as value.
@@ -150,7 +150,7 @@ class Question(BaseModel):
     type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_questions")
 
-    title = models.CharField(max_length=255)
+    title = models.TextField()
     text = models.TextField(null=True, blank=True)
     max_retries = models.IntegerField(default=0)
     retry_penalty = models.IntegerField(default=0)
@@ -171,8 +171,10 @@ class Question(BaseModel):
         return self.type.name
 
     @classmethod
-    def get_detail_queryset(cls, tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False) -> QuerySet:
-        return get_question_detailed_queryset(cls, tags, attempt_responses, choices, retry_hints, subjects, all)
+    def get_detail_queryset(
+        cls, q_filter=Q(), tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False
+    ) -> QuerySet:
+        return get_question_detailed_queryset(cls, q_filter, tags, attempt_responses, choices, retry_hints, subjects, all)
 
     @classmethod
     def get_questions_for_countries(cls, country_ids: list):

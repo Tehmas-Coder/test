@@ -86,7 +86,7 @@ class ExamTest(ExamUnitTest):
         "instructions": "asd",
         "education_level": 1,
         "total_marks": 100,
-        "pass_marks": 63,
+        "passing_percentage": 63,
         "exam_status": "active",
         "is_global": 0,
         "subjects": [2, 5],
@@ -99,7 +99,7 @@ class ExamTest(ExamUnitTest):
         "instructions",
         "education_level",
         "total_marks",
-        "pass_marks",
+        "passing_percentage",
         "exam_status",
         "is_global",
         "exam_subjects",
@@ -158,7 +158,7 @@ class ExamTest(ExamUnitTest):
         self.custom_login(email="haiderjutt@gmail.com", password="12345678")
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["name"] = "Exam 3 modified"
-        updated_request_body["pass_marks"] = 70
+        updated_request_body["passing_percentage"] = 70
         updated_response = self.do_update_one_exam(test_record_id, json.dumps(updated_request_body))
         validate_failed_400_test_response(self, updated_response)
 
@@ -166,13 +166,13 @@ class ExamTest(ExamUnitTest):
         self.custom_login(email="test_user@gmail.com", password="12345678")
         updated_request_body = copy.deepcopy(self.reuseable_request_body)
         updated_request_body["name"] = "Exam 3 modified"
-        updated_request_body["pass_marks"] = 70
+        updated_request_body["passing_percentage"] = 70
         updated_response = self.do_update_one_exam(test_record_id, json.dumps(updated_request_body))
         validate_success_200_test_response(self, updated_response)
         updated_response_json_data = updated_response.data  # type: ignore
         self.assertEqual(updated_response_json_data["id"], test_record_id)
         for key in updated_request_body:
-            if key in ["name", "pass_marks"]:
+            if key in ["name", "passing_percentage"]:
                 self.assertEqual(updated_response_json_data[key], updated_request_body[key])
 
     # * Test to check the deletion of a record

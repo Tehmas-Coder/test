@@ -1,8 +1,10 @@
 import json
-import re
 
 from django.db.models import Q
 from rest_framework import filters
+
+from apps.user.utils.user_utils import get_current_user_organization
+from middlewares.current_user_middleware import get_current_user
 
 
 class CandidateExamFilterBackend(filters.BaseFilterBackend):
@@ -19,6 +21,11 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
         exam = request.query_params.get("exam")
 
         q_filter = Q()
+
+        if get_current_user() and ("candidate" not in get_current_user().get_user_role_slugs):  # type: ignore
+            is_superuser = get_current_user().is_superuser  # type: ignore
+            organization = None if is_superuser else get_current_user_organization()
+            q_filter &= Q(organization_id=organization, is_created_by_candidate=False)
 
         if user:
             user = int(user)
@@ -41,7 +48,7 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
         if is_marking:
             is_marking = bool(is_marking)
             if is_marking:
-                q_filter &= ~Q(exam_status="assigned")
+                q_filter &= ~Q(exam_status__in=["assigned", "expired"])
 
         if statuses:
             statuses = json.loads(statuses)
@@ -70,4 +77,4 @@ class CandidateExamFilterBackend(filters.BaseFilterBackend):
             exam = str(exam)
             q_filter &= Q(exam_backlog__name__icontains=exam)
 
-        return queryset.filter(q_filter).distinct()
+        return queryset.filter(q_filter).distinct().order_by("-id")

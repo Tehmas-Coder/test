@@ -3,32 +3,19 @@ import json
 from cryptography.fernet import Fernet
 from rest_framework import status
 
+from apps.user.models.user_models import BaseUser
+from apps.user.tests.test_user import UserUnitTest
 from core.test_setup import TestSetUp
-from utils.rna_utils import (
-    debug_print,
-    get_encryption_key,
-    print_test_failed,
-    print_test_header,
-    print_test_passed,
-)
+from helpers.helper_functions import get_encryption_key
+from utils.rna_utils import print_test_failed, print_test_header, print_test_passed
 
 
-class UserUnitTest(TestSetUp):
+class UserVerificationUnitTest(TestSetUp):
     fixtures = ["country_test_seed", "role_seed", "user_seed"]
 
     # ?###################################################
     # ?                  UNIT - TESTS
     # ?###################################################
-    def do_create_user(self, request_body):
-        print_test_header("create_user")
-        url = "/api/users/"
-        response = self.client.post(
-            url,
-            headers=self.headers,
-            data=request_body,
-            content_type="application/json",
-        )
-        return response
 
     def do_resend_verification_link(self, request_body):
         print_test_header("resend_verification_link")
@@ -51,7 +38,7 @@ class UserUnitTest(TestSetUp):
         return response
 
 
-class UserTest(UserUnitTest):
+class UserVerificationTest(UserVerificationUnitTest):
     # * These are defined here so these can be accessed by all the functions
     reuseable_request_body = {
         "email": "test_verification@gmail.com",
@@ -77,8 +64,8 @@ class UserTest(UserUnitTest):
     # ?              TESTS - CASES
     # ?###################################################
     def test_cases_user(self):
-        created_user_dict = self.successfull_creation_of_a_record_test()
-        self.failed_creation_of_a_duplicate_record_test()
+        UserUnitTest.do_create_user(self, json.dumps(self.reuseable_request_body))  # type: ignore
+        created_user_dict = BaseUser.objects.last().__dict__
         self.successfull_resending_of_verification_email_test(created_user_dict)
         self.successfull_verification_of_email(created_user_dict)
 
@@ -86,24 +73,15 @@ class UserTest(UserUnitTest):
     # ?              TESTS - FUNCTIONS
     # ?###################################################
 
-    def successfull_creation_of_a_record_test(self):
-        response = self.do_create_user(json.dumps(self.reuseable_request_body))
-        validate_success_201_test_response(self, response)
-        return response.data  # type: ignore
-
-    def failed_creation_of_a_duplicate_record_test(self):
-        response = self.do_create_user(self.reuseable_request_body)
-        validate_failed_400_test_response(self, response)
-
     def successfull_resending_of_verification_email_test(self, created_user_dict):
-        request_body = {"email": created_user_dict["data"]["email"]}
+        request_body = {"email": created_user_dict["email"]}
         response = self.do_resend_verification_link(json.dumps(request_body))
         validate_success_200_test_response(self, response)
 
     def successfull_verification_of_email(self, created_user_dict):
         key = get_encryption_key()
         cipher = Fernet(key)
-        encryption_data = {"email": created_user_dict["data"]["email"]}
+        encryption_data = {"email": created_user_dict["email"]}
         encrypted_email = cipher.encrypt(json.dumps(encryption_data).encode())
         token_data = encrypted_email.decode("utf-8")
         response = self.do_verify_link(token_data)

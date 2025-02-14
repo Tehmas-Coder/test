@@ -1,8 +1,8 @@
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 
 from apps.exam_admin.helpers.queryset_functions import get_exam_detailed_queryset
-from apps.user.utils.utils import get_current_user_organization
+from apps.user.utils.user_utils import get_current_user_organization
 from core.models import BaseModel
 from middlewares.current_user_middleware import get_current_user
 
@@ -31,7 +31,7 @@ class Schedule(BaseModel):
 
 class Section(BaseModel):
     exam = models.ForeignKey("exam_admin.Exam", on_delete=models.CASCADE, related_name="sections")
-    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="sections_measuring_unit")
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.PROTECT, related_name="sections_measuring_unit")
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
@@ -46,7 +46,7 @@ class Section(BaseModel):
 
 class SubSection(BaseModel):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="subsections")
-    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.CASCADE, related_name="subsections_measuring_unit")
+    measuring_unit = models.ForeignKey("lookups.MeasuringUnit", on_delete=models.PROTECT, related_name="subsections_measuring_unit")
 
     title = models.CharField(max_length=255)
     sequence = models.PositiveIntegerField(default=1)
@@ -66,14 +66,14 @@ class SubSection(BaseModel):
 
 class Exam(BaseModel):
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_exams")
-    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.CASCADE)
+    education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.PROTECT)
 
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=10, blank=True)
     abbreviation = models.CharField(max_length=10, blank=True)
     instructions = models.TextField(blank=True, null=True)
     total_marks = models.PositiveIntegerField(default=0)
-    pass_marks = models.PositiveIntegerField(default=0)
+    passing_percentage = models.PositiveIntegerField(default=0)
 
     TYPE_CHOICES = (
         ("draft", "Draft"),
@@ -92,9 +92,9 @@ class Exam(BaseModel):
 
     @classmethod
     def get_detail_queryset(
-        cls, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False
+        cls, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False, q_filter=Q()
     ) -> QuerySet:
-        return get_exam_detailed_queryset(cls, sections, exam_subject, exam_subject_questions, exam_subject_questions_question, all)
+        return get_exam_detailed_queryset(cls, sections, exam_subject, exam_subject_questions, exam_subject_questions_question, all, q_filter)
 
 
 # ---------------------------------------------------------------------------- #
@@ -115,7 +115,7 @@ class ExamSubject(BaseModel):
 
 class ExamSubjectQuestion(BaseModel):
     exam_subject = models.ForeignKey(ExamSubject, on_delete=models.CASCADE)
-    question = models.ForeignKey("questionbank.Question", on_delete=models.CASCADE)
+    question = models.ForeignKey("questionbank.Question", on_delete=models.PROTECT)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, related_name="questions")
     subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True, related_name="questions")
 

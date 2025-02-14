@@ -11,11 +11,16 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
 import sentry_sdk
 from decouple import config
+
+# ---------------------------------------------------------------------------- #
+#                                SENTRY SETTINGS                               #
+# ---------------------------------------------------------------------------- #
 
 if int(config("ENABLE_SENTRY")):
     sentry_sdk.init(
@@ -39,12 +44,11 @@ STATIC_URL = "/static/"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if config("ENV") != "production" else False  #! SECURITY WARNING: don't run with debug turned on in production!
 
-
 DATA_UPLOAD_MAX_MEMORY_SIZE = 128000000
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 EMAIL_BACKEND = "django_ses.SESBackend"
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+ENCRYPTION_KEY = str(config("ENCRYPTION_KEY"))
 
 #! SECURITY WARNING: keep the secret key used in production secret!
 try:
@@ -59,16 +63,30 @@ except:
     exit(0)
 
 # ---------------------------------------------------------------------------- #
+#                                MEDIA SETTINGS                                #
+# ---------------------------------------------------------------------------- #
+# Based on the mock file upload status, decides whether to use local storage or S3
+MOCK_FILE_UPLOAD = config("MOCK_FILE_UPLOAD", default=False, cast=bool)
+if MOCK_FILE_UPLOAD:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_ROOT = BASE_DIR / "media"
+    MEDIA_URL = "/media/"
+    if "test" in sys.argv:
+        MEDIA_ROOT = BASE_DIR / "media" / "test_files"
+else:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# ---------------------------------------------------------------------------- #
 #                                     AUTH                                     #
 # ---------------------------------------------------------------------------- #
 
+ACCESS_TOKEN_VALIDITY = int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 60
 REFRESH_TOKEN_VALIDITY = int(config("REFRESH_TOKEN_VALIDITY")) if config("REFRESH_TOKEN_VALIDITY") else 1
-ACCESS_TOKEN_VALIDITY = int(config("ACCESS_TOKEN_VALIDITY")) if config("ACCESS_TOKEN_VALIDITY") else 150
 AUTH_USER_MODEL = "user.BaseUser"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=ACCESS_TOKEN_VALIDITY),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=REFRESH_TOKEN_VALIDITY),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
@@ -142,7 +160,6 @@ USE_TZ = 1
 #                                     APPS                                     #
 # ---------------------------------------------------------------------------- #
 
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -156,7 +173,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "eb_sqs",
+    "django_q",
     # * System
+    "apps.emails",
     "apps.ping",
     "apps.lookups",
     "apps.user",
@@ -171,10 +190,24 @@ if DEBUG:
         "silk",
     ]
 
+
+# ---------------------------------------------------------------------------- #
+#                               DJANGO Q SETTINGS                              #
+# ---------------------------------------------------------------------------- #
+Q_CLUSTER = {
+    "name": "default",
+    "workers": 2,  # 2 workers for a bit of concurrency
+    "timeout": 30,  # Shorter timeout (assuming tasks are small)
+    "retry": 120,  # Retry after 2 minutes if a task fails
+    "queue_limit": 50,  # Reasonable limit for queued tasks
+    "bulk": 4,  # Fetch up to 4 tasks from the queue at once
+    "orm": "default",  # Using Django ORM as the broker
+    "cpu_affinity": 1,  # (Optional) Keep CPU usage predictable
+}
+
 # ---------------------------------------------------------------------------- #
 #                                REST FRAMEWORK                                #
 # ---------------------------------------------------------------------------- #
-
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -203,6 +236,9 @@ if DEBUG:
         "rest_framework.renderers.BrowsableAPIRenderer",
     ]
 
+# ---------------------------------------------------------------------------- #
+#                                  MIDDLEWARES                                 #
+# ---------------------------------------------------------------------------- #
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -275,6 +311,7 @@ DATABASES = {
 # ---------------------------------------------------------------------------- #
 #                                   FIXTURES                                   #
 # ---------------------------------------------------------------------------- #
+
 FIXTURE_DIRS = [
     BASE_DIR / "apps" / "lookups" / "seeds",
     BASE_DIR / "apps" / "lookups" / "tests" / "seeds",

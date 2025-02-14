@@ -1,9 +1,8 @@
-from django.db.models import F, Prefetch
+from django.db.models import F
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from apps.exam_public.models.exam_public_models import Candidate
-from apps.exam_public.serializers.candiate_serializers import (
+from apps.exam_public.serializers.candidate_serializers import (
     CandidateWithOrganizationsSerializer,
 )
 from apps.lookups.models.lookup_models import Organization
@@ -13,97 +12,43 @@ from apps.organization.serializers.organization_serializers import (
     OrganizationWithUsersListSerializer,
 )
 from apps.user.models.user_models import BaseUser
+from middlewares.current_user_middleware import get_current_user
+from utils.rna_utils import make_error_response
 
 
 class OrganizationRelatedViewset(viewsets.ViewSet):
 
     def get_organization_users_list(self, request, *args, **kwargs):
-        logged_in_user = request.user
-        organization_id = kwargs.get("id", None)
-
-        filtered_organization_queryset = Organization.objects.filter(id=organization_id)
-        organization_with_users_list = OrganizationWithUsersListSerializer(
-            filtered_organization_queryset.prefetch_related(
-                Prefetch(
-                    "organization_users",
-                    OrganizationUser.objects.all()
-                    .select_related(
-                        "user",
-                        "user__country",
-                        "user__profile_picture",
-                    )
-                    .prefetch_related(
-                        "user__roles",
-                        "user__roles__role_permissions",
-                        "user__roles__role_permissions__permission",
-                    ),
-                )
-            ),
-            many=True,
-        ).data
-
-        if len(organization_with_users_list):
-            response_data = organization_with_users_list[0]
-        else:
-            response_data = organization_with_users_list
-
+        organization_id = kwargs.get("id")
+        filtered_organization = Organization.get_detailed_queryset(organization_users=True).filter(id=organization_id).first()
+        response_data = OrganizationWithUsersListSerializer(filtered_organization).data if filtered_organization else {}
         return Response(response_data, status=status.HTTP_200_OK)
 
     def get_organization_candidates_list(self, request, *args, **kwargs):
-        logged_in_user = request.user
-        organization_id = kwargs.get("id", None)
-
-        organization_queryset = Organization.objects.filter(id=organization_id)
-
-        filtered_organization_queryset = []
-        if logged_in_user.is_superuser:  # type: ignore
-            filtered_organization_queryset = organization_queryset
-        else:
-            filtered_organization_queryset = organization_queryset.filter(id=organization_id)
-
-        organization_with_candidates_list = OrganizationWithCandidateListSerializer(
-            filtered_organization_queryset.prefetch_related(
-                Prefetch(
-                    "organization_candidates",
-                    Candidate.objects.all()
-                    .select_related(
-                        "user",
-                        "user__country",
-                        "user__profile_picture",
-                    )
-                    .prefetch_related(
-                        "user__roles",
-                        "user__roles__role_permissions",
-                        "user__roles__role_permissions__permission",
-                    ),
-                )
-            ),
-            many=True,
-        ).data
-
-        if logged_in_user.is_superuser == None:  # type: ignore
-            if not len(organization_with_candidates_list):
-                return Response([], status=status.HTTP_200_OK)
-            return Response(organization_with_candidates_list[0], status=status.HTTP_200_OK)
-
+        organization_id = kwargs.get("id")
+        organization = Organization.get_detailed_queryset(organization_candidates=True).filter(id=organization_id).first()
+        organization_with_candidates_list = OrganizationWithCandidateListSerializer(organization).data if organization else {}
         return Response(organization_with_candidates_list, status=status.HTTP_200_OK)
 
     def get_candidate_organizations_list(self, request, *args, **kwargs):
+        is_self_preparation = bool(request.query_params.get("is_self_preparation", False))
+        candidate_with_organizations_instance = (
+            BaseUser.get_detail_queryset(country=True, user_candidates=True).filter(id=get_current_user().id).first()  # type: ignore
+        )
+        if not candidate_with_organizations_instance:
+            return make_error_response(message="Candidate not found")
+        else:
+            response_data = CandidateWithOrganizationsSerializer(candidate_with_organizations_instance).data
 
-        filtered_candidate_queryset = CandidateWithOrganizationsSerializer(
-            BaseUser.objects.filter(id=request.user.id).prefetch_related("user_candidates"), many=True
-        ).data
-        filtered_candidate_queryset_response = {}
-        if len(filtered_candidate_queryset):
-            filtered_candidate_queryset_response = filtered_candidate_queryset[0]
-
-        return Response(filtered_candidate_queryset_response, status=status.HTTP_200_OK)
+        if is_self_preparation:
+            user_candidate__instances = response_data.get("user_candidates", [])
+            response_data = [candidate["organization"] for candidate in user_candidate__instances if candidate.get("is_self_preparation_allowed")]
+        return Response(response_data, status=status.HTTP_200_OK)
 
     def get_user_organizations_list(self, request, *args, **kwargs):
-
         user_organization_detail = list(
             (
-                OrganizationUser.objects.filter(user_id=request.user.id)
+                OrganizationUser.objects.filter(user_id=get_current_user().id)  # type: ignore
                 .select_related(
                     "organization",
                     "organization__country",
