@@ -12,7 +12,7 @@ from core.serializers import BaseModelSerializer, get_base_model_fields
 
 class QuestionChoiceSerializer(BaseModelSerializer):
     """
-    -> This serializer serailize media in multiple ways:
+    -> This serializer serialize media in multiple ways:
     1. When source is provided, it will serialize medias as QuestionChoiceMediaSerializer with source="questionchoicemedia_set"
     2. When source is not provided, it will serialize medias as MediaSerializer
 
