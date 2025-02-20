@@ -4,6 +4,18 @@ from core.models import BaseModel
 
 
 class CandidateExamSectionScore(BaseModel):
+    """
+    Represents the score of a candidate in a specific section of an exam.
+
+    - id: Autofield (PK)
+    - candidate_exam: CandidateExam (FK)
+    - section_backlog: SectionBacklog (FK)
+    - question_count: PositiveIntegerField
+    - total_obtainable_marks: IntegerField
+    - subsection_count: PositiveIntegerField
+    - score: FloatField
+    """
+
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE)
     section_backlog = models.ForeignKey("exam_public.SectionBacklog", on_delete=models.DO_NOTHING, related_name="section_scores")
 
@@ -18,6 +30,17 @@ class CandidateExamSectionScore(BaseModel):
 
 
 class CandidateExamSubSectionScore(BaseModel):
+    """
+    Represents the score of a candidate in a specific subsection of an exam.
+
+    - id: Autofield (PK)
+    - candidate_exam: CandidateExam (FK)
+    - subsection_backlog: SubSectionBacklog (FK)
+    - question_count: PositiveIntegerField
+    - total_obtainable_marks: IntegerField
+    - score: FloatField
+    """
+
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE)
     subsection_backlog = models.ForeignKey("exam_public.SubSectionBacklog", on_delete=models.DO_NOTHING, related_name="subsection_scores")
 
