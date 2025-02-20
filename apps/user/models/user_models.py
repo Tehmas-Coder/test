@@ -35,9 +35,7 @@ class Media(BaseModel):
     Model to store any type of media in the system.
 
     - id: Autofield (PK)
-
     - type: MediaType (FK)
-
     - name: CharField
     - file: FileField
     - extension: CharField
@@ -80,10 +78,8 @@ class BaseUser(BaseUserModel, AbstractUser):
     Custom user model where email is the unique identifier, inherited from abstract user provided by auth
 
     - id: Autofield (PK)
-
     - country: Country (FK)
     - profile_picture: Media (FK)
-
     - username: CharField
     - email: EmailField
     - first_name: CharField
@@ -96,10 +92,8 @@ class BaseUser(BaseUserModel, AbstractUser):
     - date_joined: DateTimeField
     - last_login: DateTimeField
     - creation_context: CharField (choices are [self, facebook, google, public_exam])
-
     - is_verified: BooleanField
     - is_superuser: BooleanField
-
     - roles: Role (M2M)
     """
 
@@ -243,7 +237,6 @@ class Permission(BaseModel):
     Represents a permission that can be assigned to roles.
 
     - id: Autofield (PK)
-
     - name: CharField
     - context_value: CharField
     """
@@ -260,14 +253,10 @@ class Role(BaseModel):
     Represents a role that can be assigned to users.
 
     - id: Autofield (PK)
-
     - organization: Organization (FK)
-
     - name: CharField
     - slug: SlugField
-
     - is_system_role: BooleanField
-
     - permissions: Permission (M2M)
     """
 
@@ -305,9 +294,7 @@ class Resource(BaseModel):
     Represents a resource that can be accessed by users based on permissions.
 
     - id: Autofield (PK)
-
     - permission: Permission (FK)
-
     - name: CharField
     - regex: CharField
     - method: CharField
@@ -333,10 +320,8 @@ class RolePermission(BaseModel):
     Represents a mapping between roles and permissions.
 
     - id: Autofield (PK)
-
     - role: Role (FK)
     - permission: Permission (FK)
-
     - is_active: BooleanField
     """
 
@@ -355,7 +340,6 @@ class UserRole(BaseModel):
     Represents a mapping between users and roles.
 
     - id: Autofield (PK)
-
     - user: BaseUser (FK)
     - role: Role (FK)
     """
