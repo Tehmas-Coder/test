@@ -95,7 +95,7 @@ class BaseUser(BaseUserModel, AbstractUser):
     otp_expiry: DateTimeField
     date_joined: DateTimeField
     last_login: DateTimeField
-    creation_context: CharField
+    creation_context: CharField (choices are [self, facebook, google, public_exam])
 
     is_verified: BooleanField
     is_superuser: BooleanField
@@ -183,6 +183,9 @@ class BaseUser(BaseUserModel, AbstractUser):
 
     @classmethod
     def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False, user_candidates=False):
+        """
+        Returns a queryset with detailed information about the user.
+        """
         return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission, user_candidates)
 
     def verify_otp(self, otp: str) -> bool:
@@ -236,6 +239,15 @@ class BaseUser(BaseUserModel, AbstractUser):
 #                                  PERMISSIONS                                 #
 # ---------------------------------------------------------------------------- #
 class Permission(BaseModel):
+    """
+    Represents a permission that can be assigned to roles.
+
+    id: Autofield (PK)
+
+    name: CharField
+    context_value: CharField
+    """
+
     name = models.CharField(max_length=255)
     context_value = models.CharField(max_length=255)
 
@@ -244,6 +256,21 @@ class Permission(BaseModel):
 
 
 class Role(BaseModel):
+    """
+    Represents a role that can be assigned to users.
+
+    id: Autofield (PK)
+
+    organization: Organization (FK)
+
+    name: CharField
+    slug: SlugField
+
+    is_system_role: BooleanField
+
+    permissions: Permission (M2M)
+    """
+
     organization = models.ForeignKey("lookups.Organization", on_delete=models.PROTECT, null=True, blank=True, related_name="organization_roles")
 
     name = models.CharField(max_length=255)
@@ -266,10 +293,26 @@ class Role(BaseModel):
 
     @classmethod
     def get_detail_queryset(cls, organization=False, permissions=False, role_permissions=False, role_permissions_permission=False):
+        """
+        Returns a queryset containing detailed information about roles,
+        including associated organizations and permissions.
+        """
         return get_role_detailed_queryset(cls, organization, permissions, role_permissions, role_permissions_permission)
 
 
 class Resource(BaseModel):
+    """
+    Represents a resource that can be accessed by users based on permissions.
+
+    id: Autofield (PK)
+
+    permission: Permission (FK)
+
+    name: CharField
+    regex: CharField
+    method: CharField
+    """
+
     permission = models.ForeignKey(Permission, on_delete=models.PROTECT, null=True, blank=True, related_name="permission_resources")
 
     name = models.CharField(max_length=255)
@@ -286,6 +329,17 @@ class Resource(BaseModel):
 
 
 class RolePermission(BaseModel):
+    """
+    Represents a mapping between roles and permissions.
+
+    id: Autofield (PK)
+
+    role: Role (FK)
+    permission: Permission (FK)
+
+    is_active: BooleanField
+    """
+
     role = models.ForeignKey(Role, on_delete=models.PROTECT, related_name="role_permissions")
     permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
 
@@ -297,6 +351,15 @@ class RolePermission(BaseModel):
 
 
 class UserRole(BaseModel):
+    """
+    Represents a mapping between users and roles.
+
+    id: Autofield (PK)
+
+    user: BaseUser (FK)
+    role: Role (FK)
+    """
+
     user = models.ForeignKey(BaseUser, on_delete=models.PROTECT)
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
 
