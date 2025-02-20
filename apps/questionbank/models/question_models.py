@@ -34,6 +34,9 @@ class Tag(BaseModel):
     abbreviation = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
+        """
+        - Set the organization id if the user is not a superuser on tag creation.
+        """
         if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
                 self.organization_id = get_current_user_organization()
@@ -63,6 +66,10 @@ class EducationLevel(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
+        """
+        - Set the slug field on save if the object is new.
+        - Return an error response if the name already exists.
+        """
         if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
@@ -98,9 +105,16 @@ class Subject(BaseModel):
 
     @property
     def full_name(self):
+        """
+        - Return the full name of the subject.
+        """
         return f"{self.name} ({self.code})"
 
     def save(self, *args, **kwargs):
+        """
+        - Set the slug field on save if the object is new.
+        - Return an error response if the name already exists.
+        """
         if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
@@ -160,6 +174,9 @@ class QuestionType(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
+        """
+        - Set the slug field on save
+        """
         self.slug = self.name.lower().replace(" ", "-")
         super().save(*args, **kwargs)
 
@@ -186,6 +203,9 @@ class DifficultyLevel(BaseModel):
     sequence = models.IntegerField(default=1)
 
     def save(self, *args, **kwargs):
+        """
+        - Set the slug field on save
+        """
         self.slug = self.name.lower().replace(" ", "-")
         super().save(*args, **kwargs)
 
@@ -237,17 +257,32 @@ class Question(BaseModel):
         app_label = "questionbank"
 
     @property
-    def type_name(self):
+    def type_name(self) -> str:
+        """
+        - Return the name of the question type.
+        """
         return self.type.name
 
     @classmethod
     def get_detail_queryset(
         cls, q_filter=Q(), tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False
     ) -> QuerySet:
+        """
+        - Get the detailed queryset for the question model.
+        - Return the queryset based on the given parameters.
+        """
         return get_question_detailed_queryset(cls, q_filter, tags, attempt_responses, choices, retry_hints, subjects, all)
 
     @classmethod
-    def get_questions_for_countries(cls, country_ids: list):
+    def get_questions_for_countries(cls, country_ids: list) -> QuerySet:
+        """
+        - Get the questions for the given country ids.
+
+        Args:
+            country_ids (list): List of country ids.
+        Returns:
+            QuerySet: Queryset of questions
+        """
         return (
             cls.get_detail_queryset()
             .filter(
@@ -257,7 +292,15 @@ class Question(BaseModel):
         )
 
     @classmethod
-    def get_questions_for_subjects(cls, subject_ids: list):
+    def get_questions_for_subjects(cls, subject_ids: list) -> QuerySet:
+        """
+        - Get the questions for the given subject ids.
+
+        Args:
+            subject_ids (list): List of subject ids.
+        Returns:
+            QuerySet: Queryset of questions
+        """
         return (
             cls.get_detail_queryset()
             .filter(
@@ -267,7 +310,16 @@ class Question(BaseModel):
         )
 
     @classmethod
-    def get_questions_for_subjects_and_education_levels(cls, subject_ids: list, education_level_ids: list):
+    def get_questions_for_subjects_and_education_levels(cls, subject_ids: list, education_level_ids: list) -> QuerySet:
+        """
+        - Get the questions for the given subject ids and education level ids.
+
+        Args:
+            subject_ids (list): List of subject ids.
+            education_level_ids (list): List of education level ids.
+        Returns:
+            QuerySet: Queryset of questions
+        """
         return (
             cls.get_detail_queryset()
             .filter(
@@ -279,11 +331,8 @@ class Question(BaseModel):
 
     @classmethod
     def select_random_questions(
-        cls,
-        education_level_id: int | None = None,
-        subject_id: int | str | None = None,
-        question_count: int | None = None,
-    ):
+        cls, education_level_id: int | None = None, subject_id: int | str | None = None, question_count: int | None = None
+    ) -> list[int]:
         """
         Select random questions based on the given subject and education level.
 
@@ -340,6 +389,9 @@ class QuestionChoice(BaseModel):
         app_label = "questionbank"
 
     def save(self, *args, **kwargs):
+        """
+        - Set the has_media field based on the medias field.
+        """
         if self.pk:
             if self.medias.exists():
                 self.has_media = True
@@ -401,6 +453,9 @@ class QuestionRetryHint(BaseModel):
     )
 
     def save(self, *args, **kwargs):
+        """
+        - Set the has_media field based on the medias field.
+        """
         if self.pk:
             if self.medias.exists():
                 self.has_media = True
@@ -432,6 +487,9 @@ class SubjectEducationLevel(BaseModel):
         db_table = "questionbank_subject_educationlevel"
 
     def save(self, *args, **kwargs):
+        """
+        - Set the organization id if the user is not a superuser on subject education level creation.
+        """
         if not self.pk:
             if (not get_current_user().is_superuser) and (self.subject.organization or self.education_level.organization):  # type: ignore
                 self.organization_id = get_current_user_organization()
@@ -439,11 +497,10 @@ class SubjectEducationLevel(BaseModel):
 
     @classmethod
     def get_detail_queryset(cls):
-        return cls.objects.get_queryset().select_related(
-            "organization",
-            "subject",
-            "education_level",
-        )
+        """
+        - Get the detailed queryset for the subject education level model.
+        """
+        return cls.objects.get_queryset().select_related("organization", "subject", "education_level")
 
 
 class QuestionSubject(BaseModel):
