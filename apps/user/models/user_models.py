@@ -34,14 +34,14 @@ class Media(BaseModel):
     """
     Model to store any type of media in the system.
 
-    id: Autofield (PK)
+    - id: Autofield (PK)
 
-    type: MediaType (FK)
+    - type: MediaType (FK)
 
-    name: CharField
-    file: FileField
-    extension: CharField
-    size: IntegerField
+    - name: CharField
+    - file: FileField
+    - extension: CharField
+    - size: IntegerField
     """
 
     type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
@@ -57,8 +57,8 @@ class Media(BaseModel):
 
 class CustomUserManager(UserManager):
     """
-    => Custom user manager where email is the unique identifier, inherited from UserManager provided by auth
-    => Filters out users with meta_status as 'active'
+    - Custom user manager where email is the unique identifier, inherited from UserManager provided by auth
+    - Filters out users with meta_status as 'active'
     """
 
     def create_superuser(
@@ -79,28 +79,28 @@ class BaseUser(BaseUserModel, AbstractUser):
     """
     Custom user model where email is the unique identifier, inherited from abstract user provided by auth
 
-    id: Autofield (PK)
+    - id: Autofield (PK)
 
-    country: Country (FK)
-    profile_picture: Media (FK)
+    - country: Country (FK)
+    - profile_picture: Media (FK)
 
-    username: CharField
-    email: EmailField
-    first_name: CharField
-    last_name: CharField
-    password: CharField
-    phone: CharField
-    date_of_birth: DateField
-    otp: CharField
-    otp_expiry: DateTimeField
-    date_joined: DateTimeField
-    last_login: DateTimeField
-    creation_context: CharField (choices are [self, facebook, google, public_exam])
+    - username: CharField
+    - email: EmailField
+    - first_name: CharField
+    - last_name: CharField
+    - password: CharField
+    - phone: CharField
+    - date_of_birth: DateField
+    - otp: CharField
+    - otp_expiry: DateTimeField
+    - date_joined: DateTimeField
+    - last_login: DateTimeField
+    - creation_context: CharField (choices are [self, facebook, google, public_exam])
 
-    is_verified: BooleanField
-    is_superuser: BooleanField
+    - is_verified: BooleanField
+    - is_superuser: BooleanField
 
-    roles: Role (M2M)
+    - roles: Role (M2M)
     """
 
     country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
@@ -203,8 +203,8 @@ class BaseUser(BaseUserModel, AbstractUser):
 
     def send_otp(self, otp: str | None = None) -> bool:
         """
-        => Sends an OTP to the user's email for verification.
-        => If OTP is not provided, generates a new OTP.
+        - Sends an OTP to the user's email for verification.
+        - If OTP is not provided, generates a new OTP.
         """
         if self.is_verified:
             return False
@@ -242,10 +242,10 @@ class Permission(BaseModel):
     """
     Represents a permission that can be assigned to roles.
 
-    id: Autofield (PK)
+    - id: Autofield (PK)
 
-    name: CharField
-    context_value: CharField
+    - name: CharField
+    - context_value: CharField
     """
 
     name = models.CharField(max_length=255)
@@ -259,16 +259,16 @@ class Role(BaseModel):
     """
     Represents a role that can be assigned to users.
 
-    id: Autofield (PK)
+    - id: Autofield (PK)
 
-    organization: Organization (FK)
+    - organization: Organization (FK)
 
-    name: CharField
-    slug: SlugField
+    - name: CharField
+    - slug: SlugField
 
-    is_system_role: BooleanField
+    - is_system_role: BooleanField
 
-    permissions: Permission (M2M)
+    - permissions: Permission (M2M)
     """
 
     organization = models.ForeignKey("lookups.Organization", on_delete=models.PROTECT, null=True, blank=True, related_name="organization_roles")
@@ -294,8 +294,8 @@ class Role(BaseModel):
     @classmethod
     def get_detail_queryset(cls, organization=False, permissions=False, role_permissions=False, role_permissions_permission=False):
         """
-        Returns a queryset containing detailed information about roles,
-        including associated organizations and permissions.
+        - Returns a queryset containing detailed information about roles,
+        - including associated organizations and permissions.
         """
         return get_role_detailed_queryset(cls, organization, permissions, role_permissions, role_permissions_permission)
 
@@ -304,13 +304,13 @@ class Resource(BaseModel):
     """
     Represents a resource that can be accessed by users based on permissions.
 
-    id: Autofield (PK)
+    - id: Autofield (PK)
 
-    permission: Permission (FK)
+    - permission: Permission (FK)
 
-    name: CharField
-    regex: CharField
-    method: CharField
+    - name: CharField
+    - regex: CharField
+    - method: CharField
     """
 
     permission = models.ForeignKey(Permission, on_delete=models.PROTECT, null=True, blank=True, related_name="permission_resources")
@@ -332,12 +332,12 @@ class RolePermission(BaseModel):
     """
     Represents a mapping between roles and permissions.
 
-    id: Autofield (PK)
+    - id: Autofield (PK)
 
-    role: Role (FK)
-    permission: Permission (FK)
+    - role: Role (FK)
+    - permission: Permission (FK)
 
-    is_active: BooleanField
+    - is_active: BooleanField
     """
 
     role = models.ForeignKey(Role, on_delete=models.PROTECT, related_name="role_permissions")
@@ -354,10 +354,10 @@ class UserRole(BaseModel):
     """
     Represents a mapping between users and roles.
 
-    id: Autofield (PK)
+    - id: Autofield (PK)
 
-    user: BaseUser (FK)
-    role: Role (FK)
+    - user: BaseUser (FK)
+    - role: Role (FK)
     """
 
     user = models.ForeignKey(BaseUser, on_delete=models.PROTECT)
