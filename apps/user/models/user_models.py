@@ -22,15 +22,32 @@ from utils.rna_utils import generate_otp, make_error_response
 
 
 def upload_to(instance, filename):
+    """
+    Generate a file path for uploaded media.
+    """
     folder_name = instance.__class__.__name__.lower()
     timestamp = get_current_utc_datetime_timestamp()
     return f"{folder_name}/{timestamp}_{filename}"
 
 
 class Media(BaseModel):
+    """
+    Model to store any type of media in the system.
+
+    id: Autofield (PK)
+
+    type: MediaType (FK)
+
+    name: CharField
+    file: FileField
+    extension: CharField
+    size: IntegerField
+    """
+
+    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
+
     name = models.CharField(max_length=100)
     file = models.FileField(upload_to=upload_to)
-    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
     extension = models.CharField(max_length=10, blank=True)
     size = models.IntegerField(default=0)
 
@@ -40,7 +57,8 @@ class Media(BaseModel):
 
 class CustomUserManager(UserManager):
     """
-    Custom user manager where email is the unique identifier, inherited from UserManager provided by auth
+    => Custom user manager where email is the unique identifier, inherited from UserManager provided by auth
+    => Filters out users with meta_status as 'active'
     """
 
     def create_superuser(
@@ -60,6 +78,29 @@ class CustomUserManager(UserManager):
 class BaseUser(BaseUserModel, AbstractUser):
     """
     Custom user model where email is the unique identifier, inherited from abstract user provided by auth
+
+    id: Autofield (PK)
+
+    country: Country (FK)
+    profile_picture: Media (FK)
+
+    username: CharField
+    email: EmailField
+    first_name: CharField
+    last_name: CharField
+    password: CharField
+    phone: CharField
+    date_of_birth: DateField
+    otp: CharField
+    otp_expiry: DateTimeField
+    date_joined: DateTimeField
+    last_login: DateTimeField
+    creation_context: CharField
+
+    is_verified: BooleanField
+    is_superuser: BooleanField
+
+    roles: Role (M2M)
     """
 
     country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
@@ -102,16 +143,25 @@ class BaseUser(BaseUserModel, AbstractUser):
 
     @property
     def full_name(self):
+        """
+        Returns the full name of the user by combining first name and last name.
+        """
         return f"{self.first_name} {self.last_name}"
 
     @property
     def is_otp_expired(self):
+        """
+        Checks if the OTP is expired based on the expiry date.
+        """
         if self.otp_expiry:
             return convert_any_datetime_to_utc(self.otp_expiry) < get_current_utc_datetime()
         return True
 
     @property
     def age(self):
+        """
+        Returns the age of the user calculated from the date of birth.
+        """
         if self.date_of_birth:
             today = date.today()
             return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
@@ -119,10 +169,16 @@ class BaseUser(BaseUserModel, AbstractUser):
 
     @property
     def get_user_role_slugs(self):
+        """
+        Returns a list of role slugs associated with the user.
+        """
         return list(self.roles.values_list("slug", flat=True))
 
     @classmethod
     def get_user_by_email(cls, email: str):
+        """
+        Get a user by email.
+        """
         return cls.objects.filter(email=email).first()
 
     @classmethod
@@ -130,6 +186,9 @@ class BaseUser(BaseUserModel, AbstractUser):
         return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission, user_candidates)
 
     def verify_otp(self, otp: str) -> bool:
+        """
+        Verifies the provided OTP and updates the user's verification status.
+        """
         if self.is_otp_expired:
             return False
         if self.otp != otp:
@@ -140,6 +199,10 @@ class BaseUser(BaseUserModel, AbstractUser):
         return True
 
     def send_otp(self, otp: str | None = None) -> bool:
+        """
+        => Sends an OTP to the user's email for verification.
+        => If OTP is not provided, generates a new OTP.
+        """
         if self.is_verified:
             return False
         if not otp:
@@ -162,6 +225,9 @@ class BaseUser(BaseUserModel, AbstractUser):
         return True
 
     def add_role(self, role):
+        """
+        Adds a role to the user.
+        """
         self.roles.add(role)
         self.save()
 
