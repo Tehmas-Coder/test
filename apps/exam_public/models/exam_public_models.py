@@ -13,6 +13,17 @@ MEDIA_MODEL = "user.Media"
 
 
 class Candidate(BaseModel):
+    """
+    Represents a candidate in the system.
+
+    - id: Autofield (PK)
+    - user: BaseUser (FK)
+    - organization: Organization (FK)
+    - self_exam_creation_limit: PositiveIntegerField
+    - self_exam_count: PositiveIntegerField
+    - is_self_preparation_allowed: BooleanField
+    """
+
     user = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE, related_name="user_candidates")
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_candidates")
 
@@ -35,6 +46,44 @@ class Candidate(BaseModel):
 
 
 class CandidateExam(BaseModel):
+    """
+    Represents an exam taken by a candidate.
+
+    - id: Autofield (PK)
+    - candidate: Candidate (FK)
+    - exam_backlog: ExamBacklog (FK)
+    - schedule: Schedule (FK)
+    - organization: Organization (FK)
+    - candidate_email: EmailField
+    - total_obtainable_marks: FloatField
+    - obtained_marks: FloatField
+    - exam_duration: PositiveIntegerField
+    - exam_status: CharField
+        Choices:
+            - "assigned"
+            - "attempted"
+            - "submitted"
+            - "marked"
+            - "scored"
+            - "expired"
+    - exam_result: CharField
+        Choices:
+            - "pass"
+            - "fail"
+            - "pending"
+    - exam_questions_visibility: CharField
+        Choices:
+            - "all_at_once"
+            - "one_by_one"
+    - start_datetime: DateTimeField
+    - end_datetime: DateTimeField
+    - waiting_duration: PositiveIntegerField
+    - extra_duration: PositiveIntegerField
+    - is_public: BooleanField
+    - is_preparatory: BooleanField
+    - is_created_by_candidate: BooleanField
+    """
+
     candidate = models.ForeignKey("exam_public.Candidate", on_delete=models.CASCADE, null=True, blank=True)
     exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE, related_name="candidate_exam_examsbacklog")
     schedule = models.ForeignKey("exam_admin.Schedule", on_delete=models.SET_NULL, null=True, blank=True)
@@ -132,6 +181,14 @@ class CandidateExam(BaseModel):
 
 
 class CandidateExamStatusLog(BaseModel):
+    """
+    Represents a log of status changes for a candidate's exam.
+
+    - id: Autofield (PK)
+    - candidate_exam: CandidateExam (FK)
+    - exam_status: CharField
+    """
+
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="status_logs")
     exam_status = models.CharField(max_length=100)
 
@@ -141,6 +198,22 @@ class CandidateExamStatusLog(BaseModel):
 
 
 class CandidateExamAnswer(BaseModel):
+    """
+    Represents an answer given by a candidate for an exam question.
+
+    - id: Autofield (PK)
+    - candidate_exam: CandidateExam (FK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - exam_backlog_question_choice: ExamBacklogQuestionChoice (FK)
+    - exam_backlog_question_choice_title: TextField
+    - answer_text: TextField
+    - score: FloatField
+    - seconds_taken: IntegerField
+    - is_attempted: BooleanField
+    - is_correct: BooleanField
+    - answer_files: Media (M2M)
+    """
+
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="exam_answers")
     exam_backlog_question = models.ForeignKey("exam_public.ExamBacklogQuestion", on_delete=models.CASCADE, related_name="question_answers")
     exam_backlog_question_choice = models.ForeignKey("exam_public.ExamBacklogQuestionChoice", on_delete=models.CASCADE, null=True, blank=True)
@@ -166,6 +239,14 @@ class CandidateExamAnswer(BaseModel):
 
 
 class CandidateExamAnswerMedia(BaseModel):
+    """
+    Represents a mapping between candidate exam answers and media files.
+
+    - id: Autofield (PK)
+    - candidate_exam_answer: CandidateExamAnswer (FK)
+    - media: Media (FK)
+    """
+
     candidate_exam_answer = models.ForeignKey(CandidateExamAnswer, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
 
@@ -175,6 +256,16 @@ class CandidateExamAnswerMedia(BaseModel):
 
 
 class CandidateExamRetryhint(BaseModel):
+    """
+    Represents a retry hint for a candidate's exam question.
+
+    - id: Autofield (PK)
+    - candidate_exam: CandidateExam (FK)
+    - exam_backlog_question_retry_hint: ExamBacklogQuestionRetryHint (FK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - penalty_score: DecimalField
+    """
+
     candidate_exam = models.ForeignKey("exam_public.CandidateExam", on_delete=models.CASCADE, related_name="candidate_exam_retry_hints")
     exam_backlog_question_retry_hint = models.ForeignKey("exam_public.ExamBacklogQuestionRetryHint", on_delete=models.CASCADE)
     exam_backlog_question = models.ForeignKey(
