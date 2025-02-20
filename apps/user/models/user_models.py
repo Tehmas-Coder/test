@@ -59,16 +59,27 @@ class CustomUserManager(UserManager):
     - Filters out users with meta_status as 'active'
     """
 
-    def create_superuser(
-        self,
-        email: str,
-        password: str | None,
-        **extra_fields: Any,
-    ) -> Any:
+    def create_superuser(self, email: str, password: str | None, **extra_fields: Any) -> Any:
+        """
+        Create and return a superuser with the given email and password.
+
+        Args:
+            email (str): The email address of the superuser.
+            password (str | None): The password for the superuser. Can be None.
+            **extra_fields (Any): Additional fields for the superuser.
+
+        Returns:
+            Any: The created superuser instance.
+        """
+
         username = email
         return super().create_superuser(username, email, password, **extra_fields)
 
     def get_queryset(self):
+        """
+        - Filters out users with meta_status as 'active'.
+        - Returns the queryset of the model.
+        """
         qs = super().get_queryset().filter(meta_status="active")
         return qs
 
@@ -150,7 +161,8 @@ class BaseUser(BaseUserModel, AbstractUser):
     @property
     def is_otp_expired(self):
         """
-        Checks if the OTP is expired based on the expiry date.
+        - Checks if the OTP is expired based on the expiry date.
+        - Returns True if the OTP is expired, False otherwise.
         """
         if self.otp_expiry:
             return convert_any_datetime_to_utc(self.otp_expiry) < get_current_utc_datetime()
@@ -159,7 +171,8 @@ class BaseUser(BaseUserModel, AbstractUser):
     @property
     def age(self):
         """
-        Returns the age of the user calculated from the date of birth.
+        - Calculates the age of the user based on the date of birth.
+        - Returns the age of the user.
         """
         if self.date_of_birth:
             today = date.today()
@@ -176,7 +189,7 @@ class BaseUser(BaseUserModel, AbstractUser):
     @classmethod
     def get_user_by_email(cls, email: str):
         """
-        Get a user by email.
+        Returns the user with the provided email address if it exists, None otherwise.
         """
         return cls.objects.filter(email=email).first()
 
@@ -189,7 +202,9 @@ class BaseUser(BaseUserModel, AbstractUser):
 
     def verify_otp(self, otp: str) -> bool:
         """
-        Verifies the provided OTP and updates the user's verification status.
+        - Verifies the OTP provided by the user.
+        - If the OTP is correct and not expired, marks the user as verified.
+        - Returns True if the OTP is verified, False otherwise.
         """
         if self.is_otp_expired:
             return False
@@ -204,6 +219,7 @@ class BaseUser(BaseUserModel, AbstractUser):
         """
         - Sends an OTP to the user's email for verification.
         - If OTP is not provided, generates a new OTP.
+        - Returns True if the OTP is sent successfully, False otherwise.
         """
         if self.is_verified:
             return False
@@ -275,6 +291,10 @@ class Role(BaseModel):
     permissions = models.ManyToManyField(Permission, blank=True, through="RolePermission")
 
     def save(self, *args, **kwargs):
+        """
+        - Generates a slug for the role if it does not exist.
+        - Raises an error if a role with the same name already exists in the database.
+        """
         if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
