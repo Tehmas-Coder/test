@@ -21,9 +21,7 @@ class Tag(BaseModel):
     Represents a tag that can be assigned to questions.
 
     - id: Autofield (PK)
-
     - organization: Organization (FK)
-
     - name: CharField
     - code: CharField
     - abbreviation: CharField
@@ -50,9 +48,7 @@ class EducationLevel(BaseModel):
     Represents an education level that can be assigned to subjects.
 
     - id: Autofield (PK)
-
     - organization: Organization (FK)
-
     - name: CharField
     - slug: SlugField
     - code: CharField
@@ -83,9 +79,7 @@ class Subject(BaseModel):
     Represents a subject that can be assigned to questions.
 
     - id: Autofield (PK)
-
     - organization: Organization (FK)
-
     - name: CharField
     - slug: SlugField
     - code: CharField
@@ -156,7 +150,6 @@ class QuestionType(BaseModel):
     Represents a type of question.
 
     - id: Autofield (PK)
-
     - name: CharField
     - slug: SlugField
     - abbreviation: CharField
@@ -179,7 +172,6 @@ class DifficultyLevel(BaseModel):
     Represents a difficulty level for questions.
 
     - id: Autofield (PK)
-
     - name: CharField
     - slug: SlugField
     - code: CharField
@@ -211,19 +203,15 @@ class Question(BaseModel):
     Represents a question in the system.
 
     - id: Autofield (PK)
-
     - type: QuestionType (FK)
     - organization: Organization (FK)
-
     - title: TextField
     - text: TextField
     - max_retries: IntegerField
     - retry_penalty: IntegerField
-
     - can_shuffle: BooleanField
     - has_media: BooleanField
     - is_public: BooleanField
-
     - tags: Tag (M2M)
     - medias: Media (M2M)
     - subject_education_levels: SubjectEducationLevel (M2M)
@@ -326,17 +314,13 @@ class QuestionChoice(BaseModel):
     Represents a choice for a question.
 
     - id: Autofield (PK)
-
     - question: Question (FK)
-
     - title: CharField
     - text: TextField
     - weight: IntegerField
-
     - is_negative_weight: BooleanField
     - is_correct: BooleanField
     - has_media: BooleanField
-
     - medias: Media (M2M)
     """
 
@@ -369,11 +353,8 @@ class QuestionAttemptResponse(BaseModel):
     Represents an attempt response for a question.
 
     - id: Autofield (PK)
-
     - question: Question (FK)
-
     - text: TextField
-
     - type: CharField (choices are [correct, wrong, partial, skipped, unanswered])
     """
 
@@ -399,14 +380,10 @@ class QuestionRetryHint(BaseModel):
     Represents a retry hint for a question.
 
     - id: Autofield (PK)
-
     - question: Question (FK)
-
     - text: TextField
     - sequence: IntegerField
-
     - has_media: BooleanField
-
     - medias: Media (M2M)
     """
 
@@ -440,9 +417,7 @@ class SubjectEducationLevel(BaseModel):
     Represents a mapping between subjects and education levels.
 
     - id: Autofield (PK)
-
     - organization: Organization (FK)
-
     - subject: Subject (FK)
     - education_level: EducationLevel (FK)
     """
@@ -476,18 +451,14 @@ class QuestionSubject(BaseModel):
     Represents a mapping between questions and subjects.
 
     - id: Autofield (PK)
-
     - question: Question (FK)
     - subject_education_level: SubjectEducationLevel (FK)
     - difficulty_level: DifficultyLevel (FK)
     - measuring_unit: MeasuringUnit (FK)
-
     - time_limit: IntegerField
     - total_marks: IntegerField
-
     - is_optional: BooleanField
     - is_global: BooleanField
-
     - countries: Country (M2M)
     """
 
@@ -514,7 +485,6 @@ class QuestionSubjectCountry(BaseModel):
     Represents a mapping between question subjects and countries.
 
     - id: Autofield (PK)
-
     - question_subject: QuestionSubject (FK)
     - country: Country (FK)
     """
@@ -532,7 +502,6 @@ class QuestionMedia(BaseModel):
     Represents a mapping between questions and media.
 
     - id: Autofield (PK)
-
     - question: Question (FK)
     - media: Media (FK)
     """
@@ -550,7 +519,6 @@ class QuestionTag(BaseModel):
     Represents a mapping between questions and tags.
 
     - id: Autofield (PK)
-
     - question: Question (FK)
     - tag: Tag (FK)
     """
@@ -568,7 +536,6 @@ class QuestionChoiceMedia(BaseModel):
     Represents a mapping between question choices and media.
 
     - id: Autofield (PK)
-
     - question_choice: QuestionChoice (FK)
     - media: Media (FK)
     """
@@ -586,7 +553,6 @@ class QuestionRetryHintMedia(BaseModel):
     Represents a mapping between question retry hints and media.
 
     - id: Autofield (PK)
-
     - question_retry_hint: QuestionRetryHint (FK)
     - media: Media (FK)
     """
