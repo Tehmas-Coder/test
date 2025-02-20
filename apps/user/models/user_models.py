@@ -91,7 +91,12 @@ class BaseUser(BaseUserModel, AbstractUser):
     - otp_expiry: DateTimeField
     - date_joined: DateTimeField
     - last_login: DateTimeField
-    - creation_context: CharField (choices are [self, facebook, google, public_exam])
+    - creation_context: CharField
+        Choices
+            - "self"
+            - "facebook"
+            - "google"
+            - "public_exam"
     - is_verified: BooleanField
     - is_superuser: BooleanField
     - roles: Role (M2M)
