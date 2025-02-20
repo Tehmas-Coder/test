@@ -4,7 +4,24 @@ from core.models import BaseModel
 
 
 class EmailLog(BaseModel):
-    """Model for logging email activity."""
+    """
+    Model for logging email activity.
+
+    - id: Autofield (PK)
+    - to_email_list: TextField
+    - from_email: EmailField
+    - subject: CharField
+    - body: TextField
+    - sent_at: DateTimeField
+    - status: CharField
+        Choices:
+            - "queued"
+            - "sent"
+            - "failed"
+    - error: TextField
+    - cc_list: EmailField
+    - bcc_list: EmailField
+    """
 
     to_email_list = models.TextField()  # Store as comma-separated values
     from_email = models.EmailField()
@@ -41,7 +58,16 @@ class EmailLog(BaseModel):
 
 
 class EmailLogAttachment(BaseModel):
-    """Model for logging email attachments."""
+    """
+    Model for logging email attachments.
+
+    - id: Autofield (PK)
+    - email_log: EmailLog (FK)
+    - file: FileField
+    - name: CharField
+    - ext: CharField
+    - uploaded_at: DateTimeField
+    """
 
     email_log = models.ForeignKey(EmailLog, related_name="attachments", on_delete=models.CASCADE)
     file = models.FileField(upload_to="email_attachments/")
