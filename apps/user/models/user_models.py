@@ -181,7 +181,7 @@ class BaseUser(BaseUserModel, AbstractUser):
         return list(self.roles.values_list("slug", flat=True))
 
     @classmethod
-    def get_user_by_email(cls, email: str):
+    def get_user_by_email(cls, email: str) -> Any:
         return cls.objects.filter(email=email).first()
 
     @classmethod
