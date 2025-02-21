@@ -38,6 +38,9 @@ class Candidate(BaseModel):
 
     @property
     def is_exam_limit_remaining(self):
+        """
+        Checks if the candidate can create more self-exams based on their current limit and returns a boolean value.
+        """
         return self.self_exam_count < self.self_exam_creation_limit
 
     @classmethod
@@ -124,6 +127,9 @@ class CandidateExam(BaseModel):
     is_created_by_candidate = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        """
+        Sets the organization of the candidate exam if the user is not a superuser.
+        """
         if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
                 current_user_roles = get_current_user().get_user_role_slugs  # type: ignore
@@ -137,6 +143,9 @@ class CandidateExam(BaseModel):
         app_label = "exam_public"
 
     def set_exam_result(self):
+        """
+        Sets the exam result based on the obtained marks and passing percentage.
+        """
         if self.exam_status == "scored" and self.exam_result == "pending":
             passing_percentage = self.exam_backlog.passing_percentage
             passing_marks = (passing_percentage / 100) * self.total_obtainable_marks
@@ -147,6 +156,9 @@ class CandidateExam(BaseModel):
         self.save()
 
     def is_expired(self):
+        """
+        Checks if the exam has expired and updates the exam status accordingly.
+        """
         is_exam_expired = self.exam_status == "expired"
         if (not is_exam_expired) and self.end_datetime:
             is_exam_expired = convert_any_datetime_to_utc(self.end_datetime) < get_current_utc_datetime()
@@ -167,6 +179,9 @@ class CandidateExam(BaseModel):
         exam_backlog_question_filter=models.Q(),
         is_organization_filter=False,
     ) -> models.QuerySet:
+        """
+        Returns a detailed queryset of candidate exams based on the provided filters.
+        """
         return get_candidate_exam_detailed_queryset(
             cls,
             exam_backlog,
@@ -279,5 +294,9 @@ class CandidateExamRetryhint(BaseModel):
         db_table = "exam_public_candidateexam_retryhint"
 
     def save(self, *args, **kwargs):
+        """
+        - Calculates the penalty score for the retry hint and saves the instance.
+        - The penalty score is calculated as the percentage of the total marks of the exam question multiplied by the retry penalty.
+        """
         self.penalty_score = (self.exam_backlog_question.retry_penalty / 100) * self.exam_backlog_question.total_marks
         return super().save(*args, **kwargs)
