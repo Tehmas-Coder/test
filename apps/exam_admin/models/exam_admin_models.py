@@ -152,18 +152,6 @@ class Exam(BaseModel):
     def get_detail_queryset(
         cls, sections=False, exam_subject=False, exam_subject_questions=False, exam_subject_questions_question=False, all=False, q_filter=Q()
     ) -> QuerySet:
-        """
-        Get detailed queryset for Exam model.
-
-        :param sections: Include sections (type: bool)
-        :param exam_subject: Include exam subjects (type: bool)
-        :param exam_subject_questions: Include exam subjects questions (type: bool)
-        :param exam_subject_questions_question: Include exam subjects questions question (type: bool)
-        :param all: Include all fields (type: bool)
-        :param q_filter: Filter queryset (type: Q)
-
-        :return: QuerySet
-        """
         return get_exam_detailed_queryset(cls, sections, exam_subject, exam_subject_questions, exam_subject_questions_question, all, q_filter)
 
 
