@@ -4,22 +4,34 @@ from utils.rna_utils import color_print, make_error_response, make_warning_respo
 
 
 class OTPNinja:
+    """
+    OTPNinja class handles OTP verification and resending for a user.
+    Attributes:
+        email (str): The email of the user.
+        user (BaseUser): The user object retrieved by email.
+    Methods:
+        verify_otp(otp):
+            Verifies the provided OTP for the user.
+        resend_otp():
+            Resends the OTP to the user's email if the current OTP is expired.
+    """
+
     def __init__(self, email):
         self.email = email
-        self.user = BaseUser.get_user_by_email(email)
+        self.user: BaseUser = BaseUser.get_user_by_email(email)
 
     def verify_otp(self, otp):
         self.__validate_user()
-        if self.user.is_otp_expired:  # type: ignore
+        if self.user.is_otp_expired:
             ResponseMiddleware.return_now(make_warning_response(message="OTP expired! Please request for another OTP"))
-        if not self.user.verify_otp(otp):  # type: ignore
+        if not self.user.verify_otp(otp):
             ResponseMiddleware.return_now(make_error_response(message="Invalid OTP!"))
 
     def resend_otp(self):
         self.__validate_user()
-        if not self.user.is_otp_expired:  # type: ignore
+        if not self.user.is_otp_expired:
             ResponseMiddleware.return_now(make_warning_response(message="OTP already sent! Please check your email for the OTP"))
-        if not self.user.send_otp():  # type: ignore
+        if not self.user.send_otp():
             ResponseMiddleware.return_now(make_error_response(message="Failed to send OTP, please try again"))
 
     # ---------------------------------------------------------------------------- #
@@ -29,5 +41,5 @@ class OTPNinja:
     def __validate_user(self):
         if not self.user:
             ResponseMiddleware.return_now(make_error_response(message="User not found!"))
-        if self.user.is_verified:  # type: ignore
+        if self.user.is_verified:
             ResponseMiddleware.return_now(make_error_response(message="User is already verified!"))
