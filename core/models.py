@@ -1,8 +1,7 @@
 from decouple import config
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import Q
 from hashids import Hashids
 
 from middlewares.current_user_middleware import get_current_user
@@ -13,6 +12,10 @@ hashids = Hashids(min_length=8, salt="your_salt_here")
 class BaseManager(models.Manager):
 
     def get_queryset(self):
+        """
+        Get the queryset of the model with the meta_status filter applied to it to get only the active records.
+        :return: The queryset
+        """
         # qs = super().get_queryset().filter(meta_status="active").select_related("created_by", "updated_by")
         qs = super().get_queryset().filter(meta_status="active")
         return qs
@@ -51,12 +54,22 @@ class BaseModel(models.Model):
 
     @classmethod
     def get_random(cls, count: int | None = None, q_filter: Q | None = Q(), annotation: dict = {}):
+        """
+        Get random records from the model.
+        :param count: The number of records to get
+        :param q_filter: The filter to apply to the queryset
+        :param annotation: The annotation to apply to the queryset
+        :return: The queryset of random records
+        """
         qs = cls.objects.annotate(**annotation).filter(q_filter).order_by("?")
         if count:
             return qs[:count]
         return qs
 
     def save(self, *args, **kwargs):
+        """
+        Save the model instance with the current user as the created_by and updated_by fields.
+        """
         current_user = get_current_user()
         if isinstance(current_user, AnonymousUser):
             current_user = None
@@ -83,6 +96,16 @@ class BaseModel(models.Model):
         return self.meta_status == "deleted"
 
     def delete(self, using=None, keep_parents=False, *args, **kwargs):
+        """
+        - Soft delete the model instance if the ENABLE_SOFT_DELETE setting is True, otherwise hard delete it.
+        - Soft delete means setting the meta_status field to "deleted".
+        - Hard delete means deleting the model instance from the database.
+        - If the on_delete attribute of a related object is set to PROTECT, then the delete operation will be blocked.
+        - If the on_delete attribute of a related object is set to CASCADE, then the delete operation will cascade to the related objects.
+
+        :param using: The database alias to delete from
+        :param keep_parents: Whether to keep the parent objects
+        """
         if config("ENABLE_SOFT_DELETE", cast=bool, default=False):
             self._check_protect()
             self.meta_status = "deleted"
@@ -92,6 +115,9 @@ class BaseModel(models.Model):
             super().delete(*args, **kwargs)
 
     def _check_protect(self):
+        """
+        Check if there are any related objects with the on_delete attribute set to PROTECT., if there are, then raise a ProtectedError.
+        """
         for related_object in self._meta.related_objects:
             related_name = related_object.get_accessor_name()
             related_manager = getattr(self, related_name)
@@ -106,6 +132,9 @@ class BaseModel(models.Model):
                 )
 
     def _cascade_soft_delete(self):
+        """
+        Cascade the soft delete operation to the related objects with the on_delete attribute set to CASCADE or SET_NULL.
+        """
         for related_object in self._meta.related_objects:
             related_name = related_object.get_accessor_name()
             related_manager = getattr(self, related_name)
@@ -116,10 +145,16 @@ class BaseModel(models.Model):
                     related_manager.all().update(**{related_object.field.name: None})
 
     def activate(self, *args, **kwargs):
+        """
+        Activate the model instance by setting the meta_status field to "active".
+        """
         self.meta_status = "active"
         self.save()
 
     def deactivate(self, *args, **kwargs):
+        """
+        Deactivate the model instance by setting the meta_status field to "inactive".
+        """
         self.meta_status = "inactive"
         self.save()
 
