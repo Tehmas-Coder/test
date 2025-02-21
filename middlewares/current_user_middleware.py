@@ -6,6 +6,10 @@ _user = local()
 
 
 class CurrentUserMiddleware:
+    """
+    This middleware authenticates the user using JWT and sets the user in _user local thread storage.
+    """
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -27,4 +31,9 @@ class CurrentUserMiddleware:
 
 
 def get_current_user():
+    """
+    Get the current user from _user local thread storage.
+
+    :return: The current user object or None if no user is set.
+    """
     return getattr(_user, "value", None)
