@@ -6,7 +6,6 @@ from rest_framework import filters
 
 class UserFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-
         search = request.query_params.get("search")
         min_age = request.query_params.get("min_age")
         max_age = request.query_params.get("max_age")

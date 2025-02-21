@@ -1,4 +1,4 @@
-def get_candidate_self_preparation_permission():
+def get_candidate_self_preparation_permission() -> dict:
     return {
         "is_active": True,
         "permission": {

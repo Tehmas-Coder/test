@@ -6,7 +6,6 @@ from rest_framework import filters
 
 class RoleFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-
         name = request.query_params.get("name")
         permissions = request.query_params.get("permissions")
 
