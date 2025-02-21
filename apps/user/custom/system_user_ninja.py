@@ -8,6 +8,20 @@ from middlewares.response_middleware import ResponseMiddleware
 
 
 class SystemUserNinja:
+    """
+    A class to handle the creation and management of system users within an organization.
+    Attributes:
+        logged_in_user_organization (str): The organization of the currently logged-in user.
+        data_dict (dict): The request data containing user information.
+        roles (QuerySet): The roles fetched from the database.
+        role_slug_id_hashmap (dict): A hashmap of role slugs to role IDs.
+        existing_users_email_and_instance_hashmap (dict): A hashmap of existing user emails to user instances.
+        existing_organization_users_email_and_instance_hashmap (dict): A hashmap of existing organization user emails to organization user instances.
+        unentertained_emails (list): A list of emails that could not be processed.
+    Methods:
+        create_system_user(): Creates system users based on the provided data.
+    """
+
     def __init__(self, request_data):
         self.logged_in_user_organization = get_current_user_organization()
         self.data_dict: dict = request_data
@@ -51,6 +65,17 @@ class SystemUserNinja:
         self.existing_organization_users_email_and_instance_hashmap = {org_user.user.email: org_user for org_user in organization_users}
 
     def __process_system_users(self):
+        """
+        Processes system users by iterating through the data dictionary and performing the following actions:
+        - Constructs a role_slug and retrieves the corresponding role_id.
+        - Checks if the user should be deleted.
+        - Checks if the user already exists in the system and organization.
+        - Creates a new system user if the user does not exist.
+        - Deletes the user role if marked for deletion.
+        - Creates or updates the user role if not marked for deletion.
+        - Creates an organization user if the user does not exist in the organization.
+        This function updates the user roles and organization users based on the provided data.
+        """
         for one_user in self.data_dict:
             role_slug = f"{self.logged_in_user_organization}-{one_user['Slug']}"
             role_id = self.role_slug_id_hashmap[role_slug]
