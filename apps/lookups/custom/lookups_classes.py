@@ -24,6 +24,10 @@ class VisibilitySetter:
 
 
 class OrganizationValidator(ABC):
+    """
+    Abstract base class for organization validators.
+    """
+
     def __init__(self, organization_id: int | None = None) -> None:
         if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
             organization_id = get_current_user_organization()
