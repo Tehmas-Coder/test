@@ -11,7 +11,18 @@ from utils.rna_utils import color_print
 
 
 class IsAuthenticated(BasePermission):
+    """
+    Allows access only to authenticated users.
+    """
+
     def has_permission(self, request, view):
+        """
+        Check if the user is authenticated.
+
+        :param request: Request object
+        :param view: View object
+        :return: True if user is authenticated, False otherwise
+        """
         request_user = request.user
         request_method = request.method.lower()
         request_path = request.path.replace("/api", "")
@@ -41,6 +52,13 @@ class IsAuthenticated(BasePermission):
 
 
 def is_url_public(request_method, request_path):
+    """
+    Check if the requested URL is public.
+
+    :param request_method: Request method
+    :param request_path: Request path
+    :return: True if the URL is public, False otherwise
+    """
     bypassed_api_urls_dict = {
         "get": [
             "/ping/",
@@ -69,6 +87,14 @@ def is_url_public(request_method, request_path):
 
 
 def validate_resources(request_method, request_path, role_ids):
+    """
+    Validate the requested resources against the user's roles.
+
+    :param request_method: Request method
+    :param request_path: Request path
+    :param role_ids: List of role IDs
+    :return: True if the user is authorized, False otherwise
+    """
     regex_pattern = string_url_to_regex(request_path)
 
     try:
@@ -91,6 +117,12 @@ def validate_resources(request_method, request_path, role_ids):
 
 
 def string_url_to_regex(string_url):
+    """
+    Convert a string URL to a regex pattern.
+
+    :param string_url: The string URL
+    :return: The regex pattern
+    """
     bypass_url = string_url.split("/token=")
     if len(bypass_url) > 1:
         return f"^{bypass_url[0]}/[0-9]+/$"
