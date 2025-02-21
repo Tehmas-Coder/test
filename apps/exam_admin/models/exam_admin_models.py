@@ -32,6 +32,9 @@ class Schedule(BaseModel):
     extra_duration = models.PositiveIntegerField(null=True)
 
     def save(self, *args, **kwargs):
+        """
+        On Creation of Schedule, set the organization_id to the current user's organization if the user is not a superuser and then save the Schedule.
+        """
         if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
                 self.organization_id = get_current_user_organization()
@@ -131,12 +134,10 @@ class Exam(BaseModel):
     instructions = models.TextField(blank=True, null=True)
     total_marks = models.PositiveIntegerField(default=0)
     passing_percentage = models.PositiveIntegerField(default=0)
-
     TYPE_CHOICES = (
         ("draft", "Draft"),
         ("active", "Active"),
     )
-
     exam_status = models.CharField(max_length=100, choices=TYPE_CHOICES, default="draft")
 
     is_public = models.BooleanField(default=False)
