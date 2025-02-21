@@ -138,9 +138,6 @@ class ExamBacklogQuestion(BaseModel):
 
     @classmethod
     def get_detail_queryset(cls, all=False, get_answers=False, q_filter=models.Q(), candidate_exam_id: int | None = None):
-        """
-        Returns a queryset of ExamBacklogQuestion objects with prefetches.
-        """
         return get_exambacklogquestion_detailed_queryset(cls, all, get_answers, q_filter, candidate_exam_id)
 
 
@@ -290,9 +287,6 @@ class ExamBacklogQuestionRetryHint(BaseModel):
 
     @classmethod
     def get_detail_queryset(cls, media=True, q_filter=models.Q()):
-        """
-        Returns a queryset of ExamBacklogQuestionRetryHint objects with prefetches.
-        """
         return cls.objects.filter(q_filter).prefetch_related(
             models.Prefetch("exambacklogquestionretryhintmedia_set", queryset=ExamBacklogQuestionRetryHintMedia.objects.all().select_related("media"))
         )
