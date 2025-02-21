@@ -16,13 +16,6 @@ class IsAuthenticated(BasePermission):
     """
 
     def has_permission(self, request, view):
-        """
-        Check if the user is authenticated.
-
-        :param request: Request object
-        :param view: View object
-        :return: True if user is authenticated, False otherwise
-        """
         request_user = request.user
         request_method = request.method.lower()
         request_path = request.path.replace("/api", "")
