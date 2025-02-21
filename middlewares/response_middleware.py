@@ -13,6 +13,23 @@ class ImmediateHttpResponse(Exception):
 
 
 class ResponseMiddleware(MiddlewareMixin):
+    """
+    This middleware allows views to return a response immediately without going through the rest of the middleware chain.
+
+    To return a response immediately, use the `return_now` method of this middleware.
+
+    Example:
+    ```
+    from middlewares.response_middleware import ResponseMiddleware
+
+    def my_view(request):
+        response = Response({"message": "Hello, World!"})
+        ResponseMiddleware.return_now(response)
+    ```
+
+    The response will be returned immediately without going through the rest of code and middleware chain.
+    """
+
     def process_request(self, request):
         _thread_local.custom_response = None
 
