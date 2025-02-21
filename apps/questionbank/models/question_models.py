@@ -66,10 +66,6 @@ class EducationLevel(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
-        """
-        - Set the slug field on save if the object is new.
-        - Return an error response if the name already exists.
-        """
         if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
@@ -105,16 +101,9 @@ class Subject(BaseModel):
 
     @property
     def full_name(self):
-        """
-        - Return the full name of the subject.
-        """
         return f"{self.name} ({self.code})"
 
     def save(self, *args, **kwargs):
-        """
-        - Set the slug field on save if the object is new.
-        - Return an error response if the name already exists.
-        """
         if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
@@ -174,9 +163,6 @@ class QuestionType(BaseModel):
     abbreviation = models.CharField(max_length=10, blank=True)
 
     def save(self, *args, **kwargs):
-        """
-        - Set the slug field on save
-        """
         self.slug = self.name.lower().replace(" ", "-")
         super().save(*args, **kwargs)
 
@@ -203,9 +189,6 @@ class DifficultyLevel(BaseModel):
     sequence = models.IntegerField(default=1)
 
     def save(self, *args, **kwargs):
-        """
-        - Set the slug field on save
-        """
         self.slug = self.name.lower().replace(" ", "-")
         super().save(*args, **kwargs)
 
@@ -258,19 +241,12 @@ class Question(BaseModel):
 
     @property
     def type_name(self) -> str:
-        """
-        - Return the name of the question type.
-        """
         return self.type.name
 
     @classmethod
     def get_detail_queryset(
         cls, q_filter=Q(), tags=False, attempt_responses=False, choices=False, retry_hints=False, subjects=False, all=False
     ) -> QuerySet:
-        """
-        - Get the detailed queryset for the question model.
-        - Return the queryset based on the given parameters.
-        """
         return get_question_detailed_queryset(cls, q_filter, tags, attempt_responses, choices, retry_hints, subjects, all)
 
     @classmethod
@@ -497,9 +473,6 @@ class SubjectEducationLevel(BaseModel):
 
     @classmethod
     def get_detail_queryset(cls):
-        """
-        - Get the detailed queryset for the subject education level model.
-        """
         return cls.objects.get_queryset().select_related("organization", "subject", "education_level")
 
 
