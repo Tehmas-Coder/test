@@ -144,7 +144,13 @@ class CandidateExam(BaseModel):
 
     def set_exam_result(self):
         """
-        Sets the exam result based on the obtained marks and passing percentage.
+        Determines and sets the exam result based on the obtained marks and passing criteria.
+
+        This method checks if the exam status is "scored" and the exam result is "pending".
+        It then calculates the passing marks based on the passing percentage and total obtainable marks.
+        If the obtained marks are greater than or equal to the passing marks, the exam result is set to "pass".
+        Otherwise, the exam result is set to "fail".
+        Finally, the changes are saved to the database.
         """
         if self.exam_status == "scored" and self.exam_result == "pending":
             passing_percentage = self.exam_backlog.passing_percentage
@@ -156,9 +162,6 @@ class CandidateExam(BaseModel):
         self.save()
 
     def is_expired(self):
-        """
-        Checks if the exam has expired and updates the exam status accordingly.
-        """
         is_exam_expired = self.exam_status == "expired"
         if (not is_exam_expired) and self.end_datetime:
             is_exam_expired = convert_any_datetime_to_utc(self.end_datetime) < get_current_utc_datetime()
@@ -179,9 +182,6 @@ class CandidateExam(BaseModel):
         exam_backlog_question_filter=models.Q(),
         is_organization_filter=False,
     ) -> models.QuerySet:
-        """
-        Returns a detailed queryset of candidate exams based on the provided filters.
-        """
         return get_candidate_exam_detailed_queryset(
             cls,
             exam_backlog,
