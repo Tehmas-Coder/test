@@ -4,9 +4,9 @@ from cryptography.fernet import Fernet
 from decouple import config
 
 from apps.user.models.user_models import BaseUser
+from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_random_password, make_error_response
 
 

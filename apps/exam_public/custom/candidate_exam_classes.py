@@ -40,10 +40,10 @@ from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from apps.user.models.user_models import BaseUser, Role, UserRole
 from apps.user.utils.user_utils import get_current_user_organization
+from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     decrypt_message,
     encrypt_message,

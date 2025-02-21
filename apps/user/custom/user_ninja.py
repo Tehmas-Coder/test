@@ -13,9 +13,9 @@ from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.models.user_models import BaseUser
 from apps.user.utils.user_utils import get_current_user_organization, get_roles_names
+from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import make_error_response
 
 

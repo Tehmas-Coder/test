@@ -11,13 +11,13 @@ from apps.user.helpers.queryset_functions import (
     get_user_detailed_queryset,
 )
 from core.models import BaseModel, BaseUserModel
+from helpers.email_notifications import EmailNotification
 from middlewares.response_middleware import ResponseMiddleware
 from utils.datetime_utils import (
     convert_any_datetime_to_utc,
     get_current_utc_datetime,
     get_current_utc_datetime_timestamp,
 )
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp, make_error_response
 
 
