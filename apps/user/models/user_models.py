@@ -153,9 +153,6 @@ class BaseUser(BaseUserModel, AbstractUser):
 
     @property
     def full_name(self):
-        """
-        Returns the full name of the user by combining first name and last name.
-        """
         return f"{self.first_name} {self.last_name}"
 
     @property
@@ -180,24 +177,15 @@ class BaseUser(BaseUserModel, AbstractUser):
         return None
 
     @property
-    def get_user_role_slugs(self):
-        """
-        Returns a list of role slugs associated with the user.
-        """
+    def get_user_role_slugs(self) -> list[str]:
         return list(self.roles.values_list("slug", flat=True))
 
     @classmethod
     def get_user_by_email(cls, email: str):
-        """
-        Returns the user with the provided email address if it exists, None otherwise.
-        """
         return cls.objects.filter(email=email).first()
 
     @classmethod
     def get_detail_queryset(cls, country=False, roles=False, role_permissions=False, role_permissions_permission=False, user_candidates=False):
-        """
-        Returns a queryset with detailed information about the user.
-        """
         return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission, user_candidates)
 
     def verify_otp(self, otp: str) -> bool:
@@ -243,9 +231,6 @@ class BaseUser(BaseUserModel, AbstractUser):
         return True
 
     def add_role(self, role):
-        """
-        Adds a role to the user.
-        """
         self.roles.add(role)
         self.save()
 
@@ -307,10 +292,6 @@ class Role(BaseModel):
 
     @classmethod
     def get_detail_queryset(cls, organization=False, permissions=False, role_permissions=False, role_permissions_permission=False):
-        """
-        - Returns a queryset containing detailed information about roles,
-        - including associated organizations and permissions.
-        """
         return get_role_detailed_queryset(cls, organization, permissions, role_permissions, role_permissions_permission)
 
 
