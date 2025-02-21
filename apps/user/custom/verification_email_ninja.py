@@ -11,6 +11,16 @@ from utils.rna_utils import generate_random_password, make_error_response
 
 
 class VerificationEmailNinja:
+    """
+    A class to handle the sending and resending of verification emails to users.
+
+    Methods
+    - verify(email)
+        Decrypts the token, retrieves the user instance, checks verification status, and verifies the user.
+    - resend(email)
+        Retrieves the user instance, checks verification status, and sends a new verification email.
+    """
+
     def __init__(self) -> None:
         pass
 
@@ -18,7 +28,7 @@ class VerificationEmailNinja:
     #                                PUBLIC METHODS                                #
     # ---------------------------------------------------------------------------- #
 
-    def send(self, token):
+    def verify(self, token):
         user_data = self.__decrypt_token_data(token)
         token_email = user_data["email"]
         user_instance: BaseUser = self.__get_user_instance(token_email)  # type: ignore
