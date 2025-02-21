@@ -7,7 +7,15 @@ _user = local()
 
 class CurrentUserMiddleware:
     """
-    This middleware authenticates the user using JWT and sets the user in _user local thread storage.
+    Middleware to set the current user in thread-local storage based on JWT authentication.
+    This middleware attempts to authenticate the user using JWT. If authentication is successful,
+    the user is stored in thread-local storage for the duration of the request. If authentication
+    fails, the user is set to None.
+    Attributes:
+        get_response (callable): The next middleware or view in the chain to be called.
+    Methods:
+        __init__(get_response): Initializes the middleware with the next middleware or view.
+        __call__(request): Processes the request to authenticate the user and sets the user in thread-local storage.
     """
 
     def __init__(self, get_response):
