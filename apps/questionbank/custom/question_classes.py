@@ -118,7 +118,10 @@ class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidato
 
 class QuestionService:
     """
-    This class is used to perform question CRUD operations.
+    This class is used to handle the question creation service.
+
+    It parses the request data, validates the organization, sets the visibility,
+    and saves the question using the provided serializer class.
     """
 
     def __init__(
