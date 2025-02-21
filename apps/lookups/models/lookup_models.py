@@ -7,6 +7,9 @@ from utils.datetime_utils import get_current_utc_datetime_timestamp
 
 
 def upload_to(instance, filename):
+    """
+    Returns the path to upload a file to.
+    """
     folder_name = "media"
     timestamp = get_current_utc_datetime_timestamp()
     return f"{folder_name}/{timestamp}/{filename}"
@@ -54,18 +57,33 @@ class Region(BaseUserModel):
         app_label = "lookups"
 
     def add_country(self, country):
+        """
+        Adds a country to the region.
+        """
         self.countries.add(country)
 
     def remove_country(self, country):
+        """
+        Removes a country from the region.
+        """
         self.countries.remove(country)
 
     def get_countries(self):
+        """
+        Returns the countries in the region.
+        """
         return self.countries.all()
 
     def number_of_countries(self):
+        """
+        Returns the number of countries in the region.
+        """
         return self.countries.count()
 
     def has_country(self, country):
+        """
+        Returns True if the region has the country, otherwise False.
+        """
         return self.countries.filter(id=country.id).exists()
 
 
@@ -103,39 +121,54 @@ class Country(BaseUserModel):
 
     is_un_member = models.BooleanField(default=False)
 
-    timezones = models.ManyToManyField("lookups.Timezone", related_name="countries")
-    currencies = models.ManyToManyField("lookups.Currency", related_name="countries")
-    languages = models.ManyToManyField("lookups.Language", related_name="countries")
+    timezones = models.ManyToManyField("lookups.Timezone")
+    currencies = models.ManyToManyField("lookups.Currency")
+    languages = models.ManyToManyField("lookups.Language")
 
     class Meta:
         app_label = "lookups"
 
-    def get_regions(self):
-        return self.regions.all()  # type: ignore
-
-    def add_region(self, region):
-        self.regions.add(region)  # type: ignore
-
     def get_languages(self):
+        """
+        Returns the languages spoken in the country.
+        """
         return self.languages.all()
 
     def add_language(self, language):
+        """
+        Adds a language to the country.
+        """
         self.languages.add(language)
 
     def get_currencies(self):
+        """
+        Returns the currencies used in the country.
+        """
         return self.currencies.all()
 
     def add_currency(self, currency):
+        """
+        Adds a currency to the country.
+        """
         self.currencies.add(currency)
 
     def get_timezones(self):
+        """
+        Returns the timezones in the country.
+        """
         return self.timezones.all()
 
     def add_timezone(self, timezone):
+        """
+        Adds a timezone to the country.
+        """
         self.timezones.add(timezone)
 
     @classmethod
     def get_detail_queryset(cls):
+        """
+        Returns a queryset containing detailed information about countries.
+        """
         return (
             cls.objects.get_queryset()
             .prefetch_related(
@@ -330,7 +363,6 @@ class Organization(BaseUserModel):
     @classmethod
     def get_detailed_queryset(cls, country=False, organization_users=False, organization_candidates=False, organization_packages=False) -> QuerySet:
         """
-        Returns a queryset containing detailed information about organizations,
-        including associated countries, users, candidates, and packages.
+        Returns a queryset containing detailed information about organizations, including associated countries, users, candidates, and packages.
         """
         return get_organization_detailed_queryset(cls, country, organization_users, organization_candidates, organization_packages)
