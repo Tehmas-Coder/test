@@ -16,11 +16,18 @@ class GenericWebhook:
 
     def send_request(self, encryption_key: str, token: str) -> bool:
         """
-        Send a POST request to the webhook URL with the encrypted data
+        Sends an encrypted request to a webhook URL.
 
-        :param encryption_key: The encryption key to encrypt the data
-        :param token: The token to decrypt the webhook URL
-        :return: True if the request was successful, False otherwise
+        This function decrypts the provided token to obtain the webhook URL,
+        encrypts the data dictionary, and sends it as a POST request to the
+        webhook URL.
+
+        Args:
+            encryption_key (str): The key used for encryption and decryption.
+            token (str): The encrypted token containing the webhook URL.
+
+        Returns:
+            bool: True if the request was successful (status code 200), False otherwise.
         """
         webhook_url = decrypt_message(token, encryption_key)
         encrypted_data = encrypt_message(json.dumps(self.data_dict), encryption_key)
