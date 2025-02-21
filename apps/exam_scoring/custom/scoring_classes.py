@@ -26,11 +26,29 @@ from apps.exam_scoring.models.exam_scoring_models import (
 
 
 class CandidateExamScoring:
+    """
+    This class handles the scoring of candidate exams. It includes methods for marking the exam, calculating section and subsection scores, updating the scores in the database, and generating a scoresheet for the candidate exam.
+    """
 
     def __init__(self, candidate_exam_id: int) -> None:
         self.candidate_exam_id = candidate_exam_id
 
     def mark_candidate_exam(self, request_data: list) -> dict:
+        """
+        Marks and scores a candidate's exam based on the provided request data.
+        This function performs the following steps:
+        - Retrieves the candidate's exam answers and related data.
+        - Updates the scores for the candidate's answers.
+        - Calculates the total score for general questions.
+        - Evaluates and calculates scores for sections and subsections.
+        - Updates the candidate's exam instance with the total score and status.
+        - Sends webhook notifications and email notifications if applicable.
+        Args:
+            request_data (list): A list of data required to mark the candidate's exam.
+        Returns:
+            dict: A dictionary containing a message and the response status.
+        """
+
         candidate_exam_answer_queryset = (
             CandidateExamAnswer.objects.filter(candidate_exam_id=self.candidate_exam_id)
             .select_related("exam_backlog_question_choice", "exam_backlog_question")
@@ -86,6 +104,15 @@ class CandidateExamScoring:
         return {"message": message, "status": response_status}
 
     def get_candidate_exam_scoresheet(self):
+        """
+        Retrieves the scoresheet for a candidate's exam.
+        This method fetches detailed candidate exam information with country-based questions,
+        filters the candidate exam backlog questions, and annotates the obtained scores.
+        It then serializes the candidate exam backlog question instance into a scoresheet.
+        Returns:
+            dict: Serialized data of the candidate's exam scoresheet.
+        """
+
         user_backlog_question_ids_list = get_detailed_candidate_exam_with_country_based_questions(
             self.candidate_exam_id, fetch_only_question_ids=True, setting_score=True
         )
