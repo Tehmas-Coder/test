@@ -3,6 +3,10 @@ from rest_framework import serializers
 
 
 def get_base_model_fields() -> list[str]:
+    """
+    Get the fields of the base model.
+    :return: The fields of the base model (list)
+    """
     return [
         "description",
         "created_at",
@@ -14,6 +18,10 @@ def get_base_model_fields() -> list[str]:
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
+    """
+    Base model serializer that includes the fields of the base model, and sets the created_by and updated_by fields based on the request user.
+    """
+
     class Meta:
         abstract = True
         fields = get_base_model_fields()
