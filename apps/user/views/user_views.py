@@ -59,7 +59,7 @@ class UserInvitationLinkAPI(viewsets.ViewSet):
     def invitation_link(self, request):
         encrypted_email_token = request.query_params["token"]
         verification_ninja_instance = VerificationEmailNinja()
-        verification_ninja_instance.send(encrypted_email_token)
+        verification_ninja_instance.verify(encrypted_email_token)
         return make_success_response(message="User verified successfully.")
 
     def resend_verification_link(self, request):
