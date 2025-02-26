@@ -20,6 +20,28 @@ from utils.rna_utils import debug_print, make_error_response
 
 
 class MediaExtractor(ABC):
+    """
+    This class is used to extract the media files from the request based on the provided media key.
+
+    :Attributes:
+    - `media_key` (str): The key used to extract the media files from the request.
+
+    :Methods:
+    - `extract(request, media_keys)`: Extracts the media files from the request.
+
+    :Example:
+    >>> class CustomMediaExtractor(MediaExtractor):
+    >>>     media_key = "custom_medias"
+    >>>
+    >>>     def extract(self, request, media_keys: list) -> list:
+    >>>         medias = []
+    >>>         for key in media_keys:
+    >>>             file = request.FILES.get(key)
+    >>>             if file:
+    >>>                 medias.append({"file": file})
+    >>>         return medias
+    """
+
     media_key = None
 
     @abstractmethod
@@ -118,10 +140,18 @@ class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidato
 
 class QuestionService:
     """
-    This class is used to handle the question creation service.
+    This class is used to create a question based on the provided data.
 
-    It parses the request data, validates the organization, sets the visibility,
-    and saves the question using the provided serializer class.
+    :Attributes:
+    - `request_parser` (RequestMediaParser): The request parser used to parse the request data.
+    - `request_choice_media_parser` (RequestMediaParser): The request parser used to parse the choice media files.
+    - `request_hint_media_parser` (RequestMediaParser): The request parser used to parse the hint media files.
+    - `visibility_setter` (VisibilitySetter): The visibility setter used to set the visibility of the question.
+    - `organization_validator` (OrganizationValidator): The organization validator used to validate the organization.
+    - `serializer_class`: The serializer class used to serialize the question data.
+
+    :Methods:
+    - `create_question(request)`: Creates a question based on the provided request data.
     """
 
     def __init__(
