@@ -12,13 +12,11 @@ from utils.rna_utils import generate_random_password, make_error_response
 
 class VerificationEmailNinja:
     """
-    A class to handle the sending and resending of verification emails to users.
+    VerificationEmailNinja class handles the verification and resending of verification emails for a user.
 
-    Methods
-    - verify(email)
-        Decrypts the token, retrieves the user instance, checks verification status, and verifies the user.
-    - resend(email)
-        Retrieves the user instance, checks verification status, and sends a new verification email.
+    :Methods:
+    - `verify(token)`: Verifies the user based on the provided token.
+    - `resend(email)`: Resends the verification email to the user.
     """
 
     def __init__(self) -> None:
@@ -68,6 +66,12 @@ class VerificationEmailNinja:
             ResponseMiddleware.return_now(make_error_response(message="Invalid link"))
 
     def __send_verification_email(self, user_instance: BaseUser):
+        """
+        Sends the verification email to the user.
+
+        Args:
+            user_instance (BaseUser): The user instance.
+        """
         new_password = generate_random_password()
         user_instance.set_password(new_password)
         user_instance.save()
