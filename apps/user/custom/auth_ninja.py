@@ -30,8 +30,8 @@ class AuthNinja:
     - `request_data`: dict: Request data
 
     :Methods:
-    - `register`: Register the user based on the request data
-    - `exam_token_handler`: Handle the exam token and return the response data
+    - `register()`: Register the user based on the request data
+    - `exam_token_handler(request)`: Handle the exam token and return the response data
 
     :Static Methods:
     - `create_candidate_with_exam_token`: Create candidate with exam token and return candidate exam instance
