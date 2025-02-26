@@ -22,15 +22,20 @@ from utils.rna_utils import make_error_response
 @dataclass
 class UserNinja:
     """
-    UserNinja class handles user creation, updating, and role assignment.
-    Attributes:
-        logged_in_user (BaseUser): The currently logged-in user.
-        data_dict (dict): Dictionary containing user data.
-        serializer_class (Callable): Serializer class for user data validation and saving.
-    Methods:
-        create(): Creates a new user with the provided data.
-        update(): Updates an existing user with the provided data.
-        set_role(user, roles): Sets roles for the specified user.
+    UserNinja class handles the creation and updation of users in the system.
+
+    :Attributes:
+    - `logged_in_user` (BaseUser): The logged-in user instance.
+    - `data_dict` (dict): The dictionary containing the user data.
+    - `serializer_class` (Callable): The serializer class for the user model.
+    - `logged_in_user_roles` (list): The roles of the logged-in user.
+    - `is_super_user` (bool): The status of the logged-in user as a super user.
+    - `requested_user_instance` (BaseUser): The requested user instance.
+
+    :Methods:
+    - `create()`: Creates a user based on the provided data.
+    - `update()`: Updates a user based on the provided data.
+    - `set_role(user, roles)`: Sets the roles for the user.
     """
 
     logged_in_user: BaseUser
