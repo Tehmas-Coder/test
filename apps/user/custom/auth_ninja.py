@@ -216,6 +216,18 @@ class AuthNinja:
 
     @staticmethod
     def decrypt_exam_token(token):
+        """
+        Decrypts the provided exam token.
+
+        This method decrypts the provided token using the encryption key and returns the decrypted data.
+        If the token is invalid or expired, it returns an error response.
+
+        Args:
+            token (str): The encrypted exam token.
+
+        Returns:
+            dict: The decrypted data from the token.
+        """
         key = get_encryption_key()
         cipher = Fernet(key)
         try:
