@@ -6,14 +6,14 @@ from utils.rna_utils import color_print, make_error_response, make_warning_respo
 class OTPNinja:
     """
     OTPNinja class handles OTP verification and resending for a user.
-    Attributes:
-        email (str): The email of the user.
-        user (BaseUser): The user object retrieved by email.
-    Methods:
-        verify_otp(otp):
-            Verifies the provided OTP for the user.
-        resend_otp():
-            Resends the OTP to the user's email if the current OTP is expired.
+
+    :Attributes:
+    - `email` (str): The email of the user.
+    - `user` (BaseUser): The user object retrieved by email.
+
+    :Methods:
+    - `verify_otp(otp)`: Verifies the provided OTP for the user.
+    - `resend_otp()`: Resends the OTP to the user's email if the current OTP is expired.
     """
 
     def __init__(self, email):
