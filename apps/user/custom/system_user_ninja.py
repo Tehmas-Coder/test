@@ -9,17 +9,20 @@ from middlewares.response_middleware import ResponseMiddleware
 
 class SystemUserNinja:
     """
-    A class to handle the creation and management of system users within an organization.
-    Attributes:
-        logged_in_user_organization (str): The organization of the currently logged-in user.
-        data_dict (dict): The request data containing user information.
-        roles (QuerySet): The roles fetched from the database.
-        role_slug_id_hashmap (dict): A hashmap of role slugs to role IDs.
-        existing_users_email_and_instance_hashmap (dict): A hashmap of existing user emails to user instances.
-        existing_organization_users_email_and_instance_hashmap (dict): A hashmap of existing organization user emails to organization user instances.
-        unentertained_emails (list): A list of emails that could not be processed.
-    Methods:
-        create_system_user(): Creates system users based on the provided data.
+    SystemUserNinja class handles the
+    creation of system users in the organization.
+
+    :Attributes:
+    - `logged_in_user_organization` (int): The organization ID of the logged-in user.
+    - `data_dict` (dict): The dictionary containing the system user data.
+    - `roles` (QuerySet): The roles retrieved based on the data.
+    - `role_slug_id_hashmap` (dict): The role slug to role ID hashmap.
+    - `existing_users_email_and_instance_hashmap` (dict): The email to user instance hashmap.
+    - `existing_organization_users_email_and_instance_hashmap` (dict): The email to organization user instance hashmap.
+    - `unentertained_emails` (list): The list of unentertained emails.
+
+    :Methods:
+    - `create_system_user()`: Creates system users based on the provided data.
     """
 
     def __init__(self, request_data):
@@ -38,6 +41,9 @@ class SystemUserNinja:
         return self.unentertained_emails
 
     def __collect_roles(self):
+        """
+        Collects the roles based on the provided data and constructs a role_slug to role_id hashmap.
+        """
         role_slugs = [f"{self.logged_in_user_organization}-{one_dict['Slug']}" for one_dict in self.data_dict]
         slugs_to_role_name_hashmap = {f"{self.logged_in_user_organization}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in self.data_dict}
 
