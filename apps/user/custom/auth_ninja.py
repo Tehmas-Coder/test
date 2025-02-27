@@ -207,6 +207,20 @@ class AuthNinja:
     # ---------------------------------------------------------------------------- #
     @staticmethod
     def create_candidate_with_exam_token(user_instance, decrypted_data):
+        """
+        Associates the user with a candidate instance and updates the candidate exam.
+
+        This method checks if the user is already registered as a candidate. If not, it creates a candidate instance
+        for the user with the organization provided in the decrypted data. It then updates the candidate exam with
+        the candidate instance.
+
+        Args:
+            user_instance (BaseUser): The user instance to associate with the candidate.
+            decrypted_data (dict): The decrypted data from the exam token.
+
+        Returns:
+            CandidateExam (CandidateExam): The candidate exam instance associated with the user.
+        """
         organization_id = decrypted_data["organization_id"]
         candidate_exam_id = decrypted_data["candidate_exam_id"]
         candidate_instance, _ = Candidate.objects.get_or_create(user=user_instance, organization_id=organization_id)
