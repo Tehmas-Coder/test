@@ -57,6 +57,16 @@ class DefaultMediaExtractor(MediaExtractor):
     media_key = "medias"
 
     def extract(self, request, media_keys: list) -> list:
+        """
+        Extracts the media files from the request.
+
+        Args:
+            `request` (Request): The request object.
+            `media_keys` (list): The list of media keys.
+
+        Returns:
+            list: The list of media files.
+        """
         medias = []
         for key in media_keys:
             file = request.FILES.get(key)
@@ -94,19 +104,44 @@ class ChoiceMediaExtractor(DefaultMediaExtractor):
 class RequestMediaParser:
     """
     This class is used to parse the request data and extract the media files from the request.
+
+    :Attributes:
+    - `media_extractor` (MediaExtractor): The media extractor used to extract the media files from the request.
+    - `media_key` (str): The key used to extract the media files from the request.
+
+    :Methods:
+    - `parse(request)`: Parses the request data.
+    - `parse_media(request, request_data)`: Parses the media files from the request data.
     """
 
-    def __init__(
-        self,
-        media_extractor: MediaExtractor = DefaultMediaExtractor(),
-    ) -> None:
+    def __init__(self, media_extractor: MediaExtractor = DefaultMediaExtractor()) -> None:
         self.media_extractor = media_extractor
         self.media_key = self.media_extractor.media_key
 
     def parse(self, request) -> dict:
+        """
+        Parses the request data and extracts the media files from the request.
+
+        Args:
+            `request` (Request): The request object.
+
+        Returns:
+            dict: The parsed request data.
+        """
         return self.parse_media(request) if "data" in request.data else request.data
 
     def parse_media(self, request, request_data=None) -> dict:
+        """
+        Parses the media files from the request data, extracts the media files from the request, and adds them to the request data.
+        If the request data is not provided, it will be extracted from the request.
+
+        Args:
+            `request` (Request): The request object.
+            `request_data` (dict): The request data.
+
+        Returns:
+            dict: The parsed request data.
+        """
         request_data = json.loads(request.data["data"]) if request_data is None else request_data
         request_data[f"{self.media_key}"] = self.media_extractor.extract(request, request_data.pop(f"{self.media_key}", []))
         return request_data
