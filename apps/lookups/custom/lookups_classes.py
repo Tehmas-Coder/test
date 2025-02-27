@@ -16,6 +16,15 @@ class VisibilitySetter:
     """
 
     def set_visibility(self, request_data: dict) -> dict:
+        """
+        Set the visibility of the resource to public or non public based on the user's superuser status.
+
+        Args:
+            request_data (dict): The request data.
+
+        Returns:
+            dict: The updated request data.
+        """
         if get_current_user().is_superuser:  # type: ignore
             request_data["is_public"] = 1
         else:
