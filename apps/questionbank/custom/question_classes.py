@@ -165,6 +165,15 @@ class OrganizationPackageQuestionLimitValidator(OrganizationPackageLimitValidato
         super().__init__(organization_id)
 
     def validate(self) -> bool:
+        """
+        Validates the question creation package limits of the organization.
+
+        Returns:
+            bool: True if the resource count is within the organization package limits, False otherwise.
+
+        Raises:
+            ValueError: If the resource count exceeds the organization package limits.
+        """
         try:
             self.organization_package.questions = self.validate_limit(self.organization_package.questions, self.organization_package.package.questions)  # type: ignore
             self.save_organization_package()
