@@ -9,7 +9,15 @@ from utils.rna_utils import make_error_response
 # ---------------------------------------------------------------------------- #
 def check_subject_education_level_existence(subject_id: int, education_level_id: int, instance_id: int | None = None) -> None:
     """
-    This function is used to check if the subject education level exists.
+    This function is used to check the existence of subject education level.
+
+    Args:
+        `subject_id` (int): The subject ID.
+        `education_level_id` (int): The education level ID.
+        `instance_id` (int | None): The SubjectEducationLevel instance ID.
+
+    Raises:
+        `ResponseMiddleware.return_now()`: If the subject education level already exists.
     """
     if SubjectEducationLevel.objects.filter(subject_id=subject_id, education_level_id=education_level_id).exclude(id=instance_id).exists():
         ResponseMiddleware.return_now(make_error_response(message="Failed: This subject education level already exists."))
@@ -21,6 +29,11 @@ def check_subject_education_level_existence(subject_id: int, education_level_id:
 def bulk_create_question_choices_or_retry_hints(question_instance: Question, data: list, model) -> None:
     """
     This function is used to bulk create question choices or retry hints for question.
+
+    Args:
+        `question_instance` (Question): The question instance.
+        `data` (list): The list of question choices or retry hints data.
+        `model`: The model class for question choices or retry hints.
     """
     for item in data:
         medias = item.pop("medias", [])
@@ -32,6 +45,10 @@ def bulk_create_question_choices_or_retry_hints(question_instance: Question, dat
 def bulk_create_media_instances(medias: list, instance) -> None:
     """
     This function is used to bulk create media instances for question, question choices or retry hints.
+
+    Args:
+        `medias` (list): The list of media data.
+        `instance`: The instance of question, question choices or retry hints.
     """
     for item in medias:
         media_instance = MediaSerializer().create(item)
@@ -41,6 +58,12 @@ def bulk_create_media_instances(medias: list, instance) -> None:
 def question_title_p_tag_stripper(question_title: str) -> str:
     """
     This function is used to strip the p tag from the question title start and end.
+
+    Args:
+        `question_title` (str): The question title.
+
+    Returns:
+        `str`: The question title without p tag.
     """
     if question_title.startswith("<p>") and question_title.endswith("</p>"):
         question_title = question_title[3:-4]
