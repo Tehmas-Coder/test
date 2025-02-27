@@ -13,6 +13,13 @@ from middlewares.current_user_middleware import get_current_user
 class QuestionClone:
     """
     A class used to clone questions along with their related entities.
+
+    :Methods:
+    - `clone_question(original_question)`: Clone the provided question.
+
+    :Example:
+    >>> question = Question.objects.get(pk=1)
+    >>> cloned_question = QuestionClone().clone_question(question)
     """
 
     def init(self):
