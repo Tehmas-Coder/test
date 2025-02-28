@@ -606,6 +606,13 @@ class CandidateExamNinja:
         """
         - This function extracts the media for answers
         - It also collects the exam_backlog_question_choices_ids to avoid another loop on request data to collect those
+
+        Args:
+            request_data (dict): The request data
+            request (Request): The request object
+
+        Returns:
+            dict: The answer media hashmap
         """
         answer_media_hashmap = {}
         for answer in request_data:
