@@ -17,6 +17,16 @@ MEDIA_MODEL = "user.Media"
 
 
 class Tag(BaseModel):
+    """
+    Represents a tag that can be assigned to questions.
+
+    - id: Autofield (PK)
+    - organization: Organization (FK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
     name = models.CharField(max_length=255)
@@ -24,6 +34,9 @@ class Tag(BaseModel):
     abbreviation = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
+        """
+        - Set the organization id if the user is not a superuser on tag creation.
+        """
         if not self.pk:
             if not get_current_user().is_superuser:  # type: ignore
                 self.organization_id = get_current_user_organization()
@@ -34,6 +47,17 @@ class Tag(BaseModel):
 
 
 class EducationLevel(BaseModel):
+    """
+    Represents an education level that can be assigned to subjects.
+
+    - id: Autofield (PK)
+    - organization: Organization (FK)
+    - name: CharField
+    - slug: SlugField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
     name = models.CharField(max_length=100)
@@ -54,6 +78,17 @@ class EducationLevel(BaseModel):
 
 
 class Subject(BaseModel):
+    """
+    Represents a subject that can be assigned to questions.
+
+    - id: Autofield (PK)
+    - organization: Organization (FK)
+    - name: CharField
+    - slug: SlugField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
     name = models.CharField(max_length=100)
@@ -114,6 +149,15 @@ class Subject(BaseModel):
 
 
 class QuestionType(BaseModel):
+    """
+    Represents a type of question.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - slug: SlugField
+    - abbreviation: CharField
+    """
+
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     abbreviation = models.CharField(max_length=10, blank=True)
@@ -127,6 +171,17 @@ class QuestionType(BaseModel):
 
 
 class DifficultyLevel(BaseModel):
+    """
+    Represents a difficulty level for questions.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - slug: SlugField
+    - code: CharField
+    - abbreviation: CharField
+    - sequence: IntegerField
+    """
+
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     code = models.CharField(max_length=10, unique=True)
@@ -147,6 +202,24 @@ class DifficultyLevel(BaseModel):
 
 
 class Question(BaseModel):
+    """
+    Represents a question in the system.
+
+    - id: Autofield (PK)
+    - type: QuestionType (FK)
+    - organization: Organization (FK)
+    - title: TextField
+    - text: TextField
+    - max_retries: IntegerField
+    - retry_penalty: IntegerField
+    - can_shuffle: BooleanField
+    - has_media: BooleanField
+    - is_public: BooleanField
+    - tags: Tag (M2M)
+    - medias: Media (M2M)
+    - subject_education_levels: SubjectEducationLevel (M2M)
+    """
+
     type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="organization_questions")
 
@@ -167,7 +240,7 @@ class Question(BaseModel):
         app_label = "questionbank"
 
     @property
-    def type_name(self):
+    def type_name(self) -> str:
         return self.type.name
 
     @classmethod
@@ -177,8 +250,15 @@ class Question(BaseModel):
         return get_question_detailed_queryset(cls, q_filter, tags, attempt_responses, choices, retry_hints, subjects, all)
 
     @classmethod
-    def get_questions_for_countries(cls, country_ids: list):
+    def get_questions_for_countries(cls, country_ids: list) -> QuerySet:
+        """
+        - Get the questions for the given country ids.
 
+        Args:
+            country_ids (list): List of country ids.
+        Returns:
+            QuerySet: Queryset of questions
+        """
         return (
             cls.get_detail_queryset()
             .filter(
@@ -188,8 +268,15 @@ class Question(BaseModel):
         )
 
     @classmethod
-    def get_questions_for_subjects(cls, subject_ids: list):
+    def get_questions_for_subjects(cls, subject_ids: list) -> QuerySet:
+        """
+        - Get the questions for the given subject ids.
 
+        Args:
+            subject_ids (list): List of subject ids.
+        Returns:
+            QuerySet: Queryset of questions
+        """
         return (
             cls.get_detail_queryset()
             .filter(
@@ -199,7 +286,16 @@ class Question(BaseModel):
         )
 
     @classmethod
-    def get_questions_for_subjects_and_education_levels(cls, subject_ids: list, education_level_ids: list):
+    def get_questions_for_subjects_and_education_levels(cls, subject_ids: list, education_level_ids: list) -> QuerySet:
+        """
+        - Get the questions for the given subject ids and education level ids.
+
+        Args:
+            subject_ids (list): List of subject ids.
+            education_level_ids (list): List of education level ids.
+        Returns:
+            QuerySet: Queryset of questions
+        """
         return (
             cls.get_detail_queryset()
             .filter(
@@ -211,11 +307,8 @@ class Question(BaseModel):
 
     @classmethod
     def select_random_questions(
-        cls,
-        education_level_id: int | None = None,
-        subject_id: int | str | None = None,
-        question_count: int | None = None,
-    ):
+        cls, education_level_id: int | None = None, subject_id: int | str | None = None, question_count: int | None = None
+    ) -> list[int]:
         """
         Select random questions based on the given subject and education level.
 
@@ -242,6 +335,20 @@ class Question(BaseModel):
 
 
 class QuestionChoice(BaseModel):
+    """
+    Represents a choice for a question.
+
+    - id: Autofield (PK)
+    - question: Question (FK)
+    - title: CharField
+    - text: TextField
+    - weight: IntegerField
+    - is_negative_weight: BooleanField
+    - is_correct: BooleanField
+    - has_media: BooleanField
+    - medias: Media (M2M)
+    """
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
 
     title = models.CharField(max_length=255)
@@ -258,6 +365,9 @@ class QuestionChoice(BaseModel):
         app_label = "questionbank"
 
     def save(self, *args, **kwargs):
+        """
+        - Set the has_media field based on the medias field.
+        """
         if self.pk:
             if self.medias.exists():
                 self.has_media = True
@@ -267,6 +377,15 @@ class QuestionChoice(BaseModel):
 
 
 class QuestionAttemptResponse(BaseModel):
+    """
+    Represents an attempt response for a question.
+
+    - id: Autofield (PK)
+    - question: Question (FK)
+    - text: TextField
+    - type: CharField (choices are [correct, wrong, partial, skipped, unanswered])
+    """
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="attempt_responses")
     text = models.TextField(null=True, blank=True)
 
@@ -285,6 +404,17 @@ class QuestionAttemptResponse(BaseModel):
 
 
 class QuestionRetryHint(BaseModel):
+    """
+    Represents a retry hint for a question.
+
+    - id: Autofield (PK)
+    - question: Question (FK)
+    - text: TextField
+    - sequence: IntegerField
+    - has_media: BooleanField
+    - medias: Media (M2M)
+    """
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="retry_hints")
 
     text = models.TextField(null=True, blank=True)
@@ -299,6 +429,9 @@ class QuestionRetryHint(BaseModel):
     )
 
     def save(self, *args, **kwargs):
+        """
+        - Set the has_media field based on the medias field.
+        """
         if self.pk:
             if self.medias.exists():
                 self.has_media = True
@@ -310,12 +443,16 @@ class QuestionRetryHint(BaseModel):
         app_label = "questionbank"
 
 
-# ---------------------------------------------------------------------------- #
-#                                   MAPPINGS                                   #
-# ---------------------------------------------------------------------------- #
-
-
 class SubjectEducationLevel(BaseModel):
+    """
+    Represents a mapping between subjects and education levels.
+
+    - id: Autofield (PK)
+    - organization: Organization (FK)
+    - subject: Subject (FK)
+    - education_level: EducationLevel (FK)
+    """
+
     organization = models.ForeignKey("lookups.Organization", on_delete=models.CASCADE, null=True, blank=True)
 
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
@@ -326,6 +463,9 @@ class SubjectEducationLevel(BaseModel):
         db_table = "questionbank_subject_educationlevel"
 
     def save(self, *args, **kwargs):
+        """
+        - Set the organization id if the user is not a superuser on subject education level creation.
+        """
         if not self.pk:
             if (not get_current_user().is_superuser) and (self.subject.organization or self.education_level.organization):  # type: ignore
                 self.organization_id = get_current_user_organization()
@@ -333,14 +473,25 @@ class SubjectEducationLevel(BaseModel):
 
     @classmethod
     def get_detail_queryset(cls):
-        return cls.objects.get_queryset().select_related(
-            "organization",
-            "subject",
-            "education_level",
-        )
+        return cls.objects.get_queryset().select_related("organization", "subject", "education_level")
 
 
 class QuestionSubject(BaseModel):
+    """
+    Represents a mapping between questions and subjects.
+
+    - id: Autofield (PK)
+    - question: Question (FK)
+    - subject_education_level: SubjectEducationLevel (FK)
+    - difficulty_level: DifficultyLevel (FK)
+    - measuring_unit: MeasuringUnit (FK)
+    - time_limit: IntegerField
+    - total_marks: IntegerField
+    - is_optional: BooleanField
+    - is_global: BooleanField
+    - countries: Country (M2M)
+    """
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="subjects")
     subject_education_level = models.ForeignKey(SubjectEducationLevel, on_delete=models.CASCADE, related_name="question_subjects")
     difficulty_level = models.ForeignKey(DifficultyLevel, on_delete=models.CASCADE)
@@ -360,6 +511,14 @@ class QuestionSubject(BaseModel):
 
 
 class QuestionSubjectCountry(BaseModel):
+    """
+    Represents a mapping between question subjects and countries.
+
+    - id: Autofield (PK)
+    - question_subject: QuestionSubject (FK)
+    - country: Country (FK)
+    """
+
     question_subject = models.ForeignKey(QuestionSubject, on_delete=models.CASCADE, related_name="subject_countries")
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE)
 
@@ -369,6 +528,14 @@ class QuestionSubjectCountry(BaseModel):
 
 
 class QuestionMedia(BaseModel):
+    """
+    Represents a mapping between questions and media.
+
+    - id: Autofield (PK)
+    - question: Question (FK)
+    - media: Media (FK)
+    """
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
 
@@ -378,6 +545,14 @@ class QuestionMedia(BaseModel):
 
 
 class QuestionTag(BaseModel):
+    """
+    Represents a mapping between questions and tags.
+
+    - id: Autofield (PK)
+    - question: Question (FK)
+    - tag: Tag (FK)
+    """
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     tag = models.ForeignKey("questionbank.Tag", on_delete=models.CASCADE)
 
@@ -386,12 +561,15 @@ class QuestionTag(BaseModel):
         db_table = "questionbank_question_tag"
 
 
-# ---------------------------------------------------------------------------- #
-#                                MEDIA MAPPINGS                                #
-# ---------------------------------------------------------------------------- #
-
-
 class QuestionChoiceMedia(BaseModel):
+    """
+    Represents a mapping between question choices and media.
+
+    - id: Autofield (PK)
+    - question_choice: QuestionChoice (FK)
+    - media: Media (FK)
+    """
+
     question_choice = models.ForeignKey(QuestionChoice, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
 
@@ -401,6 +579,14 @@ class QuestionChoiceMedia(BaseModel):
 
 
 class QuestionRetryHintMedia(BaseModel):
+    """
+    Represents a mapping between question retry hints and media.
+
+    - id: Autofield (PK)
+    - question_retry_hint: QuestionRetryHint (FK)
+    - media: Media (FK)
+    """
+
     question_retry_hint = models.ForeignKey(QuestionRetryHint, on_delete=models.CASCADE)
     media = models.ForeignKey(MEDIA_MODEL, on_delete=models.CASCADE)
 

@@ -14,8 +14,13 @@ def get_detailed_candidate_exam_with_country_based_questions(
 ):
     """
     Get detailed candidate exam with country based questions
-    :param candidate_exam_id: Candidate exam id, queryset: Queryset
-    :return: Detailed candidate exam with country based questions
+
+    Args:
+    - `candidate_exam_id` (int): The candidate exam id.
+    - `set_attempted` (bool): If True, set the exam status to attempted.
+
+    Returns:
+    - dict: The detailed candidate exam
     """
     candidate_exam_data = (
         CandidateExam.objects.filter(id=candidate_exam_id)

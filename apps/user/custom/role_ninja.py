@@ -9,7 +9,13 @@ class RoleNinja:
     @staticmethod
     def add_role_permissions(user_id) -> Role:
         """
-        Add all permissions to a role with is_active set to False
+        Add permissions to the role based on the user's superuser status.
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            Role: The updated role instance.
         """
         if get_current_user().is_superuser:  # type: ignore
             permission_ids_list = list(Permission.objects.all().values_list("id", flat=True))

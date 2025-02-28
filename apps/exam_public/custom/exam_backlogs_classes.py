@@ -19,6 +19,30 @@ from apps.exam_public.serializers.backlog_serializers.exam_backlog_serializers i
 
 
 class ExamBacklogsNinja:
+    """
+    This class is solely used to create the exam backlogs for the exam data provided.
+
+    :Attributes:
+    - `exam_data` (dict): The exam data.
+    - `section_backlog_ids_hashmap` (dict): The hashmap which has section_ids as keys and section_backlog_ids as values.
+    - `subsection_backlog_ids_hashmap` (dict): The hashmap which has subsection_ids as keys and subsection_backlog_ids as values.
+    - `question_backlog_ids_hashmap` (dict): The hashmap which has question_ids as keys and question_backlog_ids as values.
+    - `exam_backlog_id` (int): The exam backlog id.
+
+    :Methods:
+    - `create_backlogs()`: Creates the exam backlogs.
+    - `create_sections_backlogs(exam_section_list)`: Creates the sections backlogs.
+    - `create_subsections_backlogs(exam_subsection_list)`: Creates the subsections backlogs.
+    - `create_questions_backlogs(exam_question_list)`: Creates the questions backlogs.
+    - `create_question_medias_backlogs(exam_backlog_question_id, exam_question_medias)`: Creates the question medias backlogs.
+    - `create_question_country_backlogs(exam_backlog_question_id, exam_question_countries)`: Creates the question country backlogs.
+    - `create_question_choices_backlogs(exam_backlog_question_id, exam_question_choices)`: Creates the question choices backlogs.
+    - `create_question_tags_backlogs(exam_backlog_question_id, exam_question_tags)`: Creates the question tags backlogs.
+    - `create_question_retry_hints_backlogs(exam_backlog_question_id, exam_question_retry_hints)`: Creates the question retry hints backlogs.
+    - `create_question_attempt_responses_backlogs(exam_backlog_question_id, exam_question_attempt_responses)`: Creates the question attempt responses backlogs.
+    - `question_related_media_backlog_creation()`: Creates the question related media backlogs.
+    """
+
     def __init__(self, exam_data: dict) -> None:
         self.exam_data = exam_data
         self.section_backlog_ids_hashmap = {}
@@ -171,10 +195,7 @@ class ExamBacklogsNinja:
         )
         self.created_question_backlog_instance_list = sorted(created_question_backlog_queryset, key=lambda instance: instance.id)  # type: ignore
 
-        # * Intializing Bulk create lists for question related data
-        """
-        ->
-        """
+        # * Initializing Bulk create lists for question related data
         self.question_medias_bulk_create_list = []
         self.question_country_bulk_create_list = []
         self.question_choices_bulk_create_list = []
@@ -186,12 +207,8 @@ class ExamBacklogsNinja:
         self.question_choices_hashmap = {}
         self.question_retry_hints_hashmap = {}
         for index, one_exam_question in enumerate(exam_question_list):
-            # self.question_choices_hashmap = {one_choice["id"]: one_choice for one_choice in one_exam_question["question"]["choices"]}
             for one_choice in one_exam_question["question"]["choices"]:
                 self.question_choices_hashmap[one_choice["id"]] = one_choice
-            # self.question_retry_hints_hashmap = {
-            #     one_retry_hints["id"]: one_retry_hints for one_retry_hints in one_exam_question["question"]["retry_hints"]
-            # }
             for one_retry_hints in one_exam_question["question"]["retry_hints"]:
                 self.question_retry_hints_hashmap[one_retry_hints["id"]] = one_retry_hints
 

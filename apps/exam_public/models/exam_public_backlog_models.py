@@ -11,6 +11,23 @@ from core.models import BaseModel
 
 
 class ExamBacklog(BaseModel):
+    """
+    Represents an exam backlog.
+
+    - id: Autofield (PK)
+    - exam: Exam (FK)
+    - education_level: EducationLevel (FK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    - instructions: TextField
+    - education_level_name: CharField
+    - total_marks: PositiveIntegerField
+    - passing_percentage: PositiveIntegerField
+    - is_global: BooleanField
+    - examiners: BaseUser (M2M)
+    """
+
     exam = models.ForeignKey("exam_admin.Exam", on_delete=models.DO_NOTHING)
     education_level = models.ForeignKey("questionbank.EducationLevel", on_delete=models.DO_NOTHING)
 
@@ -32,6 +49,14 @@ class ExamBacklog(BaseModel):
 
 # --------------------------- EXAM BACKLOG EXAMINER -------------------------- #
 class ExamBacklogExaminer(BaseModel):
+    """
+    Represents an examiner for an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog: ExamBacklog (FK)
+    - examiner: BaseUser (FK)
+    """
+
     exam_backlog = models.ForeignKey("exam_public.ExamBacklog", on_delete=models.CASCADE)
     examiner = models.ForeignKey("user.BaseUser", on_delete=models.CASCADE)
 
@@ -44,6 +69,37 @@ class ExamBacklogExaminer(BaseModel):
 #                               QUESTION BACKLOGS                              #
 # ---------------------------------------------------------------------------- #
 class ExamBacklogQuestion(BaseModel):
+    """
+    Represents a question in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog: ExamBacklog (FK)
+    - subject: Subject (FK)
+    - difficulty_level: DifficultyLevel (FK)
+    - measuring_unit: MeasuringUnit (FK)
+    - section_backlog: SectionBacklog (FK)
+    - subsection_backlog: SubSectionBacklog (FK)
+    - education_level: EducationLevel (FK)
+    - subject_name: CharField
+    - education_level_name: CharField
+    - question: Question (FK)
+    - type: QuestionType (FK)
+    - title: TextField
+    - text: TextField
+    - max_retries: IntegerField
+    - retry_penalty: IntegerField
+    - sequence: PositiveIntegerField
+    - time_limit: IntegerField
+    - total_marks: IntegerField
+    - can_shuffle: BooleanField
+    - is_optional: BooleanField
+    - is_public: BooleanField
+    - is_global: BooleanField
+    - has_media: BooleanField
+    - medias: Media (M2M)
+    - countries: Country (M2M)
+    """
+
     exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE, related_name="backlog_questions")
     subject = models.ForeignKey("questionbank.Subject", on_delete=models.DO_NOTHING)
     difficulty_level = models.ForeignKey("questionbank.DifficultyLevel", on_delete=models.DO_NOTHING)
@@ -86,9 +142,15 @@ class ExamBacklogQuestion(BaseModel):
 
 
 # -------------------------- QUESTION MEDIA BACKLOG -------------------------- #
-
-
 class ExamBacklogQuestionMedia(BaseModel):
+    """
+    Represents media associated with a question in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - media: Media (FK)
+    """
+
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE)
     media = models.ForeignKey("user.Media", on_delete=models.PROTECT)
 
@@ -101,6 +163,14 @@ class ExamBacklogQuestionMedia(BaseModel):
 
 
 class ExamBacklogQuestionCountry(BaseModel):
+    """
+    Represents a country associated with a question in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - country: Country (FK)
+    """
+
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE)
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE)
 
@@ -110,9 +180,22 @@ class ExamBacklogQuestionCountry(BaseModel):
 
 
 # ------------------------------ CHOICE BACKLOGS ----------------------------- #
-
-
 class ExamBacklogQuestionChoice(BaseModel):
+    """
+    Represents a choice for a question in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - question_choice: QuestionChoice (FK)
+    - title: CharField
+    - text: TextField
+    - weight: IntegerField
+    - is_negative_weight: BooleanField
+    - is_correct: BooleanField
+    - has_media: BooleanField
+    - medias: Media (M2M)
+    """
+
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_choices")
 
     # * Question Choice Fields
@@ -134,6 +217,14 @@ class ExamBacklogQuestionChoice(BaseModel):
 
 
 class ExamBacklogQuestionChoiceMedia(BaseModel):
+    """
+    Represents media associated with a choice in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question_choice: ExamBacklogQuestionChoice (FK)
+    - media: Media (FK)
+    """
+
     exam_backlog_question_choice = models.ForeignKey(ExamBacklogQuestionChoice, on_delete=models.CASCADE)
     media = models.ForeignKey("user.Media", on_delete=models.PROTECT)
 
@@ -143,9 +234,16 @@ class ExamBacklogQuestionChoiceMedia(BaseModel):
 
 
 # ------------------------------- TAG BACKLOGS ------------------------------- #
-
-
 class ExamBacklogQuestionTag(BaseModel):
+    """
+    Represents a tag associated with a question in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - tag: Tag (FK)
+    - name: CharField
+    """
+
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_tags")
 
     # * Question Tag Fields
@@ -159,9 +257,19 @@ class ExamBacklogQuestionTag(BaseModel):
 
 
 # ---------------------------- RETRY HINT BACKLOGS --------------------------- #
-
-
 class ExamBacklogQuestionRetryHint(BaseModel):
+    """
+    Represents a retry hint for a question in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - retry_hint: QuestionRetryHint (FK)
+    - text: TextField
+    - sequence: IntegerField
+    - has_media: BooleanField
+    - medias: Media (M2M)
+    """
+
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_retry_hints")
 
     # * Question Retry Hint Fields
@@ -169,7 +277,6 @@ class ExamBacklogQuestionRetryHint(BaseModel):
 
     text = models.TextField(null=True, blank=True)
     sequence = models.IntegerField(default=1)
-
     has_media = models.BooleanField(default=False)
 
     medias = models.ManyToManyField("user.Media", through="ExamBacklogQuestionRetryHintMedia")
@@ -186,6 +293,14 @@ class ExamBacklogQuestionRetryHint(BaseModel):
 
 
 class ExamBacklogQuestionRetryHintMedia(BaseModel):
+    """
+    Represents media associated with a retry hint in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question_retry_hint: ExamBacklogQuestionRetryHint (FK)
+    - media: Media (FK)
+    """
+
     exam_backlog_question_retry_hint = models.ForeignKey(ExamBacklogQuestionRetryHint, on_delete=models.CASCADE)
     media = models.ForeignKey("user.Media", on_delete=models.PROTECT)
 
@@ -195,9 +310,17 @@ class ExamBacklogQuestionRetryHintMedia(BaseModel):
 
 
 # ------------------------- ATTEMPT RESPONSE BACKLOG ------------------------- #
-
-
 class ExamBacklogQuestionAttemptResponse(BaseModel):
+    """
+    Represents an attempt response for a question in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog_question: ExamBacklogQuestion (FK)
+    - attempt_response: QuestionAttemptResponse (FK)
+    - text: TextField
+    - type: CharField
+    """
+
     exam_backlog_question = models.ForeignKey(ExamBacklogQuestion, on_delete=models.CASCADE, related_name="backlog_attempt_responses")
 
     # * Question Attempt Response Fields
@@ -211,7 +334,6 @@ class ExamBacklogQuestionAttemptResponse(BaseModel):
         ("skipped", "Skipped"),
         ("unanswered", "Unanswered"),
     )
-
     type = models.CharField(max_length=100, choices=TYPE_CHOICES, default="unanswered")
 
     class Meta:
@@ -220,9 +342,21 @@ class ExamBacklogQuestionAttemptResponse(BaseModel):
 
 
 # ----------------------------- SECTION BACKLOG ----------------------------- #
-
-
 class SectionBacklog(BaseModel):
+    """
+    Represents a section in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog: ExamBacklog (FK)
+    - section: Section (FK)
+    - measuring_unit: MeasuringUnit (FK)
+    - title: CharField
+    - sequence: PositiveIntegerField
+    - time_limit: PositiveIntegerField
+    - is_global: BooleanField
+    - is_shuffle: BooleanField
+    """
+
     exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE, related_name="section_backlogs")
 
     # * Section Fields
@@ -242,9 +376,22 @@ class SectionBacklog(BaseModel):
 
 
 # ---------------------------- SUBSECTION BACKLOG --------------------------- #
-
-
 class SubSectionBacklog(BaseModel):
+    """
+    Represents a subsection in an exam backlog.
+
+    - id: Autofield (PK)
+    - exam_backlog: ExamBacklog (FK)
+    - subsection: SubSection (FK)
+    - section: SectionBacklog (FK)
+    - measuring_unit: MeasuringUnit (FK)
+    - title: CharField
+    - sequence: PositiveIntegerField
+    - time_limit: PositiveIntegerField
+    - is_global: BooleanField
+    - is_shuffle: BooleanField
+    """
+
     exam_backlog = models.ForeignKey("exam_public.exambacklog", on_delete=models.CASCADE)
 
     # * SubSection Fields

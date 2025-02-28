@@ -1,11 +1,22 @@
 from cryptography.fernet import Fernet
 from decouple import config
 
+from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
-from utils.email_notifications import EmailNotification
 
 
 class ExamScoringNinja:
+    """
+    This class is used to send the exam result to the candidate via Email.
+
+    :Attributes:
+    - `candidate_exam_id` (int): The candidate exam id.
+    - `candidate_exam_instance` (CandidateExam): The candidate exam instance.
+
+    :Methods:
+    - `send_result_email_to_candidate()`: Sends the exam result to the candidate.
+    """
+
     def __init__(self, candidate_exam_id=None, candidate_exam_instance=None) -> None:
         self.candidate_exam_id = candidate_exam_id
         self.candidate_exam_instance = candidate_exam_instance

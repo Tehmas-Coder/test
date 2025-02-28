@@ -7,7 +7,6 @@ from apps.user.helpers.role_permission_helpers import (
 from apps.user.models.user_models import Permission, Role, RolePermission
 from apps.user.utils.user_utils import get_current_user_candidates
 from core.serializers import BaseModelSerializer, get_base_model_fields
-from utils.rna_utils import debug_print
 
 
 # -------------------------------- PERMISSIONS ------------------------------- #

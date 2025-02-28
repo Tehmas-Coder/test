@@ -2,16 +2,8 @@ from decouple import config
 
 from utils.notification_utils import send_email_notification_to_list
 
-# ! ------------------------------------------------------------
-# *                 Email Notification
-# ! ------------------------------------------------------------
-
 
 class EmailNotification:
-
-    # ! ------------------------------------------------------------
-    # *                 CONSTRUCTOR
-    # ! ------------------------------------------------------------
 
     def __init__(self, send_email_data_dict: dict = {}):
         self.send_email_data_dict = send_email_data_dict
@@ -21,10 +13,6 @@ class EmailNotification:
         self.user_email = self.send_email_data_dict["email"]
 
         self.subject = ""
-
-    # ! ------------------------------------------------------------
-    # *                 PUBLIC METHODS
-    # ! ------------------------------------------------------------
 
     def send_otp(self):
         self.html_content = self.__generate_html_content_for_otp()
@@ -46,9 +34,9 @@ class EmailNotification:
         self.subject = "Question-Bank : Exam Result Link"
         return self.__send_email(self.subject, self.html_content, self.user_email)
 
-    # ! ------------------------------------------------------------
-    # *                 PRIVATE METHODS
-    # ! ------------------------------------------------------------
+    # ---------------------------------------------------------------------------- #
+    #                                PRIVATE METHODS                               #
+    # ---------------------------------------------------------------------------- #
 
     def __generate_html_content_for_otp(self):
         with open("./templates/otp_email.html", "r", encoding="utf-8") as file:
@@ -99,10 +87,6 @@ class EmailNotification:
                 .replace("{URL}", self.send_email_data_dict["url"])
             )
         return html_content
-
-    # ! ------------------------------------------------------------
-    # *                 FORWARD EMAIL
-    # ! ------------------------------------------------------------
 
     def __send_email(self, subject, html_content, user_email):
         self.to_email_list = [user_email]

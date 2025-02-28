@@ -1,4 +1,10 @@
-def get_candidate_self_preparation_permission():
+def get_candidate_self_preparation_permission() -> dict:
+    """
+    Retrieve the permission details for a candidate to create a self preparatory exam.
+    Returns:
+        dict: A dictionary containing the permission details, including status, context, description, and metadata.
+    """
+
     return {
         "is_active": True,
         "permission": {

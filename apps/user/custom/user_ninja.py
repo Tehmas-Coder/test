@@ -13,14 +13,31 @@ from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaSerializer
 from apps.user.models.user_models import BaseUser
 from apps.user.utils.user_utils import get_current_user_organization, get_roles_names
+from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import make_error_response
 
 
 @dataclass
 class UserNinja:
+    """
+    UserNinja class handles the creation and updation of users in the system.
+
+    :Attributes:
+    - `logged_in_user` (BaseUser): The logged-in user instance.
+    - `data_dict` (dict): The dictionary containing the user data.
+    - `serializer_class` (Callable): The serializer class for the user model.
+    - `logged_in_user_roles` (list): The roles of the logged-in user.
+    - `is_super_user` (bool): The status of the logged-in user as a super user.
+    - `requested_user_instance` (BaseUser): The requested user instance.
+
+    :Methods:
+    - `create()`: Creates a user based on the provided data.
+    - `update()`: Updates a user based on the provided data.
+    - `set_role(user, roles)`: Sets the roles for the user.
+    """
+
     logged_in_user: BaseUser
     data_dict: dict
     serializer_class: Callable

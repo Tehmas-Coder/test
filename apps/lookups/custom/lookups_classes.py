@@ -16,6 +16,15 @@ class VisibilitySetter:
     """
 
     def set_visibility(self, request_data: dict) -> dict:
+        """
+        Set the visibility of the resource to public or non public based on the user's superuser status.
+
+        Args:
+            request_data (dict): The request data.
+
+        Returns:
+            dict: The updated request data.
+        """
         if get_current_user().is_superuser:  # type: ignore
             request_data["is_public"] = 1
         else:
@@ -24,6 +33,16 @@ class VisibilitySetter:
 
 
 class OrganizationValidator(ABC):
+    """
+    Abstract base class for organization validators.
+
+    :Attributes:
+    - `organization_id` (int): The organization id.
+
+    :Methods:
+    - `validate()`: Validates the organization
+    """
+
     def __init__(self, organization_id: int | None = None) -> None:
         if (organization_id is None) and (not get_current_user().is_superuser):  # type: ignore
             organization_id = get_current_user_organization()
@@ -37,6 +56,18 @@ class OrganizationValidator(ABC):
 class OrganizationResourceValidator(OrganizationValidator):
     """
     This class is used to validate the organization_id of the resource, to check if the resource belongs to the organization of the user.
+
+    :Attributes:
+    - `instance_organization_id` (int): The organization id of the resource.
+
+    :Methods:
+    - `validate()`: Validates the organization id of the resource.
+
+    :Raises:
+    - ResponseMiddleware: If the resource doesn't belong to the user's organization
+
+    :Returns:
+    - bool: True if the resource belongs to the user's organization, False otherwise.
     """
 
     def __init__(self, organization_id: int | None = None, instance_organization_id: int | None = None) -> None:
@@ -52,6 +83,16 @@ class OrganizationResourceValidator(OrganizationValidator):
 class OrganizationPackageLimitValidator(OrganizationValidator):
     """
     This class is used to validate the package limits of the organization.
+
+    :Attributes:
+    - `organization_package` (OrganizationPackage): The organization package.
+
+    :Methods:
+    - `validate_limit(current_count, total_limit)`: Validates the limit of the organization package.
+    - `save_organization_package()`: Saves the organization package.
+
+    :Raises:
+    - ValueError: If the resource count exceeds the organization package limits.
     """
 
     def __init__(self, organization_id: int | None = None) -> None:
@@ -73,7 +114,19 @@ class OrganizationPackageLimitValidator(OrganizationValidator):
 
 class OrganizationResourceQuerysetMutator:
     """
-    This class is used to filter the queryset based on the organization_id.
+    This class is used to mutate the queryset based on the user's superuser status.
+
+    If the user is a superuser, the queryset is returned as is.
+
+    If the user is not a superuser, the queryset is filtered based on the organization_id and the resource's is_public status.
+
+    :Attributes:
+    - `organization_id` (int): The organization id.
+    - `queryset` (QuerySet): The queryset to be mutated.
+    - `is_public` (bool): True if the resource is public, False otherwise.
+
+    :Methods:
+    - `get_queryset()`: Returns the mutated queryset.
     """
 
     def __init__(self, organization_id: int | None = None, queryset=None, is_public=False) -> None:

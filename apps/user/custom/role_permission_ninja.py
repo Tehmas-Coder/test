@@ -9,6 +9,19 @@ from utils.rna_utils import make_error_response
 
 
 class RolePermissionNinja:
+    """
+    A class to handle role permissions for users in an organization.
+
+    - Attributes:
+        data_dict : dict
+            A dictionary containing request data.
+    - Methods:
+        update_role_permissions():
+            Updates the role permissions based on the provided request data.
+        delete_role_with_its_permissions():
+            Deletes a role and its associated permissions.
+    """
+
     def __init__(self, request_data: dict) -> None:
         self.data_dict = request_data
 
@@ -17,6 +30,19 @@ class RolePermissionNinja:
     # ---------------------------------------------------------------------------- #
 
     def update_role_permissions(self):
+        """
+        Updates the role permissions based on the provided request data.
+
+        - Retrieves the current user's organization ID.
+        - Slugifies the requested role name with the organization ID.
+        - Fetches the role instance based on the slug.
+        - If default QB permissions are provided:
+            - Deactivates all permissions for the existing role if it exists.
+            - Creates a new role if it doesn't exist.
+            - Activates new role permissions.
+        - If no default QB permissions are provided:
+            - Activates existing role permissions.
+        """
         requested_user_organization_id = get_current_user_organization()
         requested_role_name = self.data_dict["RoleName"]
         requested_role_name_slug = slugify(f"{requested_user_organization_id}-{requested_role_name}")

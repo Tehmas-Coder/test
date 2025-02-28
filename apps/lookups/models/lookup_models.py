@@ -13,6 +13,15 @@ def upload_to(instance, filename):
 
 
 class Timezone(BaseUserModel):
+    """
+    Represents a timezone.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -22,6 +31,16 @@ class Timezone(BaseUserModel):
 
 
 class Region(BaseUserModel):
+    """
+    Represents a region.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    - countries: Country (M2M)
+    """
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -51,6 +70,26 @@ class Region(BaseUserModel):
 
 
 class Country(BaseUserModel):
+    """
+    Represents a country.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - iso2_code: CharField
+    - iso3_code: CharField
+    - abbreviation: CharField
+    - lat: FloatField
+    - lon: FloatField
+    - dial_code: CharField
+    - capital: CharField
+    - flag: ImageField
+    - flag_svg: TextField
+    - is_un_member: BooleanField
+    - timezones: Timezone (M2M)
+    - currencies: Currency (M2M)
+    - languages: Language (M2M)
+    """
+
     name = models.CharField(max_length=255)
     iso2_code = models.CharField(max_length=2)
     iso3_code = models.CharField(max_length=3)
@@ -64,18 +103,12 @@ class Country(BaseUserModel):
 
     is_un_member = models.BooleanField(default=False)
 
-    timezones = models.ManyToManyField("lookups.Timezone", related_name="countries")
-    currencies = models.ManyToManyField("lookups.Currency", related_name="countries")
-    languages = models.ManyToManyField("lookups.Language", related_name="countries")
+    timezones = models.ManyToManyField("lookups.Timezone")
+    currencies = models.ManyToManyField("lookups.Currency")
+    languages = models.ManyToManyField("lookups.Language")
 
     class Meta:
         app_label = "lookups"
-
-    def get_regions(self):
-        return self.regions.all()  # type: ignore
-
-    def add_region(self, region):
-        self.regions.add(region)  # type: ignore
 
     def get_languages(self):
         return self.languages.all()
@@ -111,6 +144,16 @@ class Country(BaseUserModel):
 
 
 class State(BaseUserModel):
+    """
+    Represents a state.
+
+    - id: Autofield (PK)
+    - country: Country (FK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     country = models.ForeignKey("lookups.Country", related_name="states", on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255)
@@ -125,6 +168,17 @@ class State(BaseUserModel):
 
 
 class City(BaseUserModel):
+    """
+    Represents a city.
+
+    - id: Autofield (PK)
+    - state: State (FK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    - is_capital: BooleanField
+    """
+
     state = models.ForeignKey("lookups.State", related_name="cities", on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255)
@@ -141,6 +195,15 @@ class City(BaseUserModel):
 
 
 class Language(BaseUserModel):
+    """
+    Represents a language.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255, unique=True)
     abbreviation = models.CharField(max_length=10)
@@ -153,6 +216,16 @@ class Language(BaseUserModel):
 
 
 class Currency(BaseUserModel):
+    """
+    Represents a currency.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    - symbol: CharField
+    """
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -163,6 +236,15 @@ class Currency(BaseUserModel):
 
 
 class MeasuringUnit(BaseUserModel):
+    """
+    Represents a measuring unit.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -172,6 +254,15 @@ class MeasuringUnit(BaseUserModel):
 
 
 class MediaType(BaseUserModel):
+    """
+    Represents a media type.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - code: CharField
+    - abbreviation: CharField
+    """
+
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     abbreviation = models.CharField(max_length=255)
@@ -181,6 +272,19 @@ class MediaType(BaseUserModel):
 
 
 class Package(BaseUserModel):
+    """
+    Represents a package.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - abbreviation: CharField
+    - users: PositiveIntegerField
+    - questions: PositiveIntegerField
+    - exams: PositiveIntegerField
+    - prep_exams: PositiveIntegerField
+    - exam_attempts: PositiveIntegerField
+    """
+
     name = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=255, null=True, blank=True)
     users = models.PositiveIntegerField()
@@ -194,6 +298,18 @@ class Package(BaseUserModel):
 
 
 class Organization(BaseUserModel):
+    """
+    Represents an organization.
+
+    - id: Autofield (PK)
+    - country: Country (FK)
+    - logo: ImageField
+    - name: CharField
+    - url: URLField
+    - encryption_key: CharField
+    - token: CharField
+    """
+
     country = models.ForeignKey("lookups.Country", on_delete=models.CASCADE, null=True, blank=True)
     logo = models.ImageField(upload_to=upload_to, null=True, blank=True)
 

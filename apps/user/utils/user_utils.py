@@ -11,15 +11,26 @@ from utils.rna_utils import make_error_response, remove_extra_underscore_from_ke
 _user_organization = local()
 
 
-def get_user_role_detail(user_id: int):
-    return remove_extra_underscore_from_key_names(list(UserRole.objects.filter(user_id=user_id).annotate(role_name=F("role__name")).values()))[0]
-
-
 def get_roles_names(role_ids: list[int]) -> list[str]:
+    """
+    Retrieve the role names based on the role IDs.
+
+    Args:
+        role_ids (list[int]): A list of role IDs.
+
+    Returns:
+        list[str]: A list of role names
+    """
     return list(Role.objects.filter(id__in=role_ids).values_list("slug", flat=True))
 
 
 def get_current_user_organization():
+    """
+    Retrieve the organization of the current user.
+
+    Returns:
+        int: The organization ID of the current user.
+    """
     current_user = get_current_user()
     if isinstance(current_user, AnonymousUser):
         current_user = None

@@ -8,10 +8,20 @@ from apps.questionbank.models.question_models import (
 )
 from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
-from utils.rna_utils import debug_print
 
 
 class QuestionClone:
+    """
+    A class used to clone questions along with their related entities.
+
+    :Methods:
+    - `clone_question(original_question)`: Clone the provided question.
+
+    :Example:
+    >>> question = Question.objects.get(pk=1)
+    >>> cloned_question = QuestionClone().clone_question(question)
+    """
+
     def init(self):
         pass
 
@@ -92,7 +102,9 @@ class QuestionClone:
 
     def _clone_choice_media(self, original_choices, cloned_choices):
         for original_choice, cloned_choice in zip(original_choices, cloned_choices):
-            cloned_choice.medias.set(original_choice.medias.all())
+            original_choice_medias = original_choice.questionchoicemedia_set.all()
+            medias_in_original_choice_medias = [choice_media.media for choice_media in original_choice_medias]
+            cloned_choice.medias.set(medias_in_original_choice_medias)
 
     def _clone_retry_hints(self, original_question, cloned_question):
         retry_hints = original_question.retry_hints.all()
@@ -111,7 +123,9 @@ class QuestionClone:
 
     def _clone_retry_hint_media(self, original_retry_hints, cloned_retry_hints):
         for original_retry_hint, cloned_retry_hint in zip(original_retry_hints, cloned_retry_hints):
-            cloned_retry_hint.medias.set(original_retry_hint.medias.all())
+            original_retry_hint_medias = original_retry_hint.questionretryhintmedia_set.all()
+            medias_in_original_retry_hint_medias = [retry_hint_media.media for retry_hint_media in original_retry_hint_medias]
+            cloned_retry_hint.medias.set(medias_in_original_retry_hint_medias)
 
     def _clone_tags(self, original_question, cloned_question):
         tags = original_question.tags.all()
@@ -125,12 +139,12 @@ class QuestionClone:
         QuestionTag.objects.bulk_create(cloned_tags)
 
     def _clone_medias(self, original_question, cloned_question):
-        medias = original_question.medias.all()
+        question_medias = original_question.questionmedia_set.all()
         cloned_medias = [
             QuestionMedia(
                 question=cloned_question,
-                media=media,
+                media=question_media.media,
             )
-            for media in medias
+            for question_media in question_medias
         ]
         QuestionMedia.objects.bulk_create(cloned_medias)

@@ -4,13 +4,21 @@ from cryptography.fernet import Fernet
 from decouple import config
 
 from apps.user.models.user_models import BaseUser
+from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.response_middleware import ResponseMiddleware
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_random_password, make_error_response
 
 
 class VerificationEmailNinja:
+    """
+    VerificationEmailNinja class handles the verification and resending of verification emails for a user.
+
+    :Methods:
+    - `verify(token)`: Verifies the user based on the provided token.
+    - `resend(email)`: Resends the verification email to the user.
+    """
+
     def __init__(self) -> None:
         pass
 
@@ -18,7 +26,7 @@ class VerificationEmailNinja:
     #                                PUBLIC METHODS                                #
     # ---------------------------------------------------------------------------- #
 
-    def send(self, token):
+    def verify(self, token):
         user_data = self.__decrypt_token_data(token)
         token_email = user_data["email"]
         user_instance: BaseUser = self.__get_user_instance(token_email)  # type: ignore
@@ -58,6 +66,12 @@ class VerificationEmailNinja:
             ResponseMiddleware.return_now(make_error_response(message="Invalid link"))
 
     def __send_verification_email(self, user_instance: BaseUser):
+        """
+        Sends the verification email to the user.
+
+        Args:
+            user_instance (BaseUser): The user instance.
+        """
         new_password = generate_random_password()
         user_instance.set_password(new_password)
         user_instance.save()

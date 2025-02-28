@@ -8,6 +8,23 @@ from middlewares.response_middleware import ResponseMiddleware
 
 
 class SystemUserNinja:
+    """
+    SystemUserNinja class handles the
+    creation of system users in the organization.
+
+    :Attributes:
+    - `logged_in_user_organization` (int): The organization ID of the logged-in user.
+    - `data_dict` (dict): The dictionary containing the system user data.
+    - `roles` (QuerySet): The roles retrieved based on the data.
+    - `role_slug_id_hashmap` (dict): The role slug to role ID hashmap.
+    - `existing_users_email_and_instance_hashmap` (dict): The email to user instance hashmap.
+    - `existing_organization_users_email_and_instance_hashmap` (dict): The email to organization user instance hashmap.
+    - `unentertained_emails` (list): The list of unentertained emails.
+
+    :Methods:
+    - `create_system_user()`: Creates system users based on the provided data.
+    """
+
     def __init__(self, request_data):
         self.logged_in_user_organization = get_current_user_organization()
         self.data_dict: dict = request_data
@@ -24,6 +41,9 @@ class SystemUserNinja:
         return self.unentertained_emails
 
     def __collect_roles(self):
+        """
+        Collects the roles based on the provided data and constructs a role_slug to role_id hashmap.
+        """
         role_slugs = [f"{self.logged_in_user_organization}-{one_dict['Slug']}" for one_dict in self.data_dict]
         slugs_to_role_name_hashmap = {f"{self.logged_in_user_organization}-{one_dict['Slug']}": one_dict["RoleName"] for one_dict in self.data_dict}
 
@@ -51,6 +71,17 @@ class SystemUserNinja:
         self.existing_organization_users_email_and_instance_hashmap = {org_user.user.email: org_user for org_user in organization_users}
 
     def __process_system_users(self):
+        """
+        Processes system users by iterating through the data dictionary and performing the following actions:
+        - Constructs a role_slug and retrieves the corresponding role_id.
+        - Checks if the user should be deleted.
+        - Checks if the user already exists in the system and organization.
+        - Creates a new system user if the user does not exist.
+        - Deletes the user role if marked for deletion.
+        - Creates or updates the user role if not marked for deletion.
+        - Creates an organization user if the user does not exist in the organization.
+        This function updates the user roles and organization users based on the provided data.
+        """
         for one_user in self.data_dict:
             role_slug = f"{self.logged_in_user_organization}-{one_user['Slug']}"
             role_id = self.role_slug_id_hashmap[role_slug]

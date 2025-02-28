@@ -11,26 +11,41 @@ from apps.user.helpers.queryset_functions import (
     get_user_detailed_queryset,
 )
 from core.models import BaseModel, BaseUserModel
+from helpers.email_notifications import EmailNotification
 from middlewares.response_middleware import ResponseMiddleware
 from utils.datetime_utils import (
     convert_any_datetime_to_utc,
     get_current_utc_datetime,
     get_current_utc_datetime_timestamp,
 )
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import generate_otp, make_error_response
 
 
 def upload_to(instance, filename):
+    """
+    Generate a file path for uploaded media.
+    """
     folder_name = instance.__class__.__name__.lower()
     timestamp = get_current_utc_datetime_timestamp()
     return f"{folder_name}/{timestamp}_{filename}"
 
 
 class Media(BaseModel):
+    """
+    Model to store any type of media in the system.
+
+    - id: Autofield (PK)
+    - type: MediaType (FK)
+    - name: CharField
+    - file: FileField
+    - extension: CharField
+    - size: IntegerField
+    """
+
+    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
+
     name = models.CharField(max_length=100)
     file = models.FileField(upload_to=upload_to)
-    type = models.ForeignKey("lookups.MediaType", on_delete=models.CASCADE)
     extension = models.CharField(max_length=10, blank=True)
     size = models.IntegerField(default=0)
 
@@ -40,19 +55,31 @@ class Media(BaseModel):
 
 class CustomUserManager(UserManager):
     """
-    Custom user manager where email is the unique identifier, inherited from UserManager provided by auth
+    - Custom user manager where email is the unique identifier, inherited from UserManager provided by auth
+    - Filters out users with meta_status as 'active'
     """
 
-    def create_superuser(
-        self,
-        email: str,
-        password: str | None,
-        **extra_fields: Any,
-    ) -> Any:
+    def create_superuser(self, email: str, password: str | None, **extra_fields: Any) -> Any:
+        """
+        Create and return a superuser with the given email and password.
+
+        Args:
+            email (str): The email address of the superuser.
+            password (str | None): The password for the superuser. Can be None.
+            **extra_fields (Any): Additional fields for the superuser.
+
+        Returns:
+            Any: The created superuser instance.
+        """
+
         username = email
         return super().create_superuser(username, email, password, **extra_fields)
 
     def get_queryset(self):
+        """
+        - Filters out users with meta_status as 'active'.
+        - Returns the queryset of the model.
+        """
         qs = super().get_queryset().filter(meta_status="active")
         return qs
 
@@ -60,6 +87,30 @@ class CustomUserManager(UserManager):
 class BaseUser(BaseUserModel, AbstractUser):
     """
     Custom user model where email is the unique identifier, inherited from abstract user provided by auth
+
+    - id: Autofield (PK)
+    - country: Country (FK)
+    - profile_picture: Media (FK)
+    - username: CharField
+    - email: EmailField
+    - first_name: CharField
+    - last_name: CharField
+    - password: CharField
+    - phone: CharField
+    - date_of_birth: DateField
+    - otp: CharField
+    - otp_expiry: DateTimeField
+    - date_joined: DateTimeField
+    - last_login: DateTimeField
+    - creation_context: CharField
+        Choices
+            - "self"
+            - "facebook"
+            - "google"
+            - "public_exam"
+    - is_verified: BooleanField
+    - is_superuser: BooleanField
+    - roles: Role (M2M)
     """
 
     country = models.ForeignKey("lookups.Country", on_delete=models.SET_NULL, null=True, blank=True)
@@ -106,23 +157,31 @@ class BaseUser(BaseUserModel, AbstractUser):
 
     @property
     def is_otp_expired(self):
+        """
+        - Checks if the OTP is expired based on the expiry date.
+        - Returns True if the OTP is expired, False otherwise.
+        """
         if self.otp_expiry:
             return convert_any_datetime_to_utc(self.otp_expiry) < get_current_utc_datetime()
         return True
 
     @property
     def age(self):
+        """
+        - Calculates the age of the user based on the date of birth.
+        - Returns the age of the user.
+        """
         if self.date_of_birth:
             today = date.today()
             return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
         return None
 
     @property
-    def get_user_role_slugs(self):
+    def get_user_role_slugs(self) -> list[str]:
         return list(self.roles.values_list("slug", flat=True))
 
     @classmethod
-    def get_user_by_email(cls, email: str):
+    def get_user_by_email(cls, email: str) -> Any:
         return cls.objects.filter(email=email).first()
 
     @classmethod
@@ -130,6 +189,11 @@ class BaseUser(BaseUserModel, AbstractUser):
         return get_user_detailed_queryset(cls, country, roles, role_permissions, role_permissions_permission, user_candidates)
 
     def verify_otp(self, otp: str) -> bool:
+        """
+        - Verifies the OTP provided by the user.
+        - If the OTP is correct and not expired, marks the user as verified.
+        - Returns True if the OTP is verified, False otherwise.
+        """
         if self.is_otp_expired:
             return False
         if self.otp != otp:
@@ -140,6 +204,11 @@ class BaseUser(BaseUserModel, AbstractUser):
         return True
 
     def send_otp(self, otp: str | None = None) -> bool:
+        """
+        - Sends an OTP to the user's email for verification.
+        - If OTP is not provided, generates a new OTP.
+        - Returns True if the OTP is sent successfully, False otherwise.
+        """
         if self.is_verified:
             return False
         if not otp:
@@ -170,6 +239,14 @@ class BaseUser(BaseUserModel, AbstractUser):
 #                                  PERMISSIONS                                 #
 # ---------------------------------------------------------------------------- #
 class Permission(BaseModel):
+    """
+    Represents a permission that can be assigned to roles.
+
+    - id: Autofield (PK)
+    - name: CharField
+    - context_value: CharField
+    """
+
     name = models.CharField(max_length=255)
     context_value = models.CharField(max_length=255)
 
@@ -178,6 +255,17 @@ class Permission(BaseModel):
 
 
 class Role(BaseModel):
+    """
+    Represents a role that can be assigned to users.
+
+    - id: Autofield (PK)
+    - organization: Organization (FK)
+    - name: CharField
+    - slug: SlugField
+    - is_system_role: BooleanField
+    - permissions: Permission (M2M)
+    """
+
     organization = models.ForeignKey("lookups.Organization", on_delete=models.PROTECT, null=True, blank=True, related_name="organization_roles")
 
     name = models.CharField(max_length=255)
@@ -188,6 +276,10 @@ class Role(BaseModel):
     permissions = models.ManyToManyField(Permission, blank=True, through="RolePermission")
 
     def save(self, *args, **kwargs):
+        """
+        - Generates a slug for the role if it does not exist.
+        - Raises an error if a role with the same name already exists in the database.
+        """
         if not self.pk:
             self.slug = slugify(f"{self.organization_id}-{self.name}" if self.organization else slugify(self.name))  # type: ignore
         try:
@@ -204,6 +296,16 @@ class Role(BaseModel):
 
 
 class Resource(BaseModel):
+    """
+    Represents a resource that can be accessed by users based on permissions.
+
+    - id: Autofield (PK)
+    - permission: Permission (FK)
+    - name: CharField
+    - regex: CharField
+    - method: CharField
+    """
+
     permission = models.ForeignKey(Permission, on_delete=models.PROTECT, null=True, blank=True, related_name="permission_resources")
 
     name = models.CharField(max_length=255)
@@ -220,6 +322,15 @@ class Resource(BaseModel):
 
 
 class RolePermission(BaseModel):
+    """
+    Represents a mapping between roles and permissions.
+
+    - id: Autofield (PK)
+    - role: Role (FK)
+    - permission: Permission (FK)
+    - is_active: BooleanField
+    """
+
     role = models.ForeignKey(Role, on_delete=models.PROTECT, related_name="role_permissions")
     permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
 
@@ -231,6 +342,14 @@ class RolePermission(BaseModel):
 
 
 class UserRole(BaseModel):
+    """
+    Represents a mapping between users and roles.
+
+    - id: Autofield (PK)
+    - user: BaseUser (FK)
+    - role: Role (FK)
+    """
+
     user = models.ForeignKey(BaseUser, on_delete=models.PROTECT)
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
 

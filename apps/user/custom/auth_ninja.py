@@ -22,6 +22,22 @@ from utils.rna_utils import debug_print, generate_random_password, make_error_re
 
 
 class AuthNinja:
+    """
+    AuthNinja class to handle the authentication and registration of users
+
+    :Attributes:
+    - `exam_token`: str: Exam token to decrypt
+    - `request_data`: dict: Request data
+
+    :Methods:
+    - `register()`: Register the user based on the request data
+    - `exam_token_handler(request)`: Handle the exam token and return the response data
+
+    :Static Methods:
+    - `create_candidate_with_exam_token`: Create candidate with exam token and return candidate exam instance
+    - `decrypt_exam_token`: Decrypt the exam token
+    """
+
     def __init__(self, exam_token, request_data) -> None:
         self.exam_token = exam_token
         self.request_data = request_data
@@ -35,6 +51,19 @@ class AuthNinja:
         return response_data
 
     def exam_token_handler(self, request):
+        """
+        Handles the exam token and determines the appropriate response based on the token's data.
+
+        This method decrypts the provided exam token and retrieves the associated user. Depending on the
+        token's properties and the request data, it either handles a public exam token, directs the user
+        to login/register, or processes an authenticated user's exam.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing the request data.
+
+        Returns:
+            dict: A dictionary containing the response data, including the route and candidate exam data if applicable.
+        """
         self.response_data = {}
         decrypted_data = AuthNinja.decrypt_exam_token(self.exam_token)
         self.user = BaseUser.objects.filter(email=decrypted_data["email"]).first()
@@ -67,6 +96,20 @@ class AuthNinja:
             ResponseMiddleware.return_now(make_error_response(message=f"{str(e)}"))
 
     def __register_candidate(self):
+        """
+        Registers a new candidate user.
+
+        This method performs the following steps:
+        - Validates the user data using the UserSerializer.
+        - Checks if the email already exists and handles existing users created in the "public_exam" context.
+        - Saves the new user instance if validation passes.
+        - Assigns the "Candidate" role to the user.
+        - Creates a Candidate instance associated with the user.
+        - Sends an OTP to the newly registered user.
+
+        Returns:
+            dict: Serialized data of the newly registered user.
+        """
         serializer = UserSerializer(data=self.request_data, context={"mutator": False})
         if not serializer.is_valid():
             if "email" not in serializer.errors:
@@ -106,6 +149,26 @@ class AuthNinja:
         return UserSerializer(user_instance).data
 
     def __public_exam_token_handler(self, request, decrypted_data):
+        """
+        Handles the public exam token for a user.
+
+        This method performs the following steps:
+        - Checks if the user is authenticated. If not, it fetches user data from the request.
+        - If any required user data is missing, it returns a route to get the details.
+        - Creates a new user with the provided email and user data, sets a random password, assigns the "Candidate" role, and saves the user.
+        - Creates a candidate exam instance using the provided decrypted data.
+        - Serializes the candidate exam data.
+        - Logs in the user.
+        - Generates and adds refresh and access tokens to the response data.
+        - Sets the response route to "exam" and includes the candidate exam data.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+            decrypted_data (dict): The decrypted data containing user and exam information.
+
+        Returns:
+            None
+        """
         if not self.user:
             user_creation_required_data = self.__fetch_user_data_from_request()
             # * If any of the required data is missing, return the route to get the details
@@ -145,10 +208,18 @@ class AuthNinja:
     @staticmethod
     def create_candidate_with_exam_token(user_instance, decrypted_data):
         """
-        Create candidate with exam token and return candidate exam instance
-        :param user_instance: User instance
-        :param decrypted_data: Decrypted data
-        :return: Candidate exam instance
+        Associates the user with a candidate instance and updates the candidate exam.
+
+        This method checks if the user is already registered as a candidate. If not, it creates a candidate instance
+        for the user with the organization provided in the decrypted data. It then updates the candidate exam with
+        the candidate instance.
+
+        Args:
+            user_instance (BaseUser): The user instance to associate with the candidate.
+            decrypted_data (dict): The decrypted data from the exam token.
+
+        Returns:
+            CandidateExam (CandidateExam): The candidate exam instance associated with the user.
         """
         organization_id = decrypted_data["organization_id"]
         candidate_exam_id = decrypted_data["candidate_exam_id"]
@@ -159,6 +230,18 @@ class AuthNinja:
 
     @staticmethod
     def decrypt_exam_token(token):
+        """
+        Decrypts the provided exam token.
+
+        This method decrypts the provided token using the encryption key and returns the decrypted data.
+        If the token is invalid or expired, it returns an error response.
+
+        Args:
+            token (str): The encrypted exam token.
+
+        Returns:
+            dict: The decrypted data from the token.
+        """
         key = get_encryption_key()
         cipher = Fernet(key)
         try:

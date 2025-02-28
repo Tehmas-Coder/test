@@ -40,10 +40,10 @@ from apps.organization.models.organization_models import OrganizationUser
 from apps.questionbank.serializers.media_serializers import MediaBulkCreateSerializer
 from apps.user.models.user_models import BaseUser, Role, UserRole
 from apps.user.utils.user_utils import get_current_user_organization
+from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
-from utils.email_notifications import EmailNotification
 from utils.rna_utils import (
     decrypt_message,
     encrypt_message,
@@ -53,37 +53,24 @@ from utils.rna_utils import (
 
 
 class CandidateExamNinja:
+    """
+    This class is used to perform operations on the Candidate Exam model.
+
+    :Methods:
+    - `get_candidate_exam(candidate_exam_id)`: Get the candidate exam.
+    - `send_exam_invitation_link(candidate_exam_ids)`: Send the exam invitation link to the candidates.
+    - `get_candidate_exam_tokens(candidate_exam_ids)`: Get the candidate exam tokens.
+    - `get_retry_hint_for_candidate_exam(question_backlog_id, candidate_exam_id)`: Get the retry hint for the candidate exam.
+    - `submit_candidate_exam(candidate_exam_id)`: Submit the candidate exam.
+    - `attempt_candidate_exam(request_data)`: Attempt the candidate exam.
+    - `assign_examiners_to_exam_backlog(exam_backlog_id, examiners_details_list)`: Assign examiners to the exam backlog.
+    - `save_candidate_exam_answers(candidate_exam_id, request_data, request)`: Save the candidate exam answers.
+    """
 
     def __init__(self) -> None:
         pass
 
     def get_candidate_exam(self, candidate_exam_id):
-        logged_in_user_id = get_current_user().id  # type:ignore
-
-        # TODO: Remove this token logic after new exam attempt flow have been added by the front-end and remove the permission access from candidate to get the exam
-        try:
-            candidate_exam_id = int(candidate_exam_id)
-        except:
-            try:
-                token = candidate_exam_id[len("token=") :]
-                key = get_encryption_key()
-                cipher = Fernet(key)
-                decrypted_data = json.loads(cipher.decrypt(token).decode())
-                candidate_exam_id = decrypted_data["candidate_exam_id"]
-            except:
-                ResponseMiddleware.return_now(make_error_response(message="Invalid token"))
-
-        # * IF ROLES ARE ( Organization Roles and Candidate )
-        logged_in_user_roles = get_current_user().get_user_role_slugs  # type:ignore
-        if len(logged_in_user_roles):
-            if "candidate" in logged_in_user_roles:
-                candidate_exam_filter_data = {
-                    "id": candidate_exam_id,
-                    "candidate__user__id": logged_in_user_id,
-                }
-
-                if not CandidateExam.objects.filter(**candidate_exam_filter_data).exists():
-                    ResponseMiddleware.return_now(make_error_response(message="Exam not allowed to this candidate"))
         return get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id)
 
     def send_exam_invitation_link(self, candidate_exam_ids: list):
@@ -246,12 +233,6 @@ class CandidateExamNinja:
         exam_backlog_question_choices_id_title_hashmap = {one_dict["id"]: one_dict["title"] for one_dict in exam_backlog_question_choices_instances}
         self.__create_candidate_exam_answers(candidate_exam_id, request_data, exam_backlog_question_choices_id_title_hashmap)
 
-        # TODO: Remove this block of code after the attempt candidate exam API is fully implemented at front-end
-        CandidateExam.objects.filter(id=candidate_exam_id).update(exam_status="attempted")
-        candidate_exam_instance = CandidateExam.objects.filter(id=candidate_exam_id).first()
-        if candidate_exam_instance.candidate.organization and candidate_exam_instance.candidate.organization.token:  # type: ignore
-            send_exam_status_to_student_apply_webhook(candidate_exam_instance)
-
         newly_created_instances_queryset = list(
             CandidateExamAnswer.objects.all().values_list("id", "exam_backlog_question_id").order_by("-created_at")[: len(request_data)]
         )
@@ -290,6 +271,9 @@ class CandidateExamNinja:
         - This function scores objective type questions answers if the choice is correct then answer is also marked as correct and scored as positive,
         - If the choice is incorrect and weight is 0 then answer is marked as 0 and if the weight is negative then marked as negative score
         - At the end if user took any retry hints while solving then it minus the sum of penalty scores from the obtained score
+
+        Args:
+            candidate_exam_id (int): The candidate exam id
         """
 
         candidate_exam_answers_queryset = (
@@ -334,6 +318,10 @@ class CandidateExamNinja:
     def __mark_unattempted_questions(self, candidate_exam_id: int, user_backlog_all_question_ids_list: list = []) -> None:
         """
         - This function creates Candidate Exam Answer transactions for unattempted questions with score set to 0
+
+        Args:
+            candidate_exam_id (int): The candidate exam id
+            user_backlog_all_question_ids_list (list): The list of all question
         """
         if not len(user_backlog_all_question_ids_list):
             user_backlog_all_question_ids_list = get_detailed_candidate_exam_with_country_based_questions(
@@ -366,6 +354,10 @@ class CandidateExamNinja:
     ) -> None:
         """
         - This function creates Candidate Exam Section Score and Candidate Exam Subsection Score instances
+
+        Args:
+            candidate_exam_id (int): The candidate exam id
+            user_backlog_all_question_ids_list (list): The list of all question ids
         """
         if not len(user_backlog_all_question_ids_list):
             user_backlog_all_question_ids_list = get_detailed_candidate_exam_with_country_based_questions(
@@ -417,6 +409,12 @@ class CandidateExamNinja:
     def __section_with_section_details_hashmap_creation(self, candidate_exam_questions_with_sections_and_subsections) -> dict:
         """
         - This function creates a hashmap of section with section details
+
+        Args:
+            candidate_exam_questions_with_sections_and_subsections (QuerySet): The candidate exam questions with sections queryset
+
+        Returns:
+            dict: The section with section details hashmap
         """
         section_backlog_questions_details_hashmap = {}
         for one_candidate_exam_questions_with_section in candidate_exam_questions_with_sections_and_subsections:
@@ -441,6 +439,13 @@ class CandidateExamNinja:
     ) -> dict:
         """
         - This function creates a hashmap of subsection with subsection details
+
+        Args:
+            section_backlog_questions_details_hashmap (dict): The section with section details hashmap
+            candidate_exam_questions_with_subsections (QuerySet): The candidate exam questions with subsections queryset
+
+        Returns:
+            dict: The subsection with subsection details hashmap
         """
         subsection_backlog_questions_details_hashmap = {}
         for one_candidate_exam_questions_with_subsection in candidate_exam_questions_with_subsections:
@@ -471,6 +476,13 @@ class CandidateExamNinja:
     def __set_response_data_for_attempt_candidate_exam_when_key_not_present(self, request_data: dict, response_data: dict) -> dict:
         """
         - This function sets the response data for attempt candidate exam when key is not present in request data
+
+        Args:
+            request_data (dict): The request data
+            response_data (dict): The response data
+
+        Returns:
+            dict: The response data
         """
         candidate_exam_id = request_data.get("candidate_exam_id")
         if not candidate_exam_id:
@@ -480,7 +492,6 @@ class CandidateExamNinja:
         if not candidate_exam_instance:
             ResponseMiddleware.return_now(make_error_response(message="Candidate Exam not found"))
 
-        # TODO: Make this API atomic after the exam expiration logic is fixed and does not rollback the transaction on return_now
         if candidate_exam_instance.is_expired():  # type:ignore
             ResponseMiddleware.return_now(make_error_response(message="Exam has expired"))
 
@@ -513,6 +524,9 @@ class CandidateExamNinja:
     def __get_candidate_exam_all_questions(self) -> list:
         """
         - This function gets all the questions from the candidate exam data
+
+        Returns:
+            list: The list of all questions
         """
         all_questions = self.candidate_exam_data["exam_backlog"].pop("questions")  # type:ignore
         sections = self.candidate_exam_data["exam_backlog"].pop("sections")  # type:ignore
@@ -528,6 +542,13 @@ class CandidateExamNinja:
     def __set_response_data_for_attempt_candidate_exam_when_key_present(self, request_data: dict, response_data: dict) -> dict:
         """
         - This function sets the response data for attempt candidate exam when key is present in request data it response with the next question in the exam sequence
+
+        Args:
+            request_data (dict): The request data
+            response_data (dict): The response data
+
+        Returns:
+            dict: The response data
         """
         encrypted_data = request_data.get("key")
         decrypted_data = json.loads(decrypt_message(encrypted_data, get_encryption_key()))  # type:ignore
@@ -585,6 +606,13 @@ class CandidateExamNinja:
         """
         - This function extracts the media for answers
         - It also collects the exam_backlog_question_choices_ids to avoid another loop on request data to collect those
+
+        Args:
+            request_data (dict): The request data
+            request (Request): The request object
+
+        Returns:
+            dict: The answer media hashmap
         """
         answer_media_hashmap = {}
         for answer in request_data:
@@ -609,6 +637,11 @@ class CandidateExamNinja:
     ) -> None:
         """
         - This function creates the candidate exam answers
+
+        Args:
+            candidate_exam_id (int): The candidate exam id
+            request_data (dict): The request data
+            exam_backlog_question_choices_id_title_hashmap (dict): The exam_backlog_question_choices_id_title_hashmap
         """
         CandidateExamAnswer.objects.bulk_create(
             [

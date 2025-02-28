@@ -13,11 +13,27 @@ from apps.exam_admin.serializers.exam_serializers import ExamSerializer
 from apps.lookups.custom.lookups_classes import OrganizationResourceQuerysetMutator
 from apps.questionbank.models.question_models import Question, QuestionSubject
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import debug_print, make_error_response
+from utils.rna_utils import make_error_response
 
 
 @dataclass
 class RandomExamCreator:
+    """
+    This class is used to create a random exam based on the provided data.
+
+    :Attributes:
+    - `exam_data` (Any): The exam data.
+    - `subject_education_levels` (Any): The subject education levels.
+    - `difficulty_levels` (Any): The difficulty levels.
+    - `question_types` (Any): The question types.
+    - `question_count` (Any): The question count.
+    - `is_candidate` (Any): The is candidate flag.
+    - `organization_id` (Any): The organization id.
+
+    :Methods:
+    - `create_random_exam()`: Creates a random exam based on the provided data.
+    """
+
     exam_data: Any
     subject_education_levels: Any
     difficulty_levels: Any
