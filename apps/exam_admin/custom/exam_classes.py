@@ -1,6 +1,5 @@
 from django.db.models import Model
 
-from apps.exam_admin.serializers.exam_serializers import ExamSerializer
 from apps.lookups.custom.lookups_classes import (
     OrganizationPackageLimitValidator,
     OrganizationValidator,
@@ -41,7 +40,16 @@ class OrganizationPackageExamLimitValidator(OrganizationPackageLimitValidator):
 
 class ExamService:
     """
-    This class is used to create the exam with the given data.
+    This class is used to create an exam based on the provided data.
+
+    :Attributes:
+    - `exam_data` (dict): The exam data.
+    - `visibility_setter` (VisibilitySetter): The visibility setter used to set the visibility of the exam.
+    - `organization_validator` (OrganizationValidator): The organization validator used to validate the organization.
+    - `serializer_class`: The serializer class used to serialize the exam data.
+
+    :Methods:
+    - `create_exam()`: Creates an exam based on the provided exam data.
     """
 
     def __init__(
@@ -58,7 +66,6 @@ class ExamService:
 
     def create_exam(self) -> Model:
         request_data = self.visibility_setter.set_visibility(self.exam_data)
-
         serializer = self.serializer_class(data=request_data, context={"mutator": True})
         serializer.is_valid(raise_exception=True)
 
