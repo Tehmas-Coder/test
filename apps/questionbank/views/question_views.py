@@ -1,5 +1,3 @@
-from urllib import request
-
 from django.db import transaction
 from django.db.models import Q
 from rest_framework import status, viewsets
@@ -83,7 +81,6 @@ from apps.questionbank.serializers.subject_education_level_serializers import (
 )
 from apps.questionbank.serializers.subject_serializers import SubjectSerializer
 from middlewares.current_user_middleware import get_current_user
-from utils.rna_utils import debug_print
 
 
 # ---------------------------------------------------------------------------- #
