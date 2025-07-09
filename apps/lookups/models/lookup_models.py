@@ -128,6 +128,14 @@ class Country(BaseUserModel):
     def add_timezone(self, timezone):
         self.timezones.add(timezone)
 
+    def add_region(self, region):
+        """
+        Adds a region to the country.
+        """
+        if not isinstance(region, Region):
+            raise ValueError("Expected a Region instance.")
+        self.regions.add(region)
+
     @classmethod
     def get_detail_queryset(cls):
         return (
