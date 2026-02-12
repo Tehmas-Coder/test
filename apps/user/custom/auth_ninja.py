@@ -67,7 +67,12 @@ class AuthNinja:
         self.response_data = {}
         decrypted_data = AuthNinja.decrypt_exam_token(self.exam_token)
         self.user = BaseUser.objects.filter(email=decrypted_data["email"]).first()
-        if decrypted_data["is_public"] or decrypted_data.get("is_student_apply_candidate"):
+
+        # has_password_access = self.user and self.user.password is not None and self.user.password != ""
+        allow_soft_login = decrypted_data.get("allow_soft_login", False)
+        is_auto_login = decrypted_data["is_public"] or decrypted_data.get("is_student_apply_candidate") or (self.user and allow_soft_login)
+
+        if is_auto_login:
             self.__public_exam_token_handler(request, decrypted_data)
         else:
             if request.data.get("authentication_completed"):
@@ -79,6 +84,13 @@ class AuthNinja:
                 self.response_data["candidate_exam"] = candidate_exam_data
             else:
                 self.response_data["route"] = "login" if self.user else "register"
+                # if self.user and has_password_access:
+                #     self.response_data["route"] = "login"
+                # elif self.user and not has_password_access:
+                #     self.response_data["route"] = "set-password"
+                # else:
+                #     self.response_data["route"] = "register"
+
         return self.response_data
 
     # ---------------------------------------------------------------------------- #
@@ -156,19 +168,16 @@ class AuthNinja:
         - Checks if the user is authenticated. If not, it fetches user data from the request.
         - If any required user data is missing, it returns a route to get the details.
         - Creates a new user with the provided email and user data, sets a random password, assigns the "Candidate" role, and saves the user.
+        - auto_login_exam_handler(self, request, decrypted_data):
+        Handles automatic login for public exams, student-apply candidates, and soft-login scenarios.
+
+        This method performs the following steps:
+        - If user doesn't exist (public exam case), fetches user data from request and creates a new user.
+        - If any required user data is missing, returns a route to get the details.
         - Creates a candidate exam instance using the provided decrypted data.
-        - Serializes the candidate exam data.
-        - Logs in the user.
-        - Generates and adds refresh and access tokens to the response data.
-        - Sets the response route to "exam" and includes the candidate exam data.
-
-        Args:
-            request (HttpRequest): The HTTP request object.
-            decrypted_data (dict): The decrypted data containing user and exam information.
-
-        Returns:
-            None
+        - Logs in the user and generates JWT tokens
         """
+
         if not self.user:
             user_creation_required_data = self.__fetch_user_data_from_request()
             # * If any of the required data is missing, return the route to get the details
@@ -179,6 +188,7 @@ class AuthNinja:
             role_id = Role.objects.filter(name__icontains="Candidate").values("id").first()
             self.user.roles.add(role_id["id"])  # type:ignore
             self.user.save()
+
         candidate_exam_instance = AuthNinja.create_candidate_with_exam_token(self.user, decrypted_data)
         candidate_exam_data = CandidateExamListSerializer(candidate_exam_instance).data
         login(request, self.user)
@@ -187,6 +197,8 @@ class AuthNinja:
         self.response_data["access"] = str(refresh.access_token)  # type: ignore
         self.response_data["route"] = "exam"
         self.response_data["candidate_exam"] = candidate_exam_data
+        user_serializer = UserSerializer(self.user)
+        self.response_data["user"] = user_serializer.data
 
     def __fetch_user_data_from_request(self) -> dict:
         user_creation_required_data = {

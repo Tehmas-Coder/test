@@ -21,4 +21,9 @@ def send_exam_status_to_student_apply_webhook(candidate_exam_instance):
         },
     }
     webhook_instance = GenericWebhook(data_dict=data)
-    return webhook_instance.send_request(encryption_key, token)
+
+    try:
+        return webhook_instance.send_request(encryption_key, token)
+    except Exception as e:
+        print(f"Error sending exam status webhook: {e}")
+        return False
