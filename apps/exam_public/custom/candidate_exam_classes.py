@@ -44,7 +44,7 @@ from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import debug_print, decrypt_message, encrypt_message, make_error_response, remove_extra_underscore_from_key_names
+from utils.rna_utils import decrypt_message, encrypt_message, make_error_response, remove_extra_underscore_from_key_names
 
 
 class CandidateExamNinja:
@@ -108,12 +108,11 @@ class CandidateExamNinja:
                 "end_datetime": one_candidate_detail.get("end_datetime", "").strftime("%Y-%m-%d %H:%M:%S"),
                 "url": final_url,
             }
-            debug_print(send_email_data_dict)
             email_notification_ninja = EmailNotification(send_email_data_dict)
-            # if not email_notification_ninja.send_exam_link():
-            #     ResponseMiddleware.return_now(
-            #         make_error_response(message=f"Unable to send exam link to user: {one_candidate_detail['candidate_email']}")
-            #     )
+            if not email_notification_ninja.send_exam_link():
+                ResponseMiddleware.return_now(
+                    make_error_response(message=f"Unable to send exam link to user: {one_candidate_detail['candidate_email']}")
+                )
 
     def get_candidate_exam_tokens(self, candidate_exam_ids: list) -> dict:
         candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
