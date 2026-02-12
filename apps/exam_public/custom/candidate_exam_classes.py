@@ -44,12 +44,7 @@ from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import (
-    decrypt_message,
-    encrypt_message,
-    make_error_response,
-    remove_extra_underscore_from_key_names,
-)
+from utils.rna_utils import debug_print, decrypt_message, encrypt_message, make_error_response, remove_extra_underscore_from_key_names
 
 
 class CandidateExamNinja:
@@ -73,7 +68,7 @@ class CandidateExamNinja:
     def get_candidate_exam(self, candidate_exam_id):
         return get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id)
 
-    def send_exam_invitation_link(self, candidate_exam_ids: list):
+    def send_exam_invitation_link(self, candidate_exam_ids: list, allow_soft_login: bool = False) -> None:
         candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
             list(
                 CandidateExam.objects.filter(id__in=candidate_exam_ids)
@@ -95,6 +90,7 @@ class CandidateExamNinja:
                 "candidate_exam_id": candidate_exam_id,
                 "organization_id": one_candidate_detail["organization"],
                 "is_public": one_candidate_detail["is_public"],
+                "allow_soft_login": allow_soft_login,
             }
             encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
 
@@ -112,11 +108,12 @@ class CandidateExamNinja:
                 "end_datetime": one_candidate_detail.get("end_datetime", "").strftime("%Y-%m-%d %H:%M:%S"),
                 "url": final_url,
             }
+            debug_print(send_email_data_dict)
             email_notification_ninja = EmailNotification(send_email_data_dict)
-            if not email_notification_ninja.send_exam_link():
-                ResponseMiddleware.return_now(
-                    make_error_response(message=f"Unable to send exam link to user: {one_candidate_detail['candidate_email']}")
-                )
+            # if not email_notification_ninja.send_exam_link():
+            #     ResponseMiddleware.return_now(
+            #         make_error_response(message=f"Unable to send exam link to user: {one_candidate_detail['candidate_email']}")
+            #     )
 
     def get_candidate_exam_tokens(self, candidate_exam_ids: list) -> dict:
         candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
