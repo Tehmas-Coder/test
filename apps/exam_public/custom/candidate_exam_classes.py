@@ -44,12 +44,7 @@ from helpers.email_notifications import EmailNotification
 from helpers.helper_functions import get_encryption_key
 from middlewares.current_user_middleware import get_current_user
 from middlewares.response_middleware import ResponseMiddleware
-from utils.rna_utils import (
-    decrypt_message,
-    encrypt_message,
-    make_error_response,
-    remove_extra_underscore_from_key_names,
-)
+from utils.rna_utils import decrypt_message, encrypt_message, make_error_response, remove_extra_underscore_from_key_names
 
 
 class CandidateExamNinja:
@@ -73,7 +68,7 @@ class CandidateExamNinja:
     def get_candidate_exam(self, candidate_exam_id):
         return get_detailed_candidate_exam_with_country_based_questions(candidate_exam_id)
 
-    def send_exam_invitation_link(self, candidate_exam_ids: list):
+    def send_exam_invitation_link(self, candidate_exam_ids: list, allow_soft_login: bool = False) -> None:
         candidate_exam_detail_queryset = remove_extra_underscore_from_key_names(
             list(
                 CandidateExam.objects.filter(id__in=candidate_exam_ids)
@@ -95,6 +90,7 @@ class CandidateExamNinja:
                 "candidate_exam_id": candidate_exam_id,
                 "organization_id": one_candidate_detail["organization"],
                 "is_public": one_candidate_detail["is_public"],
+                "allow_soft_login": allow_soft_login,
             }
             encrypted_data = cipher.encrypt(json.dumps(data_to_encrypt).encode())
 

@@ -46,6 +46,7 @@ from apps.user.utils.user_utils import get_current_user_organization
 from middlewares.current_user_middleware import get_current_user
 from utils.datetime_utils import convert_any_datetime_to_utc
 from utils.rna_utils import debug_print, make_error_response
+from apps.user.models.user_models import BaseUser
 
 # ---------------------------------------------------------------------------- #
 #                                   CANDIDATE                                  #
@@ -101,9 +102,12 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data
+
         organization = None if get_current_user().is_superuser else get_current_user_organization()  # type:ignore
         request_data["organization_id"] = organization
         exam_id = request_data.get("exam")
+        allow_soft_login = request_data.get("allow_soft_login", False)
+
         if exam_id:
             request_data.pop("exam")
             exam_instance = Exam.get_detail_queryset(all=True, q_filter=Q(id=exam_id)).first()
@@ -111,6 +115,23 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
             exam_data = ExamDetailSerializerForBacklogs(exam_instance).data
             exam_backlogs = ExamBacklogsNinja(exam_data=exam_data)  # type:ignore
             request_data["exam_backlog"] = exam_backlogs.create_backlogs()
+
+        # * If candidates_data is present, we get or create candidates
+        candidates_data = request_data.pop("candidates_data", None)
+        if candidates_data:
+            for one_candidate_data in candidates_data:
+                candidate_user, created = BaseUser.objects.get_or_create(
+                    email=one_candidate_data.get("Email"),
+                    defaults={
+                        "first_name": one_candidate_data.get("FirstName", ""),
+                        "last_name": one_candidate_data.get("LastName", ""),
+                    },
+                )
+
+                candidate_user, created = Candidate.objects.get_or_create(
+                    user=candidate_user,
+                    organization_id=request_data.get("organization_id"),
+                )
 
         # * Assigning Exam to Candidates
         if request_data.get("start_datetime") and request_data.get("end_datetime"):
@@ -130,8 +151,9 @@ class CandidateExamViewSet(viewsets.ModelViewSet):
 
         # * Sending Exam Invitation Emails
         if request_data.get("is_send_invitation_emails"):
-            CandidateExamNinja().send_exam_invitation_link(candidate_exam_ids)
+            CandidateExamNinja().send_exam_invitation_link(candidate_exam_ids, allow_soft_login=allow_soft_login)
 
+        # raise Exception("Stop here")
         # * Appending Token to Candidate Exam Data if request is from Student Apply
         if request_data.get("append_tokens"):
             candidate_exam_id_token_hashmap = CandidateExamNinja().get_candidate_exam_tokens(candidate_exam_ids)
